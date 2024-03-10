@@ -1,0 +1,75 @@
+---
+description: Detect and respond automatically from anywhere you can make HTTP requests
+---
+
+# Structured Webhooks API
+
+RunReveal supports sending structured webhooks, events that match the format of the `runreveal_logs` table that we save all data to.
+
+The structured webhook sources support `POST` requests and uses this go struct to deserialize the object that's sent. It's likely all of these structs will grow in the future and include new fields. We'll update this page if thats the case.
+
+```
+type Normalized struct {
+	EventName string            `json:"eventName"`
+	EventTime time.Time         `json:"eventTime"`
+	ReadOnly  bool              `json:"readOnly"`
+	Actor     Actor             `json:"actor"`
+	Src       Network           `json:"src"`
+	Dst       Network           `json:"dst,omitempty"`
+	Service   Service           `json:"service,omitempty"`
+	Resources []json.RawMessage `json:"resources,omitempty"`
+	Tags      map[string]string `json:"tags"`
+}
+
+type Actor struct {
+	ID       string `json:"id,omitempty"`
+	Email    string `json:"email,omitempty"`
+	Username string `json:"username,omitempty"`
+}
+
+type Network struct {
+	IP   string `json:"ip,omitempty"`
+	Port uint
+}
+
+type Service struct {
+	Name string `json:"name,omitempty"`
+}
+```
+
+If you'd like to send an example event to your structured webhook source to validate the json format that is sent, you can use this example curl request.
+
+```
+curl https://api.runreveal.com/sources/hook/<WEBHOOKID> -d '{    
+  "eventName":"MyEventName",
+  "eventTime": "2023-11-11T13:47:58+00:00",
+  "readOnly":false,
+  "timestamp": "2023-11-10T13:47:58+00:00",
+  "actor": {
+    "email":"evan@runreveal.com",
+    "id":"1231231231234",
+    "username":"evanrunreveal"
+  },
+  "src": {
+    "ip":"1.2.3.4",
+    "port":80
+  },
+  "dst": {
+    "ip":"1.2.3.4",
+    "port":80
+  },
+  "service":{
+    "name":"foo"
+  },
+  "tags": {
+    "lol":"yeaaaah!",
+    "Who are you":"I am"
+  }
+}'
+
+
+```
+
+## Required Fields
+
+None of the fields in the above object are required. However, `eventTime` will be set to the `receivedAt` time if the `eventTime` field is unset.

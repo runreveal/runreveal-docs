@@ -1,0 +1,41 @@
+---
+description: Send custom text to your notification channels.
+---
+
+# Templates
+
+Templates allow custom text to be sent to a notification channel. RunReveal templates are rendered using handlebar expressions. Handlebar expressions allow properties from the query or trigger to be inserted into the notification text dynamically.
+
+{% hint style="info" %}
+For a deeper understanding of handlebars and a more detailed explanation of the syntax check out their [docs](https://handlebarsjs.com/guide/).
+{% endhint %}
+
+## Template UI
+
+To access templates navigate to the notifications page and scroll to the bottom. From there you will see a list of templates that are saved with your account. There should be one default template for each notification channel. You can add/edit a template or duplicate an existing one to use as a starting point.
+
+### Editing Templates
+
+The edit screen is split into two sections. On the right you have the fields that are needed to create a template. A template name is used to identify the template and must be unique from all of your templates. The other two fields, Message Title and Message Body, are the actual template fields that will be rendered when sending your notification. You can preview the rendered text using the test data loaded on the left panel.
+
+The left panel is used to give you access to the fields that can be added to your template. The drop down shows all saved queries and triggers associated with your account. Selecting one and clicking load will either try to load the data from most recent execution or fill in with test data if needed. The tree view shows the properties that can be added into your template. Clicking on a property will add the path to that field to your clipboard and can be pasted into a handlebar expression. RunReveal offers partial templates that can be used to display certain aspects of your data in an easy to use format. For example we offer the ability to render the results of the scheduled query as an HTML table. The second section of data shows the loaded example data that will be replaced in your template. Scheduled query data will be under the query object and trigger data will be under the trigger object.&#x20;
+
+Templates are used for scheduled queries and triggers, this means that the template will be reused and must be written in a way to handle both cases. The default templates give an example of how this is done. The data passed to the template will either have a `query` object with the results from the scheduled query or a `trigger` object with the results of the trigger that fired. The other object will be blank when rendering the template. This can be used to create conditional sections that display data depending on what is being notified.
+
+```
+{{#if query}}
+This is a query
+Results: {{query.queryResponse.resultCount}}
+{{/if}}
+```
+
+This example template will only render the text inside the if block, if the template is being rendered from a scheduled query execution. Otherwise this block will not render.
+
+## Syntax
+
+Handlebar expressions must be surrounded with `{{` and `}}` any text between these are processed and replaced. expressions starting with a `#` are blocks and must have a matching `/` expression.  A partial is an expression that starts with a `>` and is a template that is injected into the current template. RunReveal offers a few built in partials to help display certain aspects of the data.
+
+## Default Templates
+
+RunReveal provides a default template for each notification type. These templates provide basic information about the data being notified. They can be duplicated and used as a starting point for your own template. Look at the docs for each notification channel for more information about its default template and the data that is sent to it.
+

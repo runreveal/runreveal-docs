@@ -1,0 +1,74 @@
+---
+description: Allow GitHub to send your audit logs to an S3 bucket
+---
+
+# Log Streaming
+
+With Log Streaming, GitHub will forward all Enterprise-level audit logs to an Amazon S3 bucket that will be ingested by RunReveal.
+
+## Setup
+
+There are 3 separate sections required to correctly setup log streaming. Creating an S3 bucket with the necessary permissions required for GitHub to forward events. Adding the necessary permissions and properties to the S3 bucket to allow RunReveal to access and read the events. And creating your RunReveal source to link the bucket to your account.
+
+### Bucket Setup
+
+If you already have GitHub sending your logs to an S3 bucket you can skip this section, otherwise follow the steps provided in the [GitHub documentation](https://docs.github.com/en/enterprise-cloud@latest/admin/monitoring-activity-in-your-enterprise/reviewing-audit-logs-for-your-enterprise/streaming-the-audit-log-for-your-enterprise).
+
+### RunReveal Permissions
+
+In order for RunReveal to ingest your GitHub logs you will need to add an access policy to your S3 bucket.
+
+Attach the following IAM policy to the bucket, ensuring to replace `YOUR_BUCKET_NAME` with the name of the bucket the policy's being attached to.
+
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Allow-RunReveal-Read",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::253602268883:root"
+      },
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::YOUR_BUCKET_NAME/*",
+        "arn:aws:s3:::YOUR_BUCKET_NAME"
+      ]
+    }
+  ]
+}
+```
+
+Then, enable sending notifications to one of RunReveal's regional SNS topics by following along below.
+
+1. Find the bucket containing the logs you wish to send to RunReveal.
+2. From the bucket overview, click the "Properties" tab, then scroll down to "Event Notifications"
+3. Click "Create Event Notification"
+4. Give the configuration a name (for your own identifying purposes, doesn't matter what it is).
+5. Select "All object create events" in the events section (photo below)
+
+<figure><img src="../../../.gitbook/assets/Screenshot 2023-06-15 at 1.14.07 PM.png" alt="" width="375"><figcaption><p>Select All object create events for the S3 Event Notifications</p></figcaption></figure>
+
+6. Then input RunReveal's S3 regional SNS queue ARN (`arn:aws:sns:<s3-bucket-region>:253602268883:runreveal_github`) under the "Destinations" block at the bottom like so.&#x20;
+
+<figure><img src="../../../.gitbook/assets/Github-SNS-Subscription (1).png" alt=""><figcaption></figcaption></figure>
+
+### RunReveal Source Setup
+
+In RunReveal add a new `Github Streaming source.` Give it a descriptive name and add the name of the bucket that you created.
+
+If your bucket already contains GitHub events and you would like these ingested into your RunReveal account, select the backfill option and enter the bucket's AWS region. Once added, RunReveal will traverse the bucket and begin ingesting all of the existing logs. New log notifications will be sent to our SNS topic and will also be ingested.
+
+## Verify Its working
+
+Once added the source logs should begin flowing within a minute.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal_logs WHERE sourceType = 'github-s3' LIMIT 1
+```

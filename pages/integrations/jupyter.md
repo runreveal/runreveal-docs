@@ -1,0 +1,40 @@
+# Jupyter
+
+RunReveal supports Jupyter through an open-source python package we maintain. To install the plugin.
+
+* [https://github.com/runreveal/runrevealpy](https://github.com/runreveal/runrevealpy)
+
+## Getting started
+
+To install and get started using jupyter, you'll need to grab an API key from the RunReveal dashboard. Click "Generate new token" and take note of your API token and your Workspace ID from the same settings page.
+
+<figure><img src="../.gitbook/assets/Screenshot 2023-12-12 at 10.46.23 AM.png" alt=""><figcaption></figcaption></figure>
+
+Next, install the python package.
+
+```
+pip3 install runreveal
+```
+
+The python package will render your token from two separate environment variables
+
+* `RUNREVEAL_AUTH_TOKEN` - The API credential used to authenticate with the API.
+* `RUNREVEAL_WORKSPACE` - The workspace identifier that you're querying the logs from.
+
+## Your first notebook.
+
+Within your jupyter notebook, try to import the RunReveal class from the runreveal package you just installed. You should be able to query your logs and see results.
+
+```
+from runreveal import RunReveal
+rr = RunReveal("show me my cloudflare audit logs from the past month where srcIP is not empty string", True).create_dataframe()
+rr.head(5)
+```
+
+The method `create_dataframe()` will return a pandas dataframe containing all of the data returned by the RunReveal instance.
+
+* [https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html)
+
+
+
+\
