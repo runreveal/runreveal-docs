@@ -1,0 +1,47 @@
+---
+description: Quickly ingest your Okta security logs
+---
+
+# Okta Security Logs
+
+Okta Security logs allow you to view audit events from your Okta admin dashboard as well as user authentication attempts.
+
+Okta stores 30 days worth of logs for your account, when adding the Okta source, we will backfill your account with whatever logs Okta has available. After the initial load, RunReveal will attempt to poll the Okta API to download your security logs every 60 seconds.
+
+## Setup
+
+Give your Okta source a descriptive name to help find it later. The two fields we require from your Okta account are your Okta domain and an API token. Your Okta domain is the domain that was assigned to your Org.
+
+### Okta Domain
+
+To find your Okta domain:
+
+1. Sign in to your Okta org admin dashboard.
+2. Look in the header under your profile dropdown.
+3. Click the copy button and paste the results into RunReveal.
+
+<img src="/okta-1.png"/>
+
+Your Okta domain may look like one of the ones below. When pasting your domain, make sure it does not have `-admin` and do not include trailing slashes or the schema `https://`
+
+* `example.oktapreview.com`
+* `example.okta.com`
+* `example.okta-emea.com`
+
+### API Token
+
+An API token is required to authorize RunReveal to access your Okta logs. API tokens remain active as long as they are being used. If a token is unused for 30 days it will be revoked by Okta and a new one must be issued. API tokens must be linked to an active Okta user. When a user is removed all of the API tokens they created will be revoked and a new one will need to be generated.
+
+To generate a new token, from your Okta admin dashboard, open the `Security -> API` page in the lefthand navigation panel. Click on the Tokens option and you will be presented with a list of all of your API tokens. Click the "Create Token" button and enter a descriptive name for your token, like "RunReveal". You will be presented with your token value, copy this value and paste it into RunReveal.
+
+> Okta API tokens are scoped to the user creating them. For additional security consider creating a new user with lower permissions and generating an API token from that account.
+
+## Verify Its working
+
+Once added the source logs should begin flowing within a minute.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal_logs WHERE sourceType = 'okta' LIMIT 1
+```

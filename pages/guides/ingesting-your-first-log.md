@@ -1,2 +1,0 @@
-# Ingesting Your First Log
-

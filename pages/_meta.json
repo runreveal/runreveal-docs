@@ -1,13 +1,9 @@
 {
   "index": "Introduction",
-  "about": {
-    "title": "About",
-    "type": "page"
-  },
   "contact": {
-    "title": "Contact ↗",
+    "title": "Contact",
     "type": "page",
-    "href": "https://twitter.com/shuding_",
+    "href": "https://runreveal.com/contact",
     "newWindow": true
   }
 }

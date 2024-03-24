@@ -1,2 +1,0 @@
-# Polling API Sources
-

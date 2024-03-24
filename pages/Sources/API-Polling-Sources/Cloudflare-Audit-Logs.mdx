@@ -1,0 +1,43 @@
+---
+description: Quickly ingest your Cloudflare Audit logs
+---
+
+# Cloudflare Audit Logs
+
+Cloudflare Audit logs allow you to view audit events from your Cloudflare account. Audit logs give insights into what resources were changed in your Cloudflare organization.
+
+Cloudflare Audit logs will grab 30 days worth of logs for your account and backfill your source. After the initial load, RunReveal will attempt to poll the Cloudflare API to download your new audit logs every 60 seconds.
+
+## Setup
+
+Give your Cloudflare source a descriptive name to help find it later. The two fields we require from your Cloudflare account are your account identifier and an API token.
+
+### Account Identifier
+
+To find your account identifier,
+
+1. Login to your Cloudflare account
+2. Navigate to your organization's site settings
+3. Your account identifier will be listed in the right hand panel near the bottom.
+4. Click the copy button and paste it into RunReveal
+
+
+<img style={{maxWidth:"500px"}} src="/cloudflare-1.png"/>
+
+### API Token
+
+To generate an API token you can click the `Get your API token` link directly under the Account ID section. From there, create a new custom token.
+
+Give the token a name like RunReveal to identify its use. The only permission the token requires is read access to `Account Settings`.
+
+<img style={{maxWidth:"500px"}} src="/cloudflare-2.png"/>
+
+## Verify Its working
+
+Once added the source logs should begin flowing within a minute.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal_logs WHERE sourceType = 'cf-audit' LIMIT 1
+```

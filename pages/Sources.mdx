@@ -1,0 +1,9 @@
+# Sources
+RunReveal sources usually work via three different methods.
+
+ - API Polling Sources - RunReveal pulls the logs.
+ - Webhook sources - Logs are pushed to RunReveal.
+ - S3 Sources - Logs are batched to S3, where RunReveal reads them.
+
+The provider that we're integrating with dictates the method that RunReveal
+uses to receives logs.

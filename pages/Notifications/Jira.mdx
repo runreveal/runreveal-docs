@@ -1,0 +1,36 @@
+---
+description: >-
+  Create an issue in a Jira project when a schedule query fires or a trigger
+  alerts
+---
+
+# Jira
+
+Setting up a Jira notification channel requires a few pieces of information.
+
+### Setup Settings
+
+#### **Jira URL**
+
+The Jira URL is the base URL that your atlassian organization is located. For us we would enter `https://runreveal.atlassian.net`
+
+#### Jira Project Key
+
+The key for the project that you want new issues added. This key was set when creating your project. It should be the prefix assigned to issues.
+
+#### Jira Issue Type
+
+The name of the issue type that you want created when sending alerts to Jira.&#x20;
+
+#### Labels
+
+A comma separated list of labels that you want to add to the issues. This field is run through the template renderer so can include properties from the data being passed.
+
+
+#### Email Address
+
+Enter the email address of the user that the issues will be created under. This user will need permission to create issues in that project with that issue type.
+
+#### API Token
+
+Navigate to the API token [creation page](https://id.atlassian.com/manage-profile/security/api-tokens), log in with the same user that you entered in the email address field. Click on the `Create API token` button to generate a new token.

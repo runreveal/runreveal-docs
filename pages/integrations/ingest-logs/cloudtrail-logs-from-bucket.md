@@ -1,2 +1,0 @@
-# 🌧 Cloudtrail logs from bucket
-

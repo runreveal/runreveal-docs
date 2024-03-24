@@ -1,2 +1,0 @@
-# 💽 Google Workspace Admin logs
-
