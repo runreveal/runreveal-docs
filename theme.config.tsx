@@ -5,6 +5,7 @@ const config: DocsThemeConfig = {
   logo: <span>RunReveal</span>,
   project: {
     link: 'https://runreveal.com',
+    icon: (<img src="/runreveal_logo.svg" width={24} height={24} alt="RunReveal" />),
   },
 
   chat: {
@@ -24,7 +25,7 @@ const config: DocsThemeConfig = {
     }
   },
 
-  docsRepositoryBase: 'https://github.com/shuding/nextra-docs-template',
+  docsRepositoryBase: 'https://github.com/runreveal/runreveal-docs/blob/main',
   footer: {
     text: 'RunReveal docs',
   },
