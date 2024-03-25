@@ -1,0 +1,45 @@
+# Google Cloud Platform logs
+
+Create a project and pub/sub
+
+Within Google Cloud, create a new project. Give your project a descriptive name like "RunReveal". Your organization and Location will be your organization's. **Make note of the project ID.**
+
+<img src="/gcp-1.png"/>
+
+Within that project navigate to pub/sub and under Topics click Create topic. Give your topic a descriptive name like "RunReveal" and click Create. **Make note of your topic ID.**
+
+On your new pub sub, click "Create Subscription"
+
+<img src="/gcp-2.png"/>
+
+Give the Subscription ID a name like "RunReveal" and select Push as the Delivery Type.
+
+Create a GCP source within the UI, click "Create Source" after giving it a name.
+
+<img src="/gcp-3.png"/>
+
+Once you create the source your GCP source will have a Webhook URL.
+
+<img src="/gcp-4.png"/>
+
+Paste this Webhook URL into the GCP logs Delivery Endpoint URL and Click Save.
+
+## Create a sink
+
+<img src="/gcp-5.png"/>
+
+1. Search for Logs Explorer.
+2. Click on Logs Explorer and then navigate to Log Router.
+3. Click Create Sink. Give your sink a descriptive name like "RunReveal"
+4. Select the sink service as Cloud Pub/Sub topic
+5.  Fill in the PROJECT\_ID and TOPIC\_ID and click Next
+<img src="/gcp-6.png"/>
+6. Select "Include logs ingested by this organization and all child resources"
+7. Click Next, followed by Create Sink
+
+## Verify it's working
+
+You should start to see logs flowing to your GCP log source.
+
+You can validate that your gcp log source is receiving logs by clicking the "Query" button the source's list page.
+

@@ -1,2 +1,99 @@
 # S3 Sources
-sldfkj
+
+All S3 sources support reading via an IAM Role in your AWS account. This is so you don't need to worry about fiddling with a bucket policy each time you onboard a new log source.
+
+At a high level you'll need to create a role, provide that role access to the data you want RunReveal to ingest, and then notify RunReveal when there's new data to ingest.
+
+## Creating the role
+
+When creating the role, you'll need to provide us with S3 and KMS permissions necessary to read objects from the bucket, and decrypt them.
+
+When you create a source that supports AWS Role based access to the objects, you'll be prompted to provide a role ARN. Your role needs to have `s3:GetObject`, `s3:ListBucket`, and access to the `Resources` that are contained in your bucket.
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<YOUR_BUCKET>",
+                "arn:aws:s3:::<YOUR_BUCKET>/*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "kms:Decrypt"
+            ],
+            "Resource": [
+                "arn:aws:kms:us-west-2:EXAMPLE_AWS_ACCOUNT:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}
+```
+
+Note, if your bucket objects are encrypted with an AWS managed AWS key, you don't need the KMS policy. If it's encrypted with a KMS key you created that lives in your account, you'll need to include the KMS policy as well.
+
+## Secure Access Using External ID
+
+The external ID configuration helps prevent the confused deputy problem. The trusted entities configuration necessary for RunReveal to access your account looks like this. Make sure you fill in the external ID with whatever you set up on your source.
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::253602268883:root"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "sts:ExternalId": "<EXTERNAL_ID>"
+                }
+            }
+        }
+    ]
+}
+```
+
+## Verify it works
+
+When configuring a source from S3, click on "Verify Settings" to validate your role is configured correctly. If the button turns green it works! If the button turns red, and prints out an error message, the source won't work when you save it.
+
+<img src="/role-1.png"/>
+
+
+## Event Notifications
+
+Enable sending notifications to one of RunReveal's regional SNS queues by following along below. This is required for all sources you read from S3. You'll need to set up 1 event notification per source.
+
+1. Find the bucket containing the logs you wish to send to RunReveal.
+2. From the bucket overview, click the "Properties" tab, then scroll down to "Event Notifications"
+3. Click "Create Event Notification"
+4. Give the configuration a name (for your own identifying purposes, doesn't matter what it is).
+5. Select "All object create events" in the events section (photo below)
+
+<img src="/s3-role-2.png"/>
+
+6. Then input RunReveal's S3 regional SNS queue ARN (`arn:aws:sns:<s3-bucket-region>:253602268883:runreveal_<sourcetype>`) under the "Destinations" block at the bottom like so.  We've created a SNS queue in each region, 1 for each source type. If you run into issues, please contact us at `support@runreveal.com`.&#x20;
+
+| Source Type | SNS ARN                                      |
+|-------------|----------------------------------------------|
+| Flow Logs   | arn:aws:sns:&lt;REGION&gt;:253602268883:runreveal_flow       |
+| Cloudtrail  | arn:aws:sns:&lt;REGION&gt;:253602268883:runreveal_cloudtrail  |
+| Github S3   | arn:aws:sns:&lt;REGION&gt;:253602268883:runreveal_github       |
+| GuardDuty   | arn:aws:sns:&lt;REGION&gt;:253602268883:runreveal_guardduty  |
+| VPC DNS     | arn:aws:sns:&lt;REGION&gt;:253602268883:runreveal_awsdns      |
+| ALB Logs    | arn:aws:sns:&lt;REGION&gt;:253602268883:runreveal_alb        |
+| DNS Filter  | arn:aws:sns:&lt;REGION&gt;:253602268883:runreveal_dnsfilter  |
+| Cloudflare HTTP | arn:aws:sns:&lt;REGION&gt;:253602268883:runreveal_cloudflarehttp |
+
+<img src="/s3-role-3.png"/>

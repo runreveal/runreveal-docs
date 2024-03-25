@@ -1,4 +1,4 @@
-# Collect Nginx Logs
+# Kawa log collection
 
 [Kawa](https://github.com/runreveal/kawa) is an open source log collection agent that is easy-to-use, efficient, and performant.
 
@@ -6,7 +6,7 @@ We can use Kawa to collect nginx logs to be visualized in RunReveal.  In this gu
 
 First, login to RunReveal and create a Kawa source.  This will give us a webhookURL to send our data to as a Kawa destination.
 
-<img src="/nginx-1.png"/>
+<img src="/kawa-1.png"/>
 
 Next, download a Kawa release for the operating system and architecture of the host you'll be running the daemon on from the releases page [here](https://github.com/runreveal/kawa/releases). ([https://github.com/runreveal/kawa/releases](https://github.com/runreveal/kawa/releases)) Extract the package to a directory of your choosing.
 
@@ -51,6 +51,7 @@ server {
 }
 ```
 
+
 Test your nginx config and reload the nginx process:
 
 ```
@@ -59,6 +60,6 @@ sudo nginx -s reload
 
 You should now be getting logs in your RunReveal workspace!  Let's run some queries on RunReveal once you've gotten some traffic to the site you've configured.
 
-<img src="/nginx-2.png"/>
+<img src="/kawa-2.png"/>
 
 That's it!  If you encounter any problems setting this up, please feel free to reach out on our discord, via the chat bubble on the website, or via contact@runreveal.com.

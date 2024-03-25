@@ -1,0 +1,17 @@
+# Tines
+We support Tines as a destination so our customers can trigger
+different SOAR workflows. 
+
+Create a Tines webhook to receive a notification event from RunReveal. Note the webhook URL and the secret.
+
+<img style={{maxWidth:"500px"}} src="/tines-webhook-1.png"/>
+
+Provide the RunReveal Tines notification with the Webhook URL, followed by the secret in the following format. You can read the Tines documentation about this [here](https://www.tines.com/docs/actions/types/webhook#authentication)
+
+```
+https://tenant.tines.com/webhook/<path>/<secret>
+```
+
+In RunReveal, click "Test Notifcation" to be sure that in Tines the secret was not rejected.
+
+<img src="/tines-notification-1.png"/>
