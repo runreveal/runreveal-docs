@@ -13,8 +13,8 @@ const config: DocsThemeConfig = {
   head: (
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta property="og:title" content="pql docs" />
-      <meta property="og:description" content="pql documentation" />
+      <meta property="og:title" content="RunReveal docs" />
+      <meta property="og:description" content="RunReveal documentation" />
       <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     </>
   ),
