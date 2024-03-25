@@ -15,8 +15,8 @@ There are quite a few components that make RunReveal tick.
  search your logs, schedule detections, and easily investigate what's going
  on in your environment.
  - **Destinations** - Object storage and managed services for backing up and
- using your data in other third party services. We collect the data, 
- object storage. 
+ using your data in other third party services. We collect the data from different
+ cloud services and save your data to object storage for a rainy day.
  - **Alerting** - We integrate with the tools you want to send alerts to and
  by default sends all of your alerts to your email.
  - **Reports** - Insights we forward to you on a daily basis about what's
@@ -42,74 +42,7 @@ RunReveal provides APIs, a CLI, and direct integrations with the platform.
  functions or API.
  - **Dashboarding and Visualization tools** - RunReveal has an direct integration
  with Grafana, can be used with Jupyter notebooks, and using our API we can
- support any
+ support any specialty integrations you need.
  - **SOAR** - RunReveal supports SOAR platforms to automate the response,
  investigation, or whatever parts of the detection & response process.
-
-## Table of contents
-
-### Getting Started
-
-* [Quick start with CLI](<README (1).md>)
-* [What is RunReveal](getting-started/what-is-runreveal.md)
-
-### How-to Guides
-
-* [Detection as Code](how-to-guides/detection-as-code.md)
-* [Using the RunReveal CLI](how-to-guides/using-the-runreveal-cli/README.md)
-  - [Named Queries](reference/querying-your-logs/named-queries.md)
-  - [Scheduled Queries](reference/querying-your-logs/scheduled-queries.md)
-  - [Query REPL](reference/querying-your-logs/query-repl.md)
-  - [Querying Reference](how-to-guides/using-the-runreveal-cli/querying-reference.md)
-  - [Query your Cloudtrail logs](how-to-guides/query-your-cloudtrail-logs.md)
-* [Collect Nginx logs with Kawa](how-to-guides/collect-nginx-logs-with-kawa.md)
-* [Grafana Live Threat Monitoring](how-to-guides/grafana-live-threat-monitoring.md)
-* [Collect Unifi syslogs with Kawa](how-to-guides/collect-unifi-syslogs-with-kawa.md)
-* [Configuring Role Based Access Control](how-to-guides/configuring-role-based-access-control.md)
-
-### Sources
-
-* [AWS S3 Role Based Authentication](sources/aws-s3-role-based-authentication.md)
-* [Source Types](source-integrations/source-types/README.md)
-  * [Webhook Based Sources](source-integrations/source-types/webhook-based-sources/README.md)
-    * [Azure](source-integrations/source-types/azure.md)
-    * [Google Cloud Platform logs](source-integrations/source-types/google-cloud-platform-logs.md)
-    * [Structured Webhooks API](source-integrations/source-types/structured-webhooks-api.md)
-  * [Polling API Sources](source-integrations/source-types/polling-api-sources/README.md)
-    * [Okta Security Logs](source-integrations/source-types/okta-security-logs.md)
-    * [Google Workspace Audit Logs](source-integrations/source-types/google-workspace-audit-logs.md)
-    * [Cloudflare Audit Logs](source-integrations/source-types/cloudflare-audit-logs.md)
-    * [1Password](source-integrations/source-types/1password.md)
-    * [CrowdStrike](source-integrations/source-types/crowdstrike.md)
-    * [Log Polling](source-integrations/source-types/github-audit-logs/log-polling.md)
-    * [GitHub Audit Logs](source-integrations/source-types/github-audit-logs/README.md)
-  * [S3 Log Sources](source-integrations/source-types/logs-in-amazon-s3/README.md)
-    * [ALB logs](source-integrations/source-types/logs-in-amazon-s3/alb-logs.md)
-    * [Cloudtrail logs](source-integrations/source-types/logs-in-amazon-s3/cloudtrail-logs.md)
-    * [Log Streaming](source-integrations/source-types/github-audit-logs/log-streaming.md)
-* [Notifications](source-integrations/notifications/README.md)
-  * [Templates](source-integrations/notifications/templates.md)
-  * [Webhooks](source-integrations/notifications/webhooks.md)
-  * [Email](source-integrations/notifications/email.md)
-  * [Slack](source-integrations/notifications/slack.md)
-  * [Jira](source-integrations/notifications/jira.md)
-
-## Integrations
-
-* [Jupyter](integrations/jupyter.md)
-* [Grafana](integrations/grafana.md)
-
-## Reference
-
-* [Triggers](reference/triggers/README.md)
-  * [Connecting to other resources](reference/triggers/connecting-to-other-resources.md)
-  * [📐 Trigger Basics](reference/triggers/trigger-basics.md)
-  * [🐍 Python Triggers](reference/triggers/python-triggers/README.md)
-    * [🍴 Python Utility Module](reference/triggers/python-triggers/python-utility-module.md)
-  * [🏛 Event Formats](reference/triggers/event-formats/README.md)
-    * [Raw Log Formats](reference/triggers/event-formats/raw-log-formats/README.md)
-      * [CloudTrail Format](reference/triggers/event-formats/raw-log-formats/cloudtrail-format.md)
-    * [Normalized Log format](reference/triggers/event-formats/normalized-log-format.md)
-  * [🔬 Testing your code](reference/triggers/testing-your-code.md)
-
 
