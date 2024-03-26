@@ -39,5 +39,5 @@ Once added the source logs should begin flowing within a minute.
 You can validate we are receiving your logs by running the following SQL query.
 
 ```sql
-SELECT * FROM runreveal_logs WHERE sourceType = 'cf-audit' LIMIT 1
+SELECT * FROM runreveal.logs WHERE sourceType = 'cf-audit' LIMIT 1
 ```
