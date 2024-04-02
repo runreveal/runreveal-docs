@@ -20,15 +20,19 @@ We still need to configure the RunReveal to authenticate with our API. Under `Ho
 
 <img src="/grafana-3.png"/>
 
-Next you'll need an API token. There's two different ways to get an API token.
+Next you'll need an API token.
 
-* **Generate via the CLI**I. Run the below command, paste the token into the Session Token section of the grafana dashboard, and click "Save & test".
-
-<img src="/grafana-4.png"/>
-
-* **Generate in the RunReveal UI**I. f you haven't set up your CLI interface, you can generate this same token in the UI under the "Settings" panel. Click "Generate Token" next to the API Tokens heading and copy/paste into the Session Token field in grafana.
+* **Generate in the RunReveal UI**. You can generate an API token under the the "Settings" panel. Click "Generate API Token" next to the API Tokens.
 
 <img src="/grafana-5.png"/>
+
+Prior to pasting the token into the grafana dashboard, make sure you run this command first, to generate the session token. This will generate the basic auth token needed by the grafana plugin.
+
+```
+echo -n ":TOKEN" | base64
+```
+
+Paste the generated token into "Session Token" input field, along with the workspace ID from the settings page into the Workspace ID field, and press "Save & Test".
 
 ## 3. Live threat monitoring dashboards
 
