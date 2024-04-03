@@ -1,0 +1,25 @@
+# Filtering
+RunReveal supports log filtering as a first class feature of the product. The current supported
+methods are:
+- Regular Expression Filtering
+
+## Regex Filtering
+To filter with a regular expression, click to add a new filter.
+
+<img src="/CreateNewFilter.png"/>
+
+The _pattern_ is the regular expression that we will match on. By default, all filter rules will
+drop any log that matches the pattern. For example, consider the following log:
+```
+{"user":"evan", "event":"login", "ip":"1.1.1.1"}
+```
+
+Specifiying this pattern will cause the log to be dropped.
+```
+user
+```
+
+### Flags
+We support the following regular expression flags. *DO NOT* add these flags to your pattern.
+Instead add filter flags using the Filter Flags checkbox toggles.
+ - **i** - Case Insensitivity - Ignore case when matching.
