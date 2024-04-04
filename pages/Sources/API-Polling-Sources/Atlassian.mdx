@@ -1,0 +1,47 @@
+---
+description: Quickly ingest your Atlassian audit logs
+---
+import { Callout } from 'nextra/components'
+
+# Atlassian Audit Logs
+
+Atlassian audit logs allow you to view the audit events that have occurred in your Atlassian organization.
+To view more info about audit logs including what types of events are tracked you can view more info on the Atlassian [docs](https://support.atlassian.com/security-and-access-policies/docs/track-organization-activities-from-the-audit-log/)
+
+In order to ingest your Atlassian audit logs, you must be an Atlassian Access customer. 
+To see if you already have access navigate to your Atlassian admin panel https://admin.atlassian.com and go to `Security -> Audit Log`. 
+From there if you have access you will see your events otherwise you will see a link to signup for access.
+
+![atlassian-1](/atlassian-1.png)
+
+RunReveal will backfill your audit logs to the last 7 days of events. Once the processor has caught up, RunReveal will import new audit logs roughly every 60 seconds.
+
+## Setup
+
+Give your Atlassian source a descriptive name to help find it later. The two fields we require from your Atlassian account are your Organization ID and an API Key. 
+
+### Atlassian API Key
+
+Create an API Key in Atlassian to give RunReveal access to your audit logs. From your [Atlassian admin panel](https://admin.atlassian.com), 
+navigate to `Settings -> API keys`. From here you can create a new API key.
+
+![atlassian-2](/atlassian-2.png)
+
+Give the new key a name and choose an expiration date. Atlassian allows date no further than 1 year in the future. 
+Copy the Organization ID and the API key fields to your RunReveal source.
+
+<Callout type="info">
+  Make sure to generate a new API key before the expiration date and update RunReveal with the new key to continue receiving events without disruption.
+</Callout>
+
+![atlassian-3](/atlassian-3.png)
+
+## Verify Its working
+
+Once added the source logs should begin flowing within a minute.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'atlassian' LIMIT 1
+```
