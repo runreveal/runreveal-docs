@@ -1,0 +1,51 @@
+# Writing a detection
+RunReveal detections are queries that run on a schedule. Currently, SQL is the only supported
+language for detections, althrough pql is planned to be supported soon (and isn't difficult
+to translate to valid clickhouse SQL).
+
+# Parameters
+When using the explore page and creating a detection you'll notice that the generated query
+has `{from:DateTime}` and `{to:DateTime}` in it. These are paramters. Parameters are a clickhouse
+specific syntax that you can read more about on their docs:
+
+[https://clickhouse.com/docs/en/sql-reference/syntax#defining-and-using-query-parameters](https://clickhouse.com/docs/en/sql-reference/syntax#defining-and-using-query-parameters)
+
+### Always Parameters
+RunReveal passes the following parameters to each of your detections every time they run to help with windowing your data.
+ - `from` - The start-time of the current data window.
+ - `to` - The end-time of the current data window.
+
+ By including these parameters in your detection, you can support effective windowing, without needing to worry
+ about lost data, delayed data, etc. It's best to include in your where clause a check that the `receivedAt` time
+ is greater than or equal to the from time, and less than the to time. By using the `receivedAt` time
+ from the RunReveal log schema, you automatically handle situations where your services generate logs that
+ arrive on a delay (for example, cloudtrail).
+
+For example:
+```
+SELECT 
+    *
+FROM aws_cloudtrail_logs
+WHERE
+    eventName='Decrypt' AND
+    receivedAt >= {from:DateTime} AND
+    receivedAt < {to:DateTime}
+```
+
+ ### Defining your own parameters
+Parameters can also be defined as well, for useful omissions, inclusions, etc. And you'll notice several of RunReveal's
+pre-created detections contain parameters that can be used like this. For example, to create a detection and exclude your
+list of office IP addresses, you can create a SQL detection like this:
+```
+SELECT * from runreveal_logs
+WHERE eventName = 'thing-that-should-only-be-done-in-office'
+AND srcIP not in ({officeIPs:Array(String)})
+```
+
+With the `officeIPs` parameter defined like so to include each of your office IPs.
+```
+1.2.3.4, 2.3.4.5, 4.3.2.1
+```
+
+
+
