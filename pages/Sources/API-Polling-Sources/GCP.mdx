@@ -55,10 +55,22 @@ Navigate to the GCP [Pub/Sub](https://console.cloud.google.com/cloudpubsub/topic
 When creating a new topic, give it a name and you can remove the default subscription. 
 Instead select `Backup message data to Cloud Storage`. Select the bucket that was created in step 2.
 If GCP warns about missing permissions follow their instructions to grant them.
-For the remaining settings, make sure to select `Text` as the file output and uncheck `Write metadata`. 
-Prefix, suffix, and file batching can be set based on your needs, if setting prefix, make sure to make a note of what is set as that will be needed when setting up the RunReveal source.
+For the remaining settings, make sure to select `Text` as the file format. 
+Prefix, suffix, and file batching can be set based on your needs.
 
 ![topic creation](/gcp-poll-4.png)
+
+Now that you have a topic and subscription created you will need to grant the service account, that you created in step 1, the `Pub/Sub Viewer role`. 
+Click on the Subscriptions menu option and select the subscription that was created with the topic. 
+In the permissions info panel add a new principal and enter the service account email and select `Pub/Sub Viewer` as the role. 
+This will allow RunReveal to read the settings you have chosen when creating this subscription.
+
+![sub iam](/gcp-poll-4b.png)
+
+<Callout type="info">
+  Make sure to save the subscription name as this will be needed when setting up your RunReveal source.
+</Callout>
+
 
 ### 4. GCP Log Router Sink Setup
 
@@ -74,13 +86,12 @@ and the topic ID that were created in step 3. Add an optional inclusion or exclu
 
 Now that you have all of the GCP pieces created you can add a [GCP source](https://runreveal.com/dash/sources/add/gcp) in RunReveal. 
 
-Provide a name for the source and fill in the bucket name that was created in step 2. 
-For the prefix field include any sub folder in the bucket the logs may be stored in and any file prefix that was added when setting up the pub/sub topic subscription.
+Provide a name for the source and fill in the name of the subscription that was created in step 3. 
 Upload the credential file that was downloaded from step 1 or paste the contents from it into the credential field.
 
 ![rr source](/gcp-poll-6.png)
 
-Verify your settings to make sure that RunReveal has access to list and read the objects in your bucket.
+Verify your settings to make sure that RunReveal has access to view the subscription details and list/read the objects in your bucket.
 
 ### 6. Ingest
 
