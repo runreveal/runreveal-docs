@@ -1,0 +1,20 @@
+# Auth0
+
+The Auth0 source is a webhook based source that uses their log stream feature.
+
+To get started, create an auth0 source in the dashboard. The source should have a webhook URL and a Bearer Token that is
+available in the sources list.
+
+<img src="/auth0-1.png"/>
+
+## Auth0 Configuration
+
+Under monitoring > streams, create a new Custom Webhook log stream. Set the webhook URL to the `api.runreveal.com` URL
+provided in your auth0 source, and in Auth0 set the Bearer token value to the entirity of the bearer token string provided by
+runrevela. This should include the word `Bearer`. Your bearer token string should look something like `Bearer xxxxxxxxxxxxxxxxx`.
+
+Finally, ensure that the stream is configured as a JSON Array and click save after ensuring that all events are being sent.
+
+<img src="/auth0-2.png"/>
+
+Logs should begin flowing to your Auth0 source immediately!
