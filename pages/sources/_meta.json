@@ -1,0 +1,5 @@
+{
+    "api-polling-sources": "API Polling Sources",
+    "s3-sources": "S3 Sources",
+    "webhook-sources": "Webhook Sources"
+}

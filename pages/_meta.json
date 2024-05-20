@@ -5,5 +5,11 @@
     "type": "page",
     "href": "https://runreveal.com/contact",
     "newWindow": true
-  }
+  },
+  "how-to-guides": "How To Guides",
+  "sources": "Sources",
+  "detections": "Detections",
+  "notifications": "Notifications",
+  "integrations": "Integrations",
+  "reference": "Reference"
 }
