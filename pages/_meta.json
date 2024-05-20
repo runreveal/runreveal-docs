@@ -5,5 +5,8 @@
     "type": "page",
     "href": "https://runreveal.com/contact",
     "newWindow": true
+  },
+  "detections": {
+    "title": "Detections"
   }
 }
