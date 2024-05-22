@@ -1,0 +1,20 @@
+# Keeper Security Logs
+
+The Keeper Security log source receives webhooks of Keeper Security Logs. However RunReveal has not been officially added to
+the keeper security SIEM connections. When setting up a Keeper source in RunReveal you'll add a "Sumo Logic" source in Keeper
+and provide the RunReveal webhook URL. You don't need a Sumo Logic instance of your own.
+
+Once you create a Keeper Security log source you'll be given a webhook URL like other RunReveal webhook sources. Make note
+of this Webhook URL.
+
+In the Keeper Security admin console navigate under "Reporting and Alerts" to "External Logging". You should see list of
+suppoted SIEM integrations that Keeper natively supports.
+
+<img src="/keeper-1.png" />
+
+Select Sumo Logic and you'll be prompted for a Sumo Logic URL. Enter your RunReveal Webhook URL and press "Test Connection". Once
+the connection test succeeds, you won't see any visual indication EXCEPT the "Save" button will be clickable. Click Save.
+
+It may take several minutes but your keeper logs should begin flowing to RunReveal without issue.
+
+<img src="/keeper-2.png"/>
