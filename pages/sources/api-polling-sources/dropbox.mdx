@@ -1,0 +1,84 @@
+import { Callout } from 'nextra/components'
+
+---
+description: Quickly ingest your Dropbox event logs for your entire team.
+---
+
+# Dropbox Event Logs
+
+Dropbox event logs allow you to view the events that have taken place in your Dropbox team account. 
+
+When adding Dropbox, RunReveal will backfill with events from the past 24 hours. Once the backfill is complete, RunReveal will ingest new events every minute.
+
+## Setup
+
+Setting up the Dropbox source is fairly straight forward. You will need to create a new app in the Dropbox developer console, supply it with a redirect URL supplied by RunReveal, add the keys to the RunReveal source, 
+and then authenticate to your app giving RunReveal permission to read your events.
+
+### New Dropbox App
+
+Navigate to the dropbox app page to create a new app, [https://www.dropbox.com/developers/apps/create](https://www.dropbox.com/developers/apps/create).
+
+![dropbox-app](/dropbox/app-create.png)
+
+To create a new app you will need to:
+
+1. Select `Scoped access` for the API type.
+2. Choose `Full Dropbox` for the access type.
+3. Give the app a name and click `Create app`
+
+### Dropbox App permissions
+
+Once the app is created click on the permissions tab and select `team_data.member` and `events.read` and click Submit at the bottom of the page.
+
+![permissions-app](/dropbox/permissions.png)
+
+### New RunReveal Source
+
+Before finalizing the Dropbox app, you will need to add a redirect URL from RunReveal to allow proper Dropbox authorization.
+
+In the RunReveal dashboard, create a new Dropbox source, [https://runreveal.com/dash/sources/add/dropbox](https://runreveal.com/dash/sources/add/dropbox).
+
+When the page loads, a new redirect URL will be generated with a unique ID that is used to lookup your source settings when authenticating with Dropbox.
+
+Copy this redirect URL and switch back over to the Dropbox app page.
+
+![rr-source](/dropbox/dropbox-source.png)
+
+### Dropbox App Settings
+
+On the Dropbox app screen paste the redirect URL from RunReveal into the Redirect URIs box and click add.
+
+Copy the `App key` and `App secret` values that are displayed on this screen, these will be needed to finish setting up the RunReveal source.
+
+![dropbox-settings](/dropbox/app-settings.png)
+
+### RunReveal Setup
+
+To finish setting up the source, go back to the RunReveal source page to fill in the remaining fields. 
+Give the source a name and paste the app key and secret from the Dropbox app into the fields.
+
+<Callout type="info">
+  The redirect URL in the RunReveal source is generated when adding a new source. If the page refreshes before the source is saved a new URL will be regenerated.
+  If this happens you will need to add the new URL to your dropbox app again before continuing.
+</Callout>
+
+Click connect to save the source in RunReveal. Once saved, you will be redirected to the Dropbox authentication page to authorize API usage using the created app.
+Authenticate with your team dropbox account and if there are no issues the app will be authorized and you will be redirected back to the RunReveal sources page.
+
+<Callout type="info">
+    If any error occurs with authentication or if the app needs to be authenticated again, 
+    it will require you to edit the source in RunReveal and supply the app key and secret again. 
+    Once both values are supplied and update is clicked the Dropbox authorization process will start again.
+</Callout>
+
+## Verify Its working
+
+Once added the source logs should begin flowing within a minute.
+
+You can validate we are receiving your logs by running the following PQL query.
+
+```sql
+logs
+| where sourceType == 'dropbox' and receivedAt >= today()
+```
