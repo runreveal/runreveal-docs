@@ -1,0 +1,92 @@
+# reveald log collection
+
+[Reveald](https://github.com/runreveal/reveald) is an open source log collection
+agent that is efficient, performant and simple.
+
+Reveald supports a variety of host-level log sources and is appropriate to use
+in any situation where the logs aren't already being collected to an S3 bucket
+or accessible via another first-party API.
+
+To get your logs into RunReveal via reveald, we'll first create a reveald source
+in the RunReveal UI, which will give us a webhookURL to use as the target to
+send our logs to from reveald.
+
+<img src="/kawa-1.png"/>
+
+Next, download a reveald release for the operating system and architecture of
+the host you'll be running the daemon on from the [releases page on
+github](https://github.com/runreveal/reveald/releases).  Extract the package to
+a directory of your choosing.
+
+As of this writing, reveald supports the following sources:
+
+- syslog
+- file
+- journald
+- mqtt
+- nginx (via syslog)
+
+And the following destinations:
+
+- runreveal
+- s3
+- printer
+- mqtt
+
+You can see examples of how to configure reveald for each of these sources in
+the example config file provided in the repository's examples directory, or an
+abridged example config below.
+
+Replace `{{YOUR-REVEALD-WEBHOOKURL}}` with the webhook given in the UI.
+
+```
+{
+  // this is an example config file for kawa
+  // it is parsed using hujson so you can use comments and trailing commas, but
+  // is otherwise identical to JSON
+  "sources": {
+    // The keys here are the identifiers for the sources, and are used to
+    // refernece them when logging or in metrics.
+    "kubernetes": {
+      "type": "file",
+      "path": "/var/log/pods/",
+      "extension": ".log",
+    },
+    "myjournald": {
+      "type": "journald",
+    },
+    // "mynginx": {
+    //   "type": "nginx_syslog",
+    //   "addr": "0.0.0.0:5514",
+    // },
+  },
+  "destinations": {
+    "runreveal": {
+      "type": "runreveal",
+      // Replace this webhook URL with your own, created on https://www.runreveal.com
+      // as a "Reveald" type source
+      "webhookURL": "https://example.runreveal.com/sources/kawa/webhook/0123456789",
+      // You can also use environment variables by referencing them with a
+      // dollar sign. The value must be quoted, start with a dollar sign and be
+      // a valid environment variable name
+      // "webhookURL": "$WEBHOOK_URL",
+    },
+    // "lumbermill": {
+    //  "type": "s3",
+    //  "bucketName": "the-lumber-mill",
+    //  "bucketRegion": "us-west-2",
+    // },
+  },
+}
+```
+
+This is a valid config file if you're running on Linux.  We can run reveald
+pointing at the configuration like so (assuming you download it to the same
+directory as the binary).
+
+```
+./reveald run --config=./config.json
+```
+
+If configured correctly, you should start seeing the journald logs and kubelet
+pod logs (if the host is running a kubelet) in your RunReveal workspace. 

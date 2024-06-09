@@ -1,0 +1,60 @@
+# Kubernetes Logs
+
+To get kubernetes logs into runreveal, we've built an agent called reveald that
+can be run as a daemonset that consumes the pod logs from the host, according to
+the kubernetes log interface.  For more information on the kubernetes log
+interface, see [the official
+guide](https://kubernetes.io/docs/concepts/cluster-administration/logging/).
+
+## Setup
+
+Every kubernetes cluster is different.  However, the guide linked above
+recommends that pods log to `/var/log/pods` for compatibility with the widest
+number of logging agents.  That said, it's still possible for the runtime to
+intercept the pods' logs and send them to a different location.
+
+This guide assumes the logs are being written to `/var/log/pods` from the
+container runtime on the host.
+
+From there, we can create a daemonset that runs the reveald agent on every node.
+
+```
+# daemonset config
+```
+
+The reveald config will look something like this:
+
+```
+{
+  "sources": {
+    // The keys here are the identifiers for the sources, and are used to
+    // refernece them when logging or in metrics.
+    "kubernetes": {
+      "type": "file",
+      "path": "/var/log/pods/",
+      "extension": ".log",
+    },
+  },
+  "destinations": {
+    "runreveal": {
+      "type": "runreveal",
+      // Replace this webhook URL with your own, created on https://www.runreveal.com
+      // as a "Reveald" type source
+      "webhookURL": "https://example.runreveal.com/sources/kawa/webhook/0123456789",
+      // You can also use environment variables by referencing them with a
+      // dollar sign. The value must be quoted, start with a dollar sign and be
+      // a valid environment variable name
+      // "webhookURL": "$WEBHOOK_URL",
+    },
+    // "lumbermill": {
+    //  "type": "s3",
+    //  "bucketName": "the-lumber-mill",
+    //  "bucketRegion": "us-west-2",
+    // },
+  },
+}
+```
+
+After you've deployed this daemonset to your cluster, you should begin to see
+logs arriving in runreveal, assuming the network has been configured to allow
+outbound internet connections from the reveald pods and kubernetes cluster.
