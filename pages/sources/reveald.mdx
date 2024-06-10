@@ -52,6 +52,11 @@ Replace `{{YOUR-REVEALD-WEBHOOKURL}}` with the webhook given in the UI.
       "path": "/var/log/pods/",
       "extension": ".log",
     },
+    "hostlogs": {
+      "type": "file",
+      "path": "/var/log/mylogs/",
+      "extension": ".log",
+    },
     "myjournald": {
       "type": "journald",
     },
@@ -89,4 +94,8 @@ directory as the binary).
 ```
 
 If configured correctly, you should start seeing the journald logs and kubelet
-pod logs (if the host is running a kubelet) in your RunReveal workspace. 
+pod logs (if the host is running a kubelet) in your RunReveal workspace.
+
+If running inside kubernetes, you can configure this binary to run as a
+daemonset with the given config file as a configmap mounted somewhere inside
+the pod, and the given log directories shared from the host to the pod.
