@@ -1,0 +1,151 @@
+# Detection as Code
+We want our customers to have the ability to represent their detection as code
+for a variety of reasons.
+ - Reviewing changes prior to deployment.
+ - Easily provisioning config to multiple workspaces and environments.
+ - Quick development of new configuration.
+ - Rapid development and deployment.
+
+Detection as code is facilitated through the RunReveal CLI. To get started
+with detection as code, you'll need to download the CLI, and if you don't yet
+have an active source with log data you'll likely want to create a log source
+first.
+
+There are a few major features that RunReveal supports in order to facilitate
+our detection as code product.
+
+1. [Getting Started With Detection as Code](/detections/detection-as-code/#getting-started-with-detection-as-code)
+2. [Writing a detection](/detections/detection-as-code#creating-a-new-detection)
+3. [Testing and linting detections](/detections/detection-as-code/uploading-detections#test-your-upload)
+4. [Exporting your detections](/detections/detection-as-code/export-detections)
+5. [Deplying from source control](/detections/detection-as-code/deployment)
+
+## Getting Started with Detection As Code
+
+Detection as code relies on the RunReveal CLI. Downloading the CLI can be done
+through brew or from our github.
+
+```
+brew tap runreveal
+brew install runreveal/runreveal
+```
+
+Next you'll need to log into RunReveal in the CLI. This command will opeen
+a browser for you to complete your log in through.
+```
+runreveal init
+```
+
+## Detection Data Model
+The detection data model is described as following. All fields are marked as
+either optional or required. This file needs to be in either `yaml` format or
+`json` format, either works.
+
+```
+# Required: The name of the query for reference
+name: root_account_usage
+ 
+# Optional: A display name that is shown in the UI
+displayName: AWS Root Account Was Used
+ 
+# Required: The name of the file containing the sql query
+file: root_account_usage.sql
+ 
+# Optional: A description of the detection.
+description: Monitor for usage of the AWS root account.
+ 
+# Optional: Additional notes that can be attached to the detection.
+notes: |-
+  This is a notes field that can store info about this detection.
+  It can be useful to store links to playbooks in your other systems.
+  
+# Optional: An array of strings to help group queries
+categories:
+  - aws
+  
+# Optional: A severity string to identify the importance of the detection results.
+severity: low
+ 
+# Optional: An array of mitre attack framework classifications. 
+# This is useful when identifying attack patterns.
+mitreAttacks:
+  - initial-access
+  
+# Optional: An array of sources that this detection is used for.
+# This can be useful to help identify which sources are lacking coverage.
+sourceTypes:
+  - cloudtrail
+  
+# Required: A cron string that identifies how often this detection will execute.
+schedule: '*/15 * * * *'
+ 
+# Optional (default: false): If true will disable this detection from running on its schedule
+disabled: false
+ 
+# Optional: Key/Value pairs that are replaced when the query executes. 
+parameters:
+  userAgent: AWS Internal
+ 
+# Optional: An array of notification channel names that should receive an alert if this detection triggers
+notificationNames:
+  - email
+  
+# Optional: A notification template name to override the defualt channel template if this detection triggers.
+notificationTemplate: aws_template
+```
+
+## Detection Time Windowing
+One thing that many detection queries tend to do is query by looking back in
+time and handling time windowing.
+
+When writing a detection query it's best to write your query in a way that:
+1. Uses `receivedAt` times for windowing of logs on short windows, not `eventTime`
+2. Uses parameters `{from:DateTime}` and `{to:DateTime}` to ensure all logs are queried.
+
+RunReveal allows you to specify parameters in your queries for dynamic values passed
+in at query runtime. RunReveal will always pass `from` and `to` to your queries whether
+they are specified or not.
+ - `from` the end of the previous window that was queried.
+ - `to` the current time, and the next `from` time.
+
+In practice what this looks like, when writing a simple query that looks for the eventName
+`example` your query would look something like this.
+
+```
+select * from logs
+where eventName='example'
+and receivedAt BETWEEN {from:DateTime} and {to:DateTime}
+```
+
+It's important not to use eventTime because many log sources deliver eventTimes in a delayed
+manner, and eventTime is the timestamp provided by the log source. If you instead window
+using `eventTime` it can cause messages to be missed in situations where log sources deliver
+delayed data.
+
+By querying `receivedAt` you ensure data is searched as it's received by the RunReveal platform
+regardless of data delays from sources.
+
+## Creating a new detection
+If you'd like to save yourself from writing this yaml, the CLI can help you create the yaml
+structure needed to create a new detection.
+
+The `runreveal detections create` command will walk you through a wizard that will output
+a yaml containing the structure you need to upload a detection to our api.
+```
+:) runreveal detections create
+Detection name: my-detection
+Description: example for the docs.
+Categories (comma separated): aws, signal
+Severity: Low
+Risk Score (number): 10
+ATT&CK classification: collection
+Enabled: true
+Query Type: sql
+
+
+Detection Created:
+        my-detection.yaml
+        my-detection.sql
+
+:) 
+```

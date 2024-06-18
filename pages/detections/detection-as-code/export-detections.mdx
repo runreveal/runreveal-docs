@@ -1,0 +1,59 @@
+# Export Detections
+
+To get started or to adopt detection as code after already adding detections to
+your account the RunReveal CLI has the commands necessary to bootstrap a code
+repo from nothing, so you can 
+
+Once you're logged into the CLI from the [getting started](/detections/detection-as-code/getting-started)
+steps, you can utilize the export functionality to download all detection state
+into a directory of your choosing.
+
+```
+:) runreveal detections export -d ~/detection-as-code
+:) ls -l ~/detection-as-code 
+total 0
+drwxr--r--   4 evan  staff   128 Jun 18 09:42 1password
+drwxr--r--   8 evan  staff   256 Jun 18 09:42 cf-audit
+drwxr--r--  16 evan  staff   512 Jun 18 09:42 cloudtrail
+drwxr--r--  16 evan  staff   512 Jun 18 09:42 gcp
+drwxr--r--  20 evan  staff   640 Jun 18 09:42 google-workspace
+drwxr--r--   8 evan  staff   256 Jun 18 09:42 gsuite
+drwxr--r--  18 evan  staff   576 Jun 18 09:42 notion
+drwxr--r--  18 evan  staff   576 Jun 18 09:42 okta
+drwxr--r--   6 evan  staff   192 Jun 18 09:42 tailscale-audit
+drwxr--r--  60 evan  staff  1920 Jun 18 09:42 uncategorized
+```
+
+These detections are categorized by sourceType and will be
+sorted into directories by the `categories` tag if they
+match the name of any `sourceType` within RunReveal.
+
+After exporting each detection will be output into two files. The detection
+query and the detection configuration and metadata.
+
+Here's an example containing both the yaml and sql for our Okta detection of
+a user reporting a suspicious action.
+
+```
+:) cat okta-user-suspicious-report.sql 
+select * from okta_logs where
+  eventType='user.account.report_suspicious_activity_by_enduser'
+  and receivedAt > {from:DateTime} and receivedAt < {to:DateTime}%
+
+:) cat okta-user-suspicious-report.yaml
+name: okta-user-suspicious-report
+displayName: Okta User Reported Suspicious Activity
+description: Suspicious activity reported by end user
+file: okta-user-suspicious-report.sql
+categories:
+- signal
+- okta
+sourceTypes:
+- okta
+schedule: "*/15 * * * *"
+notificationNames: []
+mitreAttacks:
+- initial-access
+severity: ""
+riskScore: 0
+```

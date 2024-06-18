@@ -1,0 +1,86 @@
+# Detections
+
+Detections currently are queries that execute on a schedule and their results
+of all queries that are run are saved to our underlying database. You can view
+the historic detection queries that have run on the RunReveal platform by
+searching several underlying tables.
+ - `scheduled_query_runs` - The results of all scheduled query runs, their
+   execution times, the number of rows they returned, and parameter values
+   that were passed to them.
+ - `detections` - The rows that your detection queries return. These results
+   contain the metadata of the associated detection, like risk score, mitre
+   attacks, etc.
+
+## Utilizing `scheduled_query_runs`
+If you are curious if a query of yours is executing, failing, erroring, or
+your parameters are being passed correctly, the scheduled_query_runs table
+is exceptionally helpful.
+
+For example, here's a way to look for errors that have occurred while
+executing in a detection called 'ExampleQuery'.
+
+```
+select *
+from scheduled_query_runs
+where queryName='ExampleQuery' and error!='' and executionTime > now() - interval '1 day'
+```
+
+## Utilizing `detections`
+
+The detections table is further subdivided into two views (that you can
+interact) with like a tables.
+ - `signals` - Detection queries that ran with the purpose of collecting data
+   and have no notification channel configured.
+ - `alerts` - Detection queries that ran and alerted one of your notification
+    channels.
+
+The detections table contains a row for each individual row returned by your
+query. Fields returned by your query that match the column names of our defined
+schema are saved directly into those columns in the detection table.
+
+There is a limit of 100 rows that  acn be saved with the detection table. If
+you need to exceed this limit for whatever reason, please contact us.
+
+## Detection Data Model
+The results of your detection queries are saved to the `detections` table. The
+detections table contains several fields, along with their types.
+
+- `id` - `String` - Unique identified of the run
+- `scheduledRunID` - `String` - The unique identifier of the scheduled query run
+- `workspaceID` - `String` - Your workspace ID
+- `detectionID` - `String` - The identified of the detection
+- `detectionName` - `String` - The name of the detection
+- `recordsReturned` - `Int32` - The number of rows returned by the query
+- `runTime` - `Int64` - The number of nanoseconds the query took to run
+- `query` - `String` - The actual query that was run for the scheduled query
+- `params` - `Map(String, String)` - The supplied parameters to the scheduled query
+- `columnNames` - `Array(String)` - An ordered array of column names returned by the query
+- `columnTypes` - `Array(String)` - An ordered array of the column types returned by the query
+- `results` - `String` - An array of the first 100 returned values from the query
+- `severity` - `String` - A string representing the severity of the alert
+- `actor` - `Map(String, String)` - Details about the user that ran the query
+- `resources` - `Array(String)` DEFAULT [] - Details about the resources returned from the query
+- `srcIP` - `String` - Details about the srcIP in the log entries
+- `dstIP` - `String` - Details about the dstIPs from the log entries
+- `notificationNames` - `Array(String)` - The names of the notification channels
+- `categories` - `Array(String)` DEFAULT [] - The categories that the query belongs to
+- `mitreAttacks` - `Array(LowCardinality(String))` DEFAULT [] - The MITRE ATT&CK technique categories that the query belongs to
+
+
+These tables can be accessed like any other table in RunReveal
+
+To query the detection table:
+```
+select * from detections
+```
+
+To query the signals view:
+```
+select * from signals
+```
+
+To query the alerts view:
+```
+select * from alerts
+```
+
