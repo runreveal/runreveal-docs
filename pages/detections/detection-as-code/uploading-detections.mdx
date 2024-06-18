@@ -1,0 +1,60 @@
+# Uploading Detections
+When it's time to upload detections, RunReveal's CLI is built specifically to
+make this process simple and not error prone. The upload takes place through
+our API.
+
+## Test your upload
+
+When you want to test to ensure that each detection is properly formatted and
+see which detections have been updated, deleted, or created, the dry run flag
+will show you exactly the information you want.
+
+```
+$ runreveal detections sync -d ~/detection-as-code --dry-run                                                            
+processing '/Users/evan/detection-as-code/1password/1password-unusual-client.yaml'                                           
+processing '/Users/evan/detection-as-code/cf-audit/anomalous-api-key-usage.yaml'                                             
+processing '/Users/evan/detection-as-code/cf-audit/new-cloudflare-api-key.yaml'                                              
+processing '/Users/evan/detection-as-code/cf-audit/user-added-removed-cloudflare.yaml
+...
+{                                                                                                                            
+     "detections": {                                                                                                         
+         "added": [                                                                                                                                                                                                                                       
+             "1password-unusual-client",                                                                                                                                                                                                             
+             "anomalous-api-key-usage",                                                                                                                                                                                                                 
+             "new-cloudflare-api-key",                                                                                                                                                                                                                        
+         ],
+         "deleted": [],                                                                                                                                                                                                                                   
+         "updated": [                                                                                                                                                                                                                                     
+             "user-added-removed-cloudflare"                                                                                         
+         ]                                                                                                                   
+     },                                                                                                                      
+     "dryRun": true                                                                                                          
+ }                          
+```
+
+## Uploading
+The only difference between uploading and performing a dryrun is the `--dry-run` flag.
+Remove the `--dry-run` flag and your detections will be uploaded.
+
+```
+$ runreveal detections sync -d ~/detection-as-code
+```
+
+If you created a detection in the UI, and then attempt to upload your detection
+from the CLI you will see an error message the first time you attempt to
+overwrite your UI detection.
+
+It will look a little something like this:
+```
+$ runreveal detections sync -d ~/detection-as-code --dry-run                                                            
+processing '/Users/evan/detection-as-code/1password/1password-unusual-client.yaml'                                           
+processing '/Users/evan/detection-as-code/cf-audit/anomalous-api-key-usage.yaml'                                             
+processing '/Users/evan/detection-as-code/cf-audit/new-cloudflare-api-key.yaml'                                              
+processing '/Users/evan/detection-as-code/cf-audit/user-added-removed-cloudflare.yaml
+ERROR  This detection name is already in use, please choose a different name. If you're trying to upload your detections using detection as code, try the -o flag to overwrite existing detections created in the UI.
+```
+
+If you see this error, then adding the `-o` flag will overwrite the existing
+detection and convert the detection from being `web` managed to being `cli`
+managed.
+
