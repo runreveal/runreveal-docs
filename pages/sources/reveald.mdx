@@ -90,7 +90,7 @@ Replace `{{YOUR-REVEALD-WEBHOOKURL}}` with the webhook given in the UI.
     // },
   },
   "destinations": {
-    "runreveal": {
+    "webhook": {
       "type": "runreveal",
       // Replace this webhook URL with your own, created on https://www.runreveal.com
       // as a "Reveald" type source
@@ -100,11 +100,21 @@ Replace `{{YOUR-REVEALD-WEBHOOKURL}}` with the webhook given in the UI.
       // a valid environment variable name
       // "webhookURL": "$WEBHOOK_URL",
     },
-    // "lumbermill": {
-    //  "type": "s3",
-    //  "bucketName": "the-lumber-mill",
-    //  "bucketRegion": "us-west-2",
-    // },
+    "blobstore": {
+      "type": "s3",
+      // bucketName is required
+      "bucketName": "our-s3-archive",
+      // bucketRegion is required
+      "bucketRegion": "us-west-2",
+      // pathPrefix is optional and default unset
+      "pathPrefix": "logs/",
+      // accessKeyID is required if not present in the environment as AWS_ACCESS_KEY_ID
+      "accessKeyID": "AKIAIOS...",
+      // secretAccessKey is required if not present in the environment as AWS_SECRET_ACCESS_KEY
+      "secretAccessKey": "SECRET",
+      // batchSize is optional
+      "batchSize": 100000,
+    },
   },
 }
 ```
