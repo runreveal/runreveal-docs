@@ -108,9 +108,12 @@ Replace `{{YOUR-REVEALD-WEBHOOKURL}}` with the webhook given in the UI.
       "bucketRegion": "us-west-2",
       // pathPrefix is optional and default unset
       "pathPrefix": "logs/",
-      // accessKeyID is required if not present in the environment as AWS_ACCESS_KEY_ID
+      // accessKeyID is required if not present in the environment as
+      // AWS_ACCESS_KEY_ID. If running on AWS, reveald can also be authenticated
+      // at the ec2 host/pod level using IAM roles.
       "accessKeyID": "AKIAIOS...",
-      // secretAccessKey is required if not present in the environment as AWS_SECRET_ACCESS_KEY
+      // secretAccessKey is required if not present in the environment as
+      // AWS_SECRET_ACCESS_KEY
       "secretAccessKey": "SECRET",
       // batchSize is optional
       "batchSize": 100000,
