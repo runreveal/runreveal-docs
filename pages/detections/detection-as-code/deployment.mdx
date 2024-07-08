@@ -1,34 +1,130 @@
-## Github Action
+import { Callout } from 'nextra/components'
+
+# Deployment
 
 A Github Action is available to use in your Github workflows. You can find the source code for it at, [https://github.com/runreveal/detection-sync-action](https://github.com/runreveal/detection-sync-action).
 
+## Tokens and Workspace
 To use the action you will need to store your generated API token and workspace ID in your Github account to be used as variables in the action. It is recommended to store your API token as a secret so that it remains hidden.
 
+To generate an API token navigate to your RunReveal [settings page](https://runreveal.com/dash/settings), and scroll down to `Generate New Token`.
 
-In your Github workflow file you can use the following example to sync your detections.
+Give the token a name and set the role as `cibot`. This will allow the workflow to edit detections but make no other changes to your account.
+
+<div style={{
+          display: "flex",
+          justifyContent: "center",
+        }}><img src="/create-token.png" /></div>
+
+Copy the token value and save it for later you will need to add it into your repo settings.
+
+<div style={{
+          display: "flex",
+          justifyContent: "center",
+        }}><img src="/token-value.png" /></div>
+
+You will also need to save your workspace ID that will be referenced in the workflows. This can also be found on your RunReveal settings page under the item labeled `Your workspace’s unique identifier`.
+
+## Workflows
+
+In your Git repo include a directory called `.github/workflows` in the root of your repo. 
+In this folder you can include the yaml files for your Github workflows, below are examples of two that we use to verify and sync our detections.
 
 ```yaml
-- name: sync-runreveal-detections
-  uses: runreveal/detection-sync-action@v1
-  with:
-    # The directory containing the detections you want to sync.
-    # Should be absolute path or relative to your current directory.
-    # Defaults to your current directory
-    directory: ./detections
+# This workflow will run when a new PR is created merging into the main branch.
+# It will perform the dry-run command and verify the yaml is valid for your detections.
+name: Test Detections
 
-    # A RunReveal API token generated with detection edit permissions
-    # For best results generate your token with the `cibot` role. 
-    token: ${{ secrets.RUNREVEAL_TOKEN }}
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  pull_request:
+    branches: [ main ]
 
-    # The RunReveal workspace ID to sync the detections with.
-    # This workspace should match the workspace the token was generated under.
-    workspace: ${{ vars.RUNREVEAL_WORKSPACE }}
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    name: Sync RunReveal Detections
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: sync-runreveal-detections
+        uses: runreveal/detection-sync-action@v2
+        with:
+          directory: ./detections
+          token: ${{ secrets.RUNREVEAL_TOKEN }}
+          workspace: ${{ secrets.RUNREVEAL_WORKSPACE }}
+          dry-run: true
 ```
 
-Update the token and workspace inputs with the name that you used when creating your secrets/variables. Also make sure the directory listed matches where your detections are located.
+```yaml
+# This workflow will run when a commit is pushed to the main branch.
+name: Sync
 
-When your workflow runs it will sync the files in the directory with your RunReveal account.
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
 
-> As of now, you can only sync one directory per workspace. Any detections not listed in your directory will be automatically removed from your account.
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
-> Detections will currently report as being updated even if there's no changes.  We're working on reporting exactly what's changing in each detection, so you can see which ones aren't being changed with every sync also.
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    name: Sync RunReveal Detections
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: sync-runreveal-detections
+        uses: runreveal/detection-sync-action@v2
+        with:
+          directory: ./detections
+          token: ${{ secrets.RUNREVEAL_TOKEN }}
+          workspace: ${{ secrets.RUNREVEAL_WORKSPACE }}
+```
+
+<Callout type="info">
+  Update the token and workspace inputs with the names that you used when creating your secrets/variables. 
+  
+  These workflows assume all detections are stored in a subdirectory called `detections`.
+</Callout>
+
+<Callout type="info">
+  As of now, you can only sync one directory per workspace. Any detections that are managed by detection as code and are not listed in your directory will be automatically removed from your account.
+</Callout>
+
+## Github Repo Secrets
+
+Navigate to the settings page for your repo and go to `Secrets and variables -> Actions`.
+
+Under the secrets tab, you can create a `New repository secret`. Your name should be the value that you used in your workflow, in our example we used `RUNREVEAL_TOKEN` and `RUNREVEAL_WORKSPACE`.
+We would create two new secrets with those names and paste the appropriate values that we saved from earlier.
+
+## Commit Detections
+
+You are now ready to start uploading your detections. Make a commit to the repo containing all of your detections under the directory listed in your workflow, in our example that would be `./detections/`.
+
+<Callout type="info">
+  An important note about the flow of detection as code.
+
+  If you exported all of your workspace's detections using the `runreveal detections export` cli command or from the UI, then uploading those detections will give an error as there will be a naming collision.
+
+  In order to allow Github actions to work as expected you will need to run the command `runreveal detections sync -d ./detections -o`, the `-o` flag will override all detections that have a matching name regardless where that detection is being managed from. 
+</Callout>
