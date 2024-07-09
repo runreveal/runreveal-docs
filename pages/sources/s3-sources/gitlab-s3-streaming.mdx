@@ -1,0 +1,67 @@
+import { Callout } from 'nextra/components'
+
+# Gitlab S3 Streaming Audit Logs
+<Callout type="info">
+ Gitlab S3 streaming is only available to Gitlab Ultimate customers.
+</Callout>
+
+With Log Streaming, Gitlab will forward all audit log events to an Amazon S3 bucket that will be ingested by RunReveal.
+
+### Setup
+
+There are 3 separate sections required to correctly setup log streaming. Creating an S3 bucket with the necessary permissions required for Gitlab to forward events. Adding the necessary permissions and properties to the S3 bucket to allow RunReveal to access and read the events. And creating your RunReveal source to link the bucket to your account.
+
+#### Bucket Setup
+
+If you already have Gitlab sending your logs to an S3 bucket you can skip this section, otherwise follow the steps provided in the [Gitlab documentation](https://docs.gitlab.com/ee/user/compliance/audit_event_streaming.html#aws-s3-destinations).
+
+#### RunReveal Permissions
+
+In order for RunReveal to ingest your Gitlab logs you will need to add an access policy to your S3 bucket.
+
+Attach the following IAM policy to the bucket, ensuring to replace `YOUR_BUCKET_NAME` with the name of the bucket the policy's being attached to.
+
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Allow-RunReveal-Read",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::253602268883:root"
+      },
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::YOUR_BUCKET_NAME/*",
+        "arn:aws:s3:::YOUR_BUCKET_NAME"
+      ]
+    }
+  ]
+}
+```
+
+Then, enable sending notifications to one of RunReveal's regional SNS topics by following along below.
+
+1. Find the bucket containing the logs you wish to send to RunReveal.
+2. From the bucket overview, click the "Properties" tab, then scroll down to "Event Notifications"
+3. Click "Create Event Notification"
+4. Give the configuration a name (for your own identifying purposes, doesn't matter what it is).
+5. Select "All object create events" in the events section (photo below)
+
+<img style={{maxWidth:"500px"}} src="/github-streaming-1.avif"/>
+
+6. Then input RunReveal's S3 regional SNS queue ARN (`arn:aws:sns:<s3-bucket-region>:253602268883:runreveal_gitlab`) under the "Destinations" block at the bottom like so.&#x20;
+
+
+<img style={{maxWidth:"500px"}} src="/gitlab-1.png"/>
+#### RunReveal Source Setup
+
+In RunReveal add a new `Gitlab Streaming` source. Give it a descriptive name and add the name of the bucket that you created.
+
+If your bucket already contains Gitlab events and you would like these ingested into your RunReveal account, once the source is created navigate to the 
+[S3 Backfill page](https://runreveal.com/dash/sources/add/backfill) and fill in the details to start a backfill process of your events.
+
