@@ -1,0 +1,33 @@
+# Palo Alto Panorama Traffic logs
+
+## Collecting logs in a bucket
+Palo alto panorama traffic logs are loaded from S3.
+You will need to forward your logs to a bucket prior to collecting them with RunReveal.
+
+With`reveald` here is what a panorama config might look like to tail your syslog for panorama logs.
+
+```
+{
+  "sources": {
+      "hostlogs": {
+        "type": "file",
+        "path": "/var/log/syslog/",
+        "extension": ".log",
+      },
+  },
+  "destinations": {
+      "runreveal-store": {
+        "type": "s3",
+        "bucketName": "runreveal-bucket",
+        "bucketRegion": "us-west-2",
+        "accessKeyID": "ACCESSKEY",
+        "secretAccessKey": "SECRET"
+      },
+  },
+}
+```
+
+## Setting up the source
+You'll need to set up the rest of the source like a normal s3 source. This entails:
+ 1. [Creating an event notification](https://docs.runreveal.com/sources/s3-sources#event-notifications) with the directions listed here 
+ 2. [Creating an IAM role](https://docs.runreveal.com/sources/s3-sources#creating-the-role) so that RunReveal can access the objects in the bucket.
