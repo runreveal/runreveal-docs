@@ -16,3 +16,62 @@ The following shows the schema of the data that is sent in the webhook.
 | title | string | The template title that was rendered. |
 | message | string | The template body that was rendered. |
 | query | scheduled query response | The field will be null if the notification was created from a trigger. Otherwise it will contain the data of the scheduled query. |
+
+## Webhook Signing
+Webhooks have a webhook secret that we use to sign the request body, along with a timestamp header we pass along with the notification.
+
+The webhook integrity hash is calculated by concatenating the timestamp header and the HTTP request post body together, and calculating a SHAHMAC256 using the secret key
+we provide to you. Make sure when calculating the hash that the hex string is treated as a byte array.
+
+<img src="/webhook_secret_ui.png"/>
+
+The HTTP Headers that we send along with all Webhook Notifications are described as:
+ - `RunReveal-Timestamp` -- The timestamp in unix seconds that the webhook was generated.
+ - `RunReveal-Integrity` -- The integrity hash that we calculated using our shared key.
+
+Here is an example function that we've used, in Golang, to successfully verify the webhooks.
+```
+func SHAHMAC256(key, data []byte) (string, error) {
+	mac := hmac.New(sha256.New, key)
+	_, err := mac.Write(data)
+	if err != nil {
+		return "", err
+	}
+	hashBytes := mac.Sum(nil)
+	base64Hash := base64.StdEncoding.EncodeToString(hashBytes)
+	return base64Hash, nil
+}
+
+func TestVerifySha256(t *testing.T) {
+	var integrity = "3w7SmNuf5UHk9v0WV6IIACBx/dZazysTcU8fxowNQVI="
+	var bodyPlusTime = `1720198139{"link":"https://runreveal.com/dash/detections/","message":"Yay! Your notification channel was tested successfully.","rawEvent":null,"test":{"status":true},"title":"RunReveal Notification Test"}`
+	var key = "b0c374a4fbfec3ad6047495ca83b4df3d428ed100f51462683c96dcefd74998e"
+
+	keyBytes, err := hex.DecodeString(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	base64Integrity, err := base64.StdEncoding.DecodeString(integrity)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resultHash, err := SHAHMAC256(keyBytes, []byte(bodyPlusTime))
+	if err != nil {
+		t.Fatal(err)
+	}
+	base64ResultHash, err := base64.StdEncoding.DecodeString(resultHash)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	itWorked := hmac.Equal(base64Integrity, base64ResultHash)
+	if !itWorked {
+		t.Fatal("Integrity check failed")
+	}
+}
+```
+
+Note, these signatures are calculated even for test notifications, so you can develop the code needed
+to verify webhook signatures in a straightforward way.
