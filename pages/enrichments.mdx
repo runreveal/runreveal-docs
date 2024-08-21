@@ -1,0 +1,126 @@
+# Enrichments
+
+Enrichments allow you to augment your log events with supplemental data based on pattern matching.
+
+## How it works
+
+An enrichment in Runreveal consists primarily of two parts:
+
+1) An enrichment configuration, which contains metadata about your enrichment like `Name` and `Description`, which log sources to
+enrich, as well as information about which log event field you wish to match with.
+
+2) A set of enrichment `Rules`, which describe the data you wish to add to your log events, and the conditions when you
+would like that data added.
+
+## Example
+
+Let's say you are wanting to enrich log events from your cloudflare audit log source, to map user emails to user id's
+from some other external system you have.
+
+First, let us take a look at an example log event from that source, a log in event from `bob@example.com`:
+
+```
+{
+  "action": {
+    "result": true,
+    "type": "login"
+  },
+  "actor": {
+    "email": "bob@example.com",
+    "id": "c38246172e13e3e341f7ef3319d2c913",
+    "ip": "24.225.52.121",
+    "type": "user"
+  },
+  "id": "a683351a-5e63-7272-72b6-6bf7f712fdf2",
+  "interface": "",
+  "metadata": {},
+  "newValue": "",
+  "oldValue": "",
+  "owner": {
+    "id": "c38246172e13e3e341f7ef3319d2c913"
+  },
+  "resource": {
+    "id": "c38246172e13e3e341f7ef3319d2c913",
+    "type": "account"
+  },
+  "when": "2024-08-20T23:47:18Z",
+  "newValueJson": {},
+  "oldValueJson": {}
+}
+```
+
+To create our enrichment configuration, we need to determine which log event field we want to match with to look up our
+supplemental data.  We tell the enrichment configuration how to find this field using
+[gjson path notation](https://github.com/tidwall/gjson/blob/master/SYNTAX.md#gjson-path-syntax).  In this case, we could create
+an enrichment configuration with path `actor.email` configured to enrich the cloudflare audit log source.
+
+<img src="/enrichment-config-create.png"/>
+
+Next, we will want to define a set of rules which will map cloudflare user email adresses to user id's.  If `bob@example.com` here
+had user id `12345`, then we could make a rule:
+
+<img src="/enrichment-rule-create.png"/>
+
+```
+exact, bob@example.com, {"user_id": "12345"}
+```
+
+This would tell Runreveal to match any log event where the value of `actor.email` is *exactly* `bob@example.com`.  If the event
+does match, then `{"user_id": "12345"}` will be added to the `enrichments` field of the log event before it is written to its destination.
+
+Now, we can save and enable our enrichment by clicking the `Create Enrichment` button:
+
+<img src="/enrichment-total-create.png"/>
+
+
+To verify that our enrichment is working, we can search for our newly enriched events on the `Explore` page:
+
+<img src="/enrichment-explore.png"/>
+
+
+From the results, we can see our resulting log event ends up in the logs table as:
+
+```
+{
+  ...
+  "enrichments": [
+    {
+      "data": {
+        "user_id": "12345"
+      },
+      "name": "actor.email",
+      "provider": "cloudflare-email-to-external-id",
+      "type": "custom",
+      "value": "bob@example.com"
+    }
+  ],
+  "rawLog": {
+    "action": {
+      "result": true,
+      "type": "login"
+    },
+    "actor": {
+      "email": "bob@example.com",
+      "id": "c38246172e13e3e341f7ef3319d2c913",
+      "ip": "24.225.52.121",
+      "type": "user"
+    },
+    "id": "a683351a-5e63-7272-72b6-6bf7f712fdf2",
+    "interface": "",
+    "metadata": {},
+    "newValue": "",
+    "oldValue": "",
+    "owner": {
+      "id": "c38246172e13e3e341f7ef3319d2c913"
+    },
+    "resource": {
+      "id": "c38246172e13e3e341f7ef3319d2c913",
+      "type": "account"
+    },
+    "when": "2024-08-20T23:47:18Z",
+    "newValueJson": {},
+    "oldValueJson": {}
+  },
+  ...
+}
+```
