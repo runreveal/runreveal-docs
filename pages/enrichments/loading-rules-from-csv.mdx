@@ -1,0 +1,38 @@
+# Loading Rules From CSV
+
+If you are creating an enrichment with many rules, you may find it more convenient to load your rule definitions from a CSV instead of
+manually creating each rule in the UI.  To do so, you should prepare a CSV with:
+
+* Exactly 3 columns
+* Comma delimited
+* Double quoted values.  Escaping of double quotes within values can be done with double double quotes (`""`)
+
+where each row is an enrichment rule of the form:
+
+```
+match_type,pattern,data
+```
+
+Where:
+
+* `match_type` is one of `exact`, `regex`, or `cidr`
+* `pattern` is the pattern to match for this rule
+* `data` is a JSON object with the data to be added to log events matching this enrichment rule.  `data` is furthermore restricted to string
+keys and values, with no nested objects.
+
+Some valid rule examples:
+
+```
+"exact","alice@example.com","{""user_id"":""12345""}"
+"regex","\.org^","{""email_tld"":""org""}"
+"cidr","10.0.0.0/16","{""location"":""san francisco""}"
+```
+
+
+On the create/edit enrichment page, in the `Rules` section, you will find a `Load from file` button.
+
+<img src="/enrichment-load-from-file.png"/>
+
+On successfully loading your rules, you will see the table below populated.  If you are happy with the results, you can click `Create Enrichment` (or `Update Enrichment` if this is an update) to enable your new rules.
+
+<img src="/enrichment-rules-loaded.png"/>
