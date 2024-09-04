@@ -1,0 +1,152 @@
+import { Callout } from 'nextra/components'
+
+# Sigma Streaming
+
+RunReveal also offers [Sigma](https://sigmahq.io) streaming detections that can be checked while the event is being processed in the pipeline. 
+
+## How it works
+
+A Sigma detection consists of a yaml file that lists metadata about the detection and the detection rule that will be matched against events.
+
+1. A user will upload a Sigma detection yaml file with at least a title and a detection. 
+Sigma yaml can also contain additional context for the detection that will be saved when the detection matches.
+2. When an event is ingested we check if the Sigma detection is setup to run for this source.
+3. If it is, we run the event's raw log and any defined enrichments through our Sigma processor to look for a match.
+4. If the Sigma rule matches, we check if the rule supplies any notification channels to alert to and then the event is inserted into your detections table in Clickhouse.
+
+## Sigma Rules
+
+RunReveal supports standard Sigma rule properties along with additional fields that help provide more context to the detection. At its most basic level a Sigma detection
+requires a `title` which is a unique descriptor to tell your detections apart, and a `detection` block which contains the rules that are checked.
+
+### Sources
+
+If a Sigma rule only contains the required fields, your detection will be uploaded but won't run on any events unless a source is also defined in the yaml.
+
+Sigma allows you to define a source using the `logsource` property.
+```yaml
+logsource:
+  category: cloud
+  product: aws
+  service: cloudtrail
+```
+
+RunReveal uses this field and checks all of the child properties to match them to a RunReveal source type. 
+If one of these properties matches a source type, e.g. the `service` field matches our `cloudtrail` source type, then all events ingested with the `cloudtrail` source type will be checked.
+
+We also offer two extra fields to specify which sources this rule applies to `sourcenames` and `sourcetypes`.
+
+**`sourcenames`** is a string array where you can list the unique names of your sources that you want this rule to evaluate on. This is useful if you have multiple sources with the same type (like a cloudtrail source for different environments) but only want a detection to run for your 'prod-cloudtrail' source.
+
+**`sourcetypes`** is also a string array where you can list multiple source types that the detection should match against. This can be useful if you want the same detection rule to match on different source types.
+
+### Sigma provided fields
+
+Sigma rules have a few fields that RunReveal uses to provide some extra context to the detection.
+
+**`description`** is used to provide a text description on what the detection does.
+
+**`level`** is used to give a detection a severity, RunReveal uses `low`, `medium`, `high`, and `critical` levels.
+
+**`tags`** are stored with a matched detection in the RunReveal category field. They can be used to help group detections.
+
+### Extra RunReveal fields
+
+RunReveal also provides additional fields for the Sigma rule to provide additional context or control the detection.
+
+| Sigma Field | Field Description |
+| --- |--- |
+| disabled |  If set to `true` the detection will be listed in your account but will not be checked with incoming events. |
+| notes | Additional notes about your detection to give additional context. |
+| riskscore | A score that can be assigned to a detection that can be used when performing signal chaining. |
+| mitreattacks | A list of mitre attack framework techniques that this detection checks. This can be used when identifying attack patterns. |
+| notificationnames | An array of notification channel names in your RunReveal workspace, if set and the detection triggers, an alert will be sent to the notifications listed. |
+
+## Example Sigma Rule
+
+Below is an example Sigma rule that will match when an okta sign in event fails.
+
+```yaml
+title: Detect Okta failures
+description: |-
+  This detection will produce a record in the `signals` table when an okta signin attempt fails.
+logsource:
+  product: okta
+
+detection:
+  filter:
+    eventType: user.session.start
+    outcome.result: FAILURE
+  condition: filter
+```
+
+## YAML schema
+
+<Callout type="info">
+To learn more about writing detections using the Sigma schema check out the [Sigma docs](https://sigmahq.io/).
+
+To learn more about the open source library RunReveal uses to parse Sigma rules, check out the [SigmaLite](https://github.com/runreveal/sigmalite) repo.
+</Callout>
+
+The following can be copied into a blank file to start creating your own Sigma detections.
+
+```yaml
+# Required: A unique title of the detection to identify it.
+title: The detection title
+
+# Required: The detection that will be matched against the incoming events.
+# In this scenario the detection will check the event for the text `runreveal.com`
+detection:
+  keywords:
+    - runreveal.com
+  condition: keywords
+
+# Optional: Set to true to turn off this detection.
+disabled: false
+
+# Optional: A description of the detection.
+description: A description of the detection and what it is doing.
+
+# Optional: An array of strings to help group queries
+tags:
+  - tag1
+  - tag2
+
+# Optional: A severity string to identify the importance of the detection results.
+# low, medium, high, critical
+level: low
+
+# Optional: An integer score to give the detection.
+riskscore: 40
+
+# Optional: Additional notes that can be attached to the detection.
+notes: |-
+  Extra info about the detection.
+
+# Optional: An array of mitre attack framework classifications. 
+# This is useful when identifying attack patterns.
+mitreattacks:
+  - evasion
+  - initial-access
+
+# Optional: An array of notification channel names that should receive an alert if this detection triggers
+notificationnames:
+  - email
+
+## logsource, sourcetypes, and sourcenames are all optional, but in order for the detection to be associated with specific events 
+## one of them needs to be filled in with a source that your workspace uses.
+# If the source type of the event matches on of the logsource fields, this detection will be checked.
+logsource:
+  category: cloud
+  product: aws
+  service: cloudtrail
+
+# An array of source types, if the source type of any event matches one in this list the detection will be checked. 
+sourcetypes:
+  - okta
+  - cloudtrail
+
+# An array of source names, if the source name the event was generated from matches an item in this list the detection will be checked.
+sourcenames:
+  - runreveal-okta
+```
