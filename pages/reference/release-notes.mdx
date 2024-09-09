@@ -1,5 +1,83 @@
 # RunReveal Release Notes
 
+## Week of September 2, Release Notes
+
+- PR: #853 - Sep-06-2024 - backend - performance - remove the watchdog timer from detection destination
+- PR: #852 - Sep-05-2024 - backend - bugfix - Update sigma package
+- PR: #850 - Sep-05-2024 - backend - bugfix - Missing comma in clickhouse view.
+- PR: #849 - Sep-05-2024 - backend - bugfix - Add textPayload to GCP log parsing.
+- PR: #848 - Sep-05-2024 - backend - performance - Change ack helper to not use wait group and not need a go func
+- PR: #845 - Sep-04-2024 - backend - bugfix - Fix crowdstrike fdr date parsing issues
+- PR: #844 - Sep-04-2024 - backend - bugfix - Change how nsg flow records are read
+- PR: #842 - Sep-03-2024 - backend - bugfix - Not telling k8s to continue to next bytes
+- PR: #840 - Sep-03-2024 - backend - performance - bump batch sizes
+- PR: #839 - Sep-03-2024 - backend - bugfix - Fix dnsfilter parsing issues
+- PR: #838 - Sep-03-2024 - backend - bugfix - Fix bugs with object storage readers and how they are acked
+- PR: #832 - Sep-02-2024 - backend - performance - Refactor Multi-Ingest Sources Slightly for Memory Efficiency
+- PR: #827 - Sep-05-2024 - backend - bugfix - Populate important okta risk debugContext fields.
+- PR: #622 - Sep-04-2024 - frontend - feature - Expose sigma links to users
+
+## Week of August 26, Release Notes
+
+- PR: #831 - Sep-01-2024 - backend - bugfix - Fix streaming clickhouse detection insert
+- PR: #830 - Aug-29-2024 - backend - feature - AppInfo view and fix AppInfo log format.
+- PR: #829 - Aug-29-2024 - backend - feature - Support parsing appinfo and userinfo crowdstrike fdr logs.
+- PR: #828 - Aug-28-2024 - backend - bugfix - Add no sso error message
+- PR: #826 - Aug-27-2024 - backend - bugfix - Error completely when receiving malformed logs.
+- PR: #825 - Aug-27-2024 - backend - bugfix - Update okta source to parse an array of RawMessage
+- PR: #824 - Aug-27-2024 - backend - feature - sso: migrate to list of approved domains
+- PR: #823 - Aug-27-2024 - backend - bugfix - Fix login bug for different cases.
+- PR: #820 - Aug-26-2024 - backend - bugfix - fix initialization of notificationListener
+- PR: #791 - Aug-26-2024 - backend - feature - Augment table schema requests with primary keys
+- PR: #621 - Sep-01-2024 - frontend - bugfix - Fix sigma 404 error
+- PR: #620 - Aug-31-2024 - frontend - bugfix - detections: don't export predefined parameters
+- PR: #619 - Aug-31-2024 - frontend - bugfix - Add parameters to detection view
+- PR: #618 - Aug-30-2024 - frontend - bugfix - Add padding to sources list page.
+- PR: #617 - Aug-29-2024 - frontend - feature - Add appinfo logs to front end.
+- PR: #616 - Aug-29-2024 - frontend - bugfix - Support map columns in the where clause builder (again)
+- PR: #615 - Aug-29-2024 - frontend - bugfix - Fix filter pattern not showing on filter page,.
+- PR: #614 - Aug-29-2024 - frontend - bugfix - Prevent filters page from crashing with new data model
+- PR: #613 - Aug-29-2024 - frontend - bugfix - Use correct cloudflare source type
+- PR: #612 - Aug-29-2024 - frontend - bugfix - Show entire description and notes fields without textarea
+- PR: #611 - Aug-29-2024 - frontend - feature - Support map columns in the where clause builder:
+- PR: #610 - Aug-28-2024 - frontend - bugfix - sidebar: don't full reload with anchor tags, use react's Link
+- PR: #609 - Aug-27-2024 - frontend - bugfix - Shading under detection frequency graph
+- PR: #608 - Aug-28-2024 - frontend - bugfix - detections: remove flashDetection from localstoage after loaded Fixes RUN-550
+- PR: #607 - Aug-27-2024 - frontend - feature - Toast login errors
+- PR: #602 - Aug-30-2024 - frontend - feature - Add sigma support to frontend
+- PR: #600 - Aug-26-2024 - frontend - bugfix - Update meeting links to demo page
+
+## Week of August 19, Release Notes
+
+- PR: #815 - Aug-23-2024 - backend - bugfix - Fix issue with missing azure logs
+- PR: #811 - Aug-22-2024 - backend - bugfix - fix ids
+- PR: #810 - Aug-22-2024 - backend - bugfix - Fix crowdstrike and notions normalized event IDs to use provider IDs
+- PR: #807 - Aug-21-2024 - backend - feature - Support CIDR matching enrichment rules
+- PR: #806 - Aug-20-2024 - backend - bugfix - Check for nil azure content length
+- PR: #805 - Aug-20-2024 - backend - bugfix - ack only if not nil
+- PR: #803 - Aug-20-2024 - backend - feature - Duplicate Event Source Middleware
+- PR: #798 - Aug-19-2024 - backend - feature - Add enrichment support to the backend
+- PR: #605 - Aug-23-2024 - frontend - feature - Allow sorting of sources
+- PR: #604 - Aug-22-2024 - frontend - bugfix - Don't clobber the webhook signing key. Don't alert on success.
+- PR: #603 - Aug-23-2024 - frontend - feature - Frontend support for CIDR matching rules
+- PR: #601 - Aug-20-2024 - frontend - bugfix - Make the detection results page not crash.
+- PR: #599 - Aug-21-2024 - frontend - feature - Frontend support for enrichments
+- PR: #597 - Aug-19-2024 - frontend - bugfix - Demo Form Update
+- PR: #596 - Aug-19-2024 - frontend - feature - Demo page
+
+## Week of August 12, Release Notes
+
+- PR: #802 - Aug-15-2024 - backend - feature - block login via oauth if sso configured
+- PR: #801 - Aug-15-2024 - backend - bugfix - Fix baseurl to use mktBase
+- PR: #799 - Aug-14-2024 - backend - feature - SSOReady for SAML Sign On
+- PR: #595 - Aug-16-2024 - frontend - feature - Add source add card to source list
+- PR: #594 - Aug-15-2024 - frontend - bugfix - sso: fix `⏎` navigating back instead of submitting
+- PR: #593 - Aug-15-2024 - frontend - feature - New source card.
+- PR: #592 - Aug-14-2024 - frontend - feature - SSO Support UI
+- PR: #591 - Aug-13-2024 - frontend - bugfix - Make back button on notifications work
+- PR: #590 - Aug-13-2024 - frontend - feature - Notification, creation, edit, and templates UI redo
+
+
 ## Week of August 5, Release Notes
 
 - PR: #797 - Aug-10-2024 - backend - bugfix - Fix multi ingest issues
