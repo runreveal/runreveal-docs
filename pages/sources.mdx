@@ -30,7 +30,7 @@ Sources providing these can range from cloud provider logs, SAAS applications th
 Below you will find links to help setup and explain each of the object storage providers that we support.
 
 These ingestion types work by:
-1. storing an object containing a number of events in a blob storage container. 
+1. Storing an object containing a number of events in a blob storage container. 
 2. Sending an object creation notification to a message queue.
 3. RunReveal will subscribe to this queue and read new notifications.
 4. RunReveal will download the object listed in the notification.

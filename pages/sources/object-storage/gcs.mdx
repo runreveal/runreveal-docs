@@ -63,7 +63,7 @@ GCP docs walking you through this process can be found [here]([https://cloud.goo
 Open the cloud shell terminal inside the project you want the new pub/sub topic to be located in and run the command,
 
 ```bash
-gcloud storage buckets notifications create gs://BUCKET_NAME --topic=TOPIC_NAME
+gcloud storage buckets notifications create gs://BUCKET_NAME --topic=TOPIC_NAME -e OBJECT_FINALIZE
 ```
 
  - `BUCKET_NAME` is the name of the relevant bucket.
