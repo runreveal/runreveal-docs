@@ -1,10 +1,37 @@
 # SentinelOne
 
-The SentinelOne Source works by polling your activity logs every 60 seconds.
+SentinelOne is an endpoint security platform that uses AI to detect, prevent, and respond to malware, ransomware, and other advanced threats. SentinelOne logs capture endpoint activity such as threat detections, behavioral anomalies, quarantined files, and automated responses taken to mitigate threats. These logs provide valuable insights for monitoring endpoint security, investigating incidents, and ensuring rapid response to cyberattacks.
+
+## Ingest Method
+
+This source is a polling source and will download new items from /activities enpoint from the SentinelOne API approximately every 60 seconds.
+
+## Setup 
 
 Currently the SentinelOne source only supports retrieving items from the /activities api endpoint.
 
-Create the source in the RunReveal sources dashboard.
+### Step 1: Log in to SentinelOne Management Console
+
+1. Open your web browser and navigate to your SentinelOne Management Console URL.
+2. Enter your credentials and click "Sign In".
+
+### Step 2: Access the API Token Generation Page
+
+1. Once logged in, click on your user profile icon in the top-right corner of the screen.
+2. From the dropdown menu, select "My User".
+3. In the left sidebar, click on "API Tokens".
+
+### Step 3: Generate a New API Token
+
+1. On the API Tokens page, click the "Generate" button.
+2. You'll be prompted to enter a name for your API token. Choose a descriptive name that indicates its purpose, for example, "Integration API Key".
+3. Select the appropriate scope for this API key. The scope determines what actions the API key can perform. For most integrations, you'll need at least "Read" permissions.
+4. Set an expiration date for the token. It's a good security practice to set an expiration date rather than creating a token that never expires.
+5. Click "Generate" to create the new API token.
+
+### Step 4: RunReveal setup
+
+Create the source in the RunReveal sources dashboard. You will need your organizations SentinelOne domain and the created API key.
 
 <img src="/sentinelone-1.png"/>
 

@@ -1,0 +1,81 @@
+import { Callout } from 'nextra/components'
+
+# AWS ALB logs
+
+AWS ALB distributes incoming application traffic across multiple targets (such as EC2 instances, containers, or IP addresses) 
+to improve fault tolerance and scalability. ALB logs, known as access logs, provide details on request and response data, 
+including client IP, request path, latency, and response status, which help in monitoring traffic patterns, troubleshooting, 
+and ensuring security.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_alb
+```
+</Callout>
+
+## Setup
+
+### Step 1: Create an S3 Bucket
+
+1. Sign in to the AWS Management Console and open the Amazon S3 console.
+2. Click on "Create bucket".
+3. Enter a unique name for your bucket and select the region.
+4. Configure the bucket settings as needed (e.g., versioning, encryption).
+5. Click "Create bucket" to finish.
+
+### Step 2: Configure Bucket Policy
+
+1. In the S3 console, select the bucket you just created.
+2. Go to the "Permissions" tab.
+3. Under "Bucket policy", click "Edit".
+4. Paste the following policy, replacing `{your-bucket-name}` with your actual bucket name:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::elb-account-id:root"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::{your-bucket-name}/AWSLogs/*"
+        }
+    ]
+}
+```
+
+5. Replace `elb-account-id` with the appropriate ID for your region. You can find the list of IDs [here](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html#access-logging-bucket-permissions).
+6. Click "Save changes".
+
+### Step 3: Enable Access Logs for Your ALB
+
+1. Open the EC2 console and navigate to "Load Balancers".
+2. Select your Application Load Balancer.
+3. In the "Description" tab, scroll down to the "Attributes" section and click "Edit".
+4. Check the box next to "Access logs".
+5. Select the S3 bucket you created earlier from the dropdown.
+6. Optionally, specify a prefix for the log files.
+7. Click "Save".
+
+![ALB Attributes](/alb-bucket-enable.png)
+
+### Step 4: Verify Log Delivery
+
+1. Wait for a few minutes to allow some traffic to flow through your ALB.
+2. Go back to the S3 console and open your bucket.
+3. Navigate to the "AWSLogs" folder (or the custom prefix you specified).
+4. You should see log files appearing in this location.
+
+---
+
+For more information, refer to the [official AWS documentation on ALB access logs](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html).

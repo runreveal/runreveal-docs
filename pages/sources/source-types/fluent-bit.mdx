@@ -5,7 +5,23 @@ designed to be fast and efficient, and it is optimized for low resource
 consumption. Fluent Bit is part of the Fluentd project ecosystem, and it is
 licensed under the terms of the Apache License v2.0.
 
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_generic
+```
+</Callout>
+
 ## Setup
+
+### 1. Stream logs to S3
 
 To ingest fluent-bit logs into RunReveal, you will need to set up an S3 bucket
 to stream your fluent logs to, if you don't have one already.
@@ -26,7 +42,9 @@ S3 bucket.
     upload_timeout               60s
 ```
 
+### 2. Source setup
+
 From there, take the bucket you've configured fluent-bit to stream logs to, and
 follow our guide on setting up a [Generic S3
-source](/sources/s3-sources/generic), paying close attention to the event
+source](/sources/source-types/generic/generic-s3), paying close attention to the event
 transformation step to normalize your logs for optimal query performance.

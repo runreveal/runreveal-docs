@@ -1,10 +1,27 @@
 # Palo Alto Panorama Traffic logs
 
+Palo Alto Panorama is a centralized management system for Palo Alto Networks' firewalls. Its Traffic logs provide detailed information about network traffic, including source and destination IP addresses, application usage, and session details, which can be used for monitoring and analyzing network activity.
+
+## Ingestion Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_palopanotraf
+```
+</Callout>
+
 ## Collecting logs in a bucket
+
 Palo alto panorama traffic logs are loaded from S3.
 You will need to forward your logs to a bucket prior to collecting them with RunReveal.
 
-With`reveald` here is what a panorama config might look like to tail your syslog for panorama logs.
+Use the following config example in [reveald](/sources/source-types/reveald) to forward panorama syslogs to your S3 bucket.
 
 ```
 {
@@ -26,8 +43,3 @@ With`reveald` here is what a panorama config might look like to tail your syslog
   },
 }
 ```
-
-## Setting up the source
-You'll need to set up the rest of the source like a normal s3 source. This entails:
- 1. [Creating an event notification](https://docs.runreveal.com/sources/s3-sources#event-notifications) with the directions listed here 
- 2. [Creating an IAM role](https://docs.runreveal.com/sources/s3-sources#creating-the-role) so that RunReveal can access the objects in the bucket.

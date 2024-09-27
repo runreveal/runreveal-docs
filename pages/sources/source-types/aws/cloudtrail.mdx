@@ -1,0 +1,121 @@
+import { Callout } from 'nextra/components'
+
+# CloudTrail
+
+ AWS CloudTrail enables governance, compliance, and operational and risk auditing by logging detailed event history of actions taken within your AWS account. 
+ CloudTrail logs include information on who made API calls, 
+ what resources were affected, when the calls occurred, and the source IP, helping with monitoring, troubleshooting, and security analysis.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_cloudtrail
+```
+</Callout>
+
+## Cloudformation Setup
+If you don't yet have a trail setup, you'll need to either set up an Organization trail, or a non-organization trail. If you'd like RunReveal to create the trail, and fully set-up the the event notification, and access to the bucket, you can use these cloudformation templates.
+
+RunReveal can help with this setup process using these two Cloudformation templates.
+- [Organization Trail](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create?templateURL=https://runreveal-public-assets.s3.us-east-2.amazonaws.com/runreveal-cloudformation.yml&stackName=RunRevealSetup) (this will fail if you've not created an organization).
+- [Non-organization Trail](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create?templateURL=https://runreveal-public-assets.s3.us-east-2.amazonaws.com/runreveal-cloudformation-noorg.yml&stackName=RunRevealSetupNoOrgs)
+
+Once the cloudformation runs successfully, provide RunReveal with the name of the bucket, ensure the Role ARN is blank, and click "Connect".
+
+
+## Manual Setup
+### Step 1: Create an S3 Bucket
+
+1. Sign in to the AWS Management Console and open the Amazon S3 console.
+2. Click on "Create bucket".
+3. Enter a unique name for your bucket and select the region.
+4. Configure the bucket settings as needed (e.g., versioning, encryption).
+5. Click "Create bucket" to finish.
+
+### Step 2: Configure Bucket Policy
+
+1. In the S3 console, select the bucket you just created.
+2. Go to the "Permissions" tab.
+3. Under "Bucket policy", click "Edit".
+4. Paste the following policy, replacing `{your-bucket-name}` with your actual bucket name:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AWSCloudTrailAclCheck",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:GetBucketAcl",
+            "Resource": "arn:aws:s3:::{your-bucket-name}"
+        },
+        {
+            "Sid": "AWSCloudTrailWrite",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "cloudtrail.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::{your-bucket-name}/AWSLogs/*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control"
+                }
+            }
+        }
+    ]
+}
+```
+
+5. Click "Save changes".
+
+### Step 3: Create a CloudTrail Trail
+
+1. Open the CloudTrail console.
+2. Click on "Trails" in the left navigation pane.
+3. Click "Create trail".
+4. Enter a name for your trail.
+5. For "Storage location", select "Create new S3 bucket" or "Use existing S3 bucket" and select the bucket you created earlier.
+6. Configure other settings as needed (e.g., log file validation, SNS notification).
+7. Click "Next".
+
+![cloudtrail setup](/cloudtrail-setup.png)
+
+### Step 4: Choose Log Events
+
+1. In the "Choose log events" section, select the types of events you want to log.
+2. For a comprehensive trail, you can select:
+   - Management events
+   - Data events
+   - Insights events (optional)
+3. Configure any additional event settings as needed.
+4. Click "Next".
+
+![cloudtrail-log-events](/cloudtrail-log-events.png)
+
+### Step 5: Review and Create
+
+1. Review your trail configuration.
+2. If everything looks correct, click "Create trail".
+
+### Step 6: Verify Log Delivery
+
+1. Wait for some time to allow AWS to generate and deliver logs.
+2. Go back to the S3 console and open your bucket.
+3. Navigate to the "AWSLogs" folder.
+4. You should see a folder structure like: `AWSLogs/{your-account-id}/CloudTrail/{region}/year/month/day/`
+5. Inside the day folders, you'll find your CloudTrail log files.
+
+---
+
+For more information, refer to the [official AWS documentation on CloudTrail](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html).

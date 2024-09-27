@@ -1,7 +1,34 @@
+import { Callout } from 'nextra/components'
+
 # Teleport Cloud Audit Logs
+
 These logs are emitted by Teleport Cloud to an S3 bucket and it's worth noting that the setup process
 on the teleport cloud side is slightly unique compared to other providers. They will ask you to run
 several commands in AWS Cloud Shell to instantiate a collection of teleport buckets.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides. 
+If using the `AWS External Audit Storage` method for sending Teleport logs to AWS perform the necessary setup first before finishing the RunReveal ingestion steps.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+- [Azure Blob Storage](/sources/object-storage/azure.mdx)
+- [Google Cloud Storage](/sources/object-storage/gcs.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket, use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_teleport
+```
+</Callout>
+
+## Setup
+
+Teleport offers first party support for sending events to AWS. Otherwise you will need to setup your Teleport account to forward events to
+your cloud storage account most likely using their [fluentd guide](https://goteleport.com/docs/admin-guides/management/export-audit-events/fluentd/).
+
+### AWS External Audit Storage
 
 At the end of the process you should be have a new bucket called something like:
 ```
@@ -10,8 +37,7 @@ xxxxxxxx-longterm-zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz
 
 This is the bucket you'll provide RunReveal with access to.
 
-# 1. Create an integration with teleport to your bucket
-Their docs are available online, but under Enroll New Integration, you'll need to set up a next 
+Their docs are available [online](https://goteleport.com/docs/admin-guides/management/external-audit-storage/), but under Enroll New Integration, you'll need to set up a next 
 AWS External Audit Storage integration.
 
 <img src="/teleport-1.png"/>
@@ -30,19 +56,3 @@ Once you provide teleport with this information they will ask you to continue wi
 an Amazon CloudShell command one final time to provision your buckets, and finally test the connection.
 
 <img src="/teleport-3.png"/>
-
-# 2. Normal RunReveal S3 Setup
-Provide RunReveal with the role name, external ID, and bucket name that teleport is writing to.
-Keep in mind, teleport will create multiple buckets in your account and the bucket we will read
-from is the one that contains the word `longterm`, like this example:
-
-```
-xxxxxxxx-longterm-zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz
-```
-
-Once you find that bucket, create the normal event notification for that bucket to write to our
-SNS queue.
-
-```
-arn:aws:sns:<REGION>:253602268883:runreveal_teleport
-```

@@ -1,7 +1,55 @@
+import { Steps } from 'nextra/components'
+
 # MongoDB
 
-The mongodb source polls your MongoDB atlas account every minute for new access events.
+MongoDB Atlas is a fully-managed cloud database service for MongoDB. Atlas logs provide information on database operations, such as query execution, connections, index usage, and performance metrics. They also capture events related to user activity, database configuration changes, and security incidents. These logs are essential for monitoring database health, optimizing query performance, troubleshooting issues, and ensuring data security and compliance.
 
-Once the source is added RunReveal will populate new logs from MongoDB atlas every minute.
+## Ingest Method
 
-<img src="/mongo-1.png"/>
+This source is a polling source and will download new logs from the app API approximately every 60 seconds.
+
+## Setup
+
+<Steps>
+
+### Log in to MongoDB Atlas
+
+1. Open your web browser and navigate to the [MongoDB Atlas login page](https://cloud.mongodb.com/).
+2. Enter your credentials and click "Sign In".
+
+### Access the API Keys Page
+
+1. Once logged in, click on "Access Manager" in the left sidebar.
+2. In the Access Manager section, click on the "API Keys" tab.
+3. Click the "Create API Key" button to start the creation process.
+
+### Configure the API Key
+
+1. Enter a descriptive name for your API key (e.g., "Log Retrieval API Key").
+2. Select the appropriate access rights:
+   - For log access, you typically need the "Project Read Only" role.
+   - If you need more permissions, select them accordingly.
+3. Click "Next".
+
+### Add IP Access List
+
+1. In the "Add IP Access List" section, you can restrict API access to specific IP addresses.
+2. To add your current IP:
+   - Click "Add Current IP Address".
+   - Alternatively, you can manually enter IP addresses or ranges.
+3. Click "Next".
+
+### Generate the API Key
+
+1. Review your settings on the final page.
+2. Click "Create API Key".
+
+### Save Your API Credentials
+
+After generating the API key, you'll be presented with two important pieces of information:
+
+1. Public Key
+2. Private Key
+
+
+</Steps>

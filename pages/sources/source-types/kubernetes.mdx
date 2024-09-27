@@ -1,0 +1,18 @@
+import { Callout } from 'nextra/components'
+
+# Kubernetes Audit Logs
+
+Kubernetes Audit Logs provide a detailed record of events and API calls made within a Kubernetes cluster. These logs capture information such as who made a request, the resources accessed or modified, and the outcome of the request. Kubernetes audit logs are essential for tracking cluster activity, monitoring user actions, ensuring security compliance, and investigating potential security incidents or misconfigurations within the cluster.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+- [Azure Blob Storage](/sources/object-storage/azure.mdx)
+
+## Setup
+
+Getting your logs into a storage account can be accomplished using something like Fluentd or a similar method.
+The expectation though is that the logs are line delimited json.

@@ -1,13 +1,18 @@
+import { Callout, Steps } from 'nextra/components'
+
 # Google Workspace Audit Logs
 
+Google Workspace Audit Logs track user activity and administrative actions within Google Workspace services such as Gmail, Google Drive, and Google Meet. These logs capture details like login attempts, file access, sharing actions, and configuration changes. They are essential for monitoring user behavior, auditing data access, investigating security incidents, and ensuring compliance with organizational policies and regulations.
+
+<Callout type='info'>
 Connecting GSuite requires a GSuite administrator who:
 
 * Can perform a domain wide delegation
 * Create a new gcp project
+</Callout>
 
-You will also need to have the `runreveal` CLI installed and a RunReveal account created before we can start receiving data from Google Workspace using this guide.
-
-#### Step 1: Setup Google Cloud Project and Enable APIs
+<Steps>
+### Setup Google Cloud Project and Enable APIs
 
 1. Go to the Google Cloud Console.
 2. Create a new project or select an existing one.
@@ -16,7 +21,7 @@ You will also need to have the `runreveal` CLI installed and a RunReveal account
 5. Go to "Credentials" > "+ CREATE CREDENTIALS" > "Service account" and follow the process to create a new service account.
 6. After creating the service account, click on it and go to "Keys" > "Add Key" > "Create new key" > "JSON". Download the JSON file; this will be your credentials file.
 
-#### Step 2: Enable API Access in Google Admin Console
+### Enable API Access in Google Admin Console
 
 1. Go to the [Google Admin Console](https://admin.google.com/).
 2. Navigate to "Security" > "API controls."
@@ -25,9 +30,7 @@ You will also need to have the `runreveal` CLI installed and a RunReveal account
 5. In the "OAuth Scopes" field, enter the following scope: `https://www.googleapis.com/auth/admin.reports.audit.readonly`
 6. Save the configuration.
 
-
-
-#### Step 3: Add the Google Workspace source to RunReveal
+### Add the Google Workspace source to RunReveal
 
 In the RunReveal dashboard, select "Google Workspace" in the sources page.
 
@@ -39,10 +42,4 @@ In the RunReveal dashboard, select "Google Workspace" in the sources page.
 
 Click "Verify Settings" and "Connect" to save your new source.
 
-## Query your logs
-
-Once your source is created logs will begin flowing to RunReveal within 1 minute.&#x20;
-
-<img src="/google-workspace-logs-2.png"/>
-
-You can find your google workspace source on the sources page and click `Query` to see a sample result set of your logs, or navigate to the Explore page to see logs with the sourceType `gsuite`
+</Steps>

@@ -1,0 +1,29 @@
+
+
+# Cloudflare Gateway HTTP
+
+Cloudflare Gateway HTTP logs capture details of HTTP and HTTPS requests made through Cloudflare's secure web gateway. These logs include information such as the URLs accessed, the IP addresses of the requestors, HTTP methods used, and the response codes. They are valuable for monitoring web traffic, enforcing security and content filtering policies, detecting malicious or suspicious activity, and ensuring compliance with organizational web usage policies.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+- [Azure Blob Storage](/sources/object-storage/azure.mdx)
+- [Google Cloud Storage](/sources/object-storage/gcs.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_cf_gateway_http
+```
+</Callout>
+
+## Setup
+
+Setting up Cloudflare gateway HTTP logs requires the use of Cloudflare Logpush.
+
+Navigate to the Logpush setup page in your Cloudflare account and create a new logpush job that sends gateway HTTP logs to your storage bucket.
+
+Once created Cloudflare will begin to push logs to your bucket and RunReveal will start to ingest them.

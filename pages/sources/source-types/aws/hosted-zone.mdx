@@ -1,6 +1,8 @@
+import { Callout } from 'nextra/components'
+
 # AWS Hosted Zone Logs
 
-AWS hosted zone logs allow you to log public DNS queries to your Route53 hosted zones.
+AWS Hosted Zones are part of Amazon Route 53, a scalable DNS web service that routes end-user requests to applications. DNS query logs capture details about DNS queries made for your hosted zones, including the domain queried, request source, and response provided. These logs help with tracking DNS traffic, debugging DNS resolution issues, and identifying potential security risks, such as DNS-based attacks.
 
 Setup for hosted zone logs require three steps,
 1. Configuring the hosted zone to log to CloudWatch.

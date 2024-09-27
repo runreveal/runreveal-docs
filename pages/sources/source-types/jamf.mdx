@@ -1,9 +1,35 @@
 # JAMF Logs
-Once you create a JAMF source, your source will be assigned a
-webhook URL that is available on your sources list page.
 
-<img src="/jamf-webhook-1.png"/>
+JAMF provides device management solutions for Apple devices in enterprise environments, allowing administrators to deploy, configure, and secure iOS and macOS devices. JAMF logs capture details about device management activities, such as policy deployments, application installations, security compliance checks, and device inventory updates. These logs are critical for monitoring device health, ensuring compliance with organizational policies, and troubleshooting issues related to device configurations.
 
-Once you copy this webhook URL, add it to your jamf organization to receive
-event logs.
+## Ingest Method
 
+This source uses am HTTP webhook to ingest events. Create the source in RunReveal and a new webhook URL will be generated. Use this URL when setting up your source.
+
+![webhook-setup](/webhook-setup.png)
+
+## Setup
+
+### Step 1: Access the Webhook Configuration
+
+1. Once logged in, navigate to "Settings" in the top navigation bar.
+2. In the left sidebar, under "Global Management", click on "Webhooks".
+
+### Step 2: Create a New Webhook
+
+1. On the Webhooks page, click the "+ New" button.
+2. You'll be presented with the webhook configuration form.
+
+### Step 3: Configure the Webhook
+
+Fill out the webhook configuration form with the following details:
+
+1. Display Name: Enter a descriptive name for your webhook (e.g., "Log Forwarding Webhook").
+2. Status: Set to "Enabled".
+3. URL: Enter the URL of your webhook endpoint where JAMF will send the data.
+4. Authentication Type: Choose the appropriate authentication method required by your webhook endpoint:
+   - None: If your endpoint doesn't require authentication.
+   - Basic Authentication: If your endpoint uses username/password authentication.
+   - OAuth 2.0: If your endpoint uses OAuth 2.0 for authentication.
+5. Content Type: Select "application/json" unless your endpoint requires a different format.
+6. Webhook Event: Choose the events you want to trigger the webhook. For comprehensive logging, you might want to select all available events.

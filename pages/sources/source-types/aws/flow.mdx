@@ -1,0 +1,93 @@
+import { Callout } from 'nextra/components'
+
+# VPC Flow Logs
+
+AWS VPC Flow Logs capture information about the IP traffic going to and from network interfaces in a Virtual Private Cloud (VPC). These logs provide details such as source and destination IP addresses, ports, protocols, traffic direction, and the acceptance or rejection of the traffic. They are useful for network monitoring, troubleshooting connectivity issues, and auditing traffic for security analysis.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_flow
+```
+</Callout>
+
+## Setup
+
+### Step 1: Create an S3 Bucket
+
+1. Sign in to the AWS Management Console and open the Amazon S3 console.
+2. Click on "Create bucket".
+3. Enter a unique name for your bucket (e.g., "my-vpc-flow-logs-bucket").
+4. Select the region where your VPC is located.
+5. Configure the bucket settings as needed (e.g., versioning, encryption).
+6. Click "Create bucket" to finish.
+
+### Step 2: Configure Bucket Policy
+
+1. In the S3 console, select the bucket you just created.
+2. Go to the "Permissions" tab.
+3. Under "Bucket policy", click "Edit".
+4. Paste the following policy, replacing `{your-bucket-name}` with your actual bucket name:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AWSLogDeliveryWrite",
+            "Effect": "Allow",
+            "Principal": {"Service": "delivery.logs.amazonaws.com"},
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::{your-bucket-name}/AWSLogs/*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:x-amz-acl": "bucket-owner-full-control"
+                }
+            }
+        },
+        {
+            "Sid": "AWSLogDeliveryAclCheck",
+            "Effect": "Allow",
+            "Principal": {"Service": "delivery.logs.amazonaws.com"},
+            "Action": "s3:GetBucketAcl",
+            "Resource": "arn:aws:s3:::{your-bucket-name}"
+        }
+    ]
+}
+```
+
+5. Click "Save changes".
+
+### Step 3: Create a Flow Log
+
+1. Open the Amazon VPC console.
+2. In the navigation pane, choose "Your VPCs".
+3. Select the VPC for which you want to create a flow log.
+4. Choose the "Flow logs" tab.
+5. Choose "Create flow log".
+6. Configure the flow log:
+   - For "Filter", choose "All" to capture all traffic.
+   - For "Maximum aggregation interval", choose your preferred interval.
+   - For "Destination", select "Send to an S3 bucket".
+   - For "S3 bucket ARN", enter the ARN of the bucket you created (format: `arn:aws:s3:::{your-bucket-name}`).
+   - Optionally, specify a "Log file format" if you want to customize the fields.
+   - For "Log record format", choose your preferred format (e.g., AWS default format).
+7. Choose "Create flow log".
+
+### Step 4: Verify Log Delivery
+
+1. Wait for some time to allow traffic to generate logs (this may take up to 15 minutes).
+2. Go to the S3 console and open your bucket.
+3. You should see folders created with the structure: `AWSLogs/{aws-account-id}/vpcflowlogs/{region}/{year}/{month}/{day}/`
+4. Inside these folders, you'll find your VPC Flow Log files.
+
+---
+
+For more information, refer to the [official AWS documentation on VPC Flow Logs](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html).
