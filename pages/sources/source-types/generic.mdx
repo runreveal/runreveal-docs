@@ -1,0 +1,34 @@
+import { Callout } from 'nextra/components'
+
+# Generic Log Sources
+
+Generic log sources allow you to send any type of event to RunReveal.
+
+## Ingest Methods
+
+RunReveal offers the following ways to ingest Generic log sources:
+
+- [Azure Storage Account](/sources/source-types/generic/generic-azure)
+- [AWS S3](/sources/source-types/generic/generic-s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+- [Google Cloud Storage](/sources/object-storage/gcs.mdx)
+- Webhooks
+
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_generic
+```
+</Callout>
+
+## Transform
+
+Along with the standard setup for the source, you can also define which fields from your log match the RunReveal normalized schema.
+Existing values will be overwritten by what is selected.
+
+Access child objects using a `.` character or for a complete list of supported syntax visit [these docs](https://github.com/tidwall/gjson/blob/master/SYNTAX.md).
+
+![transform](/transform.png)
+
+Normalizing your logs will make it easier to detect across all of your sources.

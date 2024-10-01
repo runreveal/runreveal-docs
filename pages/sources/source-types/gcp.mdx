@@ -1,0 +1,73 @@
+import { Callout, Tabs, Steps } from 'nextra/components'
+
+# Google Cloud Platform (GCP) Logs
+
+GCP logs provide comprehensive monitoring and logging across all Google Cloud services through Cloud Logging. These logs capture various types of data, including system events, API calls, network traffic, resource access, and performance metrics. GCP logs are essential for tracking user activity, monitoring infrastructure, troubleshooting issues, auditing security and compliance, and optimizing the performance of Google Cloud resources.
+
+## Ingest Methods
+
+GCP Logs can be ingested using the GCS object storage method as well as setting up a webhook to receive events.
+
+GCS buckets are inherently cheaper than using the webhook method but logs can be delayed by up to an hour. The webhook ingestion
+imports logs as soon as they are generated, but using pub/sub to forward every event can become more expensive if there are lots of logs.
+
+- [Google Cloud Storage](/sources/object-storage/gcs.mdx)
+- RunReveal Webhook
+
+<Tabs items={['Google Cloud Storage', 'Webhook Ingestion']} defaultIndex="0">
+
+<Tabs.Tab>
+
+After creating your cloud storage bucket and other resources needed to receive events, you will need to setup a GCP log router to forward logs to the bucket.
+
+### GCP Log Router Sink Setup
+
+Navigate to the GCP [Log router](https://console.cloud.google.com/logs/router) setup page to create a new sink.
+You can setup a logging sink for a single project or your entire organization and forward logs to the bucket created.
+Create a new logging sink giving it a name, choose `Cloud Storage bucket` as the sink service. Enter the bucket information that was created as the destination bucket.
+Add an optional inclusion or exclusion filter to limit the logs that are forwarded by this logging sink.
+
+![logging sink](/gcp-poll-9.png)
+
+<Callout type="info">
+  When routing logs directly to cloud storage, Google will batch the logs and write them to a file every hour. It may take some time before you see any logs start to show up in the bucket.
+</Callout>
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+<Steps>
+
+### RunReveal Source
+
+Create your new GCP source and select `Webhook` as your ingest method. You will be given a webhook URL that you will need to provide to GCP.
+
+### Pub/Sub Setup
+
+Navigate to pub/sub resource and under Topics click Create topic. Give your topic a descriptive name like "RunReveal" and click Create. **Make note of your topic ID.**
+
+On your new pub topic, click "Create Subscription"
+
+<img src="/gcp-2.png"/>
+
+Give the Subscription ID a name like "RunReveal" and select Push as the Delivery Type.
+
+Paste your RunReveal webhook URL into the GCP logs Delivery Endpoint URL and Click Save.
+
+### Create a sink
+
+<img src="/gcp-5.png"/>
+
+1. Search for Logs Explorer.
+2. Click on Logs Explorer and then navigate to Log Router.
+3. Click Create Sink. Give your sink a descriptive name like "RunReveal"
+4. Select the sink service as Cloud Pub/Sub topic
+5.  Fill in the PROJECT\_ID and TOPIC\_ID and click Next
+<img src="/gcp-6.png"/>
+6. Select "Include logs ingested by this organization and all child resources"
+7. Click Next, followed by Create Sink
+
+</Steps>
+
+</Tabs.Tab>
+</Tabs>
