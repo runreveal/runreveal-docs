@@ -1,0 +1,33 @@
+import { Callout } from 'nextra/components'
+
+# Gitlab S3 Streaming Audit Logs
+<Callout type="warning">
+ Gitlab S3 streaming is only available to Gitlab Ultimate customers.
+</Callout>
+
+GitLab Audit Logs provide a detailed record of events and actions taken within a GitLab instance, 
+helping organizations track changes for security and compliance purposes. 
+The logs capture information such as user activity (e.g., login attempts, project changes, and group modifications), timestamps, 
+and the specific actions performed, enabling administrators to monitor user behavior, investigate incidents, 
+and ensure adherence to security policies.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+- [Google Cloud Storage](/sources/object-storage/gcs.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_gitlab
+```
+</Callout>
+
+## Setup
+
+Follow Gitlab's docs on how to enable log streaming in your account. RunReveal does not currently support Gitlab HTTP destinations.
+
+[https://docs.gitlab.com/ee/user/compliance/audit_event_streaming.html](https://docs.gitlab.com/ee/user/compliance/audit_event_streaming.html)

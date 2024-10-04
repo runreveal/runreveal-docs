@@ -1,0 +1,108 @@
+import { Callout } from 'nextra/components'
+
+# Google Cloud Storage
+
+The current process for ingesting logs from Google Cloud Storage (GCS) involves 3 steps.
+
+1. Send your logs/events to a storage bucket.
+2. An *Object Created* event is triggered and adds a message to a pub/sub topic.
+3. Every minute, RunReveal will poll a pub/sub subscription on the created topic, pull any new notifications, and process the objects that are returned.
+
+## Setup
+
+Setting up a GCS ingestion source requires a few steps to be repeated for each new source.
+
+1. Create a service account with a JSON key.
+2. Create a storage bucket giving read access to the created service account.
+3. Create a GCS bucket notification that writes to a new pub/sub topic.
+4. Create a pub/sub subscription that RunReveal can use to poll for new events giving subscribe access to the service account.
+5. Create a RunReveal source and provide us with the details of your setup.
+
+<Callout type="info">
+  Service accounts require the following permissions in order for RunReveal to process logs.
+  1. `Storage Object Viewer` on the storage bucket where logs are stored.
+  2. `Pub/Sub Subscriber` on the pub/sub subscription where event notifications are sent.
+</Callout>
+
+### Service Account Creation
+
+Choose a project that you would like the storage bucket, pub/sub topic, and service account to reside and switch to that project in the GCP Console.
+
+Create a new service account (or use an existing one) by navigating to the service account creation page, https://console.cloud.google.com/iam-admin/serviceaccounts/create
+
+Give the service account a name, id, and a description. **Make sure to copy the generated service email address as it will be needed in a future steps**.
+
+![gcp service account creation](/gcp-poll-1.png)
+
+Once created, open the service account and navigate to the keys menu. Create a new JSON private key, this will be uploaded to RunReveal to allow access to your GCP resources.
+
+![gcp service account key](/gcp-poll-2.png)
+
+### Storage Bucket Creation
+
+Navigate to the GCP [cloud storage](https://console.cloud.google.com/storage/browser) page and create a new bucket.
+
+Give the bucket a name, and fill in the remaining settings based on your needs.
+
+<Callout type="info">
+  If adding a retention policy to the bucket, make sure its no less than 4 hours. 
+  This will insure that RunReveal has sufficient time to import all of the logs before the object has been deleted.
+</Callout>
+
+Once the bucket is created, go to the permission settings for it and click on Grant Access. 
+Add the email address for the service account that was created in step 1, and assign the `Storage Object Viewer` role to it.
+
+![bucket permissions](/gcp-poll-3.png)
+
+### GCS Bucket Notification Creation
+
+After the bucket is created you will need to create a pub/sub notification when new objects are added to the bucket. 
+Currently GCP doesn't offer a way to do this in the UI, but using the following commands you can enable them in the *GCP cloud shell*.
+GCP docs walking you through this process can be found [here]([https://cloud.google.com/storage/docs/reporting-changes](https://cloud.google.com/storage/docs/reporting-changes)
+
+Open the cloud shell terminal inside the project you want the new pub/sub topic to be located in and run the command,
+
+```bash
+gcloud storage buckets notifications create gs://BUCKET_NAME --topic=TOPIC_NAME -e OBJECT_FINALIZE
+```
+
+ - `BUCKET_NAME` is the name of the relevant bucket.
+ - `TOPIC_NAME` is the Pub/Sub topic to send notifications to. If you specify a topic that doesn't exist in your project, the command creates one for you.
+
+### Pub/Sub Subscription Creation
+
+Once the notification has been added a new topic should have been created. 
+Create a new `pull` subscription for the topic so RunReveal will be able to access the notifications.
+
+Give the new subscription an id and select the topic that was created when setting up the bucket notification. 
+Choose `Pull` as the delivery type and set the rest of the settings according to your preferences.
+
+![topic creation](/gcp-poll-7.png)
+
+Now that you have a topic and subscription created you will need to grant the service account, that you created in step 1, the `Pub/Sub Subscriber` role. 
+Click on the Subscriptions menu option and select the subscription that was created. 
+In the permissions info panel add a new principal and enter the service account email and select `Pub/Sub Subscriber` as the role. 
+This will allow RunReveal to subscribe to this topic and process the new object notifications.
+
+![topic creation](/gcp-poll-8.png)
+
+<Callout type="info">
+  Make sure to save the subscription name as this will be needed when setting up your RunReveal source.
+</Callout>
+
+## RunReveal Source Setup
+
+Sources that allow you to use GCS to ingest logs will all have the same setup.
+Navigate to the [Connect a source](https://runreveal.com/dash/sources/add) page and find the source you are adding.
+Once open, select the `Google Cloud Storage Bucket` ingest method and fill in the fields.
+
+![gcs-setup](/gcs-rr-setup.png)
+
+You will need the subscription path that was created from [step 4](#pubsub-subscription-creation).
+
+You will also need the json private key file that was downloaded when creating your service account. You can either select the file from your machine, or copy and paste the JSON object into the field.
+
+## Final Steps
+
+At this point all of the pieces are in place for RunReveal to access logs stored in the bucket. 
+Continue to the source docs for specific instructions on how to get your logs into the GCS bucket.

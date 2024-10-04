@@ -1,7 +1,4 @@
 {
-    "api-polling-sources": "API Polling Sources",
-    "s3-sources": "S3 Sources",
-    "webhook-sources": "Webhook Sources",
-    "azure": "Azure",
-    "reveald": "Reveald"
+    "object-storage": "Object Storage",
+    "source-types": "Source Types"
 }

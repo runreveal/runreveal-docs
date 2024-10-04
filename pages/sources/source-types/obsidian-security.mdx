@@ -1,0 +1,16 @@
+# Obsidian Security
+
+Obsidian Security provides threat detection and response for SaaS environments, focusing on monitoring user behavior and detecting account compromise or insider threats. Obsidian Security logs capture detailed activity across SaaS applications, including user access, permissions changes, anomalous behavior, and potential security incidents. These logs help organizations detect threats, enforce security policies, and safeguard against unauthorized access or data breaches.
+
+
+## Ingest Method
+
+This source uses am HTTP webhook to ingest events. Create the source in RunReveal and a new webhook URL will be generated. Use this URL when setting up your source.
+
+![webhook-setup](/webhook-setup.png)
+
+## Setup
+
+Once you copy this webhook URL, add it to your obsidian organization to receive
+event logs.
+

@@ -1,9 +1,74 @@
 # Sources
-RunReveal sources usually work via three different methods.
 
- - API Polling Sources - RunReveal pulls the logs.
- - Webhook sources - Logs are pushed to RunReveal.
- - S3 Sources - Logs are batched to S3, where RunReveal reads them.
+In Order to start writing detections looking for threats you first need to send RunReveal your logs.
 
-The provider that we're integrating with dictates the method that RunReveal
-uses to receives logs.
+## Ingest Method
+
+RunReveal sources provide a few different ingestion methods for sending us data. Some sources may provide more than one option when setting it up.
+
+![multi-ingest](/sources/multi-ingest.png)
+
+### Webhook
+
+A webhook source will generate a unique URL that can be used to forward events to. This URL is provided to your app and events are sent to RunReveal and processed.
+
+Webhook sources can be the easiest to setup and maintain but are the most prone to errors.
+Networking issues that may cause HTTP requests to fail can mean events are lost. 
+If given an option, setting up retries for events can give some error handling in these scenarios.
+Every source is different and retries are not guaranteed to be available.
+
+### Polling
+
+A polling source is the most common ingestion method that RunReveal offers. Polling sources work by making an API call to the source
+and returning events that have occurred. 
+These API calls are usually performed on a 60 second timer, RunReveal stores a token indicating where we left off and requests all new events (some sources may only request a limited amount to reduce the number of events returned).
+
+Every polling source is different, but generally RunReveal requires some sort of account identifier and some sort of access credentials to view your logs.
+These access credentials are stored in RunReveal, in an encrypted format, and used to authenticate to the source on your behalf.
+If an error occurs such as a network outage or the source is down, RunReveal will be able to pick up where we left off to make sure no logs are missed.
+
+### Object Storage
+
+RunReveal offers a few different object storage providers and methods to ingest logs. However, these ingestion types all work in a similar manner allowing you to keep a backup of your log events in a storage bucket that you control.
+Sources providing these can range from cloud provider logs, SAAS applications that store logs in a bucket, or event generic buckets that store custom logs.
+
+Below you will find links to help setup and explain each of the object storage providers that we support.
+
+These ingestion types work by:
+1. Storing an object containing a number of events in a blob storage container. 
+2. Sending an object creation notification to a message queue.
+3. RunReveal will subscribe to this queue and read new notifications.
+4. RunReveal will download the object listed in the notification.
+5. RunReveal will read, process, and ingest the events in the blob object.
+
+#### [AWS S3 Bucket](sources/object-storage/s3.mdx)
+
+Events are stored in an AWS S3 bucket that is under your control, 
+object creation notifications are forwarded to one of RunReveal's SNS topics.
+Once we receive the notification we will download the object and begin processing events.
+
+#### [AWS S3 Bucket with Custom SQS](sources/object-storage/external-s3.mdx)
+
+Similar to the regular S3 method, events are stored in a bucket that you control.
+Object notifications are instead sent to an SQS queue that is also in your control.
+RunReveal will subscribe to your SQS queue and process the notifications.
+
+#### [Azure Blob Storage](sources/object-storage/azure.mdx)
+
+Events are stored in a storage account container in your Azure subscription.
+Object creation notifications are sent to a storage queue where RunReveal will subscribe and process the notifications.
+
+#### [Google Cloud Storage Bucket](sources/object-storage/gcs.mdx)
+
+Events are stored in a GCS bucket in your GCP account. 
+Object creation notifications are sent to a pub/sub topic and RunReveal will subscribe to the topic to process the notifications.
+
+## Health Checks
+
+Along with adding your source settings to ingest logs, RunReveal offers the ability to enable health checks on your source.
+A health check will check your source volume every 15 minutes to verify if any logs have been received. 
+Once the threshold limit is reached we will alert the configured notification channels that the source is unhealthy.
+
+You can select the duration that you want health checks to alert on and select the frequency that alerts should be sent.
+Select the notification channels that you would like to be alerted on, if no notification channels are selected the health check will be run, but no notification will be sent.
+

@@ -1,0 +1,130 @@
+import { Callout } from 'nextra/components'
+
+# AWS S3 Bucket with Custom SQS
+
+An AWS S3 with custom SQS source works by saving logs to an S3 bucket and creating a put object notification that sends notifications to an SQS queue that you control.
+RunReveal will subscribe to this queue, read the event notifications, access the listed bucket object, and read events from it.
+
+This method is useful if you are already sending notifications to another SNS topic, adding your own SQS queue as a subscriber to that topic will allow you to fanout notifications to multiple subscribers.
+
+## AWS Access Methods
+
+Along with an S3 bucket where your events are stored, you will also need to create an SQS queue that new object notifications are forwarded to.
+RunReveal will need to be given `ListBucket` & `GetObject` permissions on the S3 bucket(s) containing the logs and `ReceiveMessage` and `DeleteMessage` permissions on the SQS queue.
+
+### Custom IAM role
+
+S3 sources support reading via an IAM Role in your AWS account.
+
+At a high level you'll need to create a role and provide that role access to the data you want RunReveal to ingest as well as the SQS queue that we should subscribe to.
+
+#### Creating the role
+
+When you create a source that supports AWS Role based access to the objects, you'll be prompted to provide a role ARN. 
+Your role will need to have at least the following permissions, one for reading objects in your S3 bucket and a second for receiving and deleting messages in your SQS queue.
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<bucket-name>",
+                "arn:aws:s3:::<bucket-name>/*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sqs:DeleteMessage",
+                "sqs:ReceiveMessage"
+            ],
+            "Resource": [
+                "arn:aws:sqs:us-east-2:<account-id>:<sqs-queue-name>"
+            ]
+        },
+        {
+            "Action": [
+                "kms:Decrypt"
+            ],
+            "Resource": [
+                "arn:aws:kms:us-west-2:EXAMPLE_AWS_ACCOUNT:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}
+```
+
+<Callout type="info">
+  If your bucket objects are encrypted with an AWS managed AWS key, you don't need the KMS policy. 
+  If it's encrypted with a KMS key you created that lives in your account, you'll need to include the KMS policy as well.
+</Callout>
+
+#### Secure Access Using External ID
+
+The external ID configuration helps prevent the confused deputy problem. 
+The trusted entities configuration necessary for RunReveal to access your account looks like this. 
+Make sure you fill in the external ID with whatever you set up on your source.
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::253602268883:root"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "sts:ExternalId": "<EXTERNAL_ID>"
+                }
+            }
+        }
+    ]
+}
+```
+
+### AWS Access Key
+
+Give an AWS user access to Read/List the S3 bucket with your logs in it. Generate a new AWS access key and provide RunReveal with the access key id and secret.
+
+RunReveal will use the provided access key to authenticate access to your AWS account when reading S3 objects.
+
+## Event Notification
+
+Once RunReveal has access to the objects in your bucket and SQS queue, the queue will need to be notified when new objects are stored.
+Enable sending notifications to your SQS queue either by sending to an SNS topic or directly to the queue.
+
+1. Find the bucket containing the logs you wish to send to RunReveal.
+2. From the bucket overview, click the "Properties" tab, then scroll down to "Event Notifications"
+3. Click "Create Event Notification"
+4. Give the configuration a name (for your own identifying purposes, doesn't matter what it is).
+5. Select "All object create events" in the events section (photo below)
+
+<img src="/s3-role-2.png"/>
+
+6. Then input the arn of the SQS queue or SNS topic that notifications will be sent to.
+
+## RunReveal Source Setup
+
+Sources that allow you to use S3 to ingest logs will all have the same setup.
+Navigate to the [Connect a source](https://runreveal.com/dash/sources/add) page and find the source you are adding.
+Once open, select the `AWS S3 Bucket with custom SQS` ingest method and fill in the fields.
+
+![external s3 setup](/sources/external-s3-setup.png)
+
+You will need the URL of the SQS queue that events are sent to and the region the queue was created in.
+Depending on the authentication method selected supply the necessary role/external id or access key/secret.
+
+## Final Steps
+
+At this point all of the pieces are in place for RunReveal to access logs stored in the bucket. 
+Continue to the source docs for specific instructions on how to get your logs into the S3 bucket.

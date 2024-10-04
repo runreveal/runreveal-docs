@@ -1,0 +1,17 @@
+# Tailscale Flow Logs
+
+Tailscale Flow Logs provide detailed information about network traffic passing through a Tailscale-managed network, capturing data such as source and destination IP addresses, ports, protocols, and the volume of data transmitted. These logs are useful for monitoring network usage, identifying unusual traffic patterns, troubleshooting connectivity issues, and ensuring the security of peer-to-peer connections within a Tailscale network.
+
+## Ingest Method
+
+This source uses am HTTP webhook to ingest events. Create the source in RunReveal and a new webhook URL will be generated. Use this URL when setting up your source.
+
+![webhook-setup](/webhook-setup.png)
+
+## Setup
+
+Once you're assigned a webhook URL, in Tailscale's Logs product, select "Network logs",
+create a Splunk streaming destination, and set RunReveal's webhook URL as your
+webhook URL without any Token or API key.
+
+<img src="/tailscale-flow-2.png"/>

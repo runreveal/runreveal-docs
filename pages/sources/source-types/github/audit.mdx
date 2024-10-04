@@ -1,0 +1,58 @@
+import { Callout } from 'nextra/components'
+
+# Github Audit Logs
+
+GitHub Audit Logs provide a detailed record of actions and events within a GitHub organization or repository. 
+These logs capture information such as user logins, repository changes (e.g., pushes, merges, deletions), permission modifications, 
+and security settings updates. They help administrators track user activity, ensure security compliance, and audit changes for 
+troubleshooting and incident investigation.
+
+## Ingest Methods
+
+Github audit logs can be ingested using two separate methods, streaming audit logs where Github will push your logs to a cloud storage account to be ingested by RunReveal, 
+and API polling where RunReveal will use an access token to poll your Github organization for new audit logs every 60 seconds.
+
+### Log Streaming
+
+#### Resource Setup
+
+If you plan to use audit log streaming you will need to setup the necessary resources and permissions for RunReveal to get access.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+- [Azure Blob Storage](/sources/object-storage/azure.mdx)
+- [Google Cloud Storage](/sources/object-storage/gcs.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_github
+```
+</Callout>
+
+#### Github Setup
+
+Once the resources and permissions are set for RunReveal you will need to setup Github to send logs to your bucket.
+
+Follow the steps provided in the [GitHub documentation](https://docs.github.com/en/enterprise-cloud@latest/admin/monitoring-activity-in-your-enterprise/reviewing-audit-logs-for-your-enterprise/streaming-the-audit-log-for-your-enterprise#setting-up-audit-log-streaming)
+to setup streaming for the cloud provider that you are using.
+
+### API Polling
+
+When setting up API polling RunReveal will only need two items, the name of the organization that we should be polling audit logs for, and an API token to access your account.
+
+#### API Token
+
+To generate an API token navigate to the `Personal access tokens (classic)` page in your GitHub account and click on Generate new token, or follow this link [https://github.com/settings/tokens/new](https://github.com/settings/tokens/new)
+
+<Callout type="info">
+Make sure you are under your personal account settings and are logged in with a user that has access to your organizations audit logs. When creating a new token make sure its a classic type. The required permissions are not available for fine grained tokens yet.
+</Callout>
+
+Give the token a description and select an expiration for it. When selecting the scopes the only required scope is the `read:audit_log`.
+
+## RunReveal Source Setup
+
+Once all of the other setup steps have been completed you can now log into RunReveal and create the [Github source](https://runreveal.com/dash/sources/add/github).
+
+Select the ingest method that you are using and fill in the details for your setup.

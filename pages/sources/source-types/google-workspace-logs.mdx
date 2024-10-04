@@ -1,0 +1,45 @@
+import { Callout, Steps } from 'nextra/components'
+
+# Google Workspace Audit Logs
+
+Google Workspace Audit Logs track user activity and administrative actions within Google Workspace services such as Gmail, Google Drive, and Google Meet. These logs capture details like login attempts, file access, sharing actions, and configuration changes. They are essential for monitoring user behavior, auditing data access, investigating security incidents, and ensuring compliance with organizational policies and regulations.
+
+<Callout type='info'>
+Connecting GSuite requires a GSuite administrator who:
+
+* Can perform a domain wide delegation
+* Create a new gcp project
+</Callout>
+
+<Steps>
+### Setup Google Cloud Project and Enable APIs
+
+1. Go to the Google Cloud Console.
+2. Create a new project or select an existing one.
+3. Navigate to the "APIs & Services" > "Dashboard" section.
+4. Click "+ ENABLE APIS AND SERVICES" and search for "Admin SDK API." Enable it.
+5. Go to "Credentials" > "+ CREATE CREDENTIALS" > "Service account" and follow the process to create a new service account.
+6. After creating the service account, click on it and go to "Keys" > "Add Key" > "Create new key" > "JSON". Download the JSON file; this will be your credentials file.
+
+### Enable API Access in Google Admin Console
+
+1. Go to the [Google Admin Console](https://admin.google.com/).
+2. Navigate to "Security" > "API controls."
+3. In the "Domain wide delegation" section, click "Manage Domain Wide Delegation."
+4. Click "Add new" and enter the Client ID of your service account (you can find this in your service account details in the Google Cloud Console).
+5. In the "OAuth Scopes" field, enter the following scope: `https://www.googleapis.com/auth/admin.reports.audit.readonly`
+6. Save the configuration.
+
+### Add the Google Workspace source to RunReveal
+
+In the RunReveal dashboard, select "Google Workspace" in the sources page.
+
+1. Give your source a name.
+2. The `subject` **must** be an administrator of your google workspace account, usually it will be the email address of the person who performed the domain-wide delegation.
+3. Either choose the `credential.json` file using the file picker, or paste the contents into the `Credential` text area.
+
+<img src="/google-workspace-logs-1.png"/>
+
+Click "Verify Settings" and "Connect" to save your new source.
+
+</Steps>

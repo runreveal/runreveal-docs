@@ -1,0 +1,29 @@
+import { Callout } from 'nextra/components'
+
+# Cloudflare HTTP Logs
+
+Cloudflare HTTP logs provide detailed information about HTTP and HTTPS requests passing through Cloudflare’s reverse proxy and content delivery network (CDN). These logs capture data such as client IPs, request URLs, response status codes, caching status, request method (GET, POST, etc.), and performance metrics like latency. They are useful for monitoring web traffic, troubleshooting website performance, detecting security threats such as DDoS attacks, and optimizing content delivery.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+- [Azure Blob Storage](/sources/object-storage/azure.mdx)
+- [Google Cloud Storage](/sources/object-storage/gcs.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_cloudflarehttp
+```
+</Callout>
+
+## Setup
+
+Setting up Cloudflare gateway DNS logs requires the use of Cloudflare Logpush.
+
+Navigate to the Logpush setup page in your Cloudflare account and create a new logpush job that sends your HTTP logs to your storage bucket.
+
+Once created Cloudflare will begin to push logs to your bucket and RunReveal will start to ingest them.

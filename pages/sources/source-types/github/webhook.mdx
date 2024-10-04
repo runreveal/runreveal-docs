@@ -1,0 +1,23 @@
+# Github Webhook Events
+
+GitHub Webhook events are automated notifications sent to a specified endpoint when certain actions occur in a repository or organization. 
+These events capture activities such as push events, pull request creations or updates, issue comments, and release publications.
+
+## Ingest Method
+
+This source uses am HTTP webhook to ingest events. Create the [Github Webhook](https://runreveal.com/dash/sources/add/github-webhook) source in RunReveal and a new webhook URL will be generated. Use this URL when setting up your source.
+
+![webhook-setup](/webhook-setup.png)
+
+
+## Setup
+
+In Github under your organization settings, click on the `Webhooks` menu item and then `Add webhook`.
+
+<img src="/github-webhook-2.png"/>
+
+Paste the webhook URL that RunReveal provided when setting up your source, set the content type to `application/json`, and select which events you would like to receive from Github.
+
+![github setup](/github-webhook-setup.png)
+
+Once added Github will begin to forward events to your RunReveal account.

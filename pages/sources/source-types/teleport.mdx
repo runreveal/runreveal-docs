@@ -1,0 +1,58 @@
+import { Callout } from 'nextra/components'
+
+# Teleport Cloud Audit Logs
+
+These logs are emitted by Teleport Cloud to an S3 bucket and it's worth noting that the setup process
+on the teleport cloud side is slightly unique compared to other providers. They will ask you to run
+several commands in AWS Cloud Shell to instantiate a collection of teleport buckets.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides. 
+If using the `AWS External Audit Storage` method for sending Teleport logs to AWS perform the necessary setup first before finishing the RunReveal ingestion steps.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+- [Azure Blob Storage](/sources/object-storage/azure.mdx)
+- [Google Cloud Storage](/sources/object-storage/gcs.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket, use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_teleport
+```
+</Callout>
+
+## Setup
+
+Teleport offers first party support for sending events to AWS. Otherwise you will need to setup your Teleport account to forward events to
+your cloud storage account most likely using their [fluentd guide](https://goteleport.com/docs/admin-guides/management/export-audit-events/fluentd/).
+
+### AWS External Audit Storage
+
+At the end of the process you should be have a new bucket called something like:
+```
+xxxxxxxx-longterm-zzzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz
+```
+
+This is the bucket you'll provide RunReveal with access to.
+
+Their docs are available [online](https://goteleport.com/docs/admin-guides/management/external-audit-storage/), but under Enroll New Integration, you'll need to set up a next 
+AWS External Audit Storage integration.
+
+<img src="/teleport-1.png"/>
+
+As part of the setup process, you'll provide teleport with a name for your integration, the iam role
+name you'd like for _teleport_ to create, the bucket name you'd like _teleport_ to create, and the bucket
+prefix.
+
+<img src="/teleport-2.png"/>
+
+Once you provide these bits of information, you'll be given a Amazon CloudShell command to run. This will create
+the role and the bucket within your AWS account. Once you provide teleport with your role's name, including the
+AWS account ID.
+
+Once you provide teleport with this information they will ask you to continue with the integration by running
+an Amazon CloudShell command one final time to provision your buckets, and finally test the connection.
+
+<img src="/teleport-3.png"/>

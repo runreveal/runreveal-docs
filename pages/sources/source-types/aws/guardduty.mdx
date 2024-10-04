@@ -1,0 +1,103 @@
+import { Callout } from 'nextra/components'
+
+# GuardDuty
+
+AWS GuardDuty is a threat detection service that continuously monitors your AWS accounts, networks, and workloads for malicious or unauthorized behavior. GuardDuty logs provide findings that identify potential security threats such as compromised instances, unusual API calls, reconnaissance activity, and anomalous behavior. These findings help in enhancing cloud security by providing actionable insights for incident response and threat mitigation.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_guardduty
+```
+</Callout>
+
+## Setup
+
+### Step 1: Enable GuardDuty
+
+1. Sign in to the AWS Management Console and open the GuardDuty console.
+2. If you haven't used GuardDuty before, you'll see a "Get Started" page. Click "Enable GuardDuty".
+3. If you've used GuardDuty before, ensure it's enabled for the desired regions.
+
+### Step 2: Create an S3 Bucket
+
+1. Open the Amazon S3 console.
+2. Click on "Create bucket".
+3. Enter a unique name for your bucket (e.g., "my-guardduty-findings-bucket").
+4. Select the region where you want to store your findings.
+5. Configure the bucket settings as needed (e.g., versioning, encryption).
+6. Click "Create bucket" to finish.
+
+### Step 3: Configure Bucket Policy
+
+1. In the S3 console, select the bucket you just created.
+2. Go to the "Permissions" tab.
+3. Under "Bucket policy", click "Edit".
+4. Paste the following policy, replacing `{your-bucket-name}` with your actual bucket name and `{your-account-id}` with your AWS account ID:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowGuardDutyToCreateObjects",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "guardduty.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::{your-bucket-name}/*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "{your-account-id}"
+                }
+            }
+        },
+        {
+            "Sid": "AllowGuardDutyToGetBucketLocation",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "guardduty.amazonaws.com"
+            },
+            "Action": "s3:GetBucketLocation",
+            "Resource": "arn:aws:s3:::{your-bucket-name}",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "{your-account-id}"
+                }
+            }
+        }
+    ]
+}
+```
+
+5. Click "Save changes".
+
+### Step 4: Configure GuardDuty to Send Findings to S3
+
+1. Return to the GuardDuty console.
+2. In the navigation pane, choose "Settings".
+3. In the "Findings export options" section, choose "Configure now" (or "Edit" if already configured).
+4. For "Frequency for updated findings", choose your preferred frequency.
+5. For "Choose export method", select "Send to S3 bucket".
+6. For "Bucket name", enter the name of the S3 bucket you created.
+7. Optionally, enter a "KMS encryption key" if you want to encrypt the exported findings.
+8. Choose "Save".
+
+### Step 5: Verify Findings Export
+
+1. GuardDuty will now export findings to your S3 bucket at the frequency you specified.
+2. To verify, you can go to your S3 bucket and look for new objects. The path will typically be:
+   `AWSLogs/{your-account-id}/GuardDuty/{region}/year/month/day/`
+3. Note that if you don't have any findings yet, no files will be exported.
+
+---
+
+For more information, refer to the [official AWS documentation on GuardDuty](https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html).

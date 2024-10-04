@@ -1,0 +1,86 @@
+import { Callout } from 'nextra/components'
+
+# AWS DNS Logs
+
+AWS VPC DNS provides DNS resolution within a Virtual Private Cloud (VPC), allowing instances to resolve domain names to IP addresses. 
+DNS query logs, captured via Amazon Route 53 Resolver query logging, provide insight into DNS queries made by resources in the VPC, 
+including the domain names requested, source IP, and response codes. This helps with network troubleshooting, security monitoring, 
+and identifying potentially malicious domains.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_awsdns
+```
+</Callout>
+
+## Setup
+
+### Step 1: Enable VPC DNS Query Logging
+
+1. Sign in to the AWS Management Console and open the Amazon VPC console.
+2. In the navigation pane, choose "Your VPCs".
+3. Select the VPC for which you want to enable DNS query logging.
+4. Choose "Actions" &gt; "Edit DNS hostnames".
+5. Select "Enable" for DNS hostnames if it's not already enabled.
+6. Choose "Save changes".
+7. Now, choose "Actions" &gt; "Edit DNS resolution".
+8. Select "Enable" for DNS resolution if it's not already enabled.
+9. Choose "Save changes".
+10. Finally, choose "Actions" &gt; "Edit VPC settings".
+11. Scroll down to "DNS query logging" and select "Enable".
+12. For "Destination", choose "Send to CloudWatch Logs".
+13. For "Log group name", enter a name (e.g., `/aws/vpc/dns/<your-vpc-id>`).
+14. Choose "Save changes".
+
+### Step 2: Create an S3 Bucket
+
+1. Open the Amazon S3 console.
+2. Click on "Create bucket".
+3. Enter a unique name for your bucket and select the region.
+4. Configure the bucket settings as needed (e.g., versioning, encryption).
+5. Click "Create bucket" to finish.
+
+### Step 3: Create an IAM Role for CloudWatch Logs
+
+1. Open the IAM console.
+2. In the navigation pane, choose "Roles", then "Create role".
+3. For "Trusted entity type", choose "AWS service".
+4. For "Use case", choose "CloudWatch Logs" from the dropdown.
+5. Choose "Next".
+6. In the "Add permissions" page, search for and select "AWSCloudWatchLogsFullAccess".
+7. Choose "Next".
+8. Enter a name for the role (e.g., "CloudWatchLogsToS3Role").
+9. Review the role details and choose "Create role".
+
+### Step 4: Create a CloudWatch Logs Subscription Filter
+
+1. Open the CloudWatch console.
+2. In the navigation pane, choose "Log groups".
+3. Find and select the log group you created for VPC DNS logs.
+4. Choose "Subscription filters" tab, then "Create subscription filter".
+5. For "Filter pattern", enter an empty string to capture all log events.
+6. For "Subscription filter destination", choose "Amazon S3 bucket".
+7. Select the S3 bucket you created earlier.
+8. For "Log format", choose "JSON".
+9. For "Compression type", choose your preferred compression method (e.g., Gzip).
+10. For "IAM role", select the role you created in Step 3.
+11. Choose "Start streaming".
+
+### Step 5: Verify Log Delivery
+
+1. Wait for some time to allow DNS queries to generate logs.
+2. Go to the S3 console and open your bucket.
+3. You should see folders created with the structure: `{your-log-group-name}/{year}/{month}/{day}/{hour}/`
+4. Inside these folders, you'll find your VPC DNS log files.
+
+---
+
+For more information, refer to the [official AWS documentation on VPC DNS Query Logging](https://docs.aws.amazon.com/vpc/latest/userguide/vpc-dns.html#vpc-dns-viewing-queries).

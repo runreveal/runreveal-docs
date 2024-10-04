@@ -1,0 +1,43 @@
+import { Callout } from 'nextra/components'
+
+# NSG Flow Logs
+
+Azure NSG controls inbound and outbound traffic to and from Azure resources by defining security rules based on IP address, port, and protocol. NSG flow logs capture information about network traffic, including source and destination IP addresses, ports, protocols, and whether traffic was allowed or denied. These logs are useful for monitoring network traffic, troubleshooting connectivity issues, and enhancing network security by detecting suspicious or unauthorized traffic patterns.
+
+## Ingest Method
+
+Setup the ingestion of this source using one of the following guide.
+
+[Azure Blob Storage](/sources/object-storage/azure.mdx)
+
+## NSG Log Forwarding
+
+With the storage account created you can now setup NSG flow logs to export to it.
+
+On the Network Security Group (NSG) resource page select the `Monitoring -> NSG flow logs` menu item and click on the "Create flow log" button.
+
+<img src="/azure/nsg-flow-page.png"/>
+
+Select your Subscription this should reside in and your flow log type. Select all of the target resources that you want to capture logs for.
+Next select the storage account from the dropdown list that you created earlier and set a retention policy for the log files.
+
+<img src="/azure/nsg-flow-setup.png"/>
+
+Click create and a new flow log setup will be created and logs should begin to save into your storage account momentarily.
+
+## RunReveal Source
+
+Go to RunReveal and add a new source selecting [NSG Flow Logs](https://runreveal.com/dash/sources/add/nsg-flow).
+
+Give the source a name and fill in the remaining fields with the saved values from setup.
+
+![azure blob](/azure/azure-runreveal-nsg-src-blob.png)
+
+You will need the values that were saved from the setup steps.
+
+- The app `Tenant ID` and `Client ID` from the app registration screen.
+- The `Client Secret Value` that was created when generating a new secret for the app.
+- The `Storage Account Name` where the logs are exporting to.
+- The `Storage Queue Name` that holds the blob created notifications.
+
+Once these are supplied and saved, RunReveal will begin to process messages in the queue and then ingest logs stored in the bucket.

@@ -1,0 +1,17 @@
+# Notion
+
+Notion is a productivity and collaboration tool for managing documents, projects, and databases. Notion logs capture user activity such as page views, edits, comments, sharing actions, and permission changes. These logs help administrators monitor collaboration, track changes to content, and ensure proper access controls are maintained, providing insights into how teams use and interact with Notion workspaces.
+
+## Ingest Method
+
+This source uses am HTTP webhook to ingest events. Create the source in RunReveal and a new webhook URL will be generated. Use this URL when setting up your source.
+
+![webhook-setup](/webhook-setup.png)
+
+## Setup
+
+Login to your Notion account and navigate to `Settings -> Connections -> Workspace`. From this screen you can click see all to view the RunReveal Integration.
+
+![notion setup](/notion-tiles.png)
+
+Select the RunReveal tile and paste the webhook URL that was generated when you added your source. Click the connect button to start sending Notion logs to RunReveal.

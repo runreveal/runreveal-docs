@@ -1,0 +1,85 @@
+import { Callout } from 'nextra/components'
+
+# AWS Hosted Zone Logs
+
+AWS Hosted Zones are part of Amazon Route 53, a scalable DNS web service that routes end-user requests to applications. DNS query logs capture details about DNS queries made for your hosted zones, including the domain queried, request source, and response provided. These logs help with tracking DNS traffic, debugging DNS resolution issues, and identifying potential security risks, such as DNS-based attacks.
+
+Setup for hosted zone logs require three steps,
+1. Configuring the hosted zone to log to CloudWatch.
+2. Create an IAM role/policy that gives RunReveal access to the CloudWatch log group.
+3. Setup the RunReveal source and provide it with the created log group and IAM role. 
+
+## Setup
+
+If your hosted zone is not already configured to log to CloudWatch, navigate to your hosted zone and click on the `Configure query logging` button.
+
+![configure](/hosted-zone-config-log.png)
+
+Either select an existing log group or create a new on giving it a name. 
+If AWS gives a warning about permissions follow their prompt to grant the necessary permissions for Route 53 to write to CloudWatch.
+
+![setup](/hosted-zone-log-setup.png)
+
+After completing the setup you can now view the logging configuration from the hosted zone page. This will provide you with the CloudWatch log group ARN.
+This ARN will be needed for both your IAM role and when setting up your RunReveal source. Copy the ARN for later leaving off the final `:*`.
+
+![settings](/hosted-zone-view-log-setup.png)
+
+## IAM Role and policy
+
+Navigate to the AWS IAM page to create a new policy. Use the following JSON to set the necessary permissions to allow RunReveal access to read your log group logs.
+RunReveal only needs `logs:DescribeLogStreams` and `logs:GetLogEvents` access to be able to list the log streams and view the events in each one. 
+Provide the list of log group arns that this policy applies to. Notice that it has the additional `:log-stream:*` resource appended to the end.
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:[region]:[account-id]:log-group:[log-group-name]:log-stream:*"
+            ]
+        }
+    ]
+}
+```
+
+Once the policy is created, create a new IAM role. Use the following JSON policy when setting the trusted entity. 
+This will give the RunReveal account access to your CloudWatch resources. When setting up the RunReveal source we provide an optional 
+external id that can be used to further verify access. This section can be removed if you do not plan to use external id verification.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::253602268883:root"
+            },
+            "Action": "sts:AssumeRole",
+			"Condition": {
+                "StringEquals": {
+                    "sts:ExternalId": "[optional-external-id-check]"
+                }
+            }
+        }
+    ]
+}
+```
+
+When setting the permissions select the policy that was created in the previous step. Give the role a name to identify it by and save it.
+Find the created role and copy the ARN, this will be needed for setting up the RunReveal source.
+
+## RunReveal Source
+
+Navigate to your RunReveal dashboard to connect a new [Hosted Zone](https://runreveal.com/dash/sources/add/hosted-zone) source. Provide the source a name,
+the CloudWatch log group ARN that was copied earlier. The IAM role ARN that was generated when setting up the policy. The generated external ID for the source can be used in your IAM access policy, 
+or you can update it with your own if you used a different value in AWS.
+
+![rr-settings](/hosted-zone-rr-setup.png)

@@ -1,0 +1,150 @@
+import { Callout } from 'nextra/components'
+
+# AWS S3 Bucket
+
+An AWS S3 source works by saving logs to an S3 bucket and creating a put object notification that sends notifications to an SNS topic that RunReveal controls.
+Each source has its own SNS topic that includes one for multiple different regions, reference the specific source documentation for the exact SNS topic to send to.
+
+Once we receive this notification, RunReveal will download the S3 object and process the events.
+
+## AWS Access Methods
+
+When using the RunReveal controlled SNS topic we offer three separate authentication methods.
+
+### RunReveal allow policy
+
+Provide RunReveal IAM role access to read/list objects in your S3 bucket. Use the following policy to give access.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Allow-RunReveal-Read",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::253602268883:root"
+      },
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::YOUR_BUCKET_NAME/*",
+        "arn:aws:s3:::YOUR_BUCKET_NAME"
+      ]
+    }
+  ]
+}
+```
+
+### Custom IAM role
+
+S3 sources support reading via an IAM Role in your AWS account. This is so you don't need to worry about fiddling with a bucket policy each time you onboard a new log source.
+
+At a high level you'll need to create a role and provide that role access to the data you want RunReveal to ingest.
+
+#### Creating the role
+
+When creating the role, you'll need to provide us with S3 and KMS permissions necessary to read objects from the bucket, and decrypt them.
+
+When you create a source that supports AWS Role based access to the objects, you'll be prompted to provide a role ARN. Your role needs to have `s3:GetObject`, `s3:ListBucket`, and access to the `Resources` that are contained in your bucket.
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<YOUR_BUCKET>",
+                "arn:aws:s3:::<YOUR_BUCKET>/*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "kms:Decrypt"
+            ],
+            "Resource": [
+                "arn:aws:kms:us-west-2:EXAMPLE_AWS_ACCOUNT:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}
+```
+
+<Callout type="info">
+  If your bucket objects are encrypted with an AWS managed AWS key, you don't need the KMS policy. 
+  If it's encrypted with a KMS key you created that lives in your account, you'll need to include the KMS policy as well.
+</Callout>
+
+#### Secure Access Using External ID
+
+The external ID configuration helps prevent the confused deputy problem. 
+The trusted entities configuration necessary for RunReveal to access your account looks like this. 
+Make sure you fill in the external ID with whatever you set up on your source.
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::253602268883:root"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "sts:ExternalId": "<EXTERNAL_ID>"
+                }
+            }
+        }
+    ]
+}
+```
+
+### AWS Access Key
+
+Give an AWS user access to Read/List the S3 bucket with your logs in it. Generate a new AWS access key and provide RunReveal with the access key id and secret.
+
+RunReveal will use the provided access key to authenticate access to your AWS account when reading S3 objects.
+
+## Event Notification
+
+Once RunReveal has access to the objects in your bucket, we will need to be notified when new objects are added to it.
+Enable sending notifications to one of RunReveal's regional SNS topics by following along below.
+
+1. Find the bucket containing the logs you wish to send to RunReveal.
+2. From the bucket overview, click the "Properties" tab, then scroll down to "Event Notifications"
+3. Click "Create Event Notification"
+4. Give the configuration a name (for your own identifying purposes, doesn't matter what it is).
+5. Select "All object create events" in the events section (photo below)
+
+<img src="/s3-role-2.png"/>
+
+6. Then input RunReveal's S3 regional SNS topic ARN (`arn:aws:sns:<s3-bucket-region>:253602268883:runreveal_<sourcetype>`) under the "Destinations" block at the bottom like so.  
+We've created a SNS topic in each region, 1 for each source type. If you run into issues, please contact us at `support@runreveal.com`.&#x20;
+
+<Callout type="info">
+  For the exact SNS topic to use reference the documentation for that source.
+</Callout>
+
+## RunReveal Source Setup
+
+Sources that allow you to use S3 to ingest logs will all have the same setup.
+Navigate to the [Connect a source](https://runreveal.com/dash/sources/add) page and find the source you are adding.
+Once open, select the `AWS S3 Bucket` ingest method and fill in the fields.
+
+You will need the name of the bucket that the logs are stored in, currently RunReveal requires buckets to be unique across sources.
+Depending on the authentication method selected supply the necessary role/external id, or access key/secret.
+
+## Final Steps
+
+At this point all of the pieces are in place for RunReveal to access logs stored in the bucket. 
+Continue to the source docs for specific instructions on how to get your logs into the S3 bucket and the specific SNS topic to use.
