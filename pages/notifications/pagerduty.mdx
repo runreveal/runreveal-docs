@@ -1,0 +1,42 @@
+import { Steps } from 'nextra/components'
+
+# PagerDuty
+
+The PagerDuty notification channel allows you to create a PagerDuty incident when a detection is triggered.
+
+## Setup 
+<Steps>
+
+### Create Integration
+
+In your PagerDuty account, open the service that you want new incidents to be created under and create a new integration.
+
+![create integration](/pagerduty-1.png)
+
+Select the `Events API V2` integration and click add.
+
+![add](/pagerduty-2.png)
+
+Once the integration is created you should be presented with an integration key. Copy this key as it is needed when creating the notification channel in RunReveal.
+
+![integration key](/pagerduty-3.png)
+
+### RunReveal Setup
+
+In your RunReveal workspace, create a new PagerDuty notification channel.
+
+![rr channel](/pagerduty-4.png)
+
+Give your notification channel a name, and copy the integration key that was generated in your PagerDuty account.
+
+The RunReveal notification allows you to override the title and severity of the incident that is created. 
+By default the title and severity will be the name and severity of the detection that is triggered.
+The title field can be updated using a template format, e.g. `{{query.schedule.name}}`.
+
+You can also add custom details to your incident to provide additional context for your alert. Both the key and value fields are run through the template engine when the alert is created.
+E.g. to add the risk score as an additional detail you would set the key to `risk-score` and the value to `{{query.schedule.riskScore}}`.
+
+Once added you can then add this notification channel to your detections using the notification slug.
+
+</Steps>
+
