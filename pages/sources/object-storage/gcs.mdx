@@ -1,108 +1,210 @@
-import { Callout } from 'nextra/components'
+import { Callout, Tabs, Steps } from 'nextra/components'
 
-# Google Cloud Storage
+# Google Cloud Storage Ingestion
 
-The current process for ingesting logs from Google Cloud Storage (GCS) involves 3 steps.
+This guide explains how to set up log ingestion from Google Cloud Storage (GCS) using either service account keys or workload identity federation with AWS.
+
+## Overview
+
+The process for ingesting logs from Google Cloud Storage (GCS) involves 3 steps:
 
 1. Send your logs/events to a storage bucket.
 2. An *Object Created* event is triggered and adds a message to a pub/sub topic.
 3. Every minute, RunReveal will poll a pub/sub subscription on the created topic, pull any new notifications, and process the objects that are returned.
 
-## Setup
+## Resource Setup
 
-Setting up a GCS ingestion source requires a few steps to be repeated for each new source.
+Setting up a GCS ingestion source requires the following steps:
 
-1. Create a service account with a JSON key.
+1. Create a service account that will have access to the resources.
 2. Create a storage bucket giving read access to the created service account.
 3. Create a GCS bucket notification that writes to a new pub/sub topic.
 4. Create a pub/sub subscription that RunReveal can use to poll for new events giving subscribe access to the service account.
-5. Create a RunReveal source and provide us with the details of your setup.
+5. Give RunReveal authentication access to your service account using either service account keys or workload identity federation.
+6. Create a RunReveal source and provide us with the details of your setup.
 
 <Callout type="info">
-  Service accounts require the following permissions in order for RunReveal to process logs.
+  Service accounts require the following permissions for RunReveal to process logs:
   1. `Storage Object Viewer` on the storage bucket where logs are stored.
   2. `Pub/Sub Subscriber` on the pub/sub subscription where event notifications are sent.
 </Callout>
 
+<Steps>
 ### Service Account Creation
 
-Choose a project that you would like the storage bucket, pub/sub topic, and service account to reside and switch to that project in the GCP Console.
+Choose a project for the storage bucket, pub/sub topic, and service account. Create a new service account (or use an existing one) at https://console.cloud.google.com/iam-admin/serviceaccounts/create
 
-Create a new service account (or use an existing one) by navigating to the service account creation page, https://console.cloud.google.com/iam-admin/serviceaccounts/create
-
-Give the service account a name, id, and a description. **Make sure to copy the generated service email address as it will be needed in a future steps**.
+Give the service account a name, id, and a description. **Copy the generated service email address for future steps**.
 
 ![gcp service account creation](/gcp-poll-1.png)
 
-Once created, open the service account and navigate to the keys menu. Create a new JSON private key, this will be uploaded to RunReveal to allow access to your GCP resources.
-
-![gcp service account key](/gcp-poll-2.png)
-
 ### Storage Bucket Creation
 
-Navigate to the GCP [cloud storage](https://console.cloud.google.com/storage/browser) page and create a new bucket.
-
-Give the bucket a name, and fill in the remaining settings based on your needs.
+Create a new bucket in the GCP [cloud storage](https://console.cloud.google.com/storage/browser) page.
 
 <Callout type="info">
-  If adding a retention policy to the bucket, make sure its no less than 4 hours. 
-  This will insure that RunReveal has sufficient time to import all of the logs before the object has been deleted.
+  If adding a retention policy to the bucket, make sure it's no less than 4 hours to ensure RunReveal has sufficient time to import all logs before object deletion.
 </Callout>
 
-Once the bucket is created, go to the permission settings for it and click on Grant Access. 
-Add the email address for the service account that was created in step 1, and assign the `Storage Object Viewer` role to it.
+Add the service account email to the bucket's permissions with the `Storage Object Viewer` role.
 
 ![bucket permissions](/gcp-poll-3.png)
 
 ### GCS Bucket Notification Creation
 
-After the bucket is created you will need to create a pub/sub notification when new objects are added to the bucket. 
-Currently GCP doesn't offer a way to do this in the UI, but using the following commands you can enable them in the *GCP cloud shell*.
-GCP docs walking you through this process can be found [here]([https://cloud.google.com/storage/docs/reporting-changes](https://cloud.google.com/storage/docs/reporting-changes)
-
-Open the cloud shell terminal inside the project you want the new pub/sub topic to be located in and run the command,
+Create a pub/sub notification for new objects added to the bucket using the GCP cloud shell:
 
 ```bash
 gcloud storage buckets notifications create gs://BUCKET_NAME --topic=TOPIC_NAME -e OBJECT_FINALIZE
 ```
 
- - `BUCKET_NAME` is the name of the relevant bucket.
- - `TOPIC_NAME` is the Pub/Sub topic to send notifications to. If you specify a topic that doesn't exist in your project, the command creates one for you.
+Replace `BUCKET_NAME` with your bucket name and `TOPIC_NAME` with your desired topic name.
 
 ### Pub/Sub Subscription Creation
 
-Once the notification has been added a new topic should have been created. 
-Create a new `pull` subscription for the topic so RunReveal will be able to access the notifications.
+Create a new `pull` subscription for the topic:
 
-Give the new subscription an id and select the topic that was created when setting up the bucket notification. 
-Choose `Pull` as the delivery type and set the rest of the settings according to your preferences.
+1. Give the subscription an ID and select the topic created in the previous step.
+2. Choose `Pull` as the delivery type.
+3. Set other settings according to your preferences.
 
 ![topic creation](/gcp-poll-7.png)
 
-Now that you have a topic and subscription created you will need to grant the service account, that you created in step 1, the `Pub/Sub Subscriber` role. 
-Click on the Subscriptions menu option and select the subscription that was created. 
-In the permissions info panel add a new principal and enter the service account email and select `Pub/Sub Subscriber` as the role. 
-This will allow RunReveal to subscribe to this topic and process the new object notifications.
+Grant the service account the `Pub/Sub Subscriber` role on the subscription.
 
 ![topic creation](/gcp-poll-8.png)
 
 <Callout type="info">
-  Make sure to save the subscription name as this will be needed when setting up your RunReveal source.
+  Save the subscription name for setting up your RunReveal source.
 </Callout>
+
+</Steps>
+
+## Authentication Setup
+
+RunReveal offers two authentication methods for GCS access, service account keys where you will provide RunReveal with a JSON config file containing a private key,
+or using workload identity federation where you give an AWS IAM role access to authenticate as your chosen service account.
+
+<Tabs items={['Service Account Keys', 'Workload Identity Federation']}>
+  <Tabs.Tab>
+    ### Service Account Keys
+
+    1. Open the service account and navigate to the keys menu.
+    2. Create a new JSON private key.
+    3. Download the new key to provide to RunReveal when setting up your source.
+
+    ![gcp service account key](/gcp-poll-2.png)
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ### Workload Identity Federation with AWS
+
+    Follow the [GCP documentation](https://cloud.google.com/iam/docs/workload-identity-federation-with-other-clouds) for setting up a Workload Identity Pool.
+    RunReveal allows you to bring your own AWS IAM Role or use the provided one to allow authentication.
+
+<Steps>
+### AWS Setup
+
+If you plan to bring your own IAM Role you will need to add the RunReveal AWS account as a trusted entity. Use the following policy to add the account and provide an optional external ID.
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::253602268883:root"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "sts:ExternalId": "<EXTERNAL_ID>"
+                }
+            }
+        }
+    ]
+}
+```
+
+### Prepare GCP
+
+Before beginning you will need to enable specific APIs to allow RunReveal the ability to authenticate.
+
+Enable the IAM, Resource Manager, Service Account Credentials, and Security Token Service APIs. 
+
+[Enable the APIs](https://console.cloud.google.com/flows/enableapi?apiid=iam.googleapis.com,cloudresourcemanager.googleapis.com,iamcredentials.googleapis.com,sts.googleapis.com&redirect=https://console.cloud.google.com)
+
+### Create a Pool
+
+Open the [Workload Identity Federation](https://console.cloud.google.com/iam-admin/workload-identity-pools) page in the IAM & Admin section and click on `Create Pool`.
+
+![gcp-federated-1.png](/gcp-federated-1.png)
+
+1. Give the pool a name and description and select continue.
+
+![gcp-create-pool-1.png](/gcp-create-pool-1.png)
+
+2. Create a new AWS provider giving it a name and your AWS account ID.
+
+![gcp-create-pool-2.png](/gcp-create-pool-2.png)
+
+<Callout type="info">
+If you plan to use the RunReveal provided AWS role enter RunReveal's account ID, `253602268883`.
+</Callout>
+
+3. Unless you have specific needs, you can leave the mappings and conditions as the default values. And click save.
+
+![gcp-create-pool-3.png](/gcp-create-pool-3.png)
+
+### Grant Service Account Access
+
+Now that your pool and provider are created you can grant access to the pool by clicking on the 'Grant Access' button.
+
+![gcp-grant-access-1.png](/gcp-grant-access-1.png)
+
+Select the service account that you have setup previously that has the correct permissions to access the GCP resources (bucket and pub/sub).
+
+Select `aws_role` as the attribute name that will be used for lookup. Enter the assumed role arn as the attribute value, `arn:aws:sts::<account_id>:assumed-role/<role_name>`.
+
+<Callout type="info">
+If you are using the RunReveal provided role, you will enter `arn:aws:sts::253602268883:assumed-role/runreveal_identity_federation` into this field.
+</Callout>
+
+![gcp-grant-access-2.png](/gcp-grant-access-2.png)
+
+Select the provider from the dropdown and download the config. This config file contains the settings required for clients to authenticate. Keep this file as it will be supplied to RunReveal when creating your source.
+
+![gcp-grant-access-3.png](/gcp-grant-access-3.png)
+
+</Steps>
+   
+   </Tabs.Tab>
+</Tabs>
+
 
 ## RunReveal Source Setup
 
-Sources that allow you to use GCS to ingest logs will all have the same setup.
-Navigate to the [Connect a source](https://runreveal.com/dash/sources/add) page and find the source you are adding.
-Once open, select the `Google Cloud Storage Bucket` ingest method and fill in the fields.
+Navigate to the [Connect a source](https://runreveal.com/dash/sources/add) page and find the source you are adding. Select the `Google Cloud Storage Bucket` ingest method and fill in the fields.
+Regardless of the authentication method you will need to provide the subscription path created in the Pub/Sub Subscription Creation step.
 
-![gcs-setup](/gcs-rr-setup.png)
+### Service Account Keys
 
-You will need the subscription path that was created from [step 4](#pubsub-subscription-creation).
+If authenticating with service account keys select the `Service account key` method and paste or select the private key file that was downloaded from GCP for the service account.
 
-You will also need the json private key file that was downloaded when creating your service account. You can either select the file from your machine, or copy and paste the JSON object into the field.
+![gcs-setup](/gcs-rr-setup-1.png)
+
+### Workload Identity Federation
+
+If authenticating with identity federation you will need to provide the AWS role arn that RunReveal will assume. Leave this field blank if you plan to use the RunReveal provided role.
+
+If your role uses an external ID for authentication make sure the same value is pasted in the External ID field.
+
+Copy or select the config file that was downloaded in the Grant Service Account Access steps.
+
+![gcs-setup2](/gcs-rr-setup-2.png)
+
 
 ## Final Steps
 
-At this point all of the pieces are in place for RunReveal to access logs stored in the bucket. 
-Continue to the source docs for specific instructions on how to get your logs into the GCS bucket.
+At this point, all pieces are in place for RunReveal to access logs stored in the bucket. Continue to the source docs for specific instructions on how to get your logs into the GCS bucket.
+
