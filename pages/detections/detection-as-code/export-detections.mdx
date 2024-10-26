@@ -57,3 +57,15 @@ mitreAttacks:
 severity: ""
 riskScore: 0
 ```
+
+## First time you export
+The first time you export existing detections that were made in the web ui
+you'll first need to upload them and force overwrite them from the CLI before
+your CI/CD system can use them.
+
+This step will force overwrite all detections that you have in the repo so
+they will be managed via detection as code going forward.
+
+```
+$ runreveal detections sync -o -d ~/detection-as-code
+```
