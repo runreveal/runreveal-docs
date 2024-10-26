@@ -1,0 +1,51 @@
+# Cloudflare R2 Bucket Configuration Guide
+
+This guide explains how to set up a Cloudflare R2 bucket as a data source for RunReveal. The setup requires two components:
+1. An R2 storage bucket that RunReveal can read objects from
+2. A Cloudflare Workers Queue for event notifications
+
+Note: You'll need both R2 credentials and a Cloudflare API key for this setup.
+
+## Prerequisites
+
+### 1. Cloudflare Account ID
+First, locate your Cloudflare Account ID from the R2 homepage:
+<img src="/r2-1.png"/>
+
+### 2. Queue Identifier
+Create a queue in the Cloudflare Workers Queues dashboard that will handle R2 object notifications. Make note of the queue ID:
+<img src="/r2-2.png"/>
+
+## Authentication Setup
+
+### R2 Credentials
+1. Navigate to R2 > Manage R2 API Tokens
+2. Create a new R2 token with "Object Read & Write" permissions
+3. Grant access to the bucket that RunReveal will read logs from
+<img src="/r2-3.png"/>
+4. Save the Access Key ID and Secret Access Key for S3 clients
+
+### Cloudflare API Token
+1. Go to "Account API Tokens"
+2. Create a new token with Account > Queues > Edit permissions
+<img src="/r2-4.png"/>
+
+## Event Notification Configuration
+
+To notify RunReveal when new data is available:
+
+1. Navigate to your R2 bucket > Settings > Event notifications
+2. Click "Add Notification"
+3. Select your Workers Queue
+4. Enable "Creation of a new object"
+<img src="/r2-5.png"/>
+
+## Creating Your Source
+
+Provide RunReveal with the following information to begin reading data:
+- Queue ID
+- Cloudflare API Token
+- R2 Credentials (Access Key ID and Secret Access Key)
+- Cloudflare Account ID
+
+RunReveal will automatically begin processing new data as it becomes available in R2.
