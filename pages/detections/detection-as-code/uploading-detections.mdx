@@ -58,3 +58,11 @@ If you see this error, then adding the `-o` flag will overwrite the existing
 detection and convert the detection from being `web` managed to being `cli`
 managed.
 
+## Force Uploading
+If you receive an error because the detections are managed with the web interface
+you'll need to run the following command to convert your detections to managed
+by the CLI
+```
+$ runreveal detections sync -o -d ~/detection-as-code
+```
+
