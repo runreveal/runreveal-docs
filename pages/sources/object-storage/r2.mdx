@@ -16,6 +16,11 @@ First, locate your Cloudflare Account ID from the R2 homepage:
 Create a queue in the Cloudflare Workers Queues dashboard that will handle R2 object notifications. Make note of the queue ID:
 <img src="/r2-2.png"/>
 
+Additionally, enable HTTP Pull for your queue so that RunReveal is able to read from your queue over HTTP. This is under
+Settings > Add Consumer
+<img src="/r2-6.png"/>
+
+
 ## Authentication Setup
 
 ### R2 Credentials
