@@ -1,3 +1,5 @@
+import { Callout } from 'nextra/components'
+
 # Cloudflare R2 Bucket Configuration Guide
 
 This guide explains how to set up a Cloudflare R2 bucket as a data source for RunReveal. The setup requires two components:
@@ -25,10 +27,17 @@ Settings > Add Consumer
 
 ### R2 Credentials
 1. Navigate to R2 > Manage R2 API Tokens
-2. Create a new R2 token with "Object Read & Write" permissions
+2. Create a new R2 token with "Object Read Only" permissions
 3. Grant access to the bucket that RunReveal will read logs from
 <img src="/r2-3.png"/>
-4. Save the Access Key ID and Secret Access Key for S3 clients
+4. Save the Access Key ID and Secret Access Key for use in the source setup later.
+
+<Callout type="info">
+    You must create R2 Access Keys from the R2 dashboard.  Creating an API Token
+    with the "Workers R2 Storage" scoped permissions will not give you the
+    correct _Access Key ID_ and _Secret Access Key_ needed for compatability
+    with S3 that RunReveal requires to ingest logs.
+</Callout>
 
 ### Cloudflare API Token
 1. Go to "Account API Tokens"
