@@ -2,25 +2,11 @@
 
 ## Authentication
 
-Authentication is done via basic auth with the user portion set to an empty string.  Get your token by clicking "New API Token" on the page: [https://runreveal.com/dash/account](https://runreveal.com/dash/account) .
+Authentication is done via basic auth with your API token.  Get your token by clicking "New API Token" on the page: [https://runreveal.com/dash/account](https://runreveal.com/dash/account) .
 
-e.g. with cURL, set the `-u` flag with the API token in the password field like so:
+e.g. with cURL, set the authorization header like so:
 
-`$ curl -u ':<token>' https://api.runreveal.com/...`
-
-The authorization header is the base64 encoding of that string (`:<token>`) with no newline appended to the end, with `Basic` as a leading indicator for the auth type in the header like so:
-
-```
-authorization: Basic <base64 encoded token>
-```
-
-e.g. (-n removes the newline from echo)
-
-```
-auth=$(echo -n ':<token>' | base64) ; echo "authorization: Basic $auth"
-```
-
-
+`$ curl -H 'Authorization: Basic <token>' https://api.runreveal.com/...`
 
 ## Logs Query Endpoint
 
@@ -36,7 +22,7 @@ Here's a full example using cURL:
 
 ```
 curl 'https://api.runreveal.com/logs/query/v2?workspaceid=<wkspID>' \
-  -H 'authorization: Basic <b64-token>' \
+  -H 'authorization: Basic <token>' \
   -H 'content-type: application/json' \
   --data-raw '{"query":"SELECT receivedAt, workspaceID, sourceType, id, eventName FROM runreveal.logs LIMIT 2;","useAI":false,"usePQL":false,"source":"ui-query","parameters":{"a":"b"},"limit":1000}'
 {
@@ -102,7 +88,7 @@ If the query has not yet completed, totalResults will be `-1`.
 
 ```
 curl 'https://api.runreveal.com/logs/query/v2/results?workspaceid=<wkspID>' \
-  -H 'authorization: Basic <b64-token>' \
+  -H 'authorization: Basic <token>' \
   -H 'content-type: application/json' \
   --data-raw '{"queryID":"2e2GQkLQiZNUyDIZXnvGHssbRIH","limit":50,"offset":0}'
 {
@@ -166,7 +152,7 @@ This cancels an inflight query given by the queryID.
 
 ```
 curl 'https://api.runreveal.com/logs/query/v2/cancel?workspaceid=<wkspID>&queryID=<queryID>' \
-  -H 'authorization: Basic <b64-token>'
+  -H 'authorization: Basic <token>'
 {
   "success": true
 }
