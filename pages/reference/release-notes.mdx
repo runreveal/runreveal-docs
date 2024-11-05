@@ -1,4 +1,170 @@
 # RunReveal Release Notes
+#
+## Week of October 28, Release Notes
+
+- PR: #945 - Nov-01-2024 - backend - bugfix - add missing unique indexes for enrichments:
+- PR: #944 - Nov-01-2024 - backend - feature - Allow analyst role to read/edit enrichments
+- PR: #942 - Oct-30-2024 - backend - bugfix - sourceType: fix sourceType for OTLP logs
+- PR: #941 - Oct-30-2024 - backend - bugfix - Fix nil pointer in authentik log source
+- PR: #940 - Oct-30-2024 - backend - bugfix - otlp: use raw strings and bytes, json everything else
+- PR: #939 - Oct-30-2024 - backend - bugfix - otlp: fix value serialization
+- PR: #938 - Oct-30-2024 - backend - bugfix - OTLP format: fix handling of non-string log record Body values
+- PR: #934 - Oct-30-2024 - backend - bugfix - Update queries to match needed CF changes
+- PR: #932 - Oct-30-2024 - backend - feature - Add OTLP JSON Log Source
+- PR: #931 - Oct-29-2024 - backend - bugfix - Add authentik to sourceloader
+- PR: #930 - Oct-29-2024 - backend - feature - Authentik source
+- PR: #929 - Oct-29-2024 - backend - feature - Override google oauth creds
+- PR: #926 - Oct-29-2024 - backend - bugfix - aws/assumerole: more plumbing
+- PR: #924 - Oct-29-2024 - backend - bugfix - aws/s3: fix region specification for external s3
+- PR: #923 - Oct-29-2024 - backend - bugfix - Don't specify notification retry url
+- PR: #921 - Oct-28-2024 - backend - bugfix - fix missing headers initialization
+- PR: #920 - Oct-28-2024 - backend - feature - clickhouse: support separate read/write paths
+- PR: #919 - Oct-28-2024 - backend - feature - Added r2 jurisdiction for s3 access url.
+- PR: #728 - Nov-01-2024 - frontend - feature - Add volume widget by source name
+- PR: #726 - Oct-31-2024 - frontend - bugfix - Fix bugs with volume widget
+- PR: #725 - Oct-31-2024 - frontend - bugfix - Don't flash detection and overwrite them with empty detection results
+- PR: #724 - Oct-31-2024 - frontend - bugfix - Use primary key when loading detections, even when using ID
+- PR: #723 - Oct-30-2024 - frontend - feature - Add authentik to explore page
+- PR: #722 - Oct-31-2024 - frontend - feature - Allow ability to change rows per page
+- PR: #720 - Oct-30-2024 - frontend - feature - otlp: add frontend source
+- PR: #719 - Oct-30-2024 - frontend - bugfix - Fix oddities on the explore page with table list, and visible columns causing bugs when switching tables
+- PR: #716 - Oct-29-2024 - frontend - feature - Add authentik source to front end
+- PR: #715 - Oct-29-2024 - frontend - feature - r2 source image
+- PR: #713 - Oct-29-2024 - frontend - feature - Make selecting fields rewrite the query being run on explore
+- PR: #712 - Oct-29-2024 - frontend - bugfix - Fix front end bugs related to aggressive clickhouse queries.
+- PR: #711 - Oct-29-2024 - frontend - bugfix - Fix sources page queries that are too intense on loading.
+- PR: #710 - Oct-28-2024 - frontend - feature - Added fedramp to R2 settings
+- PR: #709 - Oct-28-2024 - frontend - bugfix - Fix bucket name we'll read from
+
+## Week of October 21, Release Notes
+
+- PR: #916 - Oct-27-2024 - backend - feature - Objectstorage: plumb errors back to user and source_errors table.
+- PR: #914 - Oct-26-2024 - backend - feature - Source Verification for R2 ingest type
+- PR: #911 - Oct-27-2024 - backend - feature - clickhouse: support headers in BYO clickhouse destination
+- PR: #910 - Oct-26-2024 - backend - feature - Add Support for Cloudflare R2 Blob Storage
+- PR: #909 - Oct-25-2024 - backend - bugfix - Fix polling sources not saving next_poll_time
+- PR: #908 - Oct-24-2024 - backend - bugfix - Refactor source name link in notification template
+- PR: #907 - Oct-24-2024 - backend - bugfix - Add detection type to signal/alert views
+- PR: #905 - Oct-23-2024 - backend - bugfix - Add missing gcs scope
+- PR: #903 - Oct-23-2024 - backend - feature - Add GCP Identity Federation
+- PR: #708 - Oct-26-2024 - frontend - bugfix - Add r2 missing icon
+- PR: #707 - Oct-26-2024 - frontend - feature - R2 generic blob source
+- PR: #706 - Oct-26-2024 - frontend - feature - Add R2 for CF HTTP logs
+- PR: #705 - Oct-26-2024 - frontend - feature - Add R2 source from Cloudflare HTTP and DNS Gateway
+- PR: #704 - Oct-24-2024 - frontend - bugfix - Fix UI colors in dark mode
+- PR: #703 - Oct-24-2024 - frontend - bugfix - Fix small UI bugs on home page
+- PR: #701 - Oct-23-2024 - frontend - feature - Add federated settings for GCP source
+- PR: #700 - Oct-21-2024 - frontend - bugfix - Fix race condition in new alert history page. New managed enrichment
+
+## Week of October 14, Release Notes
+
+- PR: #902 - Oct-16-2024 - backend - bugfix - Fix rare data race in enrichment query path
+- PR: #901 - Oct-14-2024 - backend - feature - Add pagerduty notification channel
+- PR: #697 - Oct-20-2024 - frontend - feature - Redo design of alert history page
+- PR: #695 - Oct-18-2024 - frontend - bugfix - Remove broken doc links
+- PR: #694 - Oct-18-2024 - frontend - bugfix - Fix crowdstrike source desc.
+- PR: #693 - Oct-18-2024 - frontend - bugfix - Fix alignment issues with splitview
+- PR: #692 - Oct-18-2024 - frontend - feature - Resizable splits for results view and alert view detections
+- PR: #690 - Oct-14-2024 - frontend - feature - Add pagerduty notification
+
+## Week of October 7, Release Notes
+
+- PR: #898 - Oct-10-2024 - backend - bugfix - Fix some events slipping through detections
+- PR: #895 - Oct-10-2024 - backend - feature - Add normalized to sigma detections
+- PR: #894 - Oct-08-2024 - backend - bugfix - visuals: restoration already run
+- PR: #691 - Oct-11-2024 - frontend - dependencies - Bump dompurify from 2.4.7 to 2.5.7
+- PR: #689 - Oct-11-2024 - frontend - bugfix - Fix 404 link to managed-enrichment
+- PR: #687 - Oct-10-2024 - frontend - bugfix - Replace missing workspace create button
+- PR: #686 - Oct-09-2024 - frontend - bugfix - Detection menu hidden on bottom rows
+- PR: #685 - Oct-08-2024 - frontend - bugfix - Fix Demo/Signup buttons that don't link anywhere
+- PR: #684 - Oct-09-2024 - frontend - feature - Make cli toggles show color
+- PR: #683 - Oct-08-2024 - frontend - feature - Added edit as sql button to explore page
+- PR: #682 - Oct-07-2024 - frontend - bugfix - fix error stacktraces being thrown in console
+
+## Week of September 30, Release Notes
+
+- PR: #892 - Oct-04-2024 - backend - feature - Change s3 sources to use multi ingest
+- PR: #891 - Oct-01-2024 - backend - bugfix - Log Crowdstrike rawLog from S3
+- PR: #888 - Sep-30-2024 - backend - bugfix - Don't log non-security related logs in GCP by default.
+- PR: #885 - Sep-30-2024 - backend - feature - Add a separate domain managed enrichment for crypto domains
+- PR: #680 - Oct-05-2024 - frontend - feature - Add comparison to alternative page template
+- PR: #679 - Oct-04-2024 - frontend - feature - dropdown: improve slightly
+- PR: #678 - Oct-04-2024 - frontend - bugfix - fix spelling
+- PR: #677 - Oct-04-2024 - frontend - feature - Changes for multi ingest on all object storage sources
+- PR: #676 - Oct-04-2024 - frontend - bugfix - Minor ux tweaks to the alert history.
+- PR: #675 - Oct-04-2024 - frontend - feature - Better user-experience for dropdown filter buttons.
+- PR: #673 - Oct-01-2024 - frontend - bugfix - Fix dark mode on source create
+- PR: #672 - Oct-01-2024 - frontend - bugfix - Fix dark mode not working on source card
+- PR: #671 - Oct-01-2024 - frontend - bugfix - fix data volume page (was querying logs? or rows? instead of bytes)
+- PR: #670 - Oct-01-2024 - frontend - bugfix - Update data volume query to fix CH error
+- PR: #668 - Oct-01-2024 - frontend - bugfix - Expand clickable sidebar to fill whole item
+
+## Week of September 23, Release Notes
+
+- PR: #887 - Sep-26-2024 - backend - performance - remove rules from enrichment list calls
+- PR: #886 - Sep-26-2024 - backend - performance - Add 'Get' routes for enrichment configs
+- PR: #883 - Sep-25-2024 - backend - bugfix - detections: faster save w/ validation (fixes RUN-501)
+- PR: #882 - Sep-25-2024 - backend - bugfix - Skip non-IP/CIDR threat feed rules:
+- PR: #881 - Sep-24-2024 - backend - bugfix - Skip GCP pub/sub notifications unless its `OBJECT_FINALIZE`
+- PR: #880 - Sep-23-2024 - backend - bugfix - Reduce memory usage for enrichments
+- PR: #878 - Sep-23-2024 - backend - bugfix - Exact -> CIDR for matching managed enrichments.
+- PR: #867 - Sep-24-2024 - backend - performance - Change how polling scheduler gets next source
+- PR: #666 - Sep-26-2024 - frontend - performance - Use Get instead of List for enrichment edit/create
+- PR: #665 - Sep-26-2024 - frontend - feature - Updated empty source state and add source card
+- PR: #663 - Sep-25-2024 - frontend - bugfix - Okta logs marketing page.
+- PR: #662 - Sep-25-2024 - frontend - bugfix - detections: don't pass to/from parameters to create
+- PR: #660 - Sep-25-2024 - frontend - feature - Managed enrichments
+- PR: #659 - Sep-25-2024 - frontend - feature - Alerts: improved filters for alerts page
+- PR: #652 - Sep-23-2024 - frontend - dependencies - Bump webpack from 5.91.0 to 5.94.0
+- PR: #650 - Sep-23-2024 - frontend - dependencies - Bump micromatch from 4.0.5 to 4.0.8
+- PR: #649 - Sep-23-2024 - frontend - feature - Alan/detections sorting filters
+
+## Week of September 16, Release Notes
+
+- PR: #876 - Sep-22-2024 - backend - bugfix - close rows in case of leak
+- PR: #875 - Sep-19-2024 - backend - bugfix - Update polling s3 sources to get correct session
+- PR: #874 - Sep-18-2024 - backend - feature - Allow wildcard source type for managed enrichments
+- PR: #873 - Sep-18-2024 - backend - feature - Managed Enrichment for IP based enrichments
+- PR: #872 - Sep-18-2024 - backend - bugfix - S3 ack if no events were sent
+- PR: #871 - Sep-18-2024 - backend - bugfix - Fix s3
+- PR: #870 - Sep-17-2024 - backend - bugfix - Fix issues with getting s3 region
+- PR: #869 - Sep-16-2024 - backend - bugfix - Re-enable managed enrichments
+- PR: #868 - Sep-16-2024 - backend - bugfix - Fix SSO to work with CLI
+- PR: #866 - Sep-16-2024 - backend - feature - Added detection as code support for sigma detections 
+- PR: #861 - Sep-17-2024 - backend - feature - Set cloudtrail to use multi ingest
+- PR: #648 - Sep-20-2024 - frontend - feature - detections: improve list view
+- PR: #647 - Sep-19-2024 - frontend - feature - detections: add notification channels to detection list
+- PR: #646 - Sep-19-2024 - frontend - feature - New sources empty state
+- PR: #645 - Sep-19-2024 - frontend - bugfix - Alerts + Detections: refactor and fix "Run Detection" button.
+- PR: #644 - Sep-19-2024 - frontend - dependencies - Update dropdowns with new icons and styling.
+- PR: #641 - Sep-18-2024 - frontend - feature - New homepage.
+- PR: #640 - Sep-18-2024 - frontend - feature - clipboard/archive icons replaced with history icon
+- PR: #638 - Sep-20-2024 - frontend - bugfix - Fix format query with map columns
+- PR: #637 - Sep-18-2024 - frontend - feature - Require name when saving detection
+- PR: #636 - Sep-18-2024 - frontend - bugfix - Rename some links in sidebar
+- PR: #635 - Sep-17-2024 - frontend - feature - Added proper collapsing sidebar
+- PR: #634 - Sep-17-2024 - frontend - bugfix, feature - Clean up notifications copy:
+- PR: #633 - Sep-16-2024 - frontend - feature - Support minimizing the sidebar
+- PR: #632 - Sep-16-2024 - frontend - bugfix - Add SSO to CLI login
+- PR: #630 - Sep-16-2024 - frontend - feature - Update streaming detections
+- PR: #628 - Sep-17-2024 - frontend - feature - Added external s3 modal for ingest types update cloudtrail to support multi-ingest
+
+## Week of September 9, Release Notes
+
+- PR: #863 - Sep-12-2024 - backend - bugfix - Revert "Managed Enrichments (#846)"
+- PR: #862 - Sep-12-2024 - backend - bugfix - Remove visibility timeout on sqs
+- PR: #859 - Sep-11-2024 - backend - performance - Add watchdog timeout in config
+- PR: #858 - Sep-11-2024 - backend - bugfix - Only saving webhook settings for some sources
+- PR: #857 - Sep-10-2024 - backend - bugfix - Sigma should use Provider when looking at enrichments not the name
+- PR: #856 - Sep-11-2024 - backend - bugfix, performance - Change how azure sources poll for events
+- PR: #855 - Sep-10-2024 - backend - bugfix - Use PREWHERE when loading scheduled query runs results.
+- PR: #854 - Sep-09-2024 - backend - feature - Drop duplicate sqs messages, controllable with const
+- PR: #846 - Sep-11-2024 - backend - feature - Managed Enrichments
+- PR: #629 - Sep-11-2024 - frontend - bugfix - Fix some of the source items aren't strings
+- PR: #627 - Sep-11-2024 - frontend - bugfix - Display webhook settings and new webhook popup after creating
+- PR: #626 - Sep-10-2024 - frontend - bugfix - Simplify query pattern on detection results page
+- PR: #625 - Sep-10-2024 - frontend - bugfix - Dedupe IPs and actors to not display duplicates in list
+- PR: #624 - Sep-10-2024 - frontend - bugfix - Use localStorage for alert history time picker.
 
 ## Week of September 2, Release Notes
 
