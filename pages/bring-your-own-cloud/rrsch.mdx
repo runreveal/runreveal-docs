@@ -1,0 +1,74 @@
+# RRSCH (RunReveal Scheduler) Configuration Guide
+
+RRSCH is a scheduling system that manages various types of scheduled tasks in the RunReveal platform, including queries, reports, threat feeds, notifications, and enrichments.
+
+## Table of Contents
+- [Basic Configuration](#basic-configuration)
+- [Common Configuration Options](#common-configuration-options)
+- [Scheduler Types](#scheduler-types)
+- [Running RRSCH](#running-rrsch)
+
+## Basic Configuration
+
+RRSCH uses a JSON configuration file. Here's a basic example:
+
+```json
+{
+  "chdsn": "clickhouse://user:password@localhost:9000/dbname",
+  "common": {
+    "baseurl": "http://localhost:8000",
+    "pgdsn": "postgres://user:password@localhost/dbname?sslmode=disable"
+  },
+  "schedule": {
+    "schedulers": [
+      {
+        "type": "query",
+        "timer": 500,
+        "fetchCount": 10,
+        "visibilityTimeout": 10,
+        "notifRetryQueue": ""
+      }
+    ]
+  }
+}
+```
+
+## Common Configuration Options
+
+| Option | Type | Description | Required |
+|--------|------|-------------|-----------|
+| `chdsn` | string | ClickHouse connection string | Yes |
+| `common` | object | Common configuration shared across schedulers | Yes |
+
+### Common Configuration Object
+
+| Option | Type | Description | Required |
+|--------|------|-------------|-----------|
+| `baseurl` | string | Base URL for the application | Yes |
+| `pgdsn` | string | PostgreSQL connection string | Yes |
+
+## Running RRSCH
+
+RRSCH can be run using the following command:
+
+```bash
+rrsch queries --config config.json
+```
+
+### Command Line Arguments
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--config` | Path to configuration file | `config.json` |
+
+### Environment Variables
+
+Configuration values can reference environment variables by prefixing the value with `$`. For example:
+
+```json
+{
+  "common": {
+    "pgdsn": "$POSTGRES_DSN"
+  }
+}
+```
