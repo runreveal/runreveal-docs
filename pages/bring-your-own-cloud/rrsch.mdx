@@ -17,7 +17,7 @@ RRSCH uses a JSON configuration file. Here's a basic example:
   "chdsn": "clickhouse://user:password@localhost:9000/dbname",
   "common": {
     "baseurl": "http://localhost:8000",
-    "pgdsn": "postgres://user:password@localhost/dbname?sslmode=disable"
+    "pgdsn": "postgres://user:password@localhost/dbname?sslmode=verify-full"
   },
   "schedule": {
     "schedulers": [

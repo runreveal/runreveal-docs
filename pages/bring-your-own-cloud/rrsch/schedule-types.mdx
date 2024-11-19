@@ -91,7 +91,7 @@ Here's a complete configuration example with all scheduler types:
   "chdsn": "clickhouse://user:password@localhost:9000/dbname",
   "common": {
     "baseurl": "http://localhost:8000",
-    "pgdsn": "postgres://user:password@localhost/dbname?sslmode=disable"
+    "pgdsn": "postgres://user:password@localhost/dbname?sslmode=verify-full"
   },
   "schedule": {
     "schedulers": [
@@ -132,8 +132,8 @@ Here's a complete configuration example with all scheduler types:
 ## Best Practices
 
 1. **Timer Settings**
-   - Use shorter timers (500ms) for time-sensitive tasks like queries and reports
-   - Use longer timers (30s-60s) for background tasks like threat feeds and enrichments
+   - Use shorter timers (500ms) for time-sensitive tasks like queries.
+   - Use longer timers (30000ms-60000ms) for background tasks like threat feeds and enrichments
    - Adjust based on system load and requirements
 
 2. **Fetch Count**
@@ -141,12 +141,7 @@ Here's a complete configuration example with all scheduler types:
    - Use lower fetch counts (1-2) for resource-intensive tasks
    - Consider memory usage when setting this value
 
-3. **Visibility Timeout**
-   - Set based on expected task duration
-   - Include buffer time for retries and network latency
-   - Typically 3-10 minutes depending on task complexity
-
-4. **Parallelism**
+3. **Parallelism**
    - Minimum of 3 workers per scheduler
    - Increase for high-volume workloads
-   - Monitor system resources to find optimal values
+   - Monitor system resources to find optimal values.
