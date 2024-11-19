@@ -1,0 +1,147 @@
+# RRSCH Scheduler Types
+
+This document details all available scheduler types and their specific configuration options.
+
+## Common Scheduler Configuration
+
+Most schedulers share these common configuration options:
+
+| Option | Type | Description | Default |
+|--------|------|-------------|---------|
+| `timer` | integer | Timer interval in milliseconds | - |
+| `fetchCount` | integer | Number of items to fetch per batch | - |
+| `visibilityTimeout` | integer | Timeout in minutes before task is considered failed | - |
+| `parallelism` | integer | Number of parallel workers (minimum 3) | 3 |
+
+## Available Schedulers
+
+### Query Scheduler
+Manages scheduled queries and their execution.
+
+```json
+{
+  "type": "query",
+  "timer": 500,
+  "fetchCount": 10,
+  "visibilityTimeout": 10,
+  "notifRetryQueue": ""
+}
+```
+
+| Additional Field | Type | Description | Required |
+|-----------------|------|-------------|-----------|
+| `notifRetryQueue` | string | Queue name for notification retries | No |
+
+### Report Scheduler
+Handles scheduled report generation.
+
+```json
+{
+  "type": "report",
+  "timer": 500,
+  "fetchCount": 10,
+  "visibilityTimeout": 10
+}
+```
+
+### Threat Feed Scheduler
+Manages threat feed updates and processing.
+
+```json
+{
+  "type": "threatfeed",
+  "timer": 30000,
+  "fetchCount": 2,
+  "visibilityTimeout": 3
+}
+```
+
+### Notification Retry Scheduler
+Handles retry logic for failed notifications.
+
+```json
+{
+  "type": "notification-retry",
+  "notifRetryQueue": ""
+}
+```
+
+| Field | Type | Description | Required |
+|-------|------|-------------|-----------|
+| `notifRetryQueue` | string | Queue name for notification retries | Yes |
+
+### Enrichment Scheduler
+Manages data enrichment tasks.
+
+```json
+{
+  "type": "enrichment",
+  "timer": 60000,
+  "fetchCount": 1,
+  "visibilityTimeout": 10
+}
+```
+
+## Complete Configuration Example
+
+Here's a complete configuration example with all scheduler types:
+
+```json
+{
+  "chdsn": "clickhouse://user:password@localhost:9000/dbname",
+  "common": {
+    "baseurl": "http://localhost:8000",
+    "pgdsn": "postgres://user:password@localhost/dbname?sslmode=verify-full"
+  },
+  "schedule": {
+    "schedulers": [
+      {
+        "type": "query",
+        "timer": 500,
+        "fetchCount": 10,
+        "visibilityTimeout": 10,
+        "notifRetryQueue": ""
+      },
+      {
+        "type": "report",
+        "timer": 500,
+        "fetchCount": 10,
+        "visibilityTimeout": 10
+      },
+      {
+        "type": "threatfeed",
+        "timer": 30000,
+        "fetchCount": 2,
+        "visibilityTimeout": 3
+      },
+      {
+        "type": "notification-retry",
+        "notifRetryQueue": ""
+      },
+      {
+        "type": "enrichment",
+        "timer": 60000,
+        "fetchCount": 1,
+        "visibilityTimeout": 10
+      }
+    ]
+  }
+}
+```
+
+## Best Practices
+
+1. **Timer Settings**
+   - Use shorter timers (500ms) for time-sensitive tasks like queries.
+   - Use longer timers (30000ms-60000ms) for background tasks like threat feeds and enrichments
+   - Adjust based on system load and requirements
+
+2. **Fetch Count**
+   - Use higher fetch counts (10+) for quick-processing tasks
+   - Use lower fetch counts (1-2) for resource-intensive tasks
+   - Consider memory usage when setting this value
+
+3. **Parallelism**
+   - Minimum of 3 workers per scheduler
+   - Increase for high-volume workloads
+   - Monitor system resources to find optimal values.

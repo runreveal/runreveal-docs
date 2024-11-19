@@ -63,3 +63,8 @@ Provide RunReveal with the following information to begin reading data:
 - Cloudflare Account ID
 
 RunReveal will automatically begin processing new data as it becomes available in R2.
+
+## Rate limits
+Keep in mind that Cloudflare Workers Queues have ratelimits. These ratelimits are defined in [Cloudflare's docs](https://developers.cloudflare.com/queues/platform/limits/).
+
+For most use cases this shouldn't be an issue. However, sharing Workers API keys between sources, or writing lots of small objects can cause these limits to be reached.

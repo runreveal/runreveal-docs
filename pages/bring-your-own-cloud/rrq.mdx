@@ -1,0 +1,83 @@
+# RRQ (RunReveal Queue) Configuration Guide
+
+RRQ is a data pipeline tool that ingests data from various sources and processes it through a unified pipeline. This documentation covers how to configure and run RRQ.
+
+## Table of Contents
+- [Basic Configuration](#basic-configuration)
+- [Common Configuration Options](#common-configuration-options)
+- [Source Types](/sources)
+- [Running RRQ](#running-rrq)
+
+## Basic Configuration
+
+RRQ uses a JSON configuration file. Here's a basic example:
+
+```json
+{
+  "chdsn": "clickhouse://user:password@localhost:9000/dbname",
+  "pprof": "localhost:6060",
+  "backfillProcessor": false,
+  "parallelism": 4,
+  "watchdogTimeout": 300,
+  "common": {
+    "baseurl": "https://your-domain.com",
+    "pgdsn": "postgres://user:password@localhost/dbname?sslmode=disable"
+  },
+  "sources": [
+    {
+      "type": "cloudtrail",
+      "sqsQueue": "your_cloudtrail_queue"
+    }
+  ]
+}
+```
+
+## Common Configuration Options
+
+| Option | Type | Description | Required |
+|--------|------|-------------|-----------|
+| `chdsn` | string | ClickHouse connection string | Yes |
+| `pprof` | string | Address for pprof debugging server | No |
+| `backfillProcessor` | boolean | Enable backfill processing | No |
+| `parallelism` | integer | Number of parallel workers | No |
+| `watchdogTimeout` | integer | Timeout in seconds for watchdog | No |
+| `common` | object | Common configuration shared across sources | Yes |
+
+### Common Configuration Object
+
+| Option | Type | Description | Required |
+|--------|------|-------------|-----------|
+| `baseurl` | string | Base URL for the application | Yes |
+| `pgdsn` | string | PostgreSQL connection string | Yes |
+
+## Running RRQ
+
+RRQ can be run using the following command:
+
+```bash
+rrq run --config config.json
+```
+
+### Command Line Arguments
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--config` | Path to configuration file | `config.json` |
+
+### Environment Variables
+
+Configuration values can reference environment variables by prefixing the value with `$`. For example:
+
+```json
+{
+  "common": {
+    "pgdsn": "$POSTGRES_DSN"
+  }
+}
+```
+
+## Next Steps
+
+- See [Source Types](/sources) for detailed configuration of each source type
+- Check our troubleshooting guide for common issues
+- Refer to the monitoring documentation for operational best practices

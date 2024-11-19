@@ -13,14 +13,14 @@ RunReveal sources provide a few different ingestion methods for sending us data.
 A webhook source will generate a unique URL that can be used to forward events to. This URL is provided to your app and events are sent to RunReveal and processed.
 
 Webhook sources can be the easiest to setup and maintain but are the most prone to errors.
-Networking issues that may cause HTTP requests to fail can mean events are lost. 
+Networking issues that may cause HTTP requests to fail can mean events are lost.
 If given an option, setting up retries for events can give some error handling in these scenarios.
 Every source is different and retries are not guaranteed to be available.
 
 ### Polling
 
 A polling source is the most common ingestion method that RunReveal offers. Polling sources work by making an API call to the source
-and returning events that have occurred. 
+and returning events that have occurred.
 These API calls are usually performed on a 60 second timer, RunReveal stores a token indicating where we left off and requests all new events (some sources may only request a limited amount to reduce the number of events returned).
 
 Every polling source is different, but generally RunReveal requires some sort of account identifier and some sort of access credentials to view your logs.
@@ -35,7 +35,7 @@ Sources providing these can range from cloud provider logs, SAAS applications th
 Below you will find links to help setup and explain each of the object storage providers that we support.
 
 These ingestion types work by:
-1. Storing an object containing a number of events in a blob storage container. 
+1. Storing an object containing a number of events in a blob storage container.
 2. Sending an object creation notification to a message queue.
 3. RunReveal will subscribe to this queue and read new notifications.
 4. RunReveal will download the object listed in the notification.
@@ -43,7 +43,7 @@ These ingestion types work by:
 
 #### [AWS S3 Bucket](sources/object-storage/s3.mdx)
 
-Events are stored in an AWS S3 bucket that is under your control, 
+Logs are stored in an AWS S3 bucket that is under your control,
 object creation notifications are forwarded to one of RunReveal's SNS topics.
 Once we receive the notification we will download the object and begin processing events.
 
@@ -55,18 +55,24 @@ RunReveal will subscribe to your SQS queue and process the notifications.
 
 #### [Azure Blob Storage](sources/object-storage/azure.mdx)
 
-Events are stored in a storage account container in your Azure subscription.
+Logs are stored in a storage account container in your Azure subscription.
 Object creation notifications are sent to a storage queue where RunReveal will subscribe and process the notifications.
 
 #### [Google Cloud Storage Bucket](sources/object-storage/gcs.mdx)
 
-Events are stored in a GCS bucket in your GCP account. 
+Logs are stored in a GCS bucket in your GCP account.
 Object creation notifications are sent to a pub/sub topic and RunReveal will subscribe to the topic to process the notifications.
+
+#### [Cloudflare R2 Bucket](sources/object-storage/r2.mdx)
+
+Logs are stored in an R2 bucket in your Cloudflare account.
+Object creation notifications are sent to a Cloudflare Workers Queue and RunReveal will read from event notifications from the queue
+and process the objects that have been created.
 
 ## Health Checks
 
 Along with adding your source settings to ingest logs, RunReveal offers the ability to enable health checks on your source.
-A health check will check your source volume every 15 minutes to verify if any logs have been received. 
+A health check will check your source volume every 15 minutes to verify if any logs have been received.
 Once the threshold limit is reached we will alert the configured notification channels that the source is unhealthy.
 
 You can select the duration that you want health checks to alert on and select the frequency that alerts should be sent.
