@@ -321,3 +321,23 @@ Query Parameters:
 | ---- | ----------- | -------- |
 | workspaceid | Your workspace ID | Yes |
 | id | The id of the enrichment to delete | Yes |
+
+### POST `/enrichments/appendrules`
+
+Query Parameters:
+
+| Name | Description | Required |
+| ---- | ----------- | -------- |
+| workspaceid | Your workspace ID | Yes |
+| id | The id of the enrichment to append to | Yes |
+
+Body: [`List<EnrichmentRule>`](#enrichment-rule)
+
+Required Fields:
+* `type`
+* `pattern`
+* `data`
+
+<Callout type="info" emoji="ℹ️">
+Note: `id` is not required on append, ids will be generated server side
+</Callout>
