@@ -1,0 +1,38 @@
+import { Callout } from 'nextra/components'
+---
+description: Quickly ingest your JumpCloud security logs
+---
+
+# JumpCloud Directory Insight Events
+
+JumpCloud Directory Insights logs capture authentication, authorization, and directory management events across your JumpCloud environment, including user logins, group modifications, system access attempts, and policy changes.
+    These logs are crucial for security monitoring, compliance reporting, and understanding user activity across your organization's directory services.
+
+When adding a JumpCloud source RunReveal will ingest the last 96 hours of logs before polling every minute for new logs.
+
+## Setup
+
+Give your JumpCloud source a descriptive name to help find it later. The two fields we require are a list of services that you want events ingested from and an API Key.
+
+### Service List
+
+JumpCloud separates their events into distinct services each with their own schema. Select "All" from the list to ingest all of the current and future services that JumpCloud supports.
+Otherwise select a subset of services to import.
+
+### API Key
+
+To generate an API Key perform the following actions.
+
+1. Log into the JumpCloud Admin portal.
+2. Click the username drop-down menu located in the top-right of the Admin Portal.
+3. Click API Settings.
+
+<Callout type="warn">
+API Keys have full access to all data accessible to the admin account that created it. RunReveal recommends creating a service level account
+with minimal permissions to provide access to your JumpCloud Events.
+
+## Verify Its working
+
+Once added the source logs should begin flowing within a minute.
+
+You can validate we are receiving your logs by running the following SQL query.
