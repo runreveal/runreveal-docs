@@ -33,3 +33,53 @@ User Email: evan@runreveal.com
 ```
 
 Now you're ready to search your logs like a pro and manage your RunReveal account from the terminal!
+
+# Environment Variables
+
+RunReveal CLI uses environment variables to set up specific aspects of the CLI configuration. These are helpful
+if you don't want to run `runreveal init`, configure your active workspace, proxy the CLI through a local proxy, or
+any number of use cases.
+## RUNREVEAL_TOKEN
+The `RUNREVEAL_TOKEN` environment variable is used to authenticate your CLI session. It supplants the need to run `runreveal init`
+and it will override the token stored in your keychain or the RunReveal configuration file.
+
+## RUNREVEAL_WORKSPACE
+This environment variable is used to set the active workspace for your CLI session. It will override the workspace ID
+if one is set in the RunReveal configuration file or keychain. This ID _must_ be a workspace ID, not the name of your
+workspace.
+
+## RUNREVEAL_BASEURL
+For customers who have deployed the RunReveal API on-prem or in a private cloud, you can set the `RUNREVEAL_BASEURL`
+environment variable to point the CLI to your RunReveal API instance.
+
+```
+export RUNREVEAL_BASEURL=https://api.runreveal.com
+```
+
+## RUNREVEAL_DEBUG
+The `RUNREVEAL_DEBUG` environment variable is used to enable debug logging for the CLI. This is helpful if you're
+troubleshooting an issue or want to see more information about the requests and responses from the RunReveal API.
+
+This will output the HTTP requests that are being sent to the RunReveal API.
+
+```
+export RUNREVEAL_DEBUG=1
+```
+
+## RUNREVEAL_HEADER_FILE
+This is a file that contains additional headers that should be sent along with all HTTP requests that the CLI makes.
+This is helpful if you're using a proxy or need to send additional headers for authentication.
+
+```
+export RUNREVEAL_HEADER_FILE=/path/to/headers.json
+```
+
+The structure of the header file is a JSON object in this format:
+```
+{
+    "Headers": {
+        "Custom-Header": "value",
+        "Another-Header": "value"
+    }
+}
+```
