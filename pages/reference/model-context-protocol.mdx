@@ -1,0 +1,68 @@
+# Model Context Protocol
+
+In order to use the logs and data you collect in RunReveal with Cursor, Claude, or other LLMs, you can use RunReveal's CLI support of MCP.
+
+This works by having the `runreveal` cli as a broker between the LLM and RunReveal's API, handling authentication, authorization, and the actual fetching of data.
+
+We'll likely continue to expand the capabilities of LLMs in RunReveal but the space is changing quickly and we're on the bleeding edge.
+
+## Install the CLI
+Consult the [RunReveal CLI docs](/reference/using-the-cli) for installation instructions through brew.
+
+Run `which runreveal`, take note of the full path to the binary. If you used brew it's likely in `/opt/homebrew/bin/runreveal`.
+
+## Connect Claude to RunReveal
+![Claude MCP RunReveal Configuration](/claude-mcp-runreveal.png)
+
+Inside Claude Desktop, under Settings > Developer > Edit MCP config, it should open a file that can manually be edited. This file is likely in `vim ~/Library/Application\ Support/Claude/claude_desktop_config.json` on a Mac.
+
+Inside this file you'll need to configure your Claude client to understand how to talk to the RunReveal binary. This requires a RunReveal API key, and a RunReveal Workspace ID.
+
+If you don't have an MCP server set up already, your config file should look like this with the RUNREVEAL_CONFIG filled in. Otherwise, insert a new entry in the `mcpServer` object for `runreveal`.
+
+```
+{
+    "mcpServers": {
+        "runreveal": {
+            "command": "/opt/homebrew/bin/runreveal",
+            "args": [
+                "mcp"
+            ],
+            "env": {
+                "RUNREVEAL_TOKEN": "YOUR_API_KEY_FROM_RUNREVEAL",
+                "RUNREVEAL_WORKSPACE": "YOUR_WORKSPACE_ID"
+            }
+        }
+    }
+}
+```
+
+Once you save this file you should be able to open Claude desktop and see RunReveal under Developer Settings listed as a MCP Server.
+
+Consult the Claude docs for additional details.
+
+## Connect Cursor to RunReveal
+![Cursor MCP RunReveal Configuration](/cursor-mcp-runreveal.png)
+
+To use Cursor along with RunReveal you'll need to provide the same configuration in your `~/.cursor/mcp.json` file in your home directory or project directory. The format of this file, currently, is in the same format as the Claude client format.
+
+```
+{
+    "mcpServers": {
+        "runreveal": {
+            "command": "/opt/homebrew/bin/runreveal",
+            "args": [
+                "mcp"
+            ],
+            "env": {
+                "RUNREVEAL_TOKEN": "YOUR_API_KEY_FROM_RUNREVEAL",
+                "RUNREVEAL_WORKSPACE": "YOUR_WORKSPACE_ID"
+            }
+        }
+    }
+}
+```
+
+[Consult the cursor docs](https://docs.cursor.com/context/model-context-protocol#configuration-locations) for additional details. Once you restart cursor you should see the RunReveal mcp server listed in Cursor settings. Make sure you don't configure the MCP server through the Cursor UI, because this won't allow you to configure necessary envvars.
+
+
