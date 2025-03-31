@@ -8,6 +8,8 @@
   },
   "how-to-guides": "How To Guides",
   "sources": "Sources",
+  "transforms": "Transforms",
+  "filtering": "Filtering",
   "detections": "Detections",
   "enrichments": "Enrichments",
   "notifications": "Notifications",
