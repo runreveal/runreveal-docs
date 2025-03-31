@@ -21,14 +21,3 @@ If using an AWS S3 bucket use the following SNS topic ARN to send your bucket no
 arn:aws:sns:<REGION>:253602268883:runreveal_generic
 ```
 </Callout>
-
-## Transform
-
-Along with the standard setup for the source, you can also define which fields from your log match the RunReveal normalized schema.
-Existing values will be overwritten by what is selected.
-
-Access child objects using a `.` character or for a complete list of supported syntax visit [these docs](https://github.com/tidwall/gjson/blob/master/SYNTAX.md).
-
-![transform](/transform.png)
-
-Normalizing your logs will make it easier to detect across all of your sources.
