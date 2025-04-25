@@ -1,0 +1,8 @@
+# Release Notes - v2025.4.18
+
+🐛 Bug Fix: Google Workspace Authentication
+
+This release addresses an issue with Google Workspace authentication when requesting GCP scopes for service accounts. The fix ensures that additional scopes are only requested when using identity federation.
+
+## Changelog
+* Fix bug with google workspace when requesting gcp scopes for service accounts (#1223)
