@@ -69,6 +69,14 @@ Logs are stored in an R2 bucket in your Cloudflare account.
 Object creation notifications are sent to a Cloudflare Workers Queue and RunReveal will read from event notifications from the queue
 and process the objects that have been created.
 
+## Transform
+
+Along with the standard setup for the source, you can also select an existing transform that was created to help normalize your fields. 
+
+![transform](/transform-source.png)
+
+Leaving this field blank will use the standard transform for this source. Custom sources (e.g. webhooks or object storage) will not have any transformation applied.
+
 ## Health Checks
 
 Along with adding your source settings to ingest logs, RunReveal offers the ability to enable health checks on your source.
