@@ -87,7 +87,7 @@ headers = {
     "Authorization": "Basic " + TOKEN,
 }
 
-response = requests.post(
+response = requests.get(
     URL,
     params={"workspaceid": WORKSPACE_ID},
     headers=headers,
