@@ -81,7 +81,7 @@ TOKEN = "your-token"
 WORKSPACE_ID = "your-workspace-id"
 ALERT_ID = "your-alert-id"
 
-URL = "https://api.runreveal.com/notification-history/list/{}" % ALERT_ID
+URL = f"https://api.runreveal.com/notification-history/list/{ALERT_ID}"
 headers = {
     "Content-type": "application/json",
     "Authorization": "Basic " + TOKEN,
@@ -94,6 +94,60 @@ response = requests.get(
 )
 
 print(response.json())
+```
+</Tabs.Tab>
+</Tabs>
+
+* Going from notification history entry to alert details
+
+<Tabs items={['bash', 'python']}>
+<Tabs.Tab>
+```shell
+$ TOKEN="<your token>"
+$ WKSPCID="<your workspace id>"
+
+$ RESULT=$(curl -H "Authorization: Basic ${TOKEN}" -H "Content-type: application/json" "https://api.runreveal.com/notification-history/list?workspaceid=${WKSPCID}")
+$ ALERTID=$(echo $RESULT | jq -r '.result.[0].alertID')
+$ curl -H "Authorization: Basic ${TOKEN}" -H "Content-type: application/json" "https://api.runreveal.com/logs/query/v3?workspaceid=${WKSPCID}" --data-raw "{\"query\": \"SELECT * FROM detections WHERE scheduledRunID == '${ALERTID}'\"}"
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+```python
+import requests
+import json
+
+TOKEN = "YOUR TOKEN"
+WORKSPACE_ID = "YOUR WORKSPACE ID"
+
+URL = "https://api.runreveal.com/notification-history/list"
+LOGSQUERY_URL = "https://api.runreveal.com/logs/query/v3"
+
+headers = {
+    "Content-type": "application/json",
+    "Authorization": "Basic " + TOKEN,
+}
+
+response = requests.get(
+    URL,
+    params={"workspaceid": WORKSPACE_ID},
+    headers=headers,
+)
+
+alert_id = response.json()["result"][0]["alertID"]
+query_json = {
+    "query": f"SELECT * FROM detections WHERE scheduledRunID='{alert_id}'",
+}
+
+detection_info = requests.post(
+    LOGSQUERY_URL,
+    params={"workspaceid": WORKSPACE_ID},
+    headers=headers,
+    data=json.dumps(query_json),
+)
+
+print(detection_info.json())
+
 ```
 </Tabs.Tab>
 </Tabs>
