@@ -17,13 +17,9 @@ const config: DocsThemeConfig = {
       <meta property="og:title" content="RunReveal docs" />
       <meta property="og:description" content="RunReveal documentation" />
       <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      <title>RunReveal Docs</title>
     </>
   ),
-  useNextSeoProps: () => {
-    return {
-      titleTemplate: '%s – RunReveal Docs'
-    }
-  },
 
   docsRepositoryBase: 'https://github.com/runreveal/runreveal-docs/blob/main',
   footer: {
