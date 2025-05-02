@@ -1,14 +1,57 @@
-# Bring your own cloud
+# Bring Your Own Cloud (BYOC)
+
 RunReveal supports a Bring Your Own Cloud (BYOC) model. This means that you can
 use your own cloud provider to store your log data, run our product within your
 VPC, and configure our product so it works to your liking.
 
-There's a variety of reasons you might want to do this including:
- - Increased security and compliance posture
- - Reduced latency and cost
- - Increased control over your data
+RunReveal's Bring Your Own Cloud (BYOC) model allows you to deploy and run RunReveal infrastructure within your own cloud environment. This gives you enhanced control, security, and compliance while still leveraging the powerful features of RunReveal.
 
-# Setup
+## Benefits of BYOC
+
+- **Enhanced Security and Compliance**: Keep your data within your security perimeter and meet strict regulatory requirements
+- **Reduced Latency**: Process and analyze data closer to its source for faster query response times
+- **Cost Control**: Optimize costs by leveraging your existing cloud investments and agreements
+- **Data Sovereignty**: Maintain complete ownership and control over your security data
+- **Custom Configuration**: Tailor the deployment to your specific infrastructure needs
+
+## BYOC Components
+
+RunReveal's BYOC solution consists of several key components:
+
+### [Deployment](./bring-your-own-cloud/deployment)
+
+Learn how to deploy RunReveal infrastructure within your cloud environment, including:
+- Infrastructure requirements
+- Network configuration
+- Resource sizing recommendations
+- Deployment options and templates
+
+### [Authentication](./bring-your-own-cloud/authentication)
+
+Configure secure authentication mechanisms for your BYOC deployment:
+- Identity provider integration
+- Role-based access control configuration
+- API key management
+- Authentication flows
+
+### [RunReveal Query (RRQ)](./bring-your-own-cloud/rrq)
+
+Understand how RunReveal Query (RRQ) works in a BYOC environment:
+- Query engine architecture
+- Performance optimization
+- Data access patterns
+- Integration with your data sources
+
+### [RunReveal Scheduler (RRSCH)](./bring-your-own-cloud/rrsch)
+
+Configure the RunReveal Scheduler (RRSCH) for detection scheduling:
+- Creating and managing scheduled detections
+- Alert configuration
+- Resource management
+- High availability options
+- [Schedule Types](./bring-your-own-cloud/rrsch/schedule-types)
+
+## Getting Started with BYOC
 
 To get started with BYOC, you'll need to reach out to us and we can help you
 configure everything but there are a few important guides you'll need.
@@ -16,3 +59,6 @@ configure everything but there are a few important guides you'll need.
 1. [Deployment](/bring-your-own-cloud/deployment)
 2. [Authentication](/bring-your-own-cloud/authentication)
 
+To get started with RunReveal BYOC, please contact our team for personalized guidance and setup assistance. We'll work with you to design a deployment that meets your specific requirements and security needs.
+
+Contact us at contact@runreveal.com or through the chat on our website to schedule a consultation.
