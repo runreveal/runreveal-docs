@@ -1,4 +1,4 @@
-{
+export default {
     "alb": "ALB",
     "cloudtrail": "CloudTrail",
     "dns": "DNS",

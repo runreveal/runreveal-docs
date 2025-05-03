@@ -1,4 +1,4 @@
-{
+export default {
   "2024-release-notes": "2024 Release Notes",
   "release-v2025-4-29": "v2025.4.29",
   "release-v2025-4-28": "v2025.4.28",

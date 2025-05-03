@@ -1,4 +1,4 @@
-{
+export default {
     "1password": "1Password",
     "atlassian": "Atlassian",
     "auth0": "Auth0",

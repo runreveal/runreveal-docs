@@ -1,4 +1,4 @@
-{
+export default {
   "email": "Email Notifications",
   "slack": "Slack Integration",
   "pagerduty": "PagerDuty Integration",
