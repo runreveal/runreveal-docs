@@ -1,0 +1,11 @@
+# runreveal v2025.5.12 Release Notes
+
+🐛 **Bug Fix: Improved CrowdstrikeFDR Parsing**
+
+This release enhances the CrowdstrikeFDR parser with better error handling and type conversion:
+
+- Parsing errors are now properly passed upstream instead of being silently skipped
+- Added a new StringOrInt type to handle fields that can be either strings or integers
+- Basic event metadata is preserved even when parsing fails, ensuring better error tracking
+
+These improvements will lead to more reliable data processing and easier troubleshooting for CrowdstrikeFDR events.
