@@ -31,67 +31,47 @@ In your Git repo include a directory called `.github/workflows` in the root of y
 In this folder you can include the yaml files for your Github workflows, below are examples of two that we use to verify and sync our detections.
 
 ```yaml
-# This workflow will run when a new PR is created merging into the main branch.
-# It will perform the dry-run command and verify the yaml is valid for your detections.
-name: Test Detections
+# Combined workflow for testing and syncing RunReveal detections
+name: RunReveal Detections CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
+  # Trigger on push to main branch affecting detections/
+  push:
+    branches: [main]
+    paths:
+      - "detections/**"
+  # Trigger on pull requests to main affecting detections/
   pull_request:
-    branches: [ main ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [main]
+    paths:
+      - "detections/**"
+  # Allow manual triggering from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  # Always test detections on PRs and pushes to main
+  test-detections:
+    name: Test Detections
     runs-on: ubuntu-latest
-    name: Sync RunReveal Detections
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
-      - name: sync-runreveal-detections
+      - name: test-runreveal-detections
         uses: runreveal/detection-sync-action@v2
         with:
           directory: ./detections
           token: ${{ secrets.RUNREVEAL_TOKEN }}
           workspace: ${{ secrets.RUNREVEAL_WORKSPACE }}
           dry-run: true
-```
 
-```yaml
-# This workflow will run when a commit is pushed to the main branch.
-name: Sync
-
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+  # Only sync detections after test passes, and only on push to main or manual dispatch
+  sync-detections:
     name: Sync RunReveal Detections
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    needs: [test-detections]
+    if: |
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
       - name: sync-runreveal-detections
         uses: runreveal/detection-sync-action@v2
         with:
