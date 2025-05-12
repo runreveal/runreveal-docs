@@ -24,13 +24,13 @@ rearrange the order they are evaluated in by dragging them up or down the list.
 
 ### Creating a Topic
 
-Clicking on the `Create Topic` button will bring you to the topc creation wizard which will walk you through setting
+Clicking on the `Create Topic` button will bring you to the topic creation wizard which will walk you through setting
 up your new topic.
 
 <br/>
 <img src="/routing-topic-create-1.png" width={600} style={{display: "block", margin: "0 auto", borderRadius: "5px"}}/>
 Each topic needs a name, and a precondition.  The precondition is how you select which subset of events will be
-routed to your topic.  Use the `Precondition Type` dropdown to set up your selection criteria.
+routed to your topic.  Use the `Precondition Type` drop-down to set up your selection criteria.
 
 <br/>
 <img src="/routing-topic-create-2.png" width={600} style={{display: "block", margin: "0 auto", borderRadius: "5px"}}/>
@@ -64,12 +64,12 @@ Next you are brought to the pipeline editor, where you can configure how your ev
 
 Pipelines detail how an event is processed before being sent to it's final destination.  Pipelines are made up of steps
 which are evaluated in order from top to bottom.  Each step consists of a function to apply as well as a precondition to
-select which events the step is appliled to.
+select which events the step is applied to.
 
 Pipeline step types:
 
 * **Transform**:  Apply a transformation to matching events, see the
-[transform documentaion](https://docs.runreveal.com/transforms) for more details.
+[transform documentation](https://docs.runreveal.com/transforms) for more details.
 * **Enrich**: Apply an enrichment to matching events, see the [enrichment documentation](https://docs.runreveal.com/enrichments)
 for more details.
 * **Filter**: Apply source filters to matching events, see the [filtering documentation](https://docs.runreveal.com/filtering)
