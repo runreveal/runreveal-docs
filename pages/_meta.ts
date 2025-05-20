@@ -7,7 +7,7 @@ export default {
     "newWindow": true
   },
   "how-to-guides": "How To Guides",
-  "routing": "Routing",
+  "pipelines": "Pipelines",
   "sources": "Sources",
   "transforms": "Transforms",
   "filtering": "Filtering",
