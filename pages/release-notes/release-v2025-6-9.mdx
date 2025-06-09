@@ -1,0 +1,13 @@
+# Release Notes for v2025.6.9
+
+## 🚀 Highlights
+
+- Improved performance: ClickHouse grant migrations now run in the background
+- Bug fix: Detection history detail pane now clears when switching workspaces
+
+## 🔧 Changes
+
+- Moved ClickHouse grant migrations to separate functions
+- Replaced CRC32 lock ID generation with more secure `math/rand` implementation
+- Added success state saving for migrations
+- Fixed issue with detection history detail pane not clearing on workspace switch
