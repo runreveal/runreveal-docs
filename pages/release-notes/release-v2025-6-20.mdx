@@ -1,0 +1,7 @@
+# Release Notes for runreveal v2025.6.20
+
+## 🐛 Bug Fix
+
+* Fixed a nil pointer issue when all custom ClickHouse destinations fail to initialize (#1489)
+
+This release addresses a critical bug that could cause a nil pointer error in the log router when custom ClickHouse destinations were unable to initialize properly.
