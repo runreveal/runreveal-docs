@@ -1,0 +1,21 @@
+# Release Notes: v2025.6.21 🚀
+
+## Highlights
+
+🔍 Introduced MCP remote endpoints for database schema introspection
+🖥️ Enhanced UI with improved empty states and loading states
+
+## Detailed Changes
+
+### MCP: Remote Endpoints
+- Added `ListTables` endpoint to return available database tables
+- Implemented `GetTableSchema` endpoint for detailed column information
+- Automated MCP tool registration via code generation
+- Improved separation between RPC handlers and MCP tool definitions
+
+### UI Enhancements
+- Improved empty states for better user experience
+- Enhanced loading states for smoother interactions
+
+### Bug Fixes
+- Resolved issue with duplicate `/metrics` route registration in queue service
