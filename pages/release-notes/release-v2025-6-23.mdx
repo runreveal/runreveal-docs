@@ -1,0 +1,23 @@
+# Release Notes for v2025.6.23
+
+🎉 Exciting new features and improvements in this release!
+
+## Highlights
+
+- 🔔 Added Opal.dev event streaming webhook source with HMAC verification
+- 🚀 Improved performance for checking missing migrations
+
+## Full Changelog
+
+### New Features
+- Added comprehensive Opal.dev event streaming webhook source integration
+  - Implements HMAC-SHA256 signature verification
+  - Supports comma-delimited signatures for key rotation
+  - Includes ClickHouse database view for optimized event querying
+  - Adds UI modal for configuring HMAC secret
+
+### Improvements
+- Enhanced performance when checking for missing database migrations
+
+### Bug Fixes
+- Stopped storing actor name in email for improved data privacy
