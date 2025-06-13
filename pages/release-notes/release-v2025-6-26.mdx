@@ -1,0 +1,28 @@
+# Release Notes for v2025.6.26
+
+🚀 **Highlights**
+
+- Introduced Remote MCP (Model Control Protocol) endpoints for enhanced database management
+- Fixed login pages to work correctly in dark mode
+- Resolved app crash issue when editing Sophos source
+
+## Detailed Changes
+
+### Remote MCP Enhancements 🔧
+- Implemented new MCP tools for database schema introspection
+- Added ListTables endpoint to return available database tables
+- Introduced GetTableSchema endpoint for detailed column information
+- Improved automatic MCP tool registration via code generation
+
+### UI Improvements 🎨
+- Fixed login pages to ensure proper functionality in dark mode
+
+### Bug Fixes 🐛
+- Resolved an issue causing the app to crash when editing Sophos source
+- Fixed database connection leaks that were causing test timeouts
+- Improved transaction rollback error handling for cleaner logs
+
+### Infrastructure Updates 🏗️
+- Fixed API server binding to use default port 8000 when no ListenAddr is specified
+- Increased maximum Postgres connections for tests
+- Enhanced ClickHouse connection pool limits for better performance under high load
