@@ -1,0 +1,11 @@
+# Release Notes for runreveal v2025.6.24
+
+🐛 **Bug Fix: Improved GitHub Logs Actor Extraction**
+
+This release addresses an issue with extracting actor information from GitHub logs. The update prioritizes the use of "user" and "user_id" fields over "actor" and "actor_id" fields when available, ensuring more accurate actor identification across various GitHub events.
+
+### Changes:
+- Fixed actor extraction in GitHub logs to handle events using different field names for user information
+- Updated GitHub polling source to align with recent object storage changes
+
+This enhancement improves the reliability of actor information retrieval in GitHub log processing.
