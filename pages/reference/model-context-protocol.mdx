@@ -74,12 +74,19 @@ The RunReveal MCP integration provides access to several tools:
 
 ### Configuration
 
-1. Open Cursor settings
-2. Navigate to the Model Context Protocol section
-3. Add a new remote MCP server with these settings:
-   - **Name**: RunReveal
-   - **URL**: `https://api.runreveal.com/mcp`
-   - **Authentication**: OAuth (you'll be prompted to authenticate)
+Click this link: [![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=RunReveal&config=eyJ1cmwiOiJodHRwczovL2FwaS5ydW5yZXZlYWwuY29tL21jcCJ9)
+
+Or, manually add this to your configuration:
+
+```
+{
+  "mcpServers": {
+    "RunReveal": {
+      "url": "https://api.runreveal.com/mcp"
+    }
+  }
+}
+```
 
 ### Authentication Flow
 
