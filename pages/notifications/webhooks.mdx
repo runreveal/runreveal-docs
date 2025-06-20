@@ -44,7 +44,7 @@ func SHAHMAC256(key, data []byte) (string, error) {
 
 func TestVerifySha256(t *testing.T) {
 	var integrity = "3w7SmNuf5UHk9v0WV6IIACBx/dZazysTcU8fxowNQVI="
-	var bodyPlusTime = `1720198139{"link":"https://runreveal.com/dash/detections/","message":"Yay! Your notification channel was tested successfully.","rawEvent":null,"test":{"status":true},"title":"RunReveal Notification Test"}`
+	var bodyPlusTime = `1720198139{"link":"https://app.runreveal.com/dash/detections/","message":"Yay! Your notification channel was tested successfully.","rawEvent":null,"test":{"status":true},"title":"RunReveal Notification Test"}`
 	var key = "b0c374a4fbfec3ad6047495ca83b4df3d428ed100f51462683c96dcefd74998e"
 
 	keyBytes, err := hex.DecodeString(key)
