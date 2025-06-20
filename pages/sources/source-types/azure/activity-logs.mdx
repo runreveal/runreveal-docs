@@ -11,8 +11,8 @@ Azure activity logs can be ingested using either an Azure storage bucket or push
 Azure storage buckets are inherently cheaper than using the webhook method but logs can be delayed by up to an hour. The webhook ingestion
 imports logs as soon as they are generated, but using an event hub can become more expensive if there are lots of logs.
 
-- [Azure Blob Storage](/sources/object-storage/azure.mdx)
-- [RunReveal Webhook](/sources/source-types/azure/activity-logs#webhook-ingestion)
+- [Azure Blob Storage](/sources/object-storage/azure)
+- [Webhook Ingestion](#webhook-ingestion)
 
 <Tabs items={['Azure Blob Storage', 'Webhook Ingestion']} defaultIndex="0">
 

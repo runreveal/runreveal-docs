@@ -15,10 +15,10 @@ the host you'll be running the daemon on from the releases page
 Extract the package to a directory of your choosing on the host.
 
 Next, login to RunReveal and create a [structured
-webhook](/Sources/Webhook-Sources/Structured-Webhooks) source.  This will give
+webhook](/sources/source-types/structured-webhooks) source.  This will give
 us a webhookURL needed to configure a destination in reveald to send our data to
 runreveal.  You can create a source directly using [this
-link](https://runreveal.com/dash/sources/add/structured-webhook)
+link](https://app.runreveal.com/dash/sources/add/structured-webhook)
 
 Here is a sample configuration for the syslog listener for which we'll be
 sending our logs.  Replace `{{YOUR-RUNREVEAL-WEBHOOKURL}}` with the webhook
