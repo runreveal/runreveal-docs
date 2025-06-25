@@ -16,7 +16,7 @@ Here's a sample response from a paginated endpoint:
 ```bash
 curl -H "Authorization: Basic <token>" -H "Content-Type: application/json" "https://api.runreveal.com/..."
 
-{"success":true,"result":[{...}],"pagination":{"nextCursor":"<id>"}}
+{"success":true,"result":[{...}],"page":{"next":"<id>"}}
 ```
 
 To retrieve the next page, use the `nextCursor` value from the previous response:
@@ -24,7 +24,7 @@ To retrieve the next page, use the `nextCursor` value from the previous response
 ```bash
 curl -H "Authorization: Basic <token>" -H "Content-Type: application/json" "https://api.runreveal.com/...?cursor=<cursor>&<other_args>"
 
-{"success":true,"result":[{...}],"pagination":{"cursor":"<id>","nextCursor":"<id2>"}}
+{"success":true,"result":[{...}],"page":{"prev":"<id>","next":"<id2>"}}
 ```
 
 ## Automation Integration
@@ -73,7 +73,7 @@ def get_all_paginated_data(api_url, token, workspace_id, limit=150):
         all_data.extend(data.get('result', []))
         
         # Check if there's a next page
-        next_cursor = data.get('pagination', {}).get('nextCursor')
+        next_cursor = data.get('page', {}).get('next')
         if not next_cursor:
             break
             
