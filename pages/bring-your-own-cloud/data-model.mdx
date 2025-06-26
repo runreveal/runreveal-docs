@@ -1,0 +1,108 @@
+# Data Model
+RunReveal's data model is simple and allows for bring your own database
+customers to extend the tables that RunReveal provides to create things
+like:
+ - Custom views for internal or custom log sources.
+ - Custom schemas to perform enrichment or normalization across
+
+All logs that RunReveal receives we normalize into a consistent schema. This
+schema is built to be flexible and extensible.
+
+# What's in a log?
+The complete log schema is available here below. This is accessible in the
+product by running `describe logs` as a query.
+
+```
+$ describe logs
+
+workspaceID          String
+sourceID             String
+sourceType           LowCardinality(String)
+sourceTTL            UInt32
+receivedAt           DateTime
+id                   String
+eventTime            DateTime
+eventName            String
+eventID              String
+srcIP                String
+srcASCountryCode     String
+srcASNumber          UInt32
+srcASOrganization    String
+srcCity              String
+srcConnectionType    String
+srcISP               String
+srcLatitude          Float64
+srcLongitude         Float64
+srcUserType          String
+dstIP                String
+dstASCountryCode     String
+dstASNumber          UInt32
+dstASOrganization    String
+dstCity              String
+dstConnectionType    String
+dstISP               String
+dstLatitude          Float64
+dstLongitude         Float64
+dstUserType          String
+actor                Map(String, String)
+tags                 Map(String, String)
+resources            Array(String)
+serviceName          String
+enrichments          Array(Tuple(data Map(String, String), name String, provider String, type String, value String))
+readOnly             Bool
+rawLog               String
+```
+
+There are a lot of important fields and nuances to this schema that is worth
+covering. Some of the important bits are
+
+# `rawLog`
+The `rawLog` column contains the raw JSON (or otherwise) as a string. This is
+an incredibly useful column because it allows us to build views, materialized
+views, or otherwise on top of the logs table for custom use cases.
+
+The other columns are populated by each of our sources as soon as the logs
+are ingested. When a log arrives at a source the following steps occur.
+ - The log is parsed into a structured object.
+ - The relevant fields are pulled out of the log and filled into a normalized log
+ - The normalized log contains a `rawLog` field, which is set with the original log line that was parsed.
+ - The normalized log performs automatic enrichments (srcASCountryCode, dstISP, etc).
+
+By default all of our log sources will automatically do this (except for
+generic log sources). Additionally, however, our transforms feature can be used
+to move data around further within our normalized schema, or the rawLog fields.
+
+# Building new views
+Within your database it's possible to build custom views that extend logs within
+RunReveal. Here's the most simple example of creating a new view called `co_example_logs`
+with a new column called `extra_field`
+
+```
+CREATE OR REPLACE VIEW runreveal.co_example_logs AS
+    SELECT
+        *,
+        JSONExtractString(rawLog, 'extra_field') as `extra_field`
+    FROM runreveal.logs
+    WHERE sourceID = '2z3ykgYgk5fats6m2S9iKrVqbFk'
+;
+
+```
+
+One thing to note, that's implicit in `select * from logs` is that
+it's critical to include the `receivedAt` column in tables and views.
+
+ We highly recommend that all your tables include this column because
+ it's one of our most important indexes on the table. This will ensure
+ that your queries remain quick. It's also the way our UI partitions
+ and loads data by time. To make sure that a table or view is compatible
+ with our UI it's required to have the `receivedAt` column.
+
+# Other tables
+There are other important tables to make note of in RunReveal.
+ - `detections` - Holds all findings from sigma and query based detections
+ - `scheduled_query_runs` - Information on scheduled query. Shows runs and results.
+ - `runreveal_source_volumes` - Counts of how much data was received.
+ 
+ Each of these tables can also be extended, but many of them will have different
+ primary keys and indexes. If you're curious about the details you can `describe`
+ each one of these and examine how they work!
