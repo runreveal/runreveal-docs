@@ -1,0 +1,30 @@
+# Release Notes for runreveal v2025.7.7 🚀
+
+## Summary
+
+This release enhances our webhook handling capabilities, improving performance and reliability across multiple integrations. 🌐
+
+## What's New
+
+- 🔄 Converted remaining webhook sources to support the ParseFile interface (#1616)
+  - Improved async support for various integrations including:
+    - Generic webhook
+    - Structured webhook
+    - GitHub webhook
+    - Jamf
+    - RunReveal audit
+    - Tailscale flow
+    - Obsidian
+    - Cloudentity
+    - Notion
+    - Opal
+    - Auth0
+    - Cyberhaven
+    - Keeper
+    - GCP webhook
+    - Azure Entra webhook
+    - Azure Activity webhook
+  - Enhanced error handling for generic webhooks
+  - Fixed test data for Palo Alto Panorama traffic
+
+These changes should result in more efficient processing of webhook data and improved overall system performance.
