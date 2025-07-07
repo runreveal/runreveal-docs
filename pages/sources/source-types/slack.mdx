@@ -1,0 +1,90 @@
+---
+description: Quickly ingest your Slack audit logs
+---
+import { Callout } from 'nextra/components'
+
+# Slack Audit Logs
+
+Slack audit logs provide comprehensive visibility into user activities and administrative actions within your Slack workspace. These logs capture events such as user logins, message deletions, channel modifications, app installations, and permission changes. They help administrators monitor workspace activity, ensure compliance, and investigate security incidents.
+
+<Callout type="warning">
+Slack audit logs require a **Pro plan** subscription in RunReveal and an **Enterprise Grid** level subscription in Slack. Make sure your Slack workspace meets these requirements before proceeding with setup.
+</Callout>
+
+RunReveal will backfill your audit logs since March 2018 (this is the earliest available for slack) Once the processor has caught up, RunReveal will import new audit logs roughly every 60 seconds.
+
+## Prerequisites
+
+Before setting up Slack audit logs, ensure you have:
+
+- A RunReveal Pro plan subscription
+- A Slack Enterprise Grid workspace subscription
+- Administrative access to your Slack workspace
+- Permission to create and configure Slack apps
+
+## Setup
+
+### Step 1: Create a Slack App
+
+1. Navigate to [api.slack.com/apps](https://api.slack.com/apps) and sign in with your Slack workspace credentials.
+2. Click **"Create New App"** and select **"From scratch"**.
+3. Give your app a descriptive name (e.g., "RunReveal Audit Logs") and select the workspace you wish to use for audit log collection.
+4. Click **"Create App"** to proceed.
+
+### Step 2: Configure Basic OAuth Scopes
+
+1. In your newly created Slack app, navigate to **"OAuth & Permissions"** in the left sidebar.
+2. Scroll down to **"Scopes"** section and expand **"User Token Scopes"**.
+3. Click **"Add an OAuth Scope"** and select **"auditlogs:read"** from the list.
+4. Click **"Save Changes"** to apply the configuration.
+
+### Step 3: Get App Credentials
+
+1. Navigate to **"Basic Information"** in the left sidebar of your Slack app.
+2. Copy the **"Client ID"** and **"Client Secret"** values - you'll need these for the RunReveal configuration.
+
+<Callout type="info">
+Keep your Client Secret secure and never share it publicly. This credential provides access to your Slack audit logs.
+</Callout>
+
+### Step 4: Start RunReveal Source Creation
+
+1. Navigate to the RunReveal UI and go to the source creation page.
+2. Select **"Slack"** as your source type.
+3. Provide a descriptive name for your Slack source.
+4. Enter the **Client ID** and **Client Secret** from your Slack app.
+5. RunReveal will provide you with a redirect URL - copy this URL.
+
+### Step 5: Configure OAuth Redirect URL
+
+1. Return to your Slack app's **"OAuth & Permissions"** page.
+2. Under **"Redirect URLs"**, click **"Add New Redirect URL"** and paste the redirect URL provided by RunReveal.
+3. Click **"Save Changes"**.
+
+### Step 6: Complete OAuth Flow
+
+1. Return to the RunReveal source creation page and continue with the setup.
+2. Click **"Connect Source"** to finish the setup.
+3. This should redirect you to Slack to allow permission for the integration. Click **"Allow"** and it should redirect back to RunReveal.
+
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a minute.
+
+You can validate we are receiving your logs by running the following SQL query:
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'slack' LIMIT 1
+```
+
+## Troubleshooting
+
+If you encounter issues with the setup:
+
+- Ensure your Slack workspace has Enterprise Grid subscription
+- Verify the OAuth redirect URL is correctly configured in both Slack and RunReveal
+- Check that the `auditlogs:read` scope is properly added to your Slack app
+- Confirm your RunReveal account has a Pro plan subscription
+
+For additional help, refer to the [Slack API documentation](https://api.slack.com/apis) or contact RunReveal support.
