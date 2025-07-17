@@ -59,7 +59,7 @@ Native AI Chat is fully integrated into the RunReveal UI, giving you a secure, a
 
 ## Supported Model Providers
 
-Native AI Chat supports multiple LLM providers. You can use your own API keys for:
+Native AI Chat supports multiple LLM providers. Workspace admins can add API keys for any or all of the following:
 
 - [Anthropic (Claude)](https://docs.anthropic.com/en/api/overview)  
 - [OpenAI (ChatGPT)](https://platform.openai.com/account/api-keys)  
@@ -68,7 +68,7 @@ Native AI Chat supports multiple LLM providers. You can use your own API keys fo
 Each model runs securely and never leaves the RunReveal platform.
 
 <Callout type="info">
-The chat agent is currently written with the assumption that only a single provider will be configured at a time. Please clear out keys other than the model you intend to use. 
+Admins can now configure multiple providers and set a default provider for the workspace. When starting a new chat, users can select from any configured provider. Once a provider is selected for a chat session, it is fixed for that session, but you can start a new chat with a different provider at any time.
 </Callout>
 
 ---
@@ -87,22 +87,21 @@ The chat agent is currently written with the assumption that only a single provi
 
 ![Native AI Chat Settings](/native-ai-chat-setup-1.png)
 
-### Step 2: Add Your LLM API Key
+### Step 2: Add Your LLM API Keys
 
-1. Choose your provider (Anthropic, OpenAI, or Google AI)
-2. Paste your API key into the appropriate field
-3. Click **Add**
+1. Add API keys for any providers you want to enable (Anthropic, OpenAI, or Google AI).
+2. You can add multiple providers; you do **not** need to remove unused keys.
 
-### Step 3: Test API Key 
+### Step 3: Set a Default Provider (Admin Only)
 
-1. Click test button for configured LLM (if available) to validate 
+1. In the provider settings, select which provider should be the default for your workspace.
+2. This provider will be pre-selected for new chat sessions, but users can change it.
 
-![Native AI Chat Settings - Test Configuration](/native-ai-chat-setup-2.png)
+### Step 4: Start Chatting and Select Provider
 
-### Step 4: Start Chatting
-
-1. Open the Chat tab in the UI to start chatting with prompts like "Show me failed logins from today"
-
+1. When starting a new chat, you’ll see a dropdown to select from any configured provider.
+2. Once you select a provider/model, it will be used for the duration of that chat session.
+3. To use a different provider, simply start a new chat and select a different provider.
 
 ## Usage
 
