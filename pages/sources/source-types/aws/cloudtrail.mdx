@@ -21,7 +21,7 @@ arn:aws:sns:<REGION>:253602268883:runreveal_cloudtrail
 </Callout>
 
 ## Cloudformation Setup
-If you don't yet have a trail setup, you'll need to either set up an Organization trail, or a non-organization trail. If you'd like RunReveal to create the trail, and fully set-up the the event notification, and access to the bucket, you can use these cloudformation templates.
+If you don't yet have a trail setup, you'll need to either set up an Organization trail, or a non-organization trail. If you'd like RunReveal to create the trail, and fully set-up the event notification, and access to the bucket, you can use these cloudformation templates.
 
 RunReveal can help with this setup process using these two Cloudformation templates.
 - [Organization Trail](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create?templateURL=https://runreveal-public-assets.s3.us-east-2.amazonaws.com/runreveal-cloudformation.yml&stackName=RunRevealSetup) (this will fail if you've not created an organization).
@@ -29,6 +29,9 @@ RunReveal can help with this setup process using these two Cloudformation templa
 
 Once the cloudformation runs successfully, provide RunReveal with the name of the bucket, ensure the Role ARN is blank, and click "Connect".
 
+<Callout type='info'>
+<strong>CloudFormation setup automates the creation of the S3 bucket, SNS topic, and event notifications. You only need to enter the bucket name in RunReveal when adding a new CloudTrail source.</strong>
+</Callout>
 
 ## Manual Setup
 ### Step 1: Create an S3 Bucket
@@ -117,5 +120,21 @@ Once the cloudformation runs successfully, provide RunReveal with the name of th
 5. Inside the day folders, you'll find your CloudTrail log files.
 
 ---
+
+## Troubleshooting
+
+### CloudFormation Setup
+- Ensure the CloudFormation stack completed successfully without errors.
+- Confirm that the S3 bucket, SNS topic, and event notifications were created in your AWS account.
+- When adding a new CloudTrail source in RunReveal, use the bucket name created by the CloudFormation template. The Role ARN should be left blank unless you have a custom setup.
+- Check that CloudTrail is delivering logs to the S3 bucket (see Step 6 above).
+- Verify that the event notifications are present on the bucket and point to the correct SNS topic.
+
+### Manual Setup
+- Double-check that the S3 bucket policy matches the example provided and allows CloudTrail to write logs.
+- Make sure the SNS topic exists and uses the correct ARN: `arn:aws:sns:<REGION>:253602268883:runreveal_cloudtrail`.
+- Confirm that event notifications are configured on the S3 bucket to send new log files to the SNS topic.
+- Ensure CloudTrail is configured to deliver logs to the correct S3 bucket.
+
 
 For more information, refer to the [official AWS documentation on CloudTrail](https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html).
