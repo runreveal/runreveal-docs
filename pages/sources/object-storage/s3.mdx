@@ -148,3 +148,20 @@ Depending on the authentication method selected supply the necessary role/extern
 
 At this point all of the pieces are in place for RunReveal to access logs stored in the bucket. 
 Continue to the source docs for specific instructions on how to get your logs into the S3 bucket and the specific SNS topic to use.
+
+## Troubleshooting
+
+###  "An error occurred communicating with RunReveal, please try again" in the UI error when adding a new source.
+
+The S3 bucket is already configured as a source in RunReveal. Each source requires a unique bucket. 
+
+
+### Access Denied (403) Error in UI when trying to verify settings (bucket permissions)
+
+IAM permissions are insufficient for RunReveal to access the bucket. Review your bucket policy to ensure that s3:GetObject and s3:ListBucket permissions exist for the bucket.
+
+
+### No Data Ingested from s3 bucket for a source
+
+S3 event notifications are not configured or are misconfigured. Ensure that event notifications are set up per the intructions above and confirm that the SNS topic region matches the region of your S3 bucket.
+
