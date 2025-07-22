@@ -22,6 +22,7 @@ export default {
     "notion": "Notion",
     "obsidian-security": "Obsidian Security",
     "okta": "Okta",
+    "opal": "Opal",
     "palo-pano-traffic": "Palo Alto Panorama Traffic",
     "reveald": "Reveald",
     "sentinelone": "SentinelOne",
