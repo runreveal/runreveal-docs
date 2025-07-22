@@ -1,0 +1,23 @@
+# Opal
+Opal logs are sent to RunReveal via a webhook configured in your Opal Organization Settings.
+
+# Setup
+To setup your Opal source, start by creating the source in RunReveal to fetch
+your WebhookURL that you'll configure in Opal. You'll be given a webhook after
+creating the source via a popup.
+
+![Opal Setup](/opal-1.png)
+
+In Opal under Organization Settings > Event Streaming, create a new Event
+Streaming connection and enter your RunReveal WebhookURL, and configure
+your authentication with your desired setting.
+
+![Opal Event Streaming Setup](/opal-2.png)
+# Authentication
+RunReveal supports authentication via Webhook HMAC from Opal. If you'd like
+to use this method then the RunReveal source can be configured with an optional
+HMAC auth setting.
+
+> Note: If no HMAC secret is configured in RunReveal, authentication will not
+be enforced. 
+
