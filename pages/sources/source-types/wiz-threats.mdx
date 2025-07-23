@@ -1,0 +1,61 @@
+# Wiz Threats
+Wiz threat data is sent to RunReveal via a webhook configured in your Wiz environment using Automation Rules.
+
+# Setup
+To setup your Wiz Threats source, start by creating the source in RunReveal to fetch
+your WebhookURL that you'll configure in Wiz. You'll be given a webhook after
+creating the source via a popup.
+
+## Configure Wiz Webhook Integration
+In your Wiz environment, you'll need to setup a webhook integration and create an Automation Rule to send threat data to RunReveal.
+
+![Wiz Automation Template](/wiz-threats-1.png)
+
+## Setup Automation Rule
+Create an Automation Rule in Wiz with the following configuration:
+
+1. Navigate to your Wiz Automation Rules
+2. Create a new rule for threat events
+3. Configure the webhook action using your RunReveal WebhookURL
+4. Use the action template below for the webhook payload
+
+## Action Template
+Configure your Automation Rule with the following action template:
+
+```json
+{
+  "trigger": {
+    "source": "{{triggerSource}}",
+    "type": "{{triggerType}}",
+    "ruleId": "{{ruleId}}",
+    "ruleName": "{{ruleName}}",
+    "updatedFields": "{{#changedFields}}{{name}} field was changed from {{previousValuePrettified}} to {{newValuePrettified}} {{/changedFields}}",
+    "changedBy": "{{changedBy}}"
+  },
+  "threat": {
+    "id": "{{issue.id}}",
+    "title": "{{issue.enrichedMainDetection.rule.name}}",
+    "description": "{{issue.enrichedMainDetection.description}}",
+    "status": "{{issue.status}}",
+    "severity": "{{issue.severity}}",
+    "created": "{{issue.createdAt}}",
+    "resolutionNote": "{{issue.resolutionNote}}",
+    "projects": "{{#issue.projects}}{{name}}, {{/issue.projects}}",
+    "threatURL": "https://{{wizDomain}}/threats#~(issue~'{{issue.id}})",
+    "resolvedAt": "{{issue.resolvedAt}}",
+    "updatedAt": "{{issue.updatedAt}}",
+    "cloudPlatform" : "{{issue.entitySnapshot.cloudPlatform}}",
+    "cloudAccounts": {{issue.enrichedCloudAccounts}},
+    "cloudOrganizations": {{issue.enrichedCloudOrganizations}},
+    "actors": {{issue.enrichedThreatActors}},
+    "resources": {{issue.enrichedThreatResources}},
+    "tdrSources": "{{#issue.enrichedDetections}}{{rule.name}}, {{/issue.enrichedDetections}}",
+    "detectionIds": "{{#issue.enrichedDetections}}{{id}}, {{/issue.enrichedDetections}}",
+    "mitreTechniques": {{issue.enrichedThreatMitreTechniques}}{{^issue.enrichedThreatMitreTechniques}}null{{/issue.enrichedThreatMitreTechniques}},
+    "mitreTactics": {{issue.enrichedThreatMitreTactics}}{{^issue.enrichedThreatMitreTactics}}null{{/issue.enrichedThreatMitreTactics}},
+    "notes": "{{#issue.notes}}{{user.email}}-{{text}}, {{/issue.notes}}"
+  }
+}
+```
+
+# 
