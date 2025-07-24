@@ -1,0 +1,243 @@
+# Getting Started with Notifications
+
+import { Callout, Tabs } from 'nextra/components'
+
+<style jsx>{`
+  img {
+    border-radius: 5px;
+  }
+`}</style>
+
+
+<Callout type="info">
+  **Overview**: This guide walks you through setting up notifications in RunReveal, from creating notification channels to testing them and adding them to your detection rules so that you are notified when alerts are triggered.
+</Callout>
+
+## What You'll Learn
+
+In this guide, you'll learn how to:
+
+- Create notification channels in the UI
+- Test your notifications  
+- View alert history
+- Add notifications to detection rules:
+  - **Managed Detections** - Out-of-the-box detections with default detection rules enabled. These are read-only and must be cloned first to add notifications.
+  - **Custom Detections** - Detections that you create or cloned detections.
+  - **Sigma Streaming Detections** - Add notification channels to your sigma streaming in YAML syntax.
+  - **Detection as Code** - Notifications for detection as code rules are not managed through the UI. See [Detection as Code](/detections/detection-as-code) for information on managing notifications in your detection code.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- Access to the RunReveal dashboard
+- Admin permissions (for creating notification channels)
+- The necessary credentials for your chosen notification platform ([Slack](./slack), [PagerDuty](./pagerduty), etc.)
+
+## Steps:
+
+### 1. Create a Notification Channel
+
+![Notification Channels Overview](/notifications-getting-started-channels.png)
+
+1. **Navigate to Notification Channels**
+   1. Go to the RunReveal dashboard
+   2. Click on **Notification Channels** in the left sidebar
+   3. Click **Create Notification Channel**
+
+2. **Choose Your Notification Type**
+   - **[Email](./email)**: Simple email delivery
+   - **[Slack](./slack)**: Send to Slack channels
+   - **[PagerDuty](./pagerduty)**: Incident management integration
+   - **[Jira](./jira)**: Issue tracking integration
+   - **[Webhooks](./webhooks)**: Custom HTTP endpoints
+   - **[Tines](./tines)**: Security automation platform
+
+3. **Configure the Notification Type**
+   1. Give your channel a descriptive name (e.g., "DevOps Security Alerts - Slack")
+   2. Input the required information (webhook URL, email address, integration keys, etc.)
+
+4. **Save the Notification Channel**
+   1. Click **Create Notification** to save your notification channel
+   2. The channel will appear in your notifications list
+
+### 2. Test Your Notification Channel
+
+1. **Send Test Notification**
+   1. Click **Send Test** to trigger a test notification
+   2. This will send a sample alert to your notification channel to verify your configuration
+
+2. **Verify Delivery**
+   1. Check your notification platform to confirm receipt of test notification
+
+![Test Notification](/notifications-getting-started-test.png)
+
+### 3. Add Notifications to Detections
+
+When detection rules trigger alerts in RunReveal, they automatically send notifications to all configured notification channels associated with that detection. Each detection type has a different method for adding notification channels:
+
+<Tabs items={['Managed Detections', 'Custom SQL Detections', 'Sigma Streaming']}>
+  <Tabs.Tab>
+    #### Managed Detections
+    
+    ![Managed Detections Overview](/notifications-getting-started-managed-detections.png)
+    
+    <Callout type="warning">
+      Managed detections are read-only. You must clone them before adding notifications. This applies to both managed SQL detections and managed sigma detections.
+    </Callout>
+
+    1. **Clone the Detection**
+       1. Go to **Detections** → **Detection Queries**
+       2. Find the managed detection you want to customize
+       3. Click **Clone & Edit** to create a copy of the detection
+
+    2. **Add Notification Channels**
+       1. In the cloned detection, scroll to **Notification Channels** section
+       2. Click to view a dropdown of available channels
+       3. Select your newly created notification channel
+
+    3. **Save and Deploy**
+       1. Click **Save Detection** to store your changes
+       2. The detection will now send notifications to your channel when alerts are triggered
+
+    4. **Deactivate Original Detection**
+       1. Toggle the "Active" switch to **off** on the original managed detection to avoid duplicate alerts
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    #### Custom SQL Detections
+
+    ![Notification Channels Configuration](/notifications-getting-started-notification-channels.png)
+
+    1. **Create or Edit Custom Detection**
+       1. Go to **Detections** → choose an existing **Custom Detection** or click **Create new Detection**
+       2. If creating from scratch, input the detection query, description, interval schedule, and detection metadata
+
+    2. **Configure Notifications**
+       1. In the detection editor, find the **Notifications** section
+       2. Click **Add Notification Channel**
+       3. Select from your available notification channels
+       
+       <Callout type="info">
+         Custom detections can always be edited to add/remove notification channels
+       </Callout>
+
+    3. **Set Notification Parameters**
+       - Choose when to send notifications:
+         - **On every alert**: Send for each detection match
+         - **On severity change**: Only when severity increases
+         - **Daily digest**: Summarize alerts once per day
+       1. Configure custom message templates if needed
+
+    4. **Test and Deploy**
+       1. Test your detection to ensure notifications work
+       2. Deploy the detection to start monitoring
+  </Tabs.Tab>
+
+  <Tabs.Tab>
+    #### Sigma Streaming Detections
+
+    Sigma detections use the `notificationnames` field in the YAML configuration to specify which notification channels should receive alerts.
+
+    1. **Create or Edit Sigma Detection**
+       1. Go to **Detections** → **Sigma Streaming**
+       2. Create a new sigma detection or edit an existing one
+       3. Open your sigma detection YAML file
+
+    2. **Add Notification Channels to YAML**
+       1. Add the `notificationnames` field to your sigma detection
+       2. List the exact names of your notification channels as an array
+       3. Ensure the channel names match exactly (case-sensitive)
+
+    3. **Example Sigma Detection with Notifications**
+       ```yaml
+       title: Detect Okta Authentication Failures
+       description: Detects failed Okta sign-in attempts
+       level: high
+       
+       logsource:
+         product: okta
+       
+       detection:
+         filter:
+           eventType: user.session.start
+           outcome.result: FAILURE
+         condition: filter
+       
+       # Add notification channels here
+       notificationnames:
+         - "Security Alerts - Slack"
+         - "Critical Alerts - Email"
+       ```
+
+    4. **Upload and Deploy**
+       1. Save your sigma detection YAML file
+       2. Upload the file to RunReveal via the Sigma Streaming interface
+       3. The detection will now send notifications to the specified channels when triggered
+
+    5. **Verify Configuration**
+       1. Check that your notification channel names are spelled correctly
+       2. Test the sigma detection to ensure notifications are sent
+       3. Review the alert history to confirm delivery
+
+    <Callout type="error">
+      The `notificationnames` field in sigma detections must exactly match the names of your notification channels (including case sensitivity). If the channel name doesn't match, no notifications will be sent.
+    </Callout>
+  </Tabs.Tab>
+</Tabs>
+
+### 4. View Alert History
+
+![Alert History Overview](/notifications-getting-started-history.png)
+
+<Callout type="info">
+  **Note**: Alert history shows notifications from real detection alerts, not test notifications sent from the notification channel test function.
+</Callout>
+
+1. **Access History**
+   1. In the Notification Channels page in the UI, click **Alert History**
+   2. Or utilize the **[History API](./history-api)** for programmatic access
+
+2. **Review Notifications**
+   1. View all sent notifications with timestamps
+   2. See delivery status (success/failed)
+   3. Check notification content and recipients
+
+3. **Troubleshoot Issues**
+   1. Failed notifications will show error details
+   2. Use this information to fix configuration issues
+
+## Next Steps
+
+Now that you have notifications set up, explore the detailed configuration guides:
+
+- **[Email Notifications](./email)** - Simple email delivery setup
+- **[Slack Integration](./slack)** - Send alerts to Slack channels
+- **[PagerDuty Integration](./pagerduty)** - Incident management integration
+- **[Jira Integration](./jira)** - Issue tracking integration
+- **[Webhooks](./webhooks)** - Custom HTTP endpoint integration
+- **[Tines Integration](./tines)** - Security automation platform
+- **[Notification Templates](./templates)** - Custom message formatting
+- **[History API](./history-api)** - Programmatic access to notification history
+
+## Troubleshooting
+
+### Notifications Not Sending
+
+1. Check channel configuration
+2. Test Notification Channel
+3. Verify platform credentials  
+4. Review [alert history](./history-api) for error messages
+
+### Duplicate Notifications
+
+1. Check rule notification settings
+2. Ensure no overlapping rules
+3. Review notification frequency settings
+
+### Sigma Rule Notifications Not Working
+
+1. Verify `notificationnames` field spelling matches channel names exactly
+2. Check that notification channels are active and tested
+3. Ensure sigma rule is enabled and properly configured
+4. Review sigma rule logs for any processing errors
