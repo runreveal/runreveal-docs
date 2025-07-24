@@ -1,0 +1,138 @@
+# Custom Prompts
+
+RunReveal provides a custom prompts API that follows the [Model Context Protocol (MCP) specification for prompts](https://modelcontextprotocol.io/specification/2025-06-18/server/prompts). This allows you to create reusable prompt templates that can be dynamically customized with arguments.
+
+## Overview
+
+Custom prompts enable you to define structured message templates that can be retrieved and customized with specific arguments. This is particularly useful for:
+
+- Standardizing common analysis requests
+- Creating reusable detection templates
+- Providing consistent prompt structures across your organization
+- Enabling dynamic content injection based on context
+
+
+## Argument Syntax
+
+When using arguments in prompt text, they **must** be wrapped in double curly braces:
+
+```
+{{argument_name}}
+```
+
+### Examples
+
+**Basic argument usage:**
+```text
+Please analyze this log data: {{log_data}}
+```
+
+**Multiple arguments:**
+```text
+Analyze the following data from {{source}} for the period {{timeframe}}:
+
+{{log_data}}
+
+Focus on {{focus_area}} patterns.
+```
+
+## Data Types
+
+### Prompt
+
+A prompt definition includes:
+
+- `name`: Unique identifier for the prompt
+- `title`: Optional human-readable name for display purposes
+- `description`: Optional human-readable description
+- `arguments`: Optional list of arguments for customization
+
+## Example Prompts
+
+### Security Analysis Prompt
+
+```json
+{
+  "name": "security_analysis",
+  "title": "Security Analysis",
+  "description": "Analyze logs for security threats and anomalies",
+  "arguments": [
+    {
+      "name": "log_data",
+      "description": "The log data to analyze",
+      "required": true
+    },
+    {
+      "name": "timeframe",
+      "description": "Analysis timeframe",
+      "required": false
+    },
+    {
+      "name": "focus_areas",
+      "description": "Specific areas to focus on",
+      "required": false
+    }
+  ],
+  "prompt_text": "You are a security analyst. 
+    Please analyze the following log data for security threats and anomalies:
+    {{log_data}}
+    Timeframe: {{timeframe}}
+    Focus areas: {{focus_areas}}
+    Provide a comprehensive analysis including:
+    - Identified threats and their severity levels
+    - Anomalous patterns or behaviors
+    - Potential attack vectors
+    - Recommended mitigation strategies
+    - Risk assessment and impact analysis"
+}
+```
+
+
+
+
+## Implementation Considerations
+
+1. **Argument Validation**: Servers validate prompt arguments before processing
+2. **Authentication**: All API requests require a valid API token
+```
+
+## Security
+
+Implementations carefully validate all prompt inputs and outputs to prevent:
+
+- Injection attacks
+- Unauthorized access to resources
+- Malicious content execution
+
+Always validate and sanitize arguments before using them in prompt templates.
+
+## Usage Examples
+
+### Using Arguments in Prompt Text
+
+```text
+Please analyze the following logs for the pattern "{{pattern}}":
+
+{{logs}}
+
+Provide a detailed analysis including:
+- Pattern matches found
+- Frequency of occurrences
+- Potential security implications
+- Recommended actions
+```
+
+This documentation follows the [Model Context Protocol specification for prompts](https://modelcontextprotocol.io/specification/2025-06-18/server/prompts) and provides a comprehensive guide for using RunReveal's custom prompts API.
+
+## Using Prompts in Remote MCP Connection
+
+### Claude AI
+
+Follow the steps to set up your [remote MCP server connection](https://docs.runreveal.com/reference/model-context-protocol). Make sure that the Chat read and Chat write permissions are enabled.
+
+Once you have your connection with RunReveal established, start a new chat and open the dropdown menu from the plus icon. If you have any custom prompts configured in your RunReveal workspace, you should see an option "Add from INTEGRATION_NAME" (RunReveal in the example below).
+
+![Custom prompts dropdown](/custom-prompts-dropdown.png)
+
+Selecting "Add from INTEGRATION_NAME" will either immediately add the prompt as a .txt file to the chat, or prompt you to add values for your configured arguments if the custom prompt has an arguments field.  
+
