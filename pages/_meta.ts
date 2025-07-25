@@ -7,6 +7,7 @@ export default {
     "newWindow": true
   },
   "how-to-guides": "How To Guides",
+  "ai-chat": "AI Chat",
   "pipelines": "Pipelines",
   "sources": "Sources",
   "transforms": "Transforms",
