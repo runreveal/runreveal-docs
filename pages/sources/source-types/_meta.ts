@@ -16,6 +16,7 @@ export default {
     "gitlab": "GitLab",
     "google-workspace-logs": "Google Workspace",
     "jamf": "JAMF",
+    "jamfprotect": "JAMF Protect",
     "keeper": "Keeper Security",
     "kubernetes": "Kubernetes Audit Logs",
     "mongodb": "MongoDB",
