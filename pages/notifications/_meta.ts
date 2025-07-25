@@ -1,4 +1,5 @@
 export default {
+  "getting-started": "Getting Started",
   "email": "Email Notifications",
   "slack": "Slack Integration",
   "pagerduty": "PagerDuty Integration",
