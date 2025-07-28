@@ -18,5 +18,6 @@ export default {
   "integrations": "Integrations",
   "reference": "Reference",
   "bring-your-own-cloud": "Bring Your Own Cloud",
+  "glossary": "Glossary",
   "release-notes": "Release Notes"
 }

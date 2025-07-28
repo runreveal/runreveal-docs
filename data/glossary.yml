@@ -1,0 +1,185 @@
+- term: Alerts
+  definition: Detection queries that have executed and triggered notifications to configured channels
+
+- term: API Token
+  definition: API Tokens are used to authenticate with the RunReveal API when you are not logged in as a specific user. They are associated with the workspace they were created in and not any particular user.
+
+- term: Artifacts
+  definition: Self-contained pieces of content referenced throughout AI chat conversations
+
+- term: Authentication
+  definition: Security mechanisms for BYOC (Bring Your Own Cloud) deployments including identity provider integration
+
+- term: AWS Bedrock
+  definition: Amazon's managed service for building AI applications with foundation models from various providers
+
+- term: BYOC (Bring Your Own Cloud)
+  definition: Deployment model allowing customers to run RunReveal infrastructure in their own cloud environment
+
+- term: Categories
+  definition: Tags used for organizing and grouping detection queries
+
+- term: ChatGPT (OpenAI)
+  definition: Conversational AI model developed by OpenAI, available for integration with RunReveal's AI chat features
+
+- term: ClickHouse
+  definition: Open-source columnar database management system used by RunReveal for log storage and analytics
+
+- term: Claude (Anthropic)
+  definition: AI assistant developed by Anthropic, available for integration with RunReveal's Native AI Chat functionality
+
+- term: Custom Detections
+  definition: User-created detection rules with custom SQL queries (as opposed to managed detections)
+
+- term: Custom Prompts
+  definition: User-defined instructions and context for customizing AI assistant behavior and responses in Native AI Chat
+
+- term: Data Model
+  definition: RunReveal's normalized schema structure for standardizing log data across all sources
+
+- term: Data Types
+  definition: Classification system for different kinds of data fields including strings, numbers, timestamps, and booleans used in log processing
+
+- term: Destinations
+  definition: Object storage services and managed platforms for data backup and external usage
+
+- term: Detection as Code
+  definition: Git-based workflows for version-controlling, managing, and deploying detection rules
+
+- term: Detections
+  definition: Scheduled queries that execute automatically to identify security threats and anomalies
+
+- term: Enrichments
+  definition: Process of augmenting log events with supplemental data using pattern matching and external sources
+
+- term: Filtering
+  definition: Feature for dropping or excluding logs based on regex patterns before ingestion
+
+- term: Flags
+  definition: Boolean configuration options and feature toggles used to control system behavior and enable specific functionality
+
+- term: GCS (Google Cloud Storage)
+  definition: Google's object storage service used for log ingestion and data storage
+
+- term: Gemini (Google)
+  definition: Google's family of large language models available for integration with RunReveal's AI-powered features
+
+- term: Health Checks
+  definition: Automated monitoring of data source volume and connectivity every 15 minutes
+
+- term: JSON
+  definition: JavaScript Object Notation, a lightweight data-interchange format commonly used for log data and API communication
+
+- term: Logs API
+  definition: RESTful API endpoint for programmatically querying and retrieving log data
+
+- term: Managed Detections
+  definition: Pre-built, out-of-the-box detection rules that are read-only and maintained by RunReveal
+
+- term: MCP (Model Context Protocol)
+  definition: Protocol standard for connecting AI assistants and language models to RunReveal data and services
+
+- term: MITRE ATT&CK
+  definition: Globally accessible knowledge base and framework for categorizing adversary tactics and techniques
+
+- term: Native AI Chat
+  definition: Built-in AI investigation agent for analyzing security data through conversational queries
+
+- term: Normalized Schema
+  definition: Standardized data format and field structure applied consistently across all log sources
+
+- term: Notification Channels
+  definition: Configured destinations for alert delivery including Email, Slack, PagerDuty, Jira, Webhooks, and Tines
+
+- term: Notification Templates
+  definition: Customizable message formats for alert content and styling
+
+- term: Object Storage
+  definition: Cloud storage services including AWS S3, Azure Blob Storage, Google Cloud Storage, and Cloudflare R2 for log ingestion
+
+- term: Parameters
+  definition: Dynamic variables passed to detection queries at execution time for customization
+
+- term: Pipelines
+  definition: Sequence of data processors for transforming, parsing, and normalizing log data
+
+- term: Polling
+  definition: Source ingestion method that uses API calls on a 60-second timer to collect data
+
+- term: PQL (Pipeline Query Language)
+  definition: RunReveal's domain-specific query language as an alternative to SQL for data queries
+
+- term: Processors
+  definition: Individual components within pipelines that perform specific data transformation tasks such as parsing, filtering, and enrichment
+
+- term: rawLog
+  definition: Database field containing the original, unparsed log data as received from the source
+
+- term: RBAC (Role-Based Access Control)
+  definition: Permission and access management system for controlling user capabilities in RunReveal
+
+- term: receivedAt
+  definition: Critical timestamp field indicating when log data was received and ingested by RunReveal
+
+- term: Regex
+  definition: Regular expressions used for pattern matching and text processing in log parsing, filtering, and enrichment operations
+
+- term: Reports
+  definition: Automated daily insights and summaries about security environment activity and trends
+
+- term: reveald
+  definition: RunReveal's command-line interface and daemon for local log processing and analysis
+
+- term: RRQ (RunReveal Query)
+  definition: Query execution engine specifically designed for BYOC (Bring Your Own Cloud) environments
+
+- term: RRSCH (RunReveal Scheduler)
+  definition: Detection scheduling and execution component for BYOC (Bring Your Own Cloud) deployments
+
+- term: Rules
+  definition: Conditional logic and criteria for enrichment processes that add data to log events
+
+- term: S3 (Simple Storage Service)
+  definition: Amazon Web Services object storage service commonly used for log data ingestion
+
+- term: Schedule Types
+  definition: Configuration options that determine when and how frequently detections execute
+
+- term: scheduled_query_runs
+  definition: Database table containing historical records of detection execution and results
+
+- term: Severity
+  definition: Classification levels for detection importance including low, medium, high, and critical
+
+- term: Sigma Streaming
+  definition: Real-time detection capability using the open-source Sigma rule format for threat detection
+
+- term: Signals
+  definition: Detection results and findings that have no notification channels configured for alerting
+
+- term: SigmaLite
+  definition: Open-source library developed by RunReveal for parsing and processing Sigma detection rules
+
+- term: SOAR (Security Orchestration, Automation and Response)
+  definition: Integration capability for automated security response and workflow orchestration
+
+- term: Source Types
+  definition: Predefined categories of log sources such as CloudTrail, Okta, GitHub, Slack, and others
+
+- term: Sources
+  definition: Data collection integrations and connectors from various security tools, cloud services, and business applications
+
+- term: SQL (Structured Query Language)
+  definition: Standard programming language for managing and querying relational databases, supported by RunReveal
+
+- term: Streaming
+  definition: Real-time data processing and analysis capability for immediate threat detection
+
+- term: Transforms
+  definition: Data processing pipeline that converts raw log formats into RunReveal's normalized schema
+
+- term: Webhook
+  definition: HTTP-based source ingestion method using unique URLs for real-time event forwarding
+
+- term: Workspace
+  definition: Organizational unit that groups sources, detections, users, and configurations together
