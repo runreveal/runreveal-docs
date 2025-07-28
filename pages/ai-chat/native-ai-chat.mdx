@@ -127,54 +127,11 @@ Amazon Bedrock requires AWS IAM role configuration instead of API keys. Follow t
 
 1. In the RunReveal UI, go to **Workspace Settings → AI Model Providers**
 2. Click **Configure** next to Amazon Bedrock
-3. A modal will appear where you can input the arn of your IAM role and an External ID that you will add to your IAM role.
+3. A modal will appear where you can input the arn of your IAM role and an External ID that you will add to your IAM role. If you've already configured a role for RunReveal to assume for reading S3, you can re-use that same role and External ID here after you've attached the bedrock access policy below.
 
 ![Native AI Chat Bedrock Configuration](/native-ai-chat-bedrock.png)
 
-### Step 2: Create IAM Role in AWS
-
-1. **Log into AWS Console** and navigate to IAM
-2. **Create a new role** with the following configuration:
-   - **Trusted entity**: AWS account
-   - **Account ID**: Use the account ID shown in the RunReveal modal
-   - **External ID**: Use the External ID shown in the RunReveal modal (this is required for security)
-
-#### Trust Relationship Configuration
-
-The trust relationship is a critical security component that controls which AWS account can assume your role. We recommend using an External ID to prevent unauthorized access.
-
-**Example Trust Policy:**
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::ACCOUNT-ID:root"
-            },
-            "Action": "sts:AssumeRole",
-            "Condition": {
-                "StringEquals": {
-                    "sts:ExternalId": "your-unique-external-id-from-runreveal"
-                }
-            }
-        }
-    ]
-}
-```
-
-**Key Components:**
-- **Principal**: The AWS account that can assume this role (RunReveal's account)
-- **Action**: `sts:AssumeRole` allows the role to be assumed
-- **Condition**: The External ID must match exactly what's shown in the RunReveal modal
-
-<Callout type="info">
-**Learn More**: For detailed information about trust relationships and External IDs, see the [AWS IAM documentation on trust policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html) and [External ID best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html).
-</Callout>
-
-### Step 3: Attach Bedrock Permissions
+### Step 2: Create IAM Policy for Bedrock
 
 1. **Attach the following policy** to your IAM role:
 
@@ -197,13 +154,62 @@ The trust relationship is a critical security component that controls which AWS 
 
 2. **Optional**: For better security, you can restrict the policy to specific model ARNs instead of using `"Resource": "*"`
 
-### Step 4: Get Role ARN
+### Step 3: Create IAM Role in AWS
+
+If you've configured a more general for role for RunReveal to assume, you can attach the policy to that role and skip this step.
+
+1. **Log into AWS Console** and navigate to IAM
+2. **Create a new role** with the following configuration:
+   - **Trusted entity**: AWS account
+   - **Account ID**: Use the account ID shown in the RunReveal modal
+   - **External ID**: Use the External ID shown in the RunReveal modal (this is required for security)
+
+#### Trust Relationship Configuration
+
+The trust relationship is a critical security component that controls which AWS account can assume your role. We recommend using an External ID to prevent unauthorized access.
+
+**Example Trust Policy:**
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::253602268883:root"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "sts:ExternalId": "your-unique-external-id-from-runreveal"
+                }
+            }
+        }
+    ]
+}
+```
+
+**Key Components:**
+- **Principal**: The AWS account that can assume this role (RunReveal's account)
+- **Action**: `sts:AssumeRole` allows the role to be assumed
+- **Condition**: The External ID must match exactly what's shown in the RunReveal modal
+
+<Callout type="info">
+**Learn More**: For detailed information about trust relationships and External IDs, see the [AWS IAM documentation on trust policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html) and [External ID best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html).
+</Callout>
+
+### Step 4: Attach policy to role
+
+You'll need to attach the bedrock policy created in step 2 to the role.
+
+### Step 5: Get Role ARN
 
 1. After creating the role, copy the **Role ARN** (format: `arn:aws:iam::ACCOUNT-ID:role/ROLE-NAME`)
 2. **Paste the Role ARN** into the RunReveal Bedrock configuration modal
 3. Click **Save** to complete the setup
 
-### Step 5: Test Bedrock Access
+### Step 6: Test Bedrock Access
 
 1. Start a new chat in RunReveal
 2. Select **Amazon Bedrock** from the provider dropdown
