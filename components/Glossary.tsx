@@ -59,17 +59,17 @@ export default function Glossary({ data }: { data: Term[] }) {
           {/* Search Input */}
                      <input
              type="text"
-             placeholder="Search Terms"
+             placeholder="Search terms..."
              value={search}
              onChange={(e) => setSearch(e.target.value)}
              aria-label="Search glossary"
-             className="w-full pl-4 pr-12 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-[5px] bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 shadow-sm hover:shadow-md focus:shadow-lg"
+             className="w-full h-10 px-6 py-3 text-sm bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:bg-white dark:focus:bg-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700"
            />
           
           {/* Search Icon - moved to right */}
-          <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+          <div className="absolute inset-y-0 right-0 pr-6 flex items-center pointer-events-none">
             <svg 
-              className="h-5 w-5 text-gray-400 dark:text-gray-500" 
+              className="h-4 w-4 text-gray-400 dark:text-gray-500" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -92,7 +92,7 @@ export default function Glossary({ data }: { data: Term[] }) {
               aria-label="Clear search"
             >
               <svg 
-                className="h-5 w-5" 
+                className="h-4 w-4" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -171,7 +171,7 @@ function TermItem({ term }: { term: Term }) {
     <div className="mb-4 pb-3 border-b border-gray-200 dark:border-gray-800">
       <div className="flex flex-col">
         <span className="font-bold text-lg text-primary mb-2">{term.term}</span>
-        <span className="italic text-gray-700 dark:text-gray-300">{term.definition}</span>
+        <span className="italic text-gray-700 dark:!text-white">{term.definition}</span>
       </div>
     </div>
   );

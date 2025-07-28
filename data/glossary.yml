@@ -7,9 +7,6 @@
 - term: Artifacts
   definition: Self-contained pieces of content referenced throughout AI chat conversations
 
-- term: Authentication
-  definition: Security mechanisms for BYOC (Bring Your Own Cloud) deployments including identity provider integration
-
 - term: AWS Bedrock
   definition: Amazon's managed service for building AI applications with foundation models from various providers
 
