@@ -127,7 +127,7 @@ Amazon Bedrock requires AWS IAM role configuration instead of API keys. Follow t
 
 1. In the RunReveal UI, go to **Workspace Settings → AI Model Providers**
 2. Click **Configure** next to Amazon Bedrock
-3. A modal will appear where you can input the arn of your IAM role and an External ID that you will add to your IAM role. If you've already configured a role with an External ID for RunReveal to assume, you can input the pre-existing ARN and External ID.
+3. A modal will appear where you can input the arn of your IAM role and an External ID that you will add to your IAM role. If you've already configured a role for RunReveal to assume for reading S3, you can re-use that same role and External ID here after you've attached the bedrock access policy below.
 
 ![Native AI Chat Bedrock Configuration](/native-ai-chat-bedrock.png)
 
