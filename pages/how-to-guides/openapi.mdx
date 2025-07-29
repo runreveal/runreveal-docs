@@ -1,0 +1,41 @@
+# OpenAPI Specification 
+
+RunReveal provides an OpenAPI 3.0 specification that can be retrieved in two ways:
+
+## Method 1: Using the CLI Command
+
+Generate the OpenAPI specification to a local JSON file using the RunReveal CLI:
+
+```bash
+# Generate spec to default file (runreveal-openapi.json)
+runreveal openapi
+
+# Generate spec to custom file
+runreveal openapi --output api-spec.json
+runreveal openapi -o /path/to/custom-spec.json
+```
+
+## Method 2: HTTP Endpoint (Runtime)
+
+Retrieve the specification dynamically from a running RunReveal instance:
+
+```bash
+# Get spec from live environment
+curl -H "Authorization: Basic YOUR_TOKEN" \
+     https://api.runreveal.com/openapi/spec
+
+# Get spec from custom environment
+curl -H "Authorization: Basic YOUR_TOKEN" \
+     https://your-custom-domain.com/openapi/spec
+```
+
+The OpenAPI specification enables easier integration with RunReveal and more reliable API usage:
+
+- **API Documentation**: Import into Swagger UI, Postman, or similar tools
+- **Client Generation**: Use with OpenAPI generators for various languages
+- **API Testing**: Validate requests and responses against the schema
+- **Integration**: Understand available endpoints and authentication requirements
+
+## Authentication
+
+When accessing via HTTP endpoint, include your RunReveal API token in the Authorization header as shown in the examples above.
