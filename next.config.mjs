@@ -11,4 +11,30 @@ export default withNextra({
   images: {
     unoptimized: true,
   },
+  
+  // Dynamic redirects
+  async redirects() {
+    return [
+      {
+        source: '/reference/native-ai-chat',
+        destination: '/ai-chat/native-ai-chat',
+        permanent: true,
+      },
+      {
+        source: '/reference/model-context-protocol',
+        destination: '/ai-chat/model-context-protocol',
+        permanent: true,
+      },
+      {
+        source: '/reference/custom-prompts',
+        destination: '/ai-chat/custom-prompts',
+        permanent: true,
+      },
+      {
+        source: '/references/native-ai-chat',
+        destination: '/ai-chat/native-ai-chat',
+        permanent: true,
+      },
+    ]
+  },
 })
