@@ -25,6 +25,9 @@ const config: DocsThemeConfig = {
   footer: {
     content: 'RunReveal docs',
   },
+  sidebar: {
+    defaultMenuCollapsed: true,
+  },
 }
 
 export default config

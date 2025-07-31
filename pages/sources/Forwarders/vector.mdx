@@ -1,0 +1,510 @@
+import { Callout, Tabs, Steps } from 'nextra/components'
+
+# Vector Log Forwarder
+
+[Vector](https://vector.dev/docs/) is a high-performance observability data pipeline that can collect, transform, and route logs to RunReveal.
+
+## Quick Start
+
+This setup demonstrates reading logs from a local file and forwarding them to your RunReveal webhook. The example creates test JSON logs, configures Vector to monitor the log file, and sends events to RunReveal in real-time.
+
+<Steps>
+
+### Step 1: Create a Webhook Source in RunReveal
+
+This step creates a webhook source in RunReveal and generates the webhook URL you'll need for Vector configuration.
+
+1. **Navigate to RunReveal**: Go to your RunReveal dashboard
+2. **Create Source**: Click on "Sources" in the left sidebar
+3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks)  based on your data format.
+4. **Configure**: Give your webhook a name and description
+5. **Copy URL**: Copy the generated webhook URL to use in your configuration. (It's always available after you save the source)
+
+### Step 2: Install Vector
+
+This step installs Vector on your system using your preferred method. Vector will be used to collect, process, and forward logs to RunReveal.
+
+<Tabs items={['macOS', 'Ubuntu/Debian', 'CentOS/RHEL', 'Docker', 'Binary']}>
+  <Tabs.Tab>
+```bash
+# Install via Homebrew
+brew install vector
+
+# Create config directory
+mkdir -p ~/.config/vector
+
+# Verify installation
+vector --version
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Add Vector repository
+curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.deb.sh' | sudo -E bash
+
+# Install Vector
+sudo apt-get update
+sudo apt-get install vector
+
+# Enable service
+sudo systemctl enable vector
+
+# Verify installation
+vector --version
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Add Vector repository
+curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.rpm.sh' | sudo -E bash
+
+# Install Vector
+sudo yum install vector
+
+# Enable service
+sudo systemctl enable vector
+
+# Verify installation
+vector --version
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Pull Vector image
+docker pull timberio/vector:latest-alpine
+
+# Create config directory
+mkdir -p $(pwd)/vector-config
+
+# Run Vector container
+docker run -d \
+  --name vector \
+  -v $(pwd)/vector-config:/etc/vector \
+  -v /var/log:/var/log:ro \
+  timberio/vector:latest-alpine
+
+# Verify container is running
+docker ps | grep vector
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Linux x86_64
+curl -L https://github.com/vectordotdev/vector/releases/latest/download/vector-x86_64-unknown-linux-gnu.tar.gz | tar -xz
+sudo mv vector-*/bin/vector /usr/local/bin/
+
+# macOS (Intel)
+curl -L https://github.com/vectordotdev/vector/releases/latest/download/vector-x86_64-apple-darwin.tar.gz | tar -xz
+sudo mv vector-*/bin/vector /usr/local/bin/
+
+# macOS (Apple Silicon)
+curl -L https://github.com/vectordotdev/vector/releases/latest/download/vector-aarch64-apple-darwin.tar.gz | tar -xz
+sudo mv vector-*/bin/vector /usr/local/bin/
+
+# Verify installation
+vector --version
+```
+  </Tabs.Tab>
+</Tabs>
+
+### Step 3: Create Test Logs
+
+This step creates sample log files with security events that Vector will monitor and forward to RunReveal. These logs simulate real application events for testing purposes.
+
+<Tabs items={['macOS/Linux', 'Windows']}>
+  <Tabs.Tab>
+```bash
+# Create logs directory
+mkdir -p logs
+
+# Create test log file
+cat > logs/app.log << 'EOF'
+{"eventTime": "'$(date -Iseconds)'", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"}
+{"eventTime": "'$(date -Iseconds)'", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"}
+EOF
+
+# Verify log file was created
+ls -la logs/
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```powershell
+# Create logs directory
+mkdir C:\logs
+
+# Create test log file
+echo {"eventTime": "2024-01-01T12:00:00Z", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"} > C:\logs\app.log
+echo {"eventTime": "2024-01-01T12:01:00Z", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"} >> C:\logs\app.log
+
+# Verify log file was created
+dir C:\logs\
+```
+  </Tabs.Tab>
+</Tabs>
+
+### Step 4: Configure Vector
+
+This step creates the Vector configuration file that tells Vector where to find logs and how to send them to RunReveal. The configuration defines both the source (where logs come from) and the sink (where logs go).
+
+<Tabs items={['TOML', 'YAML', 'JSON']}>
+  <Tabs.Tab>
+Create `vector.toml`:
+
+```toml
+# Vector data directory
+data_dir = "./vector-data"
+
+# Source: Read log files
+[sources.my_logs]
+type = "file"
+include = ["./logs/*.log"]
+read_from = "beginning"
+
+# Sink: Send to RunReveal
+[sinks.runreveal]
+type = "http"
+inputs = ["my_logs"]
+uri = "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+method = "post"
+encoding.codec = "json"
+compression = "none"
+healthcheck.enabled = false
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+Create `vector.yaml`:
+
+```yaml
+# Vector data directory
+data_dir: "./vector-data"
+
+# Source: Read log files
+sources:
+  my_logs:
+    type: file
+    include:
+      - "./logs/*.log"
+    read_from: beginning
+
+# Sink: Send to RunReveal
+sinks:
+  runreveal:
+    type: http
+    inputs:
+      - my_logs
+    uri: "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+    method: post
+    encoding:
+      codec: json
+    compression: none
+    healthcheck:
+      enabled: false
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+Create `vector.json`:
+
+```json
+{
+  "data_dir": "./vector-data",
+  "sources": {
+    "my_logs": {
+      "type": "file",
+      "include": ["./logs/*.log"],
+      "read_from": "beginning"
+    }
+  },
+  "sinks": {
+    "runreveal": {
+      "type": "http",
+      "inputs": ["my_logs"],
+      "uri": "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL",
+      "method": "post",
+      "encoding": {
+        "codec": "json"
+      },
+      "compression": "none",
+      "healthcheck": {
+        "enabled": false
+      }
+    }
+  }
+}
+```
+  </Tabs.Tab>
+</Tabs>
+
+<Callout type="warning">
+Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
+</Callout>
+
+### Step 5: Start Vector
+
+This step starts Vector with your configuration, which will begin monitoring the log files and forwarding events to RunReveal in real-time. Vector will continuously watch for new log entries and send them to your webhook.
+
+<Tabs items={['TOML', 'YAML', 'JSON']}>
+  <Tabs.Tab>
+```bash
+# Test configuration
+vector validate --config vector.toml
+
+# Run Vector
+vector --config vector.toml
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Test configuration
+vector validate --config vector.yaml
+
+# Run Vector
+vector --config vector.yaml
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Test configuration
+vector validate --config vector.json
+
+# Run Vector
+vector --config vector.json
+```
+  </Tabs.Tab>
+</Tabs>
+
+### Step 6: Validate Delivery
+
+This step verifies that logs are being successfully delivered to RunReveal by checking the webhook source and querying for events.
+
+1. **Check Webhook Source**: Go to RunReveal → Sources → Your Webhook Source
+2. **View Recent Events**: Look for incoming events in the source details
+3. **Query for Events**: Use the search bar to query `sourceType = 'webhook'` or `sourceType = 'structured-webhook'` depending on your webhook type
+4. **Verify Data**: Confirm that your test log events appear in the results
+
+If you see your test events in RunReveal, Vector is successfully forwarding logs to your webhook.
+
+</Steps>
+
+## Vector Configuration
+
+<Tabs items={['Sources', 'Transforms', 'Sinks']}>
+  <Tabs.Tab>
+
+### Sources
+
+Sources collect data from various inputs. For RunReveal, you'll typically use file sources or system sources. See the [Vector Sources Reference](https://vector.dev/docs/reference/configuration/sources/) for comprehensive documentation.
+
+**File Source Example**
+```toml
+[sources.application_logs]
+type = "file"
+include = ["/var/log/app/*.log", "/var/log/api/*.json"]
+read_from = "beginning"
+```
+
+Collects application logs in JSON format, perfect for security event analysis and compliance reporting.
+
+**System Source Example**
+```toml
+[sources.system_logs]
+type = "journald"
+include_units = ["ssh", "sudo", "audit"]
+```
+
+Captures system authentication and authorization events, essential for security monitoring and threat detection.
+
+**Docker Source Example**
+```toml
+[sources.container_logs]
+type = "docker_logs"
+include_images = ["nginx", "postgres", "redis"]
+```
+
+Monitors containerized applications for security incidents, performance issues, and compliance violations.
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### Transforms
+
+Transforms modify and enrich your data. These are crucial for preparing data for RunReveal's analysis. See the [Vector Transforms Reference](https://vector.dev/docs/reference/configuration/transforms/) for comprehensive documentation.
+
+**Add Metadata Transform**
+```toml
+[transforms.add_runreveal_metadata]
+type = "remap"
+inputs = ["application_logs"]
+source = '''
+.host = get_hostname!()
+.ingestion_timestamp = now()
+.environment = get_env_var("ENVIRONMENT") ?? "production"
+.service = "web-application"
+'''
+```
+
+Adds essential context for security analysis, making it easier to correlate events across different systems and environments.
+
+**Parse JSON Transform**
+```toml
+[transforms.parse_json_logs]
+type = "remap"
+inputs = ["application_logs"]
+source = '''
+if is_string(.message) {
+  . = merge(., parse_json(.message) ?? {})
+}
+'''
+```
+
+Extracts structured data from log messages, enabling advanced filtering, searching, and alerting based on specific event attributes.
+
+**Filter Transform**
+```toml
+[transforms.filter_security_events]
+type = "remap"
+inputs = ["application_logs"]
+source = '''
+. = if .eventName == "UserLogin" || .eventName == "FileAccess" || .eventName == "DataExport" {
+  .
+} else {
+  null
+}
+'''
+```
+
+Focuses on security-relevant events, reducing noise and improving detection accuracy while optimizing data transfer costs.
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### Sinks
+
+Sinks send processed data to external systems. For RunReveal, you'll use the HTTP sink. See the [Vector Sinks Reference](https://vector.dev/docs/reference/configuration/sinks/) for comprehensive documentation.
+
+**HTTP Sink for RunReveal**
+```toml
+[sinks.runreveal_webhook]
+type = "http"
+inputs = ["add_runreveal_metadata"]
+uri = "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+method = "post"
+encoding.codec = "json"
+compression = "gzip"
+
+[sinks.runreveal_webhook.request]
+timeout_secs = 30
+headers.Content-Type = "application/json"
+
+[sinks.runreveal_webhook.buffer]
+type = "disk"
+max_size = 104857600  # 100MB
+when_full = "block"
+```
+
+Ensures reliable delivery of security events with compression for efficiency and disk buffering for resilience during network issues.
+
+**Multiple Sink Example**
+```toml
+[sinks.runreveal_structured]
+type = "http"
+inputs = ["filter_security_events"]
+uri = "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+method = "post"
+encoding.codec = "json"
+
+[sinks.runreveal_generic]
+type = "http"
+inputs = ["application_logs"]
+uri = "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+method = "post"
+encoding.codec = "json"
+```
+
+Routes different types of events to appropriate webhook types, optimizing for both structured analysis and flexible data collection.
+
+  </Tabs.Tab>
+</Tabs>
+
+---
+
+## Next Steps
+
+Now that you have Vector configured and logs flowing to RunReveal, explore the detailed configuration guides:
+
+- **[Detections](/detections)** - Create and manage security detection rules
+- **[Sigma Streaming](/detections/sigma-streaming)** - Use Sigma rules for standardized threat detection
+- **[Detection as Code](/detections/detection-as-code)** - Manage detections through code and version control
+- **[Notifications](/notifications)** - Set up alerting and notification channels
+- **[AI Chat](/ai-chat)** - Use AI-powered analysis for threat hunting and investigation
+- **[Enrichments](/enrichments)** - Add context and metadata to your security events
+- **[Filters](/filtering)** - Create custom filters to focus on specific security events
+- **[Pipelines](/pipelines)** - Build data processing pipelines for complex workflows
+
+---
+
+## Troubleshooting
+
+### Vector Won't Start
+
+1. **Check Configuration Syntax**
+   ```bash
+   vector validate --config vector.toml
+   ```
+
+2. **Verify File Permissions**
+   - Ensure Vector has read access to log files
+   - Check that Vector can write to its working directory
+
+3. **Review Vector Logs**
+   ```bash
+   vector --config vector.toml --log-level debug
+   ```
+
+### Logs Not Reaching RunReveal
+
+1. **Verify Webhook URL**
+   - Check that the webhook URL is correct and active
+   - Ensure the URL includes the full path from RunReveal
+
+2. **Test Network Connectivity**
+   ```bash
+   curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL \
+     -H "Content-Type: application/json" \
+     -d '{"test": "message"}'
+   ```
+
+3. **Check Vector Sink Configuration**
+   - Verify the HTTP sink is properly configured
+   - Check for any authentication requirements
+
+### High Resource Usage
+
+1. **Optimize Buffer Settings**
+   - Adjust buffer size and flush intervals
+   - Consider using disk buffers for high-volume data
+
+2. **Review Transform Complexity**
+   - Simplify complex remap transforms
+   - Use filtering to reduce data volume
+
+3. **Monitor System Resources**
+   ```bash
+   top -p $(pgrep vector)
+   ```
+
+### Data Format Issues
+
+1. **Check Log Format**
+   - Ensure logs are in the expected format (JSON, syslog, etc.)
+
+2. **Review Transform Rules**
+   - Check that remap transforms are correctly parsing data
+   - Verify field mappings match your log structure
+
+3. **Test with Sample Data**
+   - Use Vector's `vector test` command to validate transforms
+   - Check output format before sending to RunReveal
+
+## Resources
+
+* [Vector Official Documentation](https://vector.dev/docs/)

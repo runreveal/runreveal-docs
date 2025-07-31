@@ -1,0 +1,314 @@
+---
+title: 'Logstash Forwarder'
+description: 'Configure Logstash to forward logs to RunReveal'
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Logstash Forwarder
+
+Logstash can be configured to send data to RunReveal using the HTTP output plugin.
+
+**Official Documentation:** [elastic.co/guide/en/logstash](https://www.elastic.co/guide/en/logstash/current/index.html)
+
+<Steps>
+
+### Step 1: Create a Webhook Source in RunReveal
+
+1. **Navigate to Sources**
+   1. Go to the RunReveal dashboard
+   2. Click on **Sources** in the left sidebar
+   3. Click **Create Source**
+
+2. **Choose Webhook Type**
+   - **Structured Webhook**: For events that match RunReveal's normalized log format
+   - **Generic Webhook**: For any JSON format (maximum flexibility)
+
+3. **Configure the Webhook**
+   1. Give your source a descriptive name (e.g., "Logstash Application Logs")
+   2. Select your preferred webhook type
+   3. Click **Create Source**
+   4. Copy the webhook URL - you'll need this for the Logstash configuration
+
+<Callout type="warning">
+Keep your webhook URL secure. This URL provides access to send data to your RunReveal instance.
+</Callout>
+
+### Step 2: Install Logstash
+
+Download and install Logstash:
+
+```bash
+# Download and install
+wget https://artifacts.elastic.co/downloads/logstash/logstash-8.11.0.tar.gz
+tar -xzf logstash-8.11.0.tar.gz
+cd logstash-8.11.0
+```
+
+### Step 3: Create Logstash Configuration
+
+Create a Logstash configuration file that reads your logs and sends them to RunReveal:
+
+```ruby:logstash.conf
+input {
+  file {
+    path => "/var/log/application/*.log"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+  }
+}
+
+filter {
+  json {
+    source => "message"
+  }
+  
+  mutate {
+    add_field => {
+      "eventName" => "LogEvent"
+      "eventTime" => "%{@timestamp}"
+      "readOnly" => false
+      "service.name" => "application"
+      "tags.source" => "logstash"
+    }
+  }
+}
+
+output {
+  http {
+    url => "YOUR_WEBHOOK_URL"
+    http_method => "post"
+    headers => {
+      "Content-Type" => "application/json"
+    }
+    format => "json"
+    mapping => {
+      "eventName" => "%{eventName}"
+      "eventTime" => "%{eventTime}"
+      "readOnly" => "%{readOnly}"
+      "message" => "%{message}"
+      "service" => {
+        "name" => "%{service.name}"
+      }
+      "tags" => {
+        "source" => "%{tags.source}"
+      }
+    }
+  }
+}
+```
+
+<Callout type="warning">
+Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
+</Callout>
+
+### Step 4: Start Logstash
+
+Start Logstash with your configuration:
+
+```bash
+# Start Logstash
+bin/logstash -f logstash.conf
+
+# Or run as a service
+sudo systemctl start logstash
+sudo systemctl enable logstash
+```
+
+### Step 5: Verify Configuration
+
+Test your Logstash configuration:
+
+```bash
+# Check Logstash status
+sudo systemctl status logstash
+
+# View Logstash logs
+sudo journalctl -u logstash -f
+
+# Test configuration syntax
+bin/logstash -f logstash.conf --config.test_and_exit
+```
+
+### Step 6: Test Log Delivery
+
+Use the RunReveal search UI to confirm logs are arriving:
+
+```sql
+# For structured webhooks
+sourceType = 'structured-webhook' AND eventName = 'LogEvent'
+
+# For generic webhooks  
+sourceType = 'generic-webhook' AND tags.source = 'logstash'
+```
+
+</Steps>
+
+---
+
+## Configuration Options
+
+### Multiple Inputs
+
+Configure multiple log sources:
+
+```ruby
+input {
+  # Application logs
+  file {
+    path => "/var/log/application/*.log"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+    type => "application"
+  }
+  
+  # System logs
+  file {
+    path => "/var/log/syslog"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+    type => "system"
+  }
+}
+
+filter {
+  if [type] == "application" {
+    json {
+      source => "message"
+    }
+  }
+  
+  mutate {
+    add_field => {
+      "eventName" => "LogEvent"
+      "eventTime" => "%{@timestamp}"
+      "readOnly" => false
+      "service.name" => "%{type}"
+      "tags.source" => "logstash"
+    }
+  }
+}
+
+output {
+  http {
+    url => "YOUR_WEBHOOK_URL"
+    http_method => "post"
+    headers => {
+      "Content-Type" => "application/json"
+    }
+    format => "json"
+  }
+}
+```
+
+### Custom Filters
+
+Add custom filters to process your logs:
+
+```ruby
+filter {
+  # Parse JSON logs
+  json {
+    source => "message"
+  }
+  
+  # Add custom fields
+  mutate {
+    add_field => {
+      "hostname" => "%{host}"
+      "environment" => "production"
+    }
+  }
+  
+  # Filter out specific log levels
+  if [level] == "DEBUG" {
+    drop {}
+  }
+  
+  # Transform timestamps
+  date {
+    match => [ "timestamp", "ISO8601" ]
+    target => "@timestamp"
+  }
+}
+```
+
+### Output Configuration
+
+Configure multiple outputs or backup destinations:
+
+```ruby
+output {
+  # Primary RunReveal output
+  http {
+    url => "YOUR_WEBHOOK_URL"
+    http_method => "post"
+    headers => {
+      "Content-Type" => "application/json"
+    }
+    format => "json"
+    retry_non_idempotent => true
+  }
+  
+  # Backup file output (optional)
+  file {
+    path => "/var/log/logstash/backup.log"
+    codec => json
+  }
+}
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Logstash won't start**: Check the configuration syntax and file permissions
+2. **No logs being sent**: Verify the log file paths exist and are readable
+3. **Webhook errors**: Check that your webhook URL is correct and accessible
+4. **Permission issues**: Ensure Logstash has read access to your log files
+
+### Debug Commands
+
+```bash
+# Check Logstash status
+sudo systemctl status logstash
+
+# View Logstash logs
+sudo journalctl -u logstash -f
+
+# Test webhook connectivity
+curl -v YOUR_WEBHOOK_URL
+
+# Test configuration syntax
+bin/logstash -f logstash.conf --config.test_and_exit
+
+# Run Logstash in debug mode
+bin/logstash -f logstash.conf --debug
+```
+
+### Performance Tuning
+
+<Callout type="info">
+**Best Practices:**
+
+1. **Worker Threads**: Configure appropriate worker threads for your log volume
+2. **Batch Processing**: Adjust batch sizes for optimal throughput
+3. **Memory Limits**: Set appropriate heap size to prevent OOM issues
+4. **Retry Logic**: Configure retry settings for failed webhook requests
+5. **Monitoring**: Set up alerts for Logstash service failures
+</Callout>
+
+---
+
+## Next Steps
+
+Once Logstash is configured and sending data to RunReveal:
+
+1. **Create Detections**: Use the logs to build security detections
+2. **Set Up Alerts**: Configure notifications for important events
+3. **Explore Data**: Use the search interface to investigate your logs
+4. **Optimize Performance**: Monitor and tune your Logstash configuration
+
+For additional help, refer to the [Logstash documentation](https://www.elastic.co/guide/en/logstash/current/index.html) or contact RunReveal support. 

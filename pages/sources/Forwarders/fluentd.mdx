@@ -1,0 +1,290 @@
+---
+title: 'Fluentd Forwarder'
+description: 'Configure Fluentd to forward logs to RunReveal'
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Fluentd Forwarder
+
+Fluentd is a data collector that can route logs to multiple destinations including RunReveal.
+
+**Official Documentation:** [docs.fluentd.org](https://docs.fluentd.org/)
+
+<Steps>
+
+### Step 1: Create a Webhook Source in RunReveal
+
+1. **Navigate to Sources**
+   1. Go to the RunReveal dashboard
+   2. Click on **Sources** in the left sidebar
+   3. Click **Create Source**
+
+2. **Choose Webhook Type**
+   - **Structured Webhook**: For events that match RunReveal's normalized log format
+   - **Generic Webhook**: For any JSON format (maximum flexibility)
+
+3. **Configure the Webhook**
+   1. Give your source a descriptive name (e.g., "Fluentd Application Logs")
+   2. Select your preferred webhook type
+   3. Click **Create Source**
+   4. Copy the webhook URL - you'll need this for the Fluentd configuration
+
+<Callout type="warning">
+Keep your webhook URL secure. This URL provides access to send data to your RunReveal instance.
+</Callout>
+
+### Step 2: Install Fluentd
+
+Install Fluentd on your system:
+
+```bash
+# Using RubyGems
+sudo gem install fluentd --no-doc
+
+# Or using package managers
+# Ubuntu/Debian
+sudo apt-get install fluentd
+
+# CentOS/RHEL
+sudo yum install fluentd
+```
+
+### Step 3: Create Fluentd Configuration
+
+Create a Fluentd configuration file that reads your logs and sends them to RunReveal:
+
+```xml:fluent.conf
+<source>
+  @type tail
+  path /var/log/application/*.log
+  pos_file /var/log/fluentd/application.log.pos
+  tag application
+  <parse>
+    @type json
+  </parse>
+</source>
+
+<filter application>
+  @type record_transformer
+  <record>
+    eventName LogEvent
+    eventTime ${time}
+    readOnly false
+    service.name application
+    tags.source fluentd
+  </record>
+</filter>
+
+<match application>
+  @type http
+  endpoint YOUR_WEBHOOK_URL
+  http_method post
+  headers {"Content-Type": "application/json"}
+  <format>
+    @type json
+  </format>
+  <buffer>
+    @type memory
+    flush_interval 5s
+    chunk_limit_size 2m
+    queue_limit_length 8
+  </buffer>
+</match>
+```
+
+<Callout type="warning">
+Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
+</Callout>
+
+### Step 4: Start Fluentd
+
+Start Fluentd with your configuration:
+
+```bash
+# Start Fluentd
+fluentd -c fluent.conf
+
+# Or run as a service
+sudo systemctl start fluentd
+sudo systemctl enable fluentd
+```
+
+### Step 5: Verify Configuration
+
+Test your Fluentd configuration:
+
+```bash
+# Check Fluentd status
+sudo systemctl status fluentd
+
+# View Fluentd logs
+sudo journalctl -u fluentd -f
+
+# Test configuration syntax
+fluentd -c fluent.conf --dry-run
+```
+
+### Step 6: Test Log Delivery
+
+Use the RunReveal search UI to confirm logs are arriving:
+
+```sql
+# For structured webhooks
+sourceType = 'structured-webhook' AND eventName = 'LogEvent'
+
+# For generic webhooks  
+sourceType = 'generic-webhook' AND tags.source = 'fluentd'
+```
+
+</Steps>
+
+---
+
+## Configuration Options
+
+### Multiple Sources
+
+Configure multiple log sources:
+
+```xml
+# Application logs
+<source>
+  @type tail
+  path /var/log/application/*.log
+  pos_file /var/log/fluentd/application.log.pos
+  tag application
+  <parse>
+    @type json
+  </parse>
+</source>
+
+# System logs
+<source>
+  @type tail
+  path /var/log/syslog
+  pos_file /var/log/fluentd/syslog.pos
+  tag system
+  <parse>
+    @type syslog
+  </parse>
+</source>
+
+# Process both sources
+<filter application,system>
+  @type record_transformer
+  <record>
+    eventName LogEvent
+    eventTime ${time}
+    readOnly false
+    service.name application
+    tags.source fluentd
+  </record>
+</filter>
+
+<match application,system>
+  @type http
+  endpoint YOUR_WEBHOOK_URL
+  http_method post
+  headers {"Content-Type": "application/json"}
+  <format>
+    @type json
+  </format>
+</match>
+```
+
+### Custom Parsers
+
+Configure custom parsers for different log formats:
+
+```xml
+<source>
+  @type tail
+  path /var/log/application/*.log
+  tag application
+  <parse>
+    @type regexp
+    expression /^(?<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) (?<level>\w+) (?<message>.*)$/
+    time_format %Y-%m-%d %H:%M:%S
+  </parse>
+</source>
+```
+
+### Buffer Configuration
+
+Configure buffer settings for optimal performance:
+
+```xml
+<match application>
+  @type http
+  endpoint YOUR_WEBHOOK_URL
+  http_method post
+  headers {"Content-Type": "application/json"}
+  <format>
+    @type json
+  </format>
+  <buffer>
+    @type memory
+    flush_interval 10s
+    chunk_limit_size 1m
+    queue_limit_length 16
+    retry_max_times 3
+    retry_wait 1s
+  </buffer>
+</match>
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Fluentd won't start**: Check the configuration syntax and file permissions
+2. **No logs being sent**: Verify the log file paths exist and are readable
+3. **Webhook errors**: Check that your webhook URL is correct and accessible
+4. **Permission issues**: Ensure Fluentd has read access to your log files
+
+### Debug Commands
+
+```bash
+# Check Fluentd status
+sudo systemctl status fluentd
+
+# View Fluentd logs
+sudo journalctl -u fluentd -f
+
+# Test webhook connectivity
+curl -v YOUR_WEBHOOK_URL
+
+# Test configuration syntax
+fluentd -c fluent.conf --dry-run
+
+# Run Fluentd in debug mode
+fluentd -c fluent.conf -v
+```
+
+### Performance Tuning
+
+<Callout type="info">
+**Best Practices:**
+
+1. **Buffer Management**: Configure appropriate buffer sizes for your log volume
+2. **Batch Processing**: Adjust flush intervals to balance latency and throughput
+3. **Memory Limits**: Set appropriate memory limits to prevent OOM issues
+4. **Retry Logic**: Configure retry settings for failed webhook requests
+5. **Monitoring**: Set up alerts for Fluentd service failures
+</Callout>
+
+---
+
+## Next Steps
+
+Once Fluentd is configured and sending data to RunReveal:
+
+1. **Create Detections**: Use the logs to build security detections
+2. **Set Up Alerts**: Configure notifications for important events
+3. **Explore Data**: Use the search interface to investigate your logs
+4. **Optimize Performance**: Monitor and tune your Fluentd configuration
+
+For additional help, refer to the [Fluentd documentation](https://docs.fluentd.org/) or contact RunReveal support. 

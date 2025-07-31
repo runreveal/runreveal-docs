@@ -1,0 +1,295 @@
+---
+title: 'Reveald Forwarder'
+description: 'Configure Reveald to forward logs to RunReveal'
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Reveald Forwarder
+
+Reveald is RunReveal's official log collection agent, designed specifically for sending data to RunReveal.
+
+**Official Documentation:** [github.com/runreveal/reveald](https://github.com/runreveal/reveald)
+
+<Steps>
+
+### Step 1: Create a Webhook Source in RunReveal
+
+1. **Navigate to Sources**
+   1. Go to the RunReveal dashboard
+   2. Click on **Sources** in the left sidebar
+   3. Click **Create Source**
+
+2. **Choose Webhook Type**
+   - **Structured Webhook**: For events that match RunReveal's normalized log format
+   - **Generic Webhook**: For any JSON format (maximum flexibility)
+
+3. **Configure the Webhook**
+   1. Give your source a descriptive name (e.g., "Reveald Application Logs")
+   2. Select your preferred webhook type
+   3. Click **Create Source**
+   4. Copy the webhook URL - you'll need this for the Reveald configuration
+
+<Callout type="warning">
+Keep your webhook URL secure. This URL provides access to send data to your RunReveal instance.
+</Callout>
+
+### Step 2: Download Reveald
+
+Download the latest version of Reveald:
+
+```bash
+# Download the latest release
+curl -L https://github.com/runreveal/reveald/releases/latest/download/reveald-linux-amd64 -o reveald
+chmod +x reveald
+```
+
+### Step 3: Create Reveald Configuration
+
+Create a Reveald configuration file that reads your logs and sends them to RunReveal:
+
+```json:reveald.config.json
+{
+  "sources": {
+    "applogs": {
+      "type": "file",
+      "path": "/var/log/application",
+      "extension": ".log",
+      "follow": true
+    },
+    "systemlogs": {
+      "type": "file", 
+      "path": "/var/log/syslog",
+      "follow": true
+    }
+  },
+  "destinations": {
+    "runreveal": {
+      "type": "runreveal",
+      "webhookURL": "YOUR_WEBHOOK_URL",
+      "batchSize": 100,
+      "batchTimeout": "5s"
+    }
+  },
+  "processing": {
+    "parseJSON": true,
+    "addMetadata": true
+  }
+}
+```
+
+<Callout type="warning">
+Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
+</Callout>
+
+### Step 4: Start Reveald
+
+Start Reveald with your configuration:
+
+```bash
+# Start Reveald
+./reveald -config reveald.config.json
+
+# Or run as a service
+sudo systemctl start reveald
+sudo systemctl enable reveald
+```
+
+### Step 5: Verify Configuration
+
+Test your Reveald configuration:
+
+```bash
+# Check Reveald status
+ps aux | grep reveald
+
+# View Reveald logs
+./reveald -config reveald.config.json -verbose
+
+# Test configuration syntax
+./reveald -config reveald.config.json -validate
+```
+
+### Step 6: Test Log Delivery
+
+Use the RunReveal search UI to confirm logs are arriving:
+
+```sql
+# For structured webhooks
+sourceType = 'structured-webhook' AND eventName = 'LogEvent'
+
+# For generic webhooks  
+sourceType = 'generic-webhook' AND tags.source = 'reveald'
+```
+
+</Steps>
+
+---
+
+## Configuration Options
+
+### Multiple Sources
+
+Configure multiple log sources:
+
+```json
+{
+  "sources": {
+    "applogs": {
+      "type": "file",
+      "path": "/var/log/application",
+      "extension": ".log",
+      "follow": true
+    },
+    "systemlogs": {
+      "type": "file", 
+      "path": "/var/log/syslog",
+      "follow": true
+    },
+    "nginxlogs": {
+      "type": "file",
+      "path": "/var/log/nginx",
+      "extension": ".log",
+      "follow": true
+    }
+  },
+  "destinations": {
+    "runreveal": {
+      "type": "runreveal",
+      "webhookURL": "YOUR_WEBHOOK_URL",
+      "batchSize": 100,
+      "batchTimeout": "5s"
+    }
+  },
+  "processing": {
+    "parseJSON": true,
+    "addMetadata": true
+  }
+}
+```
+
+### Custom Processing
+
+Configure custom processing options:
+
+```json
+{
+  "sources": {
+    "applogs": {
+      "type": "file",
+      "path": "/var/log/application",
+      "extension": ".log",
+      "follow": true
+    }
+  },
+  "destinations": {
+    "runreveal": {
+      "type": "runreveal",
+      "webhookURL": "YOUR_WEBHOOK_URL",
+      "batchSize": 50,
+      "batchTimeout": "10s",
+      "retryAttempts": 3,
+      "retryDelay": "1s"
+    }
+  },
+  "processing": {
+    "parseJSON": true,
+    "addMetadata": true,
+    "filterLevels": ["INFO", "WARN", "ERROR"],
+    "customFields": {
+      "environment": "production",
+      "service": "my-application"
+    }
+  }
+}
+```
+
+### Multiple Destinations
+
+Configure multiple destinations for redundancy:
+
+```json
+{
+  "sources": {
+    "applogs": {
+      "type": "file",
+      "path": "/var/log/application",
+      "extension": ".log",
+      "follow": true
+    }
+  },
+  "destinations": {
+    "runreveal-primary": {
+      "type": "runreveal",
+      "webhookURL": "YOUR_PRIMARY_WEBHOOK_URL",
+      "batchSize": 100,
+      "batchTimeout": "5s"
+    },
+    "runreveal-backup": {
+      "type": "runreveal",
+      "webhookURL": "YOUR_BACKUP_WEBHOOK_URL",
+      "batchSize": 100,
+      "batchTimeout": "5s"
+    }
+  },
+  "processing": {
+    "parseJSON": true,
+    "addMetadata": true
+  }
+}
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Reveald won't start**: Check the configuration syntax and file permissions
+2. **No logs being sent**: Verify the log file paths exist and are readable
+3. **Webhook errors**: Check that your webhook URL is correct and accessible
+4. **Permission issues**: Ensure Reveald has read access to your log files
+
+### Debug Commands
+
+```bash
+# Check Reveald status
+ps aux | grep reveald
+
+# Test webhook connectivity
+curl -v YOUR_WEBHOOK_URL
+
+# Test configuration syntax
+./reveald -config reveald.config.json -validate
+
+# Run Reveald in verbose mode
+./reveald -config reveald.config.json -verbose
+
+# Check log files
+ls -la /var/log/application/
+```
+
+### Performance Tuning
+
+<Callout type="info">
+**Best Practices:**
+
+1. **Batch Size**: Configure appropriate batch sizes for your log volume
+2. **Timeout Settings**: Adjust batch timeouts to balance latency and throughput
+3. **Retry Logic**: Configure retry settings for failed webhook requests
+4. **Resource Limits**: Set appropriate memory and CPU limits
+5. **Monitoring**: Set up alerts for Reveald process failures
+</Callout>
+
+---
+
+## Next Steps
+
+Once Reveald is configured and sending data to RunReveal:
+
+1. **Create Detections**: Use the logs to build security detections
+2. **Set Up Alerts**: Configure notifications for important events
+3. **Explore Data**: Use the search interface to investigate your logs
+4. **Optimize Performance**: Monitor and tune your Reveald configuration
+
+For additional help, refer to the [Reveald documentation](https://github.com/runreveal/reveald) or contact RunReveal support. 
