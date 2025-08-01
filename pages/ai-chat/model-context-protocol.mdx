@@ -44,6 +44,20 @@ Claude will show a warning that this integration has not been verified by Anthro
 
 ![Claude MCP Authorization](/claude-mcp-setup-2.png)
 
+### Alternative: Using Claude Code CLI
+
+If you're using Claude Code (the CLI tool), you can add the RunReveal MCP server directly from the command line:
+
+```bash
+claude mcp add -t http runreveal 'https://api.runreveal.com/mcp'
+```
+
+This command will:
+- Add the RunReveal MCP server to your Claude Code configuration
+- Use the identifier "runreveal" for the server
+
+After running this command, the MCP server will be available in your Claude Code sessions, and you'll go through the same OAuth authorization flow when first accessing RunReveal tools.
+
 ### Step 4: Verify the Connection
 
 Once authorized, you should see RunReveal listed in your Claude integrations with available tools:
