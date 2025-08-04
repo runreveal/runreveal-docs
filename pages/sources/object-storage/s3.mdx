@@ -149,6 +149,110 @@ Depending on the authentication method selected supply the necessary role/extern
 At this point all of the pieces are in place for RunReveal to access logs stored in the bucket. 
 Continue to the source docs for specific instructions on how to get your logs into the S3 bucket and the specific SNS topic to use.
 
+## Datalake Architecture with Single S3 Bucket
+
+For organizations using a datalake architecture, you can configure a single S3 bucket to handle multiple source types by using SQS queues and S3 event notifications with prefixes. This approach allows you to centralize your log storage while maintaining separate processing pipelines for different source types.
+
+### Architecture Overview
+
+Instead of using RunReveal's SNS topics, this setup uses:
+1. **SQS queues** - One per source type in your AWS account
+2. **S3 event notifications** - Configured with prefixes to route to specific queues
+3. **RunReveal sources** - Connected to individual SQS queues
+
+### Setup Steps
+
+#### 1. Create SQS Queues
+
+Create a separate SQS queue for each source type you want to ingest. For example:
+- `runreveal-cloudtrail-queue`
+- `runreveal-alb-queue`
+- `runreveal-vpc-flow-queue`
+
+#### 2. Configure SQS Queue Policy
+
+Each SQS queue needs a policy that allows S3 to publish notifications. Use the following policy template:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Id": "__default_policy_ID",
+  "Statement": [
+    {
+      "Sid": "__owner_statement",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::<Account_id>:root"
+      },
+      "Action": "SQS:*",
+      "Resource": "arn:aws:sqs:us-east-2:<Account_id>:<queue_name>"
+    },
+    {
+      "Sid": "Allow S3 to publish to SQS",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": "SQS:*",
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+<Callout type="warning">
+  Replace `<Account_id>` with your AWS account ID and update the SQS queue ARN in the resource field to match your queue.
+</Callout>
+
+#### 3. Configure S3 Event Notifications
+
+Set up event notifications in your S3 bucket with prefixes to route logs to the appropriate SQS queues:
+
+**For CloudTrail logs:**
+- Prefix: `AWSLogs/<account_id>/CloudTrail/`
+- Destination: Your CloudTrail SQS queue
+
+**For Application Load Balancer logs:**
+- Prefix: `AWSLogs/<account_id>/elasticloadbalancing/`
+- Destination: Your ALB SQS queue
+
+**For VPC Flow logs:**
+- Prefix: `AWSLogs/<account_id>/vpcflowlogs/`
+- Destination: Your VPC Flow SQS queue
+
+#### 4. Configure RunReveal Sources
+
+When creating sources in RunReveal:
+1. Select the appropriate source type (CloudTrail, ALB, VPC Flow, etc.)
+2. Choose the SQS ingest method instead of S3
+3. Provide the SQS queue ARN for that specific source type
+4. Configure the necessary IAM permissions for RunReveal to read from the SQS queue
+
+### Benefits
+
+- **Centralized storage**: All logs in one S3 bucket
+- **Organized structure**: Prefix-based routing keeps logs organized
+- **Scalable**: Easy to add new source types
+- **Cost-effective**: Single bucket reduces storage costs
+- **Flexible**: Independent processing pipelines per source type
+
+### Example Directory Structure
+
+```
+s3://your-datalake-bucket/
+├── AWSLogs/
+│   ├── 123456789012/
+│   │   ├── CloudTrail/
+│   │   │   └── us-east-1/
+│   │   ├── elasticloadbalancing/
+│   │   └── vpcflowlogs/
+│   │       └── us-east-1/
+│   │           └── 2024/
+│   │               └── 01/
+│   │                   └── 15/
+│   │                       └── eni-12345678_...
+```
+
 ## Troubleshooting
 
 ###  "An error occurred communicating with RunReveal, please try again" in the UI error when adding a new source.
