@@ -1,8 +1,8 @@
 export default {
-    "reveald": "Reveald",
     "vector": "Vector",
-    "fluent-bit": "Fluent Bit", 
+    "logstash": "Logstash",
+    "reveald": "Reveald",
     "datadog-agent": "Datadog Agent",
     "fluentd": "Fluentd",
-    "logstash": "Logstash"
+    "fluent-bit": "Fluent Bit"
 } 

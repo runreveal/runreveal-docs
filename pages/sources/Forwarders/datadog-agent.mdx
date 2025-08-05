@@ -1,260 +1,483 @@
----
-title: 'Datadog Agent Forwarder'
-description: 'Configure Datadog Agent to forward logs to RunReveal'
----
+import { Callout, Tabs, Steps } from 'nextra/components'
 
-import { Callout, Steps } from 'nextra/components'
+# Datadog Agent Log Forwarder
 
-# Datadog Agent Forwarder
+[Datadog Agent](https://docs.datadoghq.com/agent/) can be configured to forward logs to RunReveal in addition to or instead of Datadog.
 
-The Datadog Agent can be configured to forward logs to RunReveal in addition to or instead of Datadog.
+## Quick Start
 
-**Official Documentation:** [docs.datadoghq.com](https://docs.datadoghq.com/agent/)
+This setup demonstrates configuring the Datadog Agent to collect logs and forward them to your RunReveal webhook. The example creates test JSON logs, configures the agent to monitor the log file, and sends events to RunReveal in real-time.
 
 <Steps>
 
 ### Step 1: Create a Webhook Source in RunReveal
 
-1. **Navigate to Sources**
-   1. Go to the RunReveal dashboard
-   2. Click on **Sources** in the left sidebar
-   3. Click **Create Source**
+This step creates a webhook source in RunReveal and generates the webhook URL you'll need for Datadog Agent configuration.
 
-2. **Choose Webhook Type**
-   - **Structured Webhook**: For events that match RunReveal's normalized log format
-   - **Generic Webhook**: For any JSON format (maximum flexibility)
-
-3. **Configure the Webhook**
-   1. Give your source a descriptive name (e.g., "Datadog Agent Logs")
-   2. Select your preferred webhook type
-   3. Click **Create Source**
-   4. Copy the webhook URL - you'll need this for the Datadog Agent configuration
-
-<Callout type="warning">
-Keep your webhook URL secure. This URL provides access to send data to your RunReveal instance.
-</Callout>
+1. **Navigate to RunReveal**: Go to your RunReveal dashboard
+2. **Create Source**: Click on "Sources" in the left sidebar
+3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks)  based on your data format.
+4. **Configure**: Give your webhook a name and description
+5. **Copy URL**: Copy the generated webhook URL to use in your configuration. (It's always available after you save the source)
 
 ### Step 2: Install Datadog Agent
 
-Install the Datadog Agent on your system:
+This step installs the Datadog Agent on your system using your preferred method. The agent will be used to collect, process, and forward logs to RunReveal.
 
+<Tabs items={['macOS', 'Ubuntu/Debian', 'CentOS/RHEL', 'Docker', 'Windows']}>
+  <Tabs.Tab>
 ```bash
-# Install the agent
-DD_API_KEY=your_datadog_api_key DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh)"
+# Install via Homebrew
+brew install datadog/tap/datadog-agent
+
+# Verify installation
+datadog-agent version
 ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Add Datadog repository
+DD_API_KEY=your_api_key DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh)"
 
-<Callout type="info">
-You can use a placeholder API key for installation if you only want to forward to RunReveal.
-</Callout>
+# Verify installation
+sudo datadog-agent version
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Add Datadog repository
+DD_API_KEY=your_api_key DD_SITE="datadoghq.com" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh)"
 
-### Step 3: Configure Log Collection
+# Verify installation
+sudo datadog-agent version
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Pull Datadog Agent image
+docker pull datadog/agent:latest
 
-Create a Datadog Agent configuration file that collects logs and forwards them to RunReveal:
+# Create config directory
+mkdir -p $(pwd)/datadog-config
 
-```yaml:conf.yaml
-# Main agent configuration
+# Run Datadog Agent container
+docker run -d \
+  --name datadog-agent \
+  -v $(pwd)/datadog-config:/etc/datadog-agent \
+  -v /var/log:/var/log:ro \
+  -e DD_API_KEY=your_api_key \
+  datadog/agent:latest
+
+# Verify container is running
+docker ps | grep datadog-agent
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```powershell
+# Download Datadog Agent installer
+Invoke-WebRequest -Uri "https://s3.amazonaws.com/dd-agent/windows/installer/ddagent-cli.msi" -OutFile "ddagent-cli.msi"
+
+# Install Datadog Agent
+Start-Process msiexec.exe -Wait -ArgumentList '/I ddagent-cli.msi /quiet'
+
+# Verify installation
+& "C:\Program Files\Datadog\Datadog Agent\bin\agent.exe" version
+```
+  </Tabs.Tab>
+</Tabs>
+
+### Step 3: Create Test Logs
+
+This step creates sample log files with security events that the Datadog Agent will monitor and forward to RunReveal. These logs simulate real application events for testing purposes.
+
+<Tabs items={['macOS/Linux', 'Windows']}>
+  <Tabs.Tab>
+```bash
+# Create logs directory
+mkdir -p logs
+
+# Create test log file
+cat > logs/app.log << 'EOF'
+{"eventTime": "'$(date -Iseconds)'", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"}
+{"eventTime": "'$(date -Iseconds)'", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"}
+EOF
+
+# Verify log file was created
+ls -la logs/
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```powershell
+# Create logs directory
+mkdir C:\logs
+
+# Create test log file
+echo {"eventTime": "2024-01-01T12:00:00Z", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"} > C:\logs\app.log
+echo {"eventTime": "2024-01-01T12:01:00Z", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"} >> C:\logs\app.log
+
+# Verify log file was created
+dir C:\logs\
+```
+  </Tabs.Tab>
+</Tabs>
+
+### Step 4: Configure Datadog Agent
+
+This step creates the Datadog Agent configuration file that tells the agent where to find logs and how to send them to RunReveal. The configuration defines both the log collection and the custom HTTP output.
+
+<Tabs items={['YAML Config', 'Docker Config']}>
+  <Tabs.Tab>
+Create `/etc/datadog-agent/datadog.yaml`:
+
+```yaml
+# Datadog Agent configuration
 api_key: your_datadog_api_key
 site: datadoghq.com
 
-# Log collection
+# Logs configuration
 logs_config:
   enabled: true
-  logs_dd_url: https://http-intake.logs.datadoghq.com:443
+  logs_dd_url: "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+  logs_no_ssl: false
   processing_rules:
-    - type: mask_sequences
-      name: mask_user_data
-      replace_placeholder: "[MASKED]"
-      pattern: (password|token|key)=[^\\s]*
-
-# Custom log sources
-logs:
-  - type: file
-    path: /var/log/application/*.log
-    service: my-application
-    source: python
-    log_processing_rules:
-      - type: multi_line
-        name: new_log_start_with_date
-        pattern: \d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])
+    - type: "mask_sequences"
+      name: "mask_user_data"
+      replace_placeholder: "***"
+      pattern: "password=\\w+"
 
 # Custom HTTP output for RunReveal
-custom_endpoints:
-  - url: YOUR_WEBHOOK_URL
+custom_http_outputs:
+  runreveal:
+    url: "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+    method: "POST"
     headers:
-      Content-Type: application/json
-    format: json
-    timeout: 10
-    retry_count: 3
+      Content-Type: "application/json"
+    timeout: 30
+    retry_attempts: 3
+    retry_delay: 1
+
+# Log collection configuration
+logs:
+  - type: file
+    path: "./logs/*.log"
+    service: "web-application"
+    source: "json"
+    tags:
+      - "environment:production"
+      - "forwarder:datadog-agent"
 ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+Create `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+services:
+  datadog-agent:
+    image: datadog/agent:latest
+    container_name: datadog-agent
+    volumes:
+      - ./datadog.yaml:/etc/datadog-agent/datadog.yaml
+      - ./logs:/var/log/app:ro
+    ports:
+      - "8126:8126"
+    environment:
+      - DD_API_KEY=your_datadog_api_key
+      - DD_SITE=datadoghq.com
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_PROCESSING_RULES='[{"type":"mask_sequences","name":"mask_user_data","replace_placeholder":"***","pattern":"password=\\\\w+"}]'
+    command: datadog-agent run
+```
+  </Tabs.Tab>
+</Tabs>
 
 <Callout type="warning">
 Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
 </Callout>
 
-### Step 4: Restart the Agent
+### Step 5: Start Datadog Agent
 
-Restart the Datadog Agent to apply the new configuration:
+This step starts the Datadog Agent with your configuration, which will begin monitoring the log files and forwarding events to RunReveal in real-time. The agent will continuously watch for new log entries and send them to your webhook.
 
+<Tabs items={['Local', 'Docker']}>
+  <Tabs.Tab>
 ```bash
-# Restart the agent
-sudo systemctl restart datadog-agent
+# Test configuration
+sudo datadog-agent configcheck
 
-# Verify the agent is running
+# Start Datadog Agent
+sudo systemctl start datadog-agent
+
+# Check status
 sudo systemctl status datadog-agent
 ```
-
-### Step 5: Verify Configuration
-
-Test your Datadog Agent configuration:
-
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```bash
-# Check agent status
-sudo datadog-agent status
+# Start with Docker Compose
+docker-compose up -d
 
-# View agent logs
-sudo journalctl -u datadog-agent -f
-
-# Test log collection
-sudo datadog-agent config show
+# Check logs
+docker-compose logs -f datadog-agent
 ```
+  </Tabs.Tab>
+</Tabs>
 
-### Step 6: Test Log Delivery
+### Step 6: Validate Delivery
 
-Use the RunReveal search UI to confirm logs are arriving:
+This step verifies that logs are being successfully delivered to RunReveal by checking the webhook source and querying for events.
 
-```sql
-# For structured webhooks
-sourceType = 'structured-webhook' AND eventName = 'LogEvent'
+1. **Check Webhook Source**: Go to RunReveal → Sources → Your Webhook Source
+2. **View Recent Events**: Look for incoming events in the source details
+3. **Query for Events**: Use the search bar to query `sourceType = 'webhook'` or `sourceType = 'structured-webhook'` depending on your webhook type
+4. **Verify Data**: Confirm that your test log events appear in the results
 
-# For generic webhooks  
-sourceType = 'generic-webhook' AND service = 'my-application'
-```
+If you see your test events in RunReveal, the Datadog Agent is successfully forwarding logs to your webhook.
 
 </Steps>
 
----
+## Datadog Agent Configuration
 
-## Configuration Options
+<Tabs items={['Log Collection', 'Processing Rules', 'Custom Outputs']}>
+  <Tabs.Tab>
 
-### Custom Log Sources
+### Log Collection
 
-Add multiple log sources to your configuration:
+The Datadog Agent can collect logs from various sources. For RunReveal, you'll typically use file collection or system logs. See the [Datadog Log Collection Documentation](https://docs.datadoghq.com/logs/log_collection/) for comprehensive documentation.
 
+**File Log Collection Example**
 ```yaml
 logs:
-  # Application logs
   - type: file
-    path: /var/log/application/*.log
-    service: my-application
-    source: python
-    
-  # System logs
-  - type: file
-    path: /var/log/syslog
-    service: system
-    source: syslog
-    
-  # Nginx logs
-  - type: file
-    path: /var/log/nginx/*.log
-    service: nginx
-    source: nginx
+    path: ["/var/log/app/*.log", "/var/log/api/*.json"]
+    service: "web-application"
+    source: "json"
+    tags:
+      - "environment:production"
+      - "forwarder:datadog-agent"
 ```
 
-### Log Processing Rules
+Collects application logs in JSON format, perfect for security event analysis and compliance reporting.
 
-Configure custom processing rules for your logs:
+**System Log Collection Example**
+```yaml
+logs:
+  - type: file
+    path: "/var/log/syslog"
+    service: "system"
+    source: "syslog"
+    tags:
+      - "environment:production"
+      - "component:system"
+```
 
+Captures system authentication and authorization events, essential for security monitoring and threat detection.
+
+**Docker Log Collection Example**
+```yaml
+logs:
+  - type: docker
+    include_containers: ["nginx", "postgres", "redis"]
+    service: "containerized-apps"
+    source: "docker"
+    tags:
+      - "environment:production"
+      - "component:containers"
+```
+
+Monitors containerized applications for security incidents, performance issues, and compliance violations.
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### Processing Rules
+
+Processing rules modify and enrich your data. These are crucial for preparing data for RunReveal's analysis. See the [Datadog Log Processing Rules](https://docs.datadoghq.com/logs/processing/) for comprehensive documentation.
+
+**Add Metadata Processing Rule**
 ```yaml
 logs_config:
-  enabled: true
   processing_rules:
-    # Mask sensitive data
-    - type: mask_sequences
-      name: mask_passwords
-      replace_placeholder: "[MASKED]"
-      pattern: (password|secret|key)=[^\\s]*
-    
-    # Multi-line log aggregation
-    - type: multi_line
-      name: stack_traces
-      pattern: ^[A-Z][a-z]{2}\s+\d{1,2}
+    - type: "include_at_match"
+      name: "add_metadata"
+      pattern: ".*"
+      replace_placeholder: "***"
+      source: "message"
+      target: "message"
+      add_fields:
+        host: "${HOSTNAME}"
+        ingestion_timestamp: "${TIMESTAMP}"
+        environment: "production"
+        service: "web-application"
 ```
 
-### Custom Endpoints
+Adds essential context for security analysis, making it easier to correlate events across different systems and environments.
 
-Configure multiple endpoints for different purposes:
-
+**Parse JSON Processing Rule**
 ```yaml
-custom_endpoints:
-  # Primary RunReveal endpoint
-  - url: YOUR_WEBHOOK_URL
-    headers:
-      Content-Type: application/json
-    format: json
-    timeout: 10
-    retry_count: 3
-    
-  # Backup endpoint (optional)
-  - url: YOUR_BACKUP_WEBHOOK_URL
-    headers:
-      Content-Type: application/json
-    format: json
-    timeout: 5
-    retry_count: 1
+logs_config:
+  processing_rules:
+    - type: "parse"
+      name: "parse_json_logs"
+      pattern: "^(?<timestamp>\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z) (?<level>\\w+) (?<message>.*)$"
+      source: "message"
+      target: "parsed_data"
 ```
 
----
+Extracts structured data from log messages, enabling advanced filtering, searching, and alerting based on specific event attributes.
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Agent won't start**: Check the configuration syntax and API key
-2. **No logs being sent**: Verify the log file paths exist and are readable
-3. **Webhook errors**: Check that your webhook URL is correct and accessible
-4. **Permission issues**: Ensure the agent has read access to your log files
-
-### Debug Commands
-
-```bash
-# Check agent status
-sudo datadog-agent status
-
-# View agent logs
-sudo journalctl -u datadog-agent -f
-
-# Test webhook connectivity
-curl -v YOUR_WEBHOOK_URL
-
-# Show agent configuration
-sudo datadog-agent config show
-
-# Test log collection
-sudo datadog-agent check logs
+**Filter Processing Rule**
+```yaml
+logs_config:
+  processing_rules:
+    - type: "include_at_match"
+      name: "filter_security_events"
+      pattern: "UserLogin|FileAccess|DataExport"
+      source: "message"
 ```
 
-### Performance Tuning
+Focuses on security-relevant events, reducing noise and improving detection accuracy while optimizing data transfer costs.
 
-<Callout type="info">
-**Best Practices:**
+  </Tabs.Tab>
+  <Tabs.Tab>
 
-1. **Resource Limits**: Configure appropriate memory and CPU limits
-2. **Batch Processing**: Adjust batch sizes for optimal throughput
-3. **Network Timeouts**: Set appropriate timeouts for webhook requests
-4. **Retry Logic**: Configure retry settings for failed requests
-5. **Monitoring**: Set up alerts for agent service failures
-</Callout>
+### Custom Outputs
+
+Custom outputs send processed data to external systems. For RunReveal, you'll use the custom HTTP output. See the [Datadog Custom Outputs](https://docs.datadoghq.com/agent/configuration/agent-configuration-files/) for comprehensive documentation.
+
+**Custom HTTP Output for RunReveal**
+```yaml
+custom_http_outputs:
+  runreveal:
+    url: "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+    method: "POST"
+    headers:
+      Content-Type: "application/json"
+      Authorization: "Bearer your_token"
+    timeout: 30
+    retry_attempts: 3
+    retry_delay: 1
+    buffer:
+      max_size: 1000
+      flush_interval: 5
+```
+
+Ensures reliable delivery of security events with proper timeout, retry logic, and buffering for resilience during network issues.
+
+**Multiple Output Example**
+```yaml
+custom_http_outputs:
+  runreveal_structured:
+    url: "https://api.runreveal.com/sources/hook/YOUR_STRUCTURED_WEBHOOK"
+    method: "POST"
+    headers:
+      Content-Type: "application/json"
+  
+  runreveal_generic:
+    url: "https://api.runreveal.com/sources/hook/YOUR_GENERIC_WEBHOOK"
+    method: "POST"
+    headers:
+      Content-Type: "application/json"
+
+logs_config:
+  processing_rules:
+    - type: "include_at_match"
+      name: "route_events"
+      pattern: "UserLogin|FileAccess"
+      source: "message"
+      target: "runreveal_structured"
+    - type: "include_at_match"
+      name: "route_other_events"
+      pattern: ".*"
+      source: "message"
+      target: "runreveal_generic"
+```
+
+Routes different types of events to appropriate webhook types, optimizing for both structured analysis and flexible data collection.
+
+  </Tabs.Tab>
+</Tabs>
 
 ---
 
 ## Next Steps
 
-Once the Datadog Agent is configured and sending data to RunReveal:
+Now that you have the Datadog Agent configured and logs flowing to RunReveal, explore the detailed configuration guides:
 
-1. **Create Detections**: Use the logs to build security detections
-2. **Set Up Alerts**: Configure notifications for important events
-3. **Explore Data**: Use the search interface to investigate your logs
-4. **Optimize Performance**: Monitor and tune your agent configuration
+- **[Detections](/detections)** - Create and manage security detection rules
+- **[Sigma Streaming](/detections/sigma-streaming)** - Use Sigma rules for standardized threat detection
+- **[Detection as Code](/detections/detection-as-code)** - Manage detections through code and version control
+- **[Notifications](/notifications)** - Set up alerting and notification channels
+- **[AI Chat](/ai-chat)** - Use AI-powered analysis for threat hunting and investigation
+- **[Enrichments](/enrichments)** - Add context and metadata to your security events
+- **[Filters](/filtering)** - Create custom filters to focus on specific security events
+- **[Pipelines](/pipelines)** - Build data processing pipelines for complex workflows
 
-For additional help, refer to the [Datadog Agent documentation](https://docs.datadoghq.com/agent/) or contact RunReveal support. 
+---
+
+## Troubleshooting
+
+### Datadog Agent Won't Start
+
+1. **Check Configuration Syntax**
+   ```bash
+   sudo datadog-agent configcheck
+   ```
+
+2. **Verify File Permissions**
+   - Ensure the agent has read access to log files
+   - Check that the agent can write to its working directory
+
+3. **Review Agent Logs**
+   ```bash
+   sudo datadog-agent --log-level debug
+   ```
+
+### Logs Not Reaching RunReveal
+
+1. **Verify Webhook URL**
+   - Check that the webhook URL is correct and active
+   - Ensure the URL includes the full path from RunReveal
+
+2. **Test Network Connectivity**
+   ```bash
+   curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL \
+     -H "Content-Type: application/json" \
+     -d '{"test": "message"}'
+   ```
+
+3. **Check Custom Output Configuration**
+   - Verify the custom HTTP output is properly configured
+   - Check for any authentication requirements
+
+### High Resource Usage
+
+1. **Optimize Buffer Settings**
+   - Adjust buffer size and flush intervals
+   - Consider using disk buffers for high-volume data
+
+2. **Review Processing Rules**
+   - Simplify complex processing rules
+   - Use filtering to reduce data volume
+
+3. **Monitor System Resources**
+   ```bash
+   top -p $(pgrep datadog-agent)
+   ```
+
+### Data Format Issues
+
+1. **Check Log Format**
+   - Ensure logs are in the expected format (JSON, syslog, etc.)
+
+2. **Review Processing Rules**
+   - Check that processing rules are correctly parsing data
+   - Verify field mappings match your log structure
+
+3. **Test with Sample Data**
+   - Use Datadog Agent's `configcheck` to validate configuration
+   - Check output format before sending to RunReveal
+
+## Resources
+
+* [Datadog Agent Official Documentation](https://docs.datadoghq.com/agent/) 

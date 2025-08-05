@@ -1,13 +1,8 @@
----
-title: 'Fluent Bit Log Forwarder'
-description: 'Configure Fluent Bit to forward logs to RunReveal using webhooks'
----
-
 import { Callout, Tabs, Steps } from 'nextra/components'
 
 # Fluent Bit Log Forwarder
 
-[Fluent Bit](https://docs.fluentbit.io/manual) is a lightweight and high-performance log processor and forwarder. It's designed to collect, parse, filter, and forward logs to various destinations, making it ideal for sending data to RunReveal.
+[Fluent Bit](https://fluentbit.io/) is a lightweight log processor and forwarder that can send data to RunReveal.
 
 ## Quick Start
 
@@ -21,7 +16,7 @@ This step creates a webhook source in RunReveal and generates the webhook URL yo
 
 1. **Navigate to RunReveal**: Go to your RunReveal dashboard
 2. **Create Source**: Click on "Sources" in the left sidebar
-3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks)" based on your data format.
+3. **Add Webhook**: Create a source for [Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks) based on your data format.
 4. **Configure**: Give your webhook a name and description
 5. **Copy URL**: Copy the generated webhook URL to use in your configuration. (It's always available after you save the source)
 
@@ -31,65 +26,51 @@ This step installs Fluent Bit on your system using your preferred method. Fluent
 
 <Tabs items={['macOS', 'Ubuntu/Debian', 'CentOS/RHEL', 'Docker', 'Binary']}>
   <Tabs.Tab>
-
 ```bash
-# Install using Homebrew
+# Install via Homebrew
 brew install fluent-bit
 
-# Create config directory
-mkdir -p ~/.config/fluent-bit
-
 # Verify installation
 fluent-bit --version
 ```
-
   </Tabs.Tab>
   <Tabs.Tab>
-
 ```bash
 # Add Fluent Bit repository
-wget -qO - https://packages.fluentbit.io/fluentbit.key | sudo apt-key add -
-echo "deb https://packages.fluentbit.io/ubuntu/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list
+curl https://packages.fluentbit.io/fluentbit.key | gpg --dearmor > fluentbit-key.gpg
+sudo install -o root -g root -m 644 fluentbit-key.gpg /etc/apt/trusted.gpg.d/
+sudo sh -c 'echo "deb https://packages.fluentbit.io/ubuntu/$(lsb_release -sc) $(lsb_release -sc) main" > /etc/apt/sources.list.d/fluent-bit.list'
 
 # Install Fluent Bit
-sudo apt update
-sudo apt install fluent-bit
-
-# Enable service
-sudo systemctl enable fluent-bit
+sudo apt-get update
+sudo apt-get install td-agent-bit
 
 # Verify installation
-fluent-bit --version
+td-agent-bit --version
 ```
-
   </Tabs.Tab>
   <Tabs.Tab>
-
 ```bash
 # Add Fluent Bit repository
 sudo rpm --import https://packages.fluentbit.io/fluentbit.key
-sudo cat > /etc/yum.repos.d/fluent-bit.repo << EOF
+sudo tee /etc/yum.repos.d/fluent-bit.repo << EOF
 [fluent-bit]
 name = Fluent Bit
 baseurl = https://packages.fluentbit.io/centos/\$releasever/\$basearch/
 gpgcheck=1
+repo_gpgcheck=1
 enabled=1
 gpgkey=https://packages.fluentbit.io/fluentbit.key
 EOF
 
 # Install Fluent Bit
-sudo yum install fluent-bit
-
-# Enable service
-sudo systemctl enable fluent-bit
+sudo yum install td-agent-bit
 
 # Verify installation
-fluent-bit --version
+td-agent-bit --version
 ```
-
   </Tabs.Tab>
   <Tabs.Tab>
-
 ```bash
 # Pull Fluent Bit image
 docker pull fluent/fluent-bit:latest
@@ -107,266 +88,640 @@ docker run -d \
 # Verify container is running
 docker ps | grep fluent-bit
 ```
-
   </Tabs.Tab>
   <Tabs.Tab>
-
 ```bash
 # Download Fluent Bit binary
-wget https://fluentbit.io/releases/1.9/fluent-bit-1.9.0-linux-x86_64.tar.gz
-tar -xzf fluent-bit-1.9.0-linux-x86_64.tar.gz
-cd fluent-bit-1.9.0-linux-x86_64
+curl -L -O https://github.com/fluent/fluent-bit/releases/latest/download/fluent-bit-1.9.0-linux-x64.tar.gz
+tar -xzf fluent-bit-1.9.0-linux-x64.tar.gz
+cd fluent-bit-1.9.0-linux-x64
 
-# Verify binary
+# Verify installation
 ./bin/fluent-bit --version
 ```
-
   </Tabs.Tab>
 </Tabs>
 
 ### Step 3: Create Test Logs
 
-This step creates sample log files that Fluent Bit will monitor and forward to RunReveal. These logs simulate real application events for testing purposes.
+This step creates sample log files with security events that Fluent Bit will monitor and forward to RunReveal. These logs simulate real application events for testing purposes.
 
 <Tabs items={['macOS/Linux', 'Windows']}>
   <Tabs.Tab>
-
 ```bash
-# Create log directory
-mkdir -p /var/log/app
+# Create logs directory
+mkdir -p test-logs
 
-# Create sample application logs
-cat > /var/log/app/application.log << EOF
-{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
-{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
-{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
+# Create test log file with proper JSON structure
+cat > test-logs/app.log << 'EOF'
+{"eventTime": "2025-08-04T19:55:26Z", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"}
+{"eventTime": "2025-08-04T19:56:00Z", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"}
+{"eventTime": "2025-08-04T19:57:15Z", "eventName": "SuspiciousLogin", "action": "authentication", "actor": {"username": "admin", "userAgent": "curl/7.68.0"}, "src": {"ip": "10.0.0.15"}, "outcome": "failure", "service": "admin-api"}
 EOF
 
-# Verify logs were created
-ls -la /var/log/app/
-cat /var/log/app/application.log
+# Verify log file was created
+ls -la test-logs/
+cat test-logs/app.log
 ```
-
   </Tabs.Tab>
   <Tabs.Tab>
-
 ```powershell
-# Create log directory
-New-Item -ItemType Directory -Path "C:\logs\app" -Force
+# Create logs directory
+mkdir C:\test-logs
 
-# Create sample application logs
-@"
-{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
-{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
-{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
-"@ | Out-File -FilePath "C:\logs\app\application.log" -Encoding UTF8
+# Create test log file
+echo {"eventTime": "2025-08-04T19:55:26Z", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"} > C:\test-logs\app.log
+echo {"eventTime": "2025-08-04T19:56:00Z", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"} >> C:\test-logs\app.log
 
-# Verify logs were created
-Get-ChildItem "C:\logs\app\"
-Get-Content "C:\logs\app\application.log"
+# Verify log file was created
+dir C:\test-logs\
 ```
-
   </Tabs.Tab>
 </Tabs>
 
 ### Step 4: Configure Fluent Bit
 
-This step creates the Fluent Bit configuration file that defines how to collect logs and send them to RunReveal.
+This step creates the Fluent Bit configuration file that tells Fluent Bit where to find logs and how to send them to RunReveal. The configuration defines both the input (where logs come from) and the output (where logs go).
 
-```toml
+<Tabs items={['Conf Config', 'Docker Config']}>
+  <Tabs.Tab>
+Create `fluent-bit.conf`:
+
+```ini
 [SERVICE]
-    Flush        1
-    Log_Level    info
-    Parsers_File parsers.conf
+    Flush         1
+    Daemon        off
+    Log_Level     info
+    Parsers_File  parsers.conf
 
 [INPUT]
     Name              tail
-    Tag               app.logs
-    Path              /var/log/app/*.log
+    Path              ./test-logs/*.log
     Parser            json
+    Tag               logs
+    Refresh_Interval  5
     Mem_Buf_Limit     5MB
     Skip_Long_Lines   On
-    Refresh_Interval  10
+    Read_from_Head    On
+
+[INPUT]
+    Name              dummy
+    Rate              0.1
+    Dummy             {"message":"Test from Fluent Bit","timestamp":"2025-08-04T19:55:26.300Z"}
+    Tag               test
+
+[FILTER]
+    Name              record_modifier
+    Match             *
+    Add               source fluent-bit
+    Add               host ${HOSTNAME}
+    Add               ingestion_timestamp ${time}
+    Add               environment production
 
 [OUTPUT]
     Name              http
-    Match             app.logs
-    URI               https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL
+    Match             *
+    Host              api.runreveal.com
+    Port              443
+    URI               /sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2
     Method            POST
-    Header            Content-Type application/json
     Format            json
-    Json_Date_Key     timestamp
-    Json_Date_Format  iso8601
-    Retry_Limit       False
-    HTTP_User         ""
-    HTTP_Passwd       ""
     tls               On
     tls.verify        On
+    Header            Content-Type application/json
+    Retry_Limit       3
+    net.connect_timeout 30
+    net.keepalive     On
+    net.keepalive_idle_timeout 10
 ```
+
+Create `parsers.conf`:
+
+```ini
+[PARSER]
+    Name        json
+    Format      json
+    Time_Key    eventTime
+    Time_Format %Y-%m-%dT%H:%M:%S%z
+    Time_Keep   On
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+Create `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+services:
+  fluent-bit:
+    image: fluent/fluent-bit:latest
+    container_name: fluent-bit
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./parsers.conf:/fluent-bit/etc/parsers.conf
+      - ./test-logs:/var/log/app:ro
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    environment:
+      - FLUENT_BIT_CONF=fluent-bit.conf
+    command: fluent-bit -c /fluent-bit/etc/fluent-bit.conf
+```
+  </Tabs.Tab>
+</Tabs>
+
+<Callout type="info">
+The configuration above uses the actual webhook URL `30pw8Fynw5W7PzjbnRyxnfMsID2` from earlier examples. Replace this with your own webhook ID if different.
+</Callout>
 
 ### Step 5: Start Fluent Bit
 
 This step starts Fluent Bit with your configuration, which will begin monitoring the log files and forwarding events to RunReveal in real-time. Fluent Bit will continuously watch for new log entries and send them to your webhook.
 
+<Tabs items={['Local', 'Docker']}>
+  <Tabs.Tab>
 ```bash
-# Validate configuration
+# Test configuration syntax
 fluent-bit -c fluent-bit.conf --dry-run
 
-# Run Fluent Bit
+# Run Fluent Bit with verbose logging
+fluent-bit -c fluent-bit.conf -v
+
+# Run Fluent Bit normally
 fluent-bit -c fluent-bit.conf
 ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```bash
+# Start with Docker Compose
+docker-compose up -d
+
+# Check logs
+docker-compose logs -f fluent-bit
+
+# Stop when done testing
+docker-compose down
+```
+  </Tabs.Tab>
+</Tabs>
 
 ### Step 6: Validate Delivery
 
-This step verifies that logs are successfully being delivered to RunReveal by checking the webhook source and querying for events.
+This step verifies that logs are being successfully delivered to RunReveal by checking the webhook source and querying for events.
 
-1. **Check Webhook Source**: Go to RunReveal → Sources → Your webhook source
-2. **View Recent Events**: Look for recent events in the source details
-3. **Query for Events**: Use the query `sourceType = 'webhook'` or `sourceType = 'structured-webhook'` to find your events
+1. **Check Webhook Source**: Go to RunReveal → Sources → Your Webhook Source
+2. **View Recent Events**: Look for incoming events in the source details
+3. **Query for Events**: Use the search bar to query:
+   ```sql
+   SELECT * FROM logs 
+   WHERE sourceType = 'structured-webhook' 
+   ORDER BY receivedAt DESC 
+   LIMIT 10;
+   ```
+4. **Verify Data**: Confirm that your test log events appear in the results with fields like:
+   - `eventName`: "UserLogin", "FileAccess", etc.
+   - `source`: "fluent-bit"
+   - `host`: Your machine hostname
+   - Original JSON data in `rawLog` field
+
+If you see your test events in RunReveal, Fluent Bit is successfully forwarding logs to your webhook.
+
+### Step 7: Add More Test Data
+
+To see real-time log forwarding in action:
+
+```bash
+# Add new log entries to see them appear in RunReveal
+echo '{"eventTime": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'", "eventName": "DataExport", "action": "data_download", "actor": {"username": "test.user"}, "object": {"path": "/reports/sensitive.csv"}, "outcome": "success", "service": "data-api"}' >> test-logs/app.log
+
+# Watch Fluent Bit logs to see processing
+tail -f fluent-bit.log
+```
 
 </Steps>
 
----
+## Advanced Fluent Bit Configuration Examples
 
-## Fluent Bit Configuration
+<Tabs items={['Production Setup', 'Multi-Source', 'Security Events']}>
+  <Tabs.Tab>
 
-<Tabs items={['Inputs', 'Filters', 'Outputs']}>
+### Production Configuration
+
+```ini
+[SERVICE]
+    Flush         5
+    Daemon        on
+    Log_Level     warn
+    Parsers_File  parsers.conf
+    HTTP_Server   On
+    HTTP_Listen   0.0.0.0
+    HTTP_Port     2020
+
+[INPUT]
+    Name              tail
+    Path              /var/log/app/*.log
+    Parser            json
+    Tag               app.logs
+    Refresh_Interval  10
+    Mem_Buf_Limit     32MB
+    Skip_Long_Lines   On
+    Read_from_Head    Off
+    DB                /var/log/flb_app.db
+
+[INPUT]
+    Name              tail
+    Path              /var/log/audit/*.log
+    Parser            json
+    Tag               audit.logs
+    Refresh_Interval  5
+    Mem_Buf_Limit     16MB
+    DB                /var/log/flb_audit.db
+
+[FILTER]
+    Name              record_modifier
+    Match             *
+    Add               environment production
+    Add               datacenter us-east-1
+    Add               host ${HOSTNAME}
+
+[FILTER]
+    Name              grep
+    Match             app.logs
+    Regex             eventName (UserLogin|FileAccess|DataExport|SecurityAlert)
+
+[OUTPUT]
+    Name              http
+    Match             *
+    Host              api.runreveal.com
+    Port              443
+    URI               /sources/hook/YOUR_WEBHOOK_ID
+    Method            POST
+    Format            json
+    tls               On
+    tls.verify        On
+    Header            Content-Type application/json
+    Retry_Limit       5
+    net.connect_timeout 30
+    net.keepalive     On
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### Multiple Source Configuration
+
+```ini
+[SERVICE]
+    Flush         1
+    Log_Level     info
+    Parsers_File  parsers.conf
+
+# Application logs
+[INPUT]
+    Name              tail
+    Path              /app/logs/*.log
+    Parser            json
+    Tag               app
+    Read_from_Head    On
+
+# System logs
+[INPUT]
+    Name              systemd
+    Tag               system
+    Systemd_Filter    _SYSTEMD_UNIT=ssh.service
+    Systemd_Filter    _SYSTEMD_UNIT=nginx.service
+
+# Docker logs
+[INPUT]
+    Name              docker
+    Tag               docker
+    Docker_Mode       On
+
+# Network logs
+[INPUT]
+    Name              netif
+    Tag               network
+    Interface         eth0
+    Interval_Sec      5
+
+[FILTER]
+    Name              record_modifier
+    Match             app
+    Add               log_type application
+
+[FILTER]
+    Name              record_modifier
+    Match             system
+    Add               log_type system
+
+[FILTER]
+    Name              record_modifier
+    Match             docker
+    Add               log_type container
+
+[OUTPUT]
+    Name              http
+    Match             *
+    Host              api.runreveal.com
+    Port              443
+    URI               /sources/hook/YOUR_WEBHOOK_ID
+    Format            json
+    tls               On
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+### Security Events Focus
+
+```ini
+[SERVICE]
+    Flush         1
+    Log_Level     info
+    Parsers_File  parsers.conf
+
+[INPUT]
+    Name              tail
+    Path              /var/log/auth.log
+    Parser            syslog
+    Tag               auth
+    Read_from_Head    On
+
+[INPUT]
+    Name              tail
+    Path              /var/log/fail2ban.log
+    Parser            fail2ban
+    Tag               security
+    Read_from_Head    On
+
+[INPUT]
+    Name              tail
+    Path              /app/security/*.log
+    Parser            json
+    Tag               app.security
+    Read_from_Head    On
+
+[FILTER]
+    Name              grep
+    Match             auth
+    Regex             message (Failed password|Invalid user|authentication failure)
+
+[FILTER]
+    Name              grep
+    Match             app.security
+    Regex             eventName (SuspiciousLogin|BruteForce|Unauthorized|DataBreach)
+
+[FILTER]
+    Name              record_modifier
+    Match             *
+    Add               category security
+    Add               priority high
+    Add               source_host ${HOSTNAME}
+
+[OUTPUT]
+    Name              http
+    Match             *
+    Host              api.runreveal.com
+    Port              443
+    URI               /sources/hook/YOUR_WEBHOOK_ID
+    Format            json
+    tls               On
+    Header            Content-Type application/json
+```
+
+  </Tabs.Tab>
+</Tabs>
+
+## Fluent Bit Configuration Reference
+
+<Tabs items={['Inputs', 'Filters', 'Outputs', 'Parsers']}>
   <Tabs.Tab>
 
 ### Inputs
 
-Inputs collect data from various sources. For RunReveal, you'll typically use file inputs or system inputs. See the [Fluent Bit Inputs Reference](https://docs.fluentbit.io/manual/pipeline/inputs/) for comprehensive documentation.
+Inputs collect data from various sources. For RunReveal, you'll typically use file inputs or system inputs.
 
-**File Input Example**
-```toml
+**Tail Input (Most Common)**
+```ini
 [INPUT]
-    Name        file
-    Tag         app.logs
-    Path        /var/log/app/*.log
-    Parser      json
-    Read_from_Head true
+    Name              tail
+    Path              /var/log/app/*.log,/var/log/api/*.json
+    Parser            json
+    Tag               app.logs
+    Read_from_Head    true
+    Mem_Buf_Limit     5MB
+    Skip_Long_Lines   On
+    Refresh_Interval  5
+    DB                /var/log/flb.db
 ```
 
-Collects application logs in JSON format, perfect for security event analysis and compliance reporting.
-
-**System Input Example**
-```toml
+**System Log Input**
+```ini
 [INPUT]
-    Name        systemd
+    Name        syslog
     Tag         system.logs
-    Systemd_Filter _SYSTEMD_UNIT=ssh.service
-    Read_from_Tail true
+    Parser      syslog
+    Listen      0.0.0.0
+    Port        5140
+    Mode        tcp
 ```
 
-Captures system authentication and authorization events, essential for security monitoring and threat detection.
-
-**Docker Input Example**
-```toml
+**Docker Input**
+```ini
 [INPUT]
     Name        docker
-    Tag         container.logs
+    Tag         docker.logs
     Parser      docker
-    Docker_Mode container
+    Docker_Mode On
 ```
 
-Monitors containerized applications for security incidents, performance issues, and compliance violations.
+**Forward Input (From other Fluent Bit/Fluentd)**
+```ini
+[INPUT]
+    Name        forward
+    Tag         forwarded
+    Listen      0.0.0.0
+    Port        24224
+```
 
   </Tabs.Tab>
   <Tabs.Tab>
 
 ### Filters
 
-Filters process and transform data as it flows through the pipeline. For RunReveal, you'll typically use parsing, filtering, or modification rules. See the [Fluent Bit Filters Reference](https://docs.fluentbit.io/manual/pipeline/filters/) for comprehensive documentation.
+Filters modify and enrich your data before sending to RunReveal.
 
-**JSON Parser Example**
-```toml
+**Add Metadata**
+```ini
 [FILTER]
-    Name        parser
-    Match       app.logs
-    Parser      json
-    Reserve_Data true
-```
-
-Parses JSON-formatted logs into structured fields for better analysis and querying.
-
-**Record Modifier Example**
-```toml
-[FILTER]
-    Name        modify
+    Name        record_modifier
     Match       *
-    Add         source fluent-bit
+    Add         host ${HOSTNAME}
     Add         environment production
+    Add         ingestion_timestamp ${time}
+    Add         datacenter us-west-2
 ```
 
-Adds metadata to all log records for better context and organization.
-
-**Grep Filter Example**
-```toml
+**Filter Events**
+```ini
 [FILTER]
     Name        grep
     Match       app.logs
-    Regex       log level (ERROR|WARN|CRITICAL)
+    Regex       level (ERROR|WARN|FATAL)
 ```
 
-Filters logs to include only security-relevant events, reducing noise and improving detection accuracy.
+**Parse JSON**
+```ini
+[FILTER]
+    Name        parser
+    Match       app.logs
+    Key_Name    message
+    Parser      json
+    Reserve_Data On
+```
+
+**Lua Scripting**
+```ini
+[FILTER]
+    Name        lua
+    Match       app.logs
+    Script      /path/to/script.lua
+    Call        cb_enrich_data
+```
+
+**Throttle (Rate Limiting)**
+```ini
+[FILTER]
+    Name        throttle
+    Match       *
+    Rate        1000
+    Window      5
+    Interval    1m
+```
+
+**Kubernetes Metadata**
+```ini
+[FILTER]
+    Name                kubernetes
+    Match               kube.*
+    Kube_URL            https://kubernetes.default.svc:443
+    Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+    Merge_Log           On
+    K8S-Logging.Parser  On
+    K8S-Logging.Exclude Off
+```
 
   </Tabs.Tab>
   <Tabs.Tab>
 
 ### Outputs
 
-Outputs send data to external destinations. For RunReveal, you'll configure HTTP output to send logs via webhooks. See the [Fluent Bit Outputs Reference](https://docs.fluentbit.io/manual/pipeline/outputs/) for comprehensive documentation.
+Outputs send processed data to external systems.
 
-**HTTP Output Example**
-```toml
+**HTTP Output for RunReveal (Recommended)**
+```ini
 [OUTPUT]
     Name        http
     Match       *
-    URI         YOUR_WEBHOOK_URL
+    Host        api.runreveal.com
+    Port        443
+    URI         /sources/hook/YOUR_WEBHOOK_ID
     Method      POST
-    Header      Content-Type application/json
-    Header      User-Agent Fluent-Bit/1.0
     Format      json
+    tls         On
+    tls.verify  On
+    Header      Content-Type application/json
     Retry_Limit 3
+    net.connect_timeout 30
+    net.keepalive On
+    net.keepalive_idle_timeout 10
+```
+
+**File Output (Backup)**
+```ini
+[OUTPUT]
+    Name        file
+    Match       *
+    Path        /var/log/backup/
+    File        fluent-bit-backup.log
+    Format      json_lines
+```
+
+**Forward Output (To Another Fluent Bit)**
+```ini
+[OUTPUT]
+    Name        forward
+    Match       *
+    Host        192.168.1.100
+    Port        24224
     tls         On
     tls.verify  On
 ```
 
-Sends logs to RunReveal via HTTP POST requests with proper JSON formatting and TLS security.
-
-**Batch Configuration Example**
-```toml
+**Standard Output (Debug)**
+```ini
 [OUTPUT]
-    Name        http
-    Match       *
-    URI         YOUR_WEBHOOK_URL
-    Method      POST
-    Format      json
-    Batch_Size  1000
-    Batch_Wait  5s
-    Retry_Limit 3
+    Name   stdout
+    Match  *
+    Format json_lines
 ```
 
-Configures batch processing for optimal throughput and reduced network overhead.
+  </Tabs.Tab>
+  <Tabs.Tab>
 
-**Multiple Outputs Example**
-```toml
-[OUTPUT]
-    Name        http
-    Match       security.*
-    URI         YOUR_WEBHOOK_URL
-    Format      json
-    Tag         security-events
+### Parsers
 
-[OUTPUT]
-    Name        http
-    Match       application.*
-    URI         YOUR_WEBHOOK_URL
+Parsers structure your log data for better analysis.
+
+**JSON Parser**
+```ini
+[PARSER]
+    Name        json
     Format      json
-    Tag         app-events
+    Time_Key    timestamp
+    Time_Format %Y-%m-%dT%H:%M:%S%z
+    Time_Keep   On
 ```
 
-Routes different types of logs to separate endpoints for specialized processing.
+**Regex Parser**
+```ini
+[PARSER]
+    Name        apache
+    Format      regex
+    Regex       ^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^ ]*) +\S*)?" (?<code>[^ ]*) (?<size>[^ ]*)
+    Time_Key    time
+    Time_Format %d/%b/%Y:%H:%M:%S %z
+```
+
+**Docker Parser**
+```ini
+[PARSER]
+    Name        docker
+    Format      json
+    Time_Key    time
+    Time_Format %Y-%m-%dT%H:%M:%S.%LZ
+    Time_Keep   On
+```
+
+**Syslog Parser**
+```ini
+[PARSER]
+    Name        syslog
+    Format      regex
+    Regex       ^\<(?<pri>[0-9]+)\>(?<time>[^ ]* {1,2}[^ ]* [^ ]*) (?<host>[^ ]*) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?(?:[^\:]*\:)? *(?<message>.*)$
+    Time_Key    time
+    Time_Format %b %d %H:%M:%S
+```
+
+**Custom Application Parser**
+```ini
+[PARSER]
+    Name        app_log
+    Format      regex
+    Regex       ^\[(?<timestamp>[^\]]+)\] (?<level>\w+): (?<message>.*)
+    Time_Key    timestamp
+    Time_Format %Y-%m-%d %H:%M:%S
+```
 
   </Tabs.Tab>
 </Tabs>
@@ -375,63 +730,121 @@ Routes different types of logs to separate endpoints for specialized processing.
 
 ## Next Steps
 
-Now that you have Fluent Bit configured and logs flowing to RunReveal, explore the detailed configuration guides:
+Now that you have Fluent Bit configured and logs flowing to RunReveal, explore these guides:
 
-- **[Detections](/detections)** - Create and manage security detection rules
+- **[Detections](/detections)** - Create security detection rules for your Fluent Bit logs
 - **[Sigma Streaming](/detections/sigma-streaming)** - Use Sigma rules for standardized threat detection
-- **[Detection as Code](/detections/detection-as-code)** - Manage detections through code and version control
-- **[Notifications](/notifications)** - Set up alerting and notification channels
+- **[Detection as Code](/detections/detection-as-code)** - Manage detections through version control
 - **[AI Chat](/ai-chat)** - Use AI-powered analysis for threat hunting and investigation
-- **[Enrichments](/enrichments)** - Add context and metadata to your security events
-- **[Filters](/filtering)** - Create custom filters to focus on specific security events
+- **[Notifications](/notifications)** - Set up alerting for critical security events
+- **[Enrichments](/enrichments)** - Add context and metadata to your events
 
 ---
 
 ## Troubleshooting
 
-### Fluent Bit won't start
+### Fluent Bit Won't Start
 
-Check the configuration syntax and file permissions. Run `fluent-bit -c fluent-bit.conf --dry-run` to validate your configuration.
+1. **Check Configuration Syntax**
+   ```bash
+   fluent-bit -c fluent-bit.conf --dry-run
+   ```
 
-### No logs being sent
+2. **Verify File Permissions**
+   ```bash
+   # Check log file permissions
+   ls -la test-logs/
+   
+   # Ensure Fluent Bit can read files
+   chmod 644 test-logs/*.log
+   ```
 
-Verify the log file paths exist and are readable. Check that Fluent Bit has read access to your log files.
+3. **Review Fluent Bit Logs**
+   ```bash
+   fluent-bit -c fluent-bit.conf -vv
+   ```
 
-### Webhook errors
+### Logs Not Reaching RunReveal
 
-Check that your webhook URL is correct and accessible. Verify network connectivity to RunReveal's API endpoints.
+1. **Test Webhook Manually**
+   ```bash
+   curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
+     -H "Content-Type: application/json" \
+     -d '{"test": "message", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}'
+   ```
 
-### Permission issues
+2. **Check Network Connectivity**
+   ```bash
+   # Test DNS resolution
+   nslookup api.runreveal.com
+   
+   # Test HTTPS connectivity
+   curl -I https://api.runreveal.com
+   ```
 
-Ensure Fluent Bit has read access to your log files and write access to its working directory.
+3. **Validate Configuration**
+   ```bash
+   # Check if files are being read
+   fluent-bit -c fluent-bit.conf -vv | grep -i "tail"
+   
+   # Monitor HTTP output
+   fluent-bit -c fluent-bit.conf -vv | grep -i "http"
+   ```
 
-### Debug commands
+### High Resource Usage
 
-```bash
-# Check Fluent Bit status
-sudo systemctl status fluent-bit
+1. **Optimize Buffer Settings**
+   ```ini
+   [INPUT]
+       Mem_Buf_Limit     5MB    # Reduce if using too much memory
+       Refresh_Interval  10     # Increase to reduce CPU usage
+   ```
 
-# View Fluent Bit logs
-sudo journalctl -u fluent-bit -f
+2. **Add Rate Limiting**
+   ```ini
+   [FILTER]
+       Name        throttle
+       Match       *
+       Rate        1000    # Max 1000 records per second
+       Window      5       # Time window in seconds
+       Interval    1m      # Print stats every minute
+   ```
 
-# Test webhook connectivity
-curl -v YOUR_WEBHOOK_URL
+3. **Monitor Resources**
+   ```bash
+   # Monitor Fluent Bit process
+   top -p $(pgrep fluent-bit)
+   
+   # Check memory usage
+   ps aux | grep fluent-bit
+   ```
 
-# Test configuration syntax
-fluent-bit -c fluent-bit.conf --dry-run
+### Data Format Issues
 
-# Run Fluent Bit in debug mode
-fluent-bit -c fluent-bit.conf -v
-```
+1. **Test JSON Parsing**
+   ```bash
+   # Validate JSON in your log files
+   cat test-logs/app.log | python -m json.tool
+   ```
 
----
+2. **Check Parser Configuration**
+   ```bash
+   # Test with simple input first
+   echo '{"test": "message"}' | fluent-bit -c fluent-bit.conf
+   ```
+
+3. **Debug Output Format**
+   ```ini
+   # Add stdout output for debugging
+   [OUTPUT]
+       Name   stdout
+       Match  *
+       Format json_lines
+   ```
 
 ## Resources
 
 - [Fluent Bit Official Documentation](https://docs.fluentbit.io/)
-- [Fluent Bit Configuration Reference](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/)
-- [Fluent Bit Input Plugins](https://docs.fluentbit.io/manual/pipeline/inputs/)
-- [Fluent Bit Filter Plugins](https://docs.fluentbit.io/manual/pipeline/filters/)
-- [Fluent Bit Output Plugins](https://docs.fluentbit.io/manual/pipeline/outputs/)
-- [Fluent Bit GitHub Repository](https://github.com/fluent/fluent-bit)
-- [Fluent Bit Community](https://fluentbit.io/community/) 
+- [Fluent Bit Configuration Examples](https://github.com/fluent/fluent-bit/tree/master/conf)
+- [RunReveal Sources Documentation](/sources)
+- [RunReveal Detection Guide](/detections)
