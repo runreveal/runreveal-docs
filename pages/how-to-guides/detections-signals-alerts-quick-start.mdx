@@ -5,7 +5,7 @@ description: 'Step-by-step guide for sending logs, creating detections, alerts, 
 
 import { Callout, Tabs, Steps } from 'nextra/components'
 
-# Detections, Signals, and Alerts Quick Start Guide
+# Quick Start Guide: Detections, Signals, and Alerts 
 
 This guide walks you through RunReveal's detection system using hands-on examples. We will go over adding a webhook to send test logs to via curl to test detections and see how **Detections**, **Signals**, and **Alerts** work together.
 
@@ -19,13 +19,11 @@ This guide walks you through RunReveal's detection system using hands-on example
 | **Notifications** | None | None | Email, Slack, PagerDuty, etc. |
 | **Use Case** | Security policy enforcement | Threat hunting and analysis | Incident response workflows |
 
----
-
 ## Getting Started
 
 This guide walks you through the complete workflow for setting up detections, signals, and alerts in RunReveal:
 
-1. **Create Webhook Source** - Set up a data source to receive test events
+1. **Create Webhook Source** - Set up a data source to receive test events (Either a Structured Webhook or Generic Webhook Source in UI)
 2. **Send Test Data** - Generate sample security events for testing
 3. **Create Detection Rule** - Build a SQL-based detection that analyzes your data
 4. **Trigger and Review** - Manually run the detection and check results
@@ -33,28 +31,27 @@ This guide walks you through the complete workflow for setting up detections, si
 
 <Steps>
 
-### Step 1: Create Webhook Source
+### **Step 1: Create Webhook Source**
 
 First, create a webhook source in RunReveal to receive test data:
 
-**In RunReveal UI:**
+#### **In RunReveal UI:**
 1. Navigate to **Sources** in the left sidebar
 2. Click **Connect a new source**
 3. Select **Webhook** from the source types
 4. Configure the webhook:
    - **Name**: `test-webhook-source`
    - **Description**: `Test webhook for detection guide`
-   - **Source Type**: Leave as default or select `structured-webhook`
 5. Click **Create** or **Save**
 6. **Copy the webhook URL** - it will look like: `https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID`
 
 ![Step 1: Create Webhook Source](/alerts-detections-signals-guide-webhook.png)
 
-### Step 2: Send Test Data
+### **Step 2: Send Test Data**
 
 Now send a test security event using your webhook URL:
 
-```bash
+```bash copy
 curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
   -H "Content-Type: application/json" \
   -d '{
@@ -74,9 +71,9 @@ curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 
   }'
 ```
 
-**Verify ingestion to logs table:**
+#### **Verify ingestion to logs table:**
 
-```sql
+```sql copy
 SELECT receivedAt, 
        sourceType,
        JSONExtractString(rawLog, 'eventName') as eventName,
@@ -92,17 +89,17 @@ LIMIT 5;
 
 ![Step 2: Send Test Data](/alerts-detections-signals-guide-1.png)
 
-### Step 3: Create a Test Detection Rule
+### **Step 3: Create a Test Detection Rule**
 
-Create a SQL detection that will trigger a singla from your test logs:
+Create a SQL detection that will trigger a signal from your test logs:
 
-**In RunReveal UI:**
+#### **In RunReveal UI:**
 1. Go to **Detections** > **Create Detection**
-2. Name: `test-suspicious-login`
-3. Type: **SQL**
-4. Query:
+2. **Name**: `test-suspicious-login`
+3. **Type**: **SQL**
+4. **Query**:
 
-```sql
+```sql copy
 SELECT 
   JSONExtractString(rawLog, 'eventName') as eventName,
   JSONExtractString(rawLog, 'user') as user,
@@ -117,27 +114,26 @@ WHERE sourceType = 'structured-webhook'
   AND receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
 ```
 
-5. Schedule: `*/5 * * * *` (every 5 minutes)
-6. Severity: **Medium**
-7. Categories: `["authentication", "test"]`
+5. **Schedule**: `*/5 * * * *` (every 5 minutes)
+6. **Severity**: **Medium**
+7. **Categories**: `["authentication", "test"]`
 8. **Save** (Signal will be generated as a notification channel was not configured)
 
 ![Step 3: Create a Test Detection Rule](/alerts-detections-signals-guide-2.png)
 
-### Step 4: Trigger and Review Detection
+### **Step 4: Trigger and Review Detection**
 
 1. Manually run the detection to test it immediately:
 
-**In RunReveal UI:**
+#### **In RunReveal UI:**
 1. Navigate to **Detections** 
 2. Find your `test-suspicious-login` detection
 3. Click **Run Detection** to execute it manually
 4. Wait a few seconds for execution to complete which will generate a signal
 
+#### **Check signals view:**
 
-**Check signals view:**
-
-```sql
+```sql copy
 SELECT detectionName,
        severity,
        recordsReturned,
@@ -151,21 +147,21 @@ LIMIT 5;
 
 ![Step 4: Trigger and Review Detection](/alerts-detections-signals-guide-4.png)
 
-### Step 5: Compare Signal vs Alert
+### **Step 5: Compare Signal vs Alert**
 
 Now convert your detection to an alert:
 
-**Add notification channel:**
+#### **Add notification channel:**
 1. First, add a **[Notification Channel](/notifications/getting-started)** (email, Slack, etc.) in RunReveal UI
 
-**Edit detection:**
+#### **Edit detection:**
 1. Edit `test-suspicious-login` detection
 2. Attach the notification channel to the detection
-3. Save changes
+3. **Save** changes
 
-Send another test event:
+#### **Send another test event:**
 
-```bash
+```bash copy
 curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
   -H "Content-Type: application/json" \
   -d '{
@@ -180,9 +176,9 @@ curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 
   }'
 ```
 
-Wait 5 minutes, then compare the signal results:
+#### **Wait 5 minutes, then compare the signal results:**
 
-```sql
+```sql copy
 -- View signals for the detection
 SELECT detectionName,
        severity,
@@ -198,8 +194,8 @@ LIMIT 5;
 
 ![SQL Signal Query](/alerts-detections-signals-guide-sql-signal.png)
 
-To the alerts results:
-```sql
+#### **To the alerts results:**
+```sql copy
 -- View alerts for the detection
 SELECT detectionName,
        severity,
@@ -216,7 +212,7 @@ LIMIT 5;
 
 ![SQL Alert Query](/alerts-detections-signals-guide-sql-alert.png)
 
-**Compare in RunReveal UI:**
+#### **Compare in RunReveal UI:**
 1. Navigate to the **[Alerts page](https://app.runreveal.com/dash/alerts)** in RunReveal UI
 2. Use the dropdown filter to switch between **All**, **Alerts**, and **Signals**
 3. Compare the results:
@@ -225,7 +221,6 @@ LIMIT 5;
    - **All**: Shows both signals and alerts together
 
 ![Step 5: Compare Signal vs Alert UI](/alerts-detections-signals-guide-6.png)
-
 
 </Steps>
 
