@@ -9,13 +9,13 @@ import { Callout, Tabs, Steps } from 'nextra/components'
 
 This guide walks you through RunReveal's detection system using hands-on examples. We will go over adding a webhook to send test logs to via curl to test detections and see how **Detections**, **Signals**, and **Alerts** work together.
 
-**Detections** are all detection rule results stored in the detections table. **Signals** are detection results without notifications (for analysis/tuning). **Alerts** are detection results that trigger notifications.
+**Detections**, **Signals**, and **Alerts** are all classified as detection results and are part of the Detections table. **Signals** are detection results without notifications (for analysis/tuning). **Alerts** are detection results that trigger notifications.
 
 |  | Detections | Signals | Alerts |
 |--------|------------|---------|--------|
 | **What it is** | Automated rules that analyze logs | Detection results without notifications | Detection results with notifications |
 | **Purpose** | Continuous monitoring and analysis | Pattern recognition and tuning | Immediate awareness and response |
-| **Storage** | `detections` table | `signals` table | `alerts` table |
+| **Filtering** | `detections` table | `signals` table | `alerts` table |
 | **Notifications** | None | None | Email, Slack, PagerDuty, etc. |
 | **Use Case** | Security policy enforcement | Threat hunting and analysis | Incident response workflows |
 
