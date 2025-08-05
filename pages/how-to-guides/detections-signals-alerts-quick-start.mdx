@@ -1,0 +1,254 @@
+---
+title: 'Quick Start: Detections, Signals, and Alerts'
+description: 'Step-by-step guide for sending logs, creating detections, alerts, and signals'
+---
+
+import { Callout, Tabs, Steps } from 'nextra/components'
+
+# Detections, Signals, and Alerts Quick Start Guide
+
+This guide walks you through RunReveal's detection system using hands-on examples. We will go over adding a webhook to send test logs to via curl to test detections and see how **Detections**, **Signals**, and **Alerts** work together.
+
+**Detections** are all detection rule results stored in the detections table. **Signals** are detection results without notifications (for analysis/tuning). **Alerts** are detection results that trigger notifications.
+
+|  | Detections | Signals | Alerts |
+|--------|------------|---------|--------|
+| **What it is** | Automated rules that analyze logs | Detection results without notifications | Detection results with notifications |
+| **Purpose** | Continuous monitoring and analysis | Pattern recognition and tuning | Immediate awareness and response |
+| **Storage** | `detections` table | `signals` table | `alerts` table |
+| **Notifications** | None | None | Email, Slack, PagerDuty, etc. |
+| **Use Case** | Security policy enforcement | Threat hunting and analysis | Incident response workflows |
+
+---
+
+## Getting Started
+
+This guide walks you through the complete workflow for setting up detections, signals, and alerts in RunReveal:
+
+1. **Create Webhook Source** - Set up a data source to receive test events
+2. **Send Test Data** - Generate sample security events for testing
+3. **Create Detection Rule** - Build a SQL-based detection that analyzes your data
+4. **Trigger and Review** - Manually run the detection and check results
+5. **Compare Signal vs Alert** - Convert to alerts and see the difference
+
+<Steps>
+
+### Step 1: Create Webhook Source
+
+First, create a webhook source in RunReveal to receive test data:
+
+**In RunReveal UI:**
+1. Navigate to **Sources** in the left sidebar
+2. Click **Connect a new source**
+3. Select **Webhook** from the source types
+4. Configure the webhook:
+   - **Name**: `test-webhook-source`
+   - **Description**: `Test webhook for detection guide`
+   - **Source Type**: Leave as default or select `structured-webhook`
+5. Click **Create** or **Save**
+6. **Copy the webhook URL** - it will look like: `https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID`
+
+![Step 1: Create Webhook Source](/alerts-detections-signals-guide-webhook.png)
+
+### Step 2: Send Test Data
+
+Now send a test security event using your webhook URL:
+
+```bash
+curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+    "source": "test-system",
+    "eventName": "suspicious_login",
+    "severity": "high",
+    "user": "test-user",
+    "srcIP": "192.168.1.100",
+    "action": "login_attempt",
+    "result": "success",
+    "user_agent": "curl-test",
+    "metadata": {
+      "login_method": "ssh",
+      "session_id": "test-123"
+    }
+  }'
+```
+
+**Verify ingestion to logs table:**
+
+```sql
+SELECT receivedAt, 
+       sourceType,
+       JSONExtractString(rawLog, 'eventName') as eventName,
+       JSONExtractString(rawLog, 'user') as user,
+       JSONExtractString(rawLog, 'srcIP') as srcIP,
+       rawLog
+FROM logs 
+WHERE sourceType = 'structured-webhook'
+  AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
+ORDER BY receivedAt DESC 
+LIMIT 5;
+```
+
+![Step 2: Send Test Data](/alerts-detections-signals-guide-1.png)
+
+### Step 3: Create a Test Detection Rule
+
+Create a SQL detection that will trigger a singla from your test logs:
+
+**In RunReveal UI:**
+1. Go to **Detections** > **Create Detection**
+2. Name: `test-suspicious-login`
+3. Type: **SQL**
+4. Query:
+
+```sql
+SELECT 
+  JSONExtractString(rawLog, 'eventName') as eventName,
+  JSONExtractString(rawLog, 'user') as user,
+  JSONExtractString(rawLog, 'srcIP') as srcIP,
+  JSONExtractString(rawLog, 'user_agent') as user_agent,
+  JSONExtractString(rawLog, 'severity') as severity,
+  receivedAt
+FROM logs 
+WHERE sourceType = 'structured-webhook'
+  AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
+  AND JSONExtractString(rawLog, 'srcIP') = '192.168.1.100'
+  AND receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+```
+
+5. Schedule: `*/5 * * * *` (every 5 minutes)
+6. Severity: **Medium**
+7. Categories: `["authentication", "test"]`
+8. **Save** (Signal will be generated as a notification channel was not configured)
+
+![Step 3: Create a Test Detection Rule](/alerts-detections-signals-guide-2.png)
+
+### Step 4: Trigger and Review Detection
+
+1. Manually run the detection to test it immediately:
+
+**In RunReveal UI:**
+1. Navigate to **Detections** 
+2. Find your `test-suspicious-login` detection
+3. Click **Run Detection** to execute it manually
+4. Wait a few seconds for execution to complete which will generate a signal
+
+
+**Check signals view:**
+
+```sql
+SELECT detectionName,
+       severity,
+       recordsReturned,
+       categories,
+       receivedAt
+FROM signals
+WHERE detectionName = 'test-suspicious-login'
+ORDER BY receivedAt DESC
+LIMIT 5;
+```
+
+![Step 4: Trigger and Review Detection](/alerts-detections-signals-guide-4.png)
+
+### Step 5: Compare Signal vs Alert
+
+Now convert your detection to an alert:
+
+**Add notification channel:**
+1. First, add a **[Notification Channel](/notifications/getting-started)** (email, Slack, etc.) in RunReveal UI
+
+**Edit detection:**
+1. Edit `test-suspicious-login` detection
+2. Attach the notification channel to the detection
+3. Save changes
+
+Send another test event:
+
+```bash
+curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+    "source": "test-system", 
+    "eventName": "suspicious_login",
+    "severity": "high",
+    "user": "test-user-2",
+    "srcIP": "192.168.1.100",
+    "action": "login_attempt",
+    "result": "success"
+  }'
+```
+
+Wait 5 minutes, then compare the signal results:
+
+```sql
+-- View signals for the detection
+SELECT detectionName,
+       severity,
+       recordsReturned,
+       categories,
+       receivedAt,
+       results as raw_results
+FROM signals 
+WHERE detectionName = 'test-suspicious-login'
+ORDER BY receivedAt DESC
+LIMIT 5;
+```
+
+![SQL Signal Query](/alerts-detections-signals-guide-sql-signal.png)
+
+To the alerts results:
+```sql
+-- View alerts for the detection
+SELECT detectionName,
+       severity,
+       recordsReturned, 
+       id,
+       receivedAt,
+       -- Extract user from results (simplified)
+       results as raw_results
+FROM alerts
+WHERE detectionName = 'test-suspicious-login'
+ORDER BY receivedAt DESC
+LIMIT 5;
+```
+
+![SQL Alert Query](/alerts-detections-signals-guide-sql-alert.png)
+
+**Compare in RunReveal UI:**
+1. Navigate to the **[Alerts page](https://app.runreveal.com/dash/alerts)** in RunReveal UI
+2. Use the dropdown filter to switch between **All**, **Alerts**, and **Signals**
+3. Compare the results:
+   - **Signals**: Shows detection results without notifications
+   - **Alerts**: Shows detection results that triggered notifications
+   - **All**: Shows both signals and alerts together
+
+![Step 5: Compare Signal vs Alert UI](/alerts-detections-signals-guide-6.png)
+
+
+</Steps>
+
+---
+
+## Suggested Workflow
+
+1. **Start with Signals** → Validate detection logic without noise
+2. **Tune the rule** → Adjust query logic and thresholds  
+3. **Convert to Alert** → Add notifications when ready for production
+4. **Monitor performance** → Track execution times and match rates
+
+---
+
+## Next Steps
+
+Now that you have detections, signals, and alerts set up, explore the detailed configuration guides:
+
+- **[Detections](/detections)** - Create and manage security detection rules
+- **[Sigma Streaming](/detections/sigma-streaming)** - Use Sigma rules for standardized threat detection
+- **[Detection as Code](/detections/detection-as-code)** - Manage detections through code and version control
+- **[Sources](/sources)** - Set up data collection from your systems
+- **[Pipelines](/pipelines)** - Configure data processing workflows
+- **[Notifications Getting Started](/notifications/getting-started)** - Set up alerting and notification channels
+- **[AI Chat](/ai-chat)** - Use AI-powered analysis for threat hunting and investigation
+- **[Enrichments](/enrichments)** - Add context and metadata to your security events
