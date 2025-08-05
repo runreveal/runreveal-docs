@@ -31,11 +31,11 @@ This guide walks you through the complete workflow for setting up detections, si
 
 <Steps>
 
-### **Step 1: Create Webhook Source**
+### Step 1: Create Webhook Source
 
 First, create a webhook source in RunReveal to receive test data:
 
-#### **In RunReveal UI:**
+#### In RunReveal UI:
 1. Navigate to **Sources** in the left sidebar
 2. Click **Connect a new source**
 3. Select **Webhook** from the source types
@@ -47,7 +47,7 @@ First, create a webhook source in RunReveal to receive test data:
 
 ![Step 1: Create Webhook Source](/alerts-detections-signals-guide-webhook.png)
 
-### **Step 2: Send Test Data**
+### Step 2: Send Test Data
 
 Now send a test security event using your webhook URL:
 
@@ -71,7 +71,7 @@ curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 
   }'
 ```
 
-#### **Verify ingestion to logs table:**
+#### Verify ingestion to logs table:
 
 ```sql copy
 SELECT receivedAt, 
@@ -89,11 +89,11 @@ LIMIT 5;
 
 ![Step 2: Send Test Data](/alerts-detections-signals-guide-1.png)
 
-### **Step 3: Create a Test Detection Rule**
+### Step 3: Create a Test Detection Rule
 
 Create a SQL detection that will trigger a signal from your test logs:
 
-#### **In RunReveal UI:**
+#### In RunReveal UI:
 1. Go to **Detections** > **Create Detection**
 2. **Name**: `test-suspicious-login`
 3. **Type**: **SQL**
@@ -121,17 +121,17 @@ WHERE sourceType = 'structured-webhook'
 
 ![Step 3: Create a Test Detection Rule](/alerts-detections-signals-guide-2.png)
 
-### **Step 4: Trigger and Review Detection**
+### Step 4: Trigger and Review Detection
 
 1. Manually run the detection to test it immediately:
 
-#### **In RunReveal UI:**
+#### In RunReveal UI:
 1. Navigate to **Detections** 
 2. Find your `test-suspicious-login` detection
 3. Click **Run Detection** to execute it manually
 4. Wait a few seconds for execution to complete which will generate a signal
 
-#### **Check signals view:**
+#### Check signals view:
 
 ```sql copy
 SELECT detectionName,
@@ -147,19 +147,19 @@ LIMIT 5;
 
 ![Step 4: Trigger and Review Detection](/alerts-detections-signals-guide-4.png)
 
-### **Step 5: Compare Signal vs Alert**
+### Step 5: Compare Signal vs Alert
 
 Now convert your detection to an alert:
 
-#### **Add notification channel:**
+#### Add notification channel:
 1. First, add a **[Notification Channel](/notifications/getting-started)** (email, Slack, etc.) in RunReveal UI
 
-#### **Edit detection:**
+#### Edit detection:
 1. Edit `test-suspicious-login` detection
 2. Attach the notification channel to the detection
 3. **Save** changes
 
-#### **Send another test event:**
+#### Send another test event:
 
 ```bash copy
 curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
@@ -176,7 +176,7 @@ curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 
   }'
 ```
 
-#### **Wait 5 minutes, then compare the signal results:**
+#### Wait 5 minutes, then compare the signal results:
 
 ```sql copy
 -- View signals for the detection
@@ -194,7 +194,7 @@ LIMIT 5;
 
 ![SQL Signal Query](/alerts-detections-signals-guide-sql-signal.png)
 
-#### **To the alerts results:**
+#### To the alerts results:
 ```sql copy
 -- View alerts for the detection
 SELECT detectionName,
@@ -212,7 +212,7 @@ LIMIT 5;
 
 ![SQL Alert Query](/alerts-detections-signals-guide-sql-alert.png)
 
-#### **Compare in RunReveal UI:**
+#### Compare in RunReveal UI:
 1. Navigate to the **[Alerts page](https://app.runreveal.com/dash/alerts)** in RunReveal UI
 2. Use the dropdown filter to switch between **All**, **Alerts**, and **Signals**
 3. Compare the results:
