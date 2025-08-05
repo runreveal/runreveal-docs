@@ -31,196 +31,189 @@ This guide walks you through the complete workflow for setting up detections, si
 
 <Steps>
 
-### Step 1: Create Webhook Source
+### **Step 1: Create Webhook Source**
 
 First, create a webhook source in RunReveal to receive test data:
 
-#### In RunReveal UI:
-1. Navigate to **Sources** in the left sidebar
-2. Click **Connect a new source**
-3. Select **Webhook** from the source types
-4. Configure the webhook:
-   - **Name**: `test-webhook-source`
-   - **Description**: `Test webhook for detection guide`
-5. Click **Create** or **Save**
-6. **Copy the webhook URL** - it will look like: `https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID`
+1. **In RunReveal UI:**
+   - Navigate to **Sources** in the left sidebar
+   - Click **Connect a new source**
+   - Select **Webhook** from the source types
+   - Configure the webhook:
+     - **Name**: `test-webhook-source`
+     - **Description**: `Test webhook for detection guide`
+   - Click **Create** or **Save**
+   - **Copy the webhook URL** - it will look like: `https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID`
 
 ![Step 1: Create Webhook Source](/alerts-detections-signals-guide-webhook.png)
 
-### Step 2: Send Test Data
+### **Step 2: Send Test Data**
 
 Now send a test security event using your webhook URL:
 
-```bash copy
-curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
-    "source": "test-system",
-    "eventName": "suspicious_login",
-    "severity": "high",
-    "user": "test-user",
-    "srcIP": "192.168.1.100",
-    "action": "login_attempt",
-    "result": "success",
-    "user_agent": "curl-test",
-    "metadata": {
-      "login_method": "ssh",
-      "session_id": "test-123"
-    }
-  }'
-```
+1. **Test Event:**
+   ```bash copy
+   curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
+     -H "Content-Type: application/json" \
+     -d '{
+       "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+       "source": "test-system",
+       "eventName": "suspicious_login",
+       "severity": "high",
+       "user": "test-user",
+       "srcIP": "192.168.1.100",
+       "action": "login_attempt",
+       "result": "success",
+       "user_agent": "curl-test",
+       "metadata": {
+         "login_method": "ssh",
+         "session_id": "test-123"
+       }
+     }'
+   ```
 
-#### Verify ingestion to logs table:
+2. **Verify ingestion to logs table:**
+   ```sql copy
+   SELECT receivedAt, 
+          sourceType,
+          JSONExtractString(rawLog, 'eventName') as eventName,
+          JSONExtractString(rawLog, 'user') as user,
+          JSONExtractString(rawLog, 'srcIP') as srcIP,
+          rawLog
+   FROM logs 
+   WHERE sourceType = 'structured-webhook'
+     AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
+   ORDER BY receivedAt DESC 
+   LIMIT 5;
+   ```
 
-```sql copy
-SELECT receivedAt, 
-       sourceType,
-       JSONExtractString(rawLog, 'eventName') as eventName,
-       JSONExtractString(rawLog, 'user') as user,
-       JSONExtractString(rawLog, 'srcIP') as srcIP,
-       rawLog
-FROM logs 
-WHERE sourceType = 'structured-webhook'
-  AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
-ORDER BY receivedAt DESC 
-LIMIT 5;
-```
+   ![Step 2: Send Test Data](/alerts-detections-signals-guide-1.png)
 
-![Step 2: Send Test Data](/alerts-detections-signals-guide-1.png)
-
-### Step 3: Create a Test Detection Rule
+### **Step 3: Create a Test Detection Rule**
 
 Create a SQL detection that will trigger a signal from your test logs:
 
-#### In RunReveal UI:
-1. Go to **Detections** > **Create Detection**
-2. **Name**: `test-suspicious-login`
-3. **Type**: **SQL**
-4. **Query**:
+1. **In RunReveal UI:**
+   - Go to **Detections** > **Create Detection**
+   - **Name**: `test-suspicious-login`
+   - **Type**: **SQL**
+   - **Query**:
+   ```sql copy
+   SELECT 
+     JSONExtractString(rawLog, 'eventName') as eventName,
+     JSONExtractString(rawLog, 'user') as user,
+     JSONExtractString(rawLog, 'srcIP') as srcIP,
+     JSONExtractString(rawLog, 'user_agent') as user_agent,
+     JSONExtractString(rawLog, 'severity') as severity,
+     receivedAt
+   FROM logs 
+   WHERE sourceType = 'structured-webhook'
+     AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
+     AND JSONExtractString(rawLog, 'srcIP') = '192.168.1.100'
+     AND receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+   ```
+   - **Schedule**: `*/5 * * * *` (every 5 minutes)
+   - **Severity**: **Medium**
+   - **Categories**: `["authentication", "test"]`
+   - **Save** (Signal will be generated as a notification channel was not configured)
 
-```sql copy
-SELECT 
-  JSONExtractString(rawLog, 'eventName') as eventName,
-  JSONExtractString(rawLog, 'user') as user,
-  JSONExtractString(rawLog, 'srcIP') as srcIP,
-  JSONExtractString(rawLog, 'user_agent') as user_agent,
-  JSONExtractString(rawLog, 'severity') as severity,
-  receivedAt
-FROM logs 
-WHERE sourceType = 'structured-webhook'
-  AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
-  AND JSONExtractString(rawLog, 'srcIP') = '192.168.1.100'
-  AND receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
-```
+   ![Step 3: Create a Test Detection Rule](/alerts-detections-signals-guide-2.png)
 
-5. **Schedule**: `*/5 * * * *` (every 5 minutes)
-6. **Severity**: **Medium**
-7. **Categories**: `["authentication", "test"]`
-8. **Save** (Signal will be generated as a notification channel was not configured)
+### **Step 4: Trigger and Review Detection**
 
-![Step 3: Create a Test Detection Rule](/alerts-detections-signals-guide-2.png)
+1. **Manual Execution:**
+   - Navigate to **Detections** 
+   - Find your `test-suspicious-login` detection
+   - Click **Run Detection** to execute it manually
+   - Wait a few seconds for execution to complete which will generate a signal
 
-### Step 4: Trigger and Review Detection
+2. **Check signals view:**
+   ```sql copy
+   SELECT detectionName,
+          severity,
+          recordsReturned,
+          categories,
+          receivedAt
+   FROM signals
+   WHERE detectionName = 'test-suspicious-login'
+   ORDER BY receivedAt DESC
+   LIMIT 5;
+   ```
 
-1. Manually run the detection to test it immediately:
+   ![Step 4: Trigger and Review Detection](/alerts-detections-signals-guide-4.png)
 
-#### In RunReveal UI:
-1. Navigate to **Detections** 
-2. Find your `test-suspicious-login` detection
-3. Click **Run Detection** to execute it manually
-4. Wait a few seconds for execution to complete which will generate a signal
-
-#### Check signals view:
-
-```sql copy
-SELECT detectionName,
-       severity,
-       recordsReturned,
-       categories,
-       receivedAt
-FROM signals
-WHERE detectionName = 'test-suspicious-login'
-ORDER BY receivedAt DESC
-LIMIT 5;
-```
-
-![Step 4: Trigger and Review Detection](/alerts-detections-signals-guide-4.png)
-
-### Step 5: Compare Signal vs Alert
+### **Step 5: Compare Signal vs Alert**
 
 Now convert your detection to an alert:
 
-#### Add notification channel:
-1. First, add a **[Notification Channel](/notifications/getting-started)** (email, Slack, etc.) in RunReveal UI
+1. **Add notification channel:**
+   - First, add a **[Notification Channel](/notifications/getting-started)** (email, Slack, etc.) in RunReveal UI
 
-#### Edit detection:
-1. Edit `test-suspicious-login` detection
-2. Attach the notification channel to the detection
-3. **Save** changes
+2. **Edit detection:**
+   - Edit `test-suspicious-login` detection
+   - Attach the notification channel to the detection
+   - **Save** changes
 
-#### Send another test event:
+3. **Send another test event:**
+   ```bash copy
+   curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
+     -H "Content-Type: application/json" \
+     -d '{
+       "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+       "source": "test-system", 
+       "eventName": "suspicious_login",
+       "severity": "high",
+       "user": "test-user-2",
+       "srcIP": "192.168.1.100",
+       "action": "login_attempt",
+       "result": "success"
+     }'
+   ```
 
-```bash copy
-curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
-    "source": "test-system", 
-    "eventName": "suspicious_login",
-    "severity": "high",
-    "user": "test-user-2",
-    "srcIP": "192.168.1.100",
-    "action": "login_attempt",
-    "result": "success"
-  }'
-```
+4. **Wait 5 minutes, then compare the signal results:**
+   ```sql copy
+   -- View signals for the detection
+   SELECT detectionName,
+          severity,
+          recordsReturned,
+          categories,
+          receivedAt,
+          results as raw_results
+   FROM signals 
+   WHERE detectionName = 'test-suspicious-login'
+   ORDER BY receivedAt DESC
+   LIMIT 5;
+   ```
 
-#### Wait 5 minutes, then compare the signal results:
+   ![SQL Signal Query](/alerts-detections-signals-guide-sql-signal.png)
 
-```sql copy
--- View signals for the detection
-SELECT detectionName,
-       severity,
-       recordsReturned,
-       categories,
-       receivedAt,
-       results as raw_results
-FROM signals 
-WHERE detectionName = 'test-suspicious-login'
-ORDER BY receivedAt DESC
-LIMIT 5;
-```
+5. **To the alerts results:**
+   ```sql copy
+   -- View alerts for the detection
+   SELECT detectionName,
+          severity,
+          recordsReturned, 
+          id,
+          receivedAt,
+          -- Extract user from results (simplified)
+          results as raw_results
+   FROM alerts
+   WHERE detectionName = 'test-suspicious-login'
+   ORDER BY receivedAt DESC
+   LIMIT 5;
+   ```
 
-![SQL Signal Query](/alerts-detections-signals-guide-sql-signal.png)
+   ![SQL Alert Query](/alerts-detections-signals-guide-sql-alert.png)
 
-#### To the alerts results:
-```sql copy
--- View alerts for the detection
-SELECT detectionName,
-       severity,
-       recordsReturned, 
-       id,
-       receivedAt,
-       -- Extract user from results (simplified)
-       results as raw_results
-FROM alerts
-WHERE detectionName = 'test-suspicious-login'
-ORDER BY receivedAt DESC
-LIMIT 5;
-```
+6. **Compare in RunReveal UI:**
+   - Navigate to the **[Alerts page](https://app.runreveal.com/dash/alerts)** in RunReveal UI
+   - Use the dropdown filter to switch between **All**, **Alerts**, and **Signals**
+   - Compare the results:
+     - **Signals**: Shows detection results without notifications
+     - **Alerts**: Shows detection results that triggered notifications
+     - **All**: Shows both signals and alerts together
 
-![SQL Alert Query](/alerts-detections-signals-guide-sql-alert.png)
-
-#### Compare in RunReveal UI:
-1. Navigate to the **[Alerts page](https://app.runreveal.com/dash/alerts)** in RunReveal UI
-2. Use the dropdown filter to switch between **All**, **Alerts**, and **Signals**
-3. Compare the results:
-   - **Signals**: Shows detection results without notifications
-   - **Alerts**: Shows detection results that triggered notifications
-   - **All**: Shows both signals and alerts together
-
-![Step 5: Compare Signal vs Alert UI](/alerts-detections-signals-guide-6.png)
+   ![Step 5: Compare Signal vs Alert UI](/alerts-detections-signals-guide-6.png)
 
 </Steps>
 
