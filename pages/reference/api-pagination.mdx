@@ -19,7 +19,7 @@ curl -H "Authorization: Basic <token>" -H "Content-Type: application/json" "http
 {"success":true,"result":[{...}],"page":{"next":"<id>"}}
 ```
 
-To retrieve the next page, use the `nextCursor` value from the previous response:
+To retrieve the next page, use the `next` value from the previous response:
 
 ```bash
 curl -H "Authorization: Basic <token>" -H "Content-Type: application/json" "https://api.runreveal.com/...?cursor=<cursor>&<other_args>"
