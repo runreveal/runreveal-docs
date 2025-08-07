@@ -2,7 +2,7 @@
 ## Install the CLI
 Install [homebrew](https://brew.sh/) for macOS, then enable our homebrew tap and install the CLI:
 
-```
+```bash copy
 brew tap runreveal/runreveal
 brew install runreveal
 ```
@@ -11,7 +11,7 @@ brew install runreveal
 
 Once RunReveal has enabled your domain on the platform, login with:
 
-```
+```bash copy
 runreveal init
 ```
 
@@ -24,13 +24,17 @@ Enter your workspace name: Example Inc.
 
 You can validate that you're logged in by running the following command
 
-```
+```bash copy
 runreveal config account
+```
 
+```bash
 👍 You're logged in!
 User ID: 2KUOdUOFyuTbPD7amU3WidyfOzf
 User Email: evan@runreveal.com
 ```
+
+**Note:** Some commands like `runreveal config account` require `runreveal init` authrorization to display results but the majority of commands can be ran with token authorization via environment variables.
 
 Now you're ready to search your logs like a pro and manage your RunReveal account from the terminal!
 
@@ -52,8 +56,28 @@ workspace.
 For customers who have deployed the RunReveal API on-prem or in a private cloud, you can set the `RUNREVEAL_BASEURL`
 environment variable to point the CLI to your RunReveal API instance.
 
-```
+**RunReveal Cloud:**
+```bash copy
 export RUNREVEAL_BASEURL=https://api.runreveal.com
+```
+
+**Custom/On-Prem Instances:**
+```bash copy
+export RUNREVEAL_BASEURL="https://api.YOUR_BASE_DOMAIN.runreveal.net"
+```
+
+### RUNREVEAL_APPBASEURL
+For customers who have deployed RunReveal on-prem or in a private cloud, you can set the `RUNREVEAL_APPBASEURL`
+environment variable to specify the URL that users are routed to when running `runreveal init` to log into their workspace.
+
+**RunReveal Cloud:**
+```bash copy
+export RUNREVEAL_APPBASEURL=https://app.runreveal.com
+```
+
+**Custom/On-Prem Instances:**
+```bash copy
+export RUNREVEAL_APPBASEURL="https://app.YOUR_BASE_DOMAIN.runreveal.net"
 ```
 
 ### RUNREVEAL_DEBUG
