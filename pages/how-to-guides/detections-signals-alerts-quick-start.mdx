@@ -119,7 +119,137 @@ Create a SQL detection that will trigger a signal from your test logs:
 
    ![Step 3: Create a Test Detection Rule](/alerts-detections-signals-guide-2.png)
 
-### **Step 4: Trigger and Review Detection**
+
+
+### **Step 4: Test Detection using CLI (optional)**
+
+Test your detection to verify it works:
+
+1. **Install and configure CLI:**
+   
+   1. **Install RunReveal CLI:**
+      ```bash copy
+      brew install runreveal/tap/runreveal
+      ```
+   
+   2. **Connect to your workspace:**
+      ```bash copy
+      runreveal init
+      ```
+      *Follow the prompts to authenticate and select your workspace*
+
+   *For complete CLI reference, see [CLI Documentation](reference/using-the-cli).*
+
+2. **For SQL detections (queries workspace data):**
+   
+   1. **Create SQL detection configuration file:**
+      
+      Create file: `test-suspicious-login.yaml`
+      ```yaml copy
+      name: test-suspicious-login
+      displayName: Test Suspicious Login Detection
+      description: Detects suspicious login attempts from specific IPs
+      type: sql
+      file: test-suspicious-login.sql
+      categories:
+        - authentication
+        - test
+      sourceTypes:
+        - structured-webhook
+      schedule: "*/5 * * * *"
+      severity: medium
+      riskScore: 50
+      ```
+   
+   2. **Create SQL query file:**
+      
+      Create file: `test-suspicious-login.sql`
+      ```sql copy
+      SELECT 
+        JSONExtractString(rawLog, 'eventName') as eventName,
+        JSONExtractString(rawLog, 'user') as user,
+        JSONExtractString(rawLog, 'srcIP') as srcIP,
+        JSONExtractString(rawLog, 'user_agent') as user_agent,
+        JSONExtractString(rawLog, 'severity') as severity,
+        receivedAt
+      FROM logs 
+      WHERE sourceType = 'structured-webhook'
+        AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
+        AND JSONExtractString(rawLog, 'srcIP') = '192.168.1.100'
+        AND receivedAt >= now() - INTERVAL 2 HOUR
+      LIMIT 10
+      ```
+   
+   3. **Test the SQL detection:**
+      ```bash copy
+      # Test against actual data in your workspace
+      runreveal detections test --file test-suspicious-login.yaml --from "now-1h" --to "now"
+      ```
+      *Note: SQL detections must query real workspace data. Make sure you've sent test events via webhook (Step 2) before running this command.*
+
+3. **For Sigma detections (tests with local samples):**
+   
+   1. **Create Sigma detection file:**
+      
+      Create file: `test-suspicious-login-sigma.yaml`
+      ```yaml copy
+      title: Test Suspicious Login
+      id: 12345678-1234-1234-1234-123456789abc
+      status: test
+      description: Detects suspicious login attempts
+      author: security-team
+      date: 2024/01/01
+      tags:
+        - authentication
+        - test
+      logsource:
+        product: custom
+        service: webhook
+      detection:
+        selection:
+          eventName: suspicious_login
+          srcIP: 192.168.1.100
+        condition: selection
+      level: medium
+      riskscore: 50
+      ```
+   
+   2. **Create sample data file:**
+      
+      Create file: `sample-events.ndjson`
+      
+      **Important:** NDJSON format requires one JSON object per line with NO commas between lines and NO array brackets.
+      
+      ```json copy
+      {"eventName": "suspicious_login", "user": "test-user", "srcIP": "192.168.1.100", "severity": "high", "timestamp": "2024-01-01T12:00:00Z"}
+      {"eventName": "suspicious_login", "user": "test-user-2", "srcIP": "192.168.1.100", "severity": "high", "timestamp": "2024-01-01T12:01:00Z"}
+      {"eventName": "normal_login", "user": "admin", "srcIP": "10.0.0.1", "severity": "low", "timestamp": "2024-01-01T12:02:00Z"}
+      ```
+   
+   3. **Test the Sigma detection:**
+      ```bash copy
+      # Test against local sample file
+      runreveal detections run --file test-suspicious-login-sigma.yaml --input sample-events.ndjson
+      ```
+      *✓ Shows which events in the sample file would trigger the detection*
+   
+   4. **Expected output for successful detection test:**
+      ```
+      line 1 matches detection Test Suspicious Login
+      line 2 matches detection Test Suspicious Login
+      line 3 does not match detection Test Suspicious Login
+      ```
+
+<Callout type="info">
+**Understanding Detection Data Flow**
+
+- **SQL Detections**: Query the raw `logs` table directly, using `JSONExtractString(rawLog, 'field')` to extract values
+- **Sigma Detections (CLI testing)**: Expect normalized/extracted fields as they would appear after processing
+
+When creating sample data for Sigma CLI testing, provide the fields as if they've already been extracted from rawLog.
+</Callout>
+
+### **Step 5: Trigger and Review Detection**
 
 1. **Manual Execution:**
    - Navigate to **Detections** 
@@ -140,9 +270,9 @@ Create a SQL detection that will trigger a signal from your test logs:
    LIMIT 5;
    ```
 
-   ![Step 4: Trigger and Review Detection](/alerts-detections-signals-guide-4.png)
+   ![Step 5: Trigger and Review Detection](/alerts-detections-signals-guide-4.png)
 
-### **Step 5: Compare Signal vs Alert**
+### **Step 6: Compare Signal vs Alert**
 
 Now convert your detection to an alert:
 
@@ -213,7 +343,7 @@ Now convert your detection to an alert:
      - **Alerts**: Shows detection results that triggered notifications
      - **All**: Shows both signals and alerts together
 
-   ![Step 5: Compare Signal vs Alert UI](/alerts-detections-signals-guide-6.png)
+   ![Step 6: Compare Signal vs Alert UI](/alerts-detections-signals-guide-6.png)
 
 </Steps>
 
