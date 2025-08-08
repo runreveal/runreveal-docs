@@ -1,8 +1,10 @@
+import { Callout } from 'nextra/components'
+
 # Using the CLI
 ## Install the CLI
 Install [homebrew](https://brew.sh/) for macOS, then enable our homebrew tap and install the CLI:
 
-```
+```bash copy
 brew tap runreveal/runreveal
 brew install runreveal
 ```
@@ -11,7 +13,7 @@ brew install runreveal
 
 Once RunReveal has enabled your domain on the platform, login with:
 
-```
+```bash copy
 runreveal init
 ```
 
@@ -24,13 +26,17 @@ Enter your workspace name: Example Inc.
 
 You can validate that you're logged in by running the following command
 
-```
+```bash copy
 runreveal config account
+```
 
+```bash
 👍 You're logged in!
 User ID: 2KUOdUOFyuTbPD7amU3WidyfOzf
 User Email: evan@runreveal.com
 ```
+
+**Note:** Some commands like `runreveal config account` require `runreveal init` authrorization to display results but the majority of commands can be ran with token authorization via environment variables.
 
 Now you're ready to search your logs like a pro and manage your RunReveal account from the terminal!
 
@@ -52,8 +58,28 @@ workspace.
 For customers who have deployed the RunReveal API on-prem or in a private cloud, you can set the `RUNREVEAL_BASEURL`
 environment variable to point the CLI to your RunReveal API instance.
 
-```
+**RunReveal Cloud:**
+```bash copy
 export RUNREVEAL_BASEURL=https://api.runreveal.com
+```
+
+**Custom/On-Prem Instances:**
+```bash copy
+export RUNREVEAL_BASEURL="https://api.YOUR_BASE_DOMAIN.runreveal.net"
+```
+
+### RUNREVEAL_APPBASEURL
+For customers who have deployed RunReveal on-prem or in a private cloud, you can set the `RUNREVEAL_APPBASEURL`
+environment variable to specify the URL that users are routed to when running `runreveal init` to log into their workspace.
+
+**RunReveal Cloud:**
+```bash copy
+export RUNREVEAL_APPBASEURL=https://app.runreveal.com
+```
+
+**Custom/On-Prem Instances:**
+```bash copy
+export RUNREVEAL_APPBASEURL="https://app.YOUR_BASE_DOMAIN.runreveal.net"
 ```
 
 ### RUNREVEAL_DEBUG
@@ -83,3 +109,1538 @@ The structure of the header file is a JSON object in this format:
     }
 }
 ```
+
+
+## RunReveal CLI Commands
+
+Complete reference for all RunReveal CLI commands and subcommands.
+- [aimodels](#aimodels) - Manage AI model configurations
+- [completion](#completion) - Generate shell autocompletion scripts  
+- [config](#config) - Manage your configuration
+- [detections](#detections) - Create and manage security detections
+- [enrichments](#enrichments) - Manage data enrichments
+- [filters](#filters) - Manage data filters
+- [init](#init) - Get started with RunReveal
+- [lint](#lint) - Lint detection files
+- [logs](#logs) - Search your logs
+- [managed-detections](#managed-detections) - Subscribe to community and premium detections
+- [managed-enrichments](#managed-enrichments) - Subscribe to community enrichments
+- [mcp](#mcp) - Model Context Protocol server
+- [notification-history](#notification-history) - View notification history
+- [notifications](#notifications) - Manage notification destinations
+- [openapi](#openapi) - Generate API specifications
+- [pipelines](#pipelines) - Manage data pipelines
+- [query](#query) - Manage saved queries
+- [sources](#sources) - Manage log sources
+- [topics](#topics) - Manage data topics
+- [transforms](#transforms) - Manage data transforms
+- [workspaces](#workspaces) - Manage workspaces and users
+
+---
+
+### aimodels
+
+Configure AI model integrations for RunReveal's AI-powered investigation features. Set up connections to OpenAI, Anthropic Claude, Google AI, and AWS Bedrock for enhanced log analysis and automated threat detection.
+
+```bash
+Usage:
+  runreveal aimodels [command]
+
+Available Commands:
+  info                   
+  update-anthropic       
+  update-bedrock         
+  update-googleai        
+  update-openai          
+  update-provider-config 
+
+Flags:
+  -h, --help   help for aimodels
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### aimodels info
+
+```bash
+Usage:
+  runreveal aimodels info [flags]
+
+Flags:
+  -h, --help   help for info
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### aimodels update-anthropic
+
+```bash
+Usage:
+  runreveal aimodels update-anthropic [flags]
+
+Flags:
+  -h, --help   help for update-anthropic
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### aimodels update-bedrock
+
+```bash
+Usage:
+  runreveal aimodels update-bedrock [flags]
+
+Flags:
+  -h, --help   help for update-bedrock
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### aimodels update-googleai
+
+```bash
+Usage:
+  runreveal aimodels update-googleai [flags]
+
+Flags:
+  -h, --help   help for update-googleai
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### aimodels update-openai
+
+```bash
+Usage:
+  runreveal aimodels update-openai [flags]
+
+Flags:
+  -h, --help   help for update-openai
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### aimodels update-provider-config
+
+```bash
+Usage:
+  runreveal aimodels update-provider-config [flags]
+
+Flags:
+  -h, --help   help for update-provider-config
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### completion
+
+Generate shell autocompletion scripts to enable tab completion for RunReveal CLI commands in bash, zsh, fish, and PowerShell environments.
+
+```bash
+Generate the autocompletion script for runreveal for the specified shell.
+See each sub-command's help for details on how to use the generated script.
+
+Usage:
+  runreveal completion [command]
+
+Available Commands:
+  bash        Generate the autocompletion script for bash
+  fish        Generate the autocompletion script for fish
+  powershell  Generate the autocompletion script for powershell
+  zsh         Generate the autocompletion script for zsh
+
+Flags:
+  -h, --help   help for completion
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### completion bash
+
+```bash
+Generate the autocompletion script for the bash shell.
+
+This script depends on the 'bash-completion' package.
+If it is not installed already, you can install it via your OS's package manager.
+
+To load completions in your current shell session:
+
+	source <(runreveal completion bash)
+
+To load completions for every new session, execute once:
+
+#### Linux:
+
+	runreveal completion bash > /etc/bash_completion.d/runreveal
+
+#### macOS:
+
+	runreveal completion bash > $(brew --prefix)/etc/bash_completion.d/runreveal
+
+You will need to start a new shell for this setup to take effect.
+
+Usage:
+  runreveal completion bash
+
+Flags:
+  -h, --help              help for bash
+      --no-descriptions   disable completion descriptions
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### completion fish
+
+```bash
+Generate the autocompletion script for the fish shell.
+
+To load completions in your current shell session:
+
+	runreveal completion fish | source
+
+To load completions for every new session, execute once:
+
+	runreveal completion fish > ~/.config/fish/completions/runreveal.fish
+
+You will need to start a new shell for this setup to take effect.
+
+Usage:
+  runreveal completion fish [flags]
+
+Flags:
+  -h, --help              help for fish
+      --no-descriptions   disable completion descriptions
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### completion powershell
+
+```bash
+Generate the autocompletion script for powershell.
+
+To load completions in your current shell session:
+
+	runreveal completion powershell | Out-String | Invoke-Expression
+
+To load completions for every new session, add the output of the above command
+to your powershell profile.
+
+Usage:
+  runreveal completion powershell [flags]
+
+Flags:
+  -h, --help              help for powershell
+      --no-descriptions   disable completion descriptions
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### completion zsh
+
+```bash
+Generate the autocompletion script for the zsh shell.
+
+If shell completion is not already enabled in your environment you will need
+to enable it.  You can execute the following once:
+
+	echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+To load completions in your current shell session:
+
+	source <(runreveal completion zsh)
+
+To load completions for every new session, execute once:
+
+#### Linux:
+
+	runreveal completion zsh > "${fpath[1]}/_runreveal"
+
+#### macOS:
+
+	runreveal completion zsh > $(brew --prefix)/share/zsh/site-functions/_runreveal
+
+You will need to start a new shell for this setup to take effect.
+
+Usage:
+  runreveal completion zsh [flags]
+
+Flags:
+  -h, --help              help for zsh
+      --no-descriptions   disable completion descriptions
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### config
+
+Manage RunReveal CLI configuration settings, view account information, and handle subscription management. Access stored credentials and display configuration for external integrations like Grafana.
+
+```bash
+Manage your config
+
+Usage:
+  runreveal config [command]
+
+Available Commands:
+  account     List information about your account
+  show        Print the configuration stored in the keychain
+  subscribe   Subscribe to runreveal
+
+Flags:
+  -h, --help   help for config
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### config account
+
+```bash
+List information about your account
+
+Usage:
+  runreveal config account [flags]
+
+Flags:
+  -h, --help   help for account
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### config show
+
+```bash
+Print the configuration stored in the keychain
+
+Usage:
+  runreveal config show [flags]
+
+Flags:
+  -g, --grafana   Print the required config options needed for Grafana setup
+  -h, --help      help for show
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### config subscribe
+
+```bash
+Subscribe to runreveal
+
+Usage:
+  runreveal config subscribe [flags]
+
+Flags:
+  -h, --help      help for subscribe
+      --no-open   Set this flag if you don't want to open a browser window automatically.
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### detections
+
+Create, test, and manage custom security detection rules using SQL or Sigma formats. Supports detections-as-code workflows with Git-style synchronization, local testing, and export capabilities.
+
+```bash
+Usage:
+  runreveal detections [command]
+
+Available Commands:
+  create      Create a new detection using the wizard.
+  export      Export all or a specified detection as a config file to the given directory
+  list        
+  run         Provided a streaming detection, run against provided log samples and get whether there would be matches.
+  set-enabled 
+  sync        List changes between detections in the given directory and detections defined in Runreveal
+  test        Given a detection config file, test the detection against the given query file using a time range provided.
+
+Flags:
+  -h, --help   help for detections
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### detections create
+
+```bash
+Create a new detection using the wizard.
+
+Usage:
+  runreveal detections create [flags]
+
+Flags:
+  -h, --help   help for create
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### detections export
+
+```bash
+Export all or a specified detection as a config file to the given directory
+
+Usage:
+  runreveal detections export [flags]
+
+Flags:
+  -d, --directory string               Directory to export detections to (default ".")
+      --flat                           Flatten the exported detection directory structure
+  -f, --format detectionConfigFormat   The format to export the detection as. allowed: "yaml", "json" (default yaml)
+  -h, --help                           help for export
+  -n, --name string                    Name of the detection to export, if not specified all detections will be exported
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### detections list
+
+```bash
+Usage:
+  runreveal detections list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### detections run
+
+```bash
+Provided a streaming detection, run against provided log samples and get whether there would be matches.
+
+Usage:
+  runreveal detections run [flags]
+
+Flags:
+      --fail-no-match   Whether the command should fail when there's no match. (default true)
+  -f, --file string     Detection config file
+  -h, --help            help for run
+  -i, --input string    Sample input file in JSON format
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### detections set-enabled
+
+```bash
+Usage:
+  runreveal detections set-enabled [flags]
+
+Flags:
+      --enabled string   (required)
+  -h, --help             help for set-enabled
+      --id string        (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### detections sync
+
+```bash
+List changes between detections in the given directory and detections defined in Runreveal
+
+Usage:
+  runreveal detections sync [flags]
+
+Flags:
+  -d, --directory string   Directory to recursively upload detections from (default ".")
+  -t, --dry-run            Don't execute changes, just print them
+  -h, --help               help for sync
+  -i, --interactive        Interactive mode, allows you to preview changes before applying them
+  -o, --overwrite          Overwrite pre-existing UI detections with the same name.
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### detections test
+
+```bash
+Given a detection config file, test the detection against the given query file using a time range provided.
+
+Usage:
+  runreveal detections test [flags]
+
+Flags:
+  -f, --file string   Detection config file
+      --from string   From time to use, if your query uses the {from:DateTime} macro (default "now-1h")
+  -h, --help          help for test
+      --to string     To time to use, if your query uses the {to:DateTime} macro (default "now")
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### enrichments
+
+Add contextual data to logs through enrichment rules. Enhance raw log data with IP geolocation, threat intelligence, asset information, and custom business context for improved analysis and alerting.
+
+```bash
+Usage:
+  runreveal enrichments [command]
+
+Available Commands:
+  create      
+  delete      
+  get         
+  list        
+  set-enabled 
+  update      
+
+Flags:
+  -h, --help   help for enrichments
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### enrichments create
+
+```bash
+Usage:
+  runreveal enrichments create [flags]
+
+Flags:
+      --description string   
+      --displayname string   
+  -h, --help                 help for create
+      --isactive             
+      --name string          (required)
+      --path string          (required)
+      --rules string         (required) (JSON format)
+      --sources strings      (required)
+      --workspaceid string   (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### enrichments delete
+
+```bash
+Usage:
+  runreveal enrichments delete [flags]
+
+Flags:
+  -h, --help        help for delete
+      --id string   (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### enrichments get
+
+```bash
+Usage:
+  runreveal enrichments get [flags]
+
+Flags:
+  -h, --help        help for get
+      --id string   ID or name of enrichment to get (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### enrichments list
+
+```bash
+Usage:
+  runreveal enrichments list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### enrichments set-enabled
+
+```bash
+Usage:
+  runreveal enrichments set-enabled [flags]
+
+Flags:
+      --enabled     (required)
+  -h, --help        help for set-enabled
+      --id string   (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### enrichments update
+
+```bash
+Usage:
+  runreveal enrichments update [flags]
+
+Flags:
+      --description string   
+      --displayname string   
+  -h, --help                 help for update
+      --id string            (required)
+      --isactive             
+      --name string          (required)
+      --path string          (required)
+      --rules string         (required) (JSON format)
+      --sources strings      (required)
+      --workspaceid string   (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### filters
+
+Manage data filtering rules to control which logs are ingested and processed. Configure filters to reduce noise, manage costs, and focus on security-relevant events.
+
+```bash
+Usage:
+  runreveal filters [command]
+
+Available Commands:
+  list        
+
+Flags:
+  -h, --help   help for filters
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### filters list
+
+```bash
+Usage:
+  runreveal filters list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### init
+
+Initialize RunReveal CLI authentication and workspace configuration. Sets up credentials, selects default workspace, and configures API endpoints for first-time users.
+
+```bash
+Get started with runreveal
+
+Usage:
+  runreveal init [flags]
+
+Flags:
+  -h, --help          help for init
+      --no-keychain   Set this flag if want to disable the keychain and save your RunReveal session to your home directory
+      --no-open       Set this flag if you don't want to open a browser window automatically.
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### lint
+
+Validate and format detection rule files for syntax errors and best practices. Supports both Sigma rule validation and SQL query formatting using ClickHouse standards.
+
+```bash
+Lint detection files
+
+Usage:
+  runreveal lint [command]
+
+Available Commands:
+  sigma       Lint Sigma detections files
+  sql         Format SQL detection files - requires clickhouse CLI installed
+
+Flags:
+  -h, --help   help for lint
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### lint sigma
+
+```bash
+Lint Sigma detections files
+
+Usage:
+  runreveal lint sigma [files or directories...] [flags]
+
+Flags:
+  -h, --help   help for sigma
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### lint sql
+
+```bash
+Format SQL detection files - requires clickhouse CLI installed
+
+Usage:
+  runreveal lint sql [files or directories...] [flags]
+
+Flags:
+  -h, --help   help for sql
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### logs
+
+Execute log searches and run saved queries against your security data. Supports multiple output formats (table, JSON, CSV) and parameterized queries for flexible analysis.
+
+```bash
+Search your logs
+
+Usage:
+  runreveal logs [flags]
+
+Flags:
+  -f, --format string          Prints the results to standard out in the supplied format [csv, json, table] (default "table")
+  -h, --help                   help for logs
+      --name string            The name of a previously saved query.
+  -p, --param stringToString   Named query parameter mappings, -p key=value (default [])
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### managed-detections
+
+Subscribe to community-maintained and premium detection rules from RunReveal's detection library. Access curated threat detection content without writing custom rules.
+
+```bash
+Usage:
+  runreveal managed-detections [command]
+
+Available Commands:
+  clone                    
+  get                      
+  get-subscription         
+  list                     
+  list-subscriptions       
+  subscribe                
+  subscription-set-enabled 
+  unsubscribe              
+  update-subscription      
+
+Flags:
+  -h, --help   help for managed-detections
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-detections clone
+
+```bash
+Usage:
+  runreveal managed-detections clone [flags]
+
+Flags:
+  -h, --help        help for clone
+      --id string   (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-detections get
+
+```bash
+Usage:
+  runreveal managed-detections get [flags]
+
+Flags:
+  -h, --help          help for get
+      --name string   (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-detections get-subscription
+
+```bash
+Usage:
+  runreveal managed-detections get-subscription [flags]
+
+Flags:
+  -h, --help          help for get-subscription
+      --name string   (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-detections list
+
+```bash
+Usage:
+  runreveal managed-detections list [flags]
+
+Flags:
+  -h, --help           help for list
+      --type strings
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-detections list-subscriptions
+
+```bash
+Usage:
+  runreveal managed-detections list-subscriptions [flags]
+
+Flags:
+  -h, --help           help for list-subscriptions
+      --type strings   Detection types to list (can repeat for multiple types)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-detections subscribe
+
+```bash
+Usage:
+  runreveal managed-detections subscribe [flags]
+
+Flags:
+      --disabled                
+  -h, --help                    help for subscribe
+      --id string               (required)
+      --notifications strings   Notification channels for the detection
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-detections subscription-set-enabled
+
+```bash
+Usage:
+  runreveal managed-detections subscription-set-enabled [flags]
+
+Flags:
+      --enabled     (required)
+  -h, --help        help for subscription-set-enabled
+      --id string   (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-detections unsubscribe
+
+```bash
+Usage:
+  runreveal managed-detections unsubscribe [flags]
+
+Flags:
+  -h, --help        help for unsubscribe
+      --id string   (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-detections update-subscription
+
+```bash
+Usage:
+  runreveal managed-detections update-subscription [flags]
+
+Flags:
+      --enabled                 
+  -h, --help                    help for update-subscription
+      --id string               (required)
+      --notifications strings   Notification channels for the detection
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### managed-enrichments
+
+Subscribe to community-maintained data enrichment rules. Access pre-built enrichment logic for common security use cases like IP reputation, geolocation, and threat intelligence.
+
+```bash
+Usage:
+  runreveal managed-enrichments [command]
+
+Available Commands:
+  get                
+  list               
+  list-subscriptions 
+  subscribe          
+  unsubscribe        
+
+Flags:
+  -h, --help   help for managed-enrichments
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-enrichments get
+
+```bash
+Usage:
+  runreveal managed-enrichments get [flags]
+
+Flags:
+  -h, --help        help for get
+      --id string   ID or name of managed enrichment to get (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-enrichments list
+
+```bash
+Usage:
+  runreveal managed-enrichments list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-enrichments list-subscriptions
+
+```bash
+Usage:
+  runreveal managed-enrichments list-subscriptions [flags]
+
+Flags:
+  -h, --help   help for list-subscriptions
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-enrichments subscribe
+
+```bash
+Usage:
+  runreveal managed-enrichments subscribe [flags]
+
+Flags:
+  -h, --help        help for subscribe
+      --id string   ID of the managed enrichment to subscribe to (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### managed-enrichments unsubscribe
+
+```bash
+Usage:
+  runreveal managed-enrichments unsubscribe [flags]
+
+Flags:
+  -h, --help        help for unsubscribe
+      --id string   ID of the managed enrichment to unsubscribe to (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### mcp
+
+Start the Model Context Protocol server to integrate RunReveal with AI tools and editors. Enables AI assistants like Claude, ChatGPT, and Cursor to query your security data and assist with investigations.
+
+```bash
+Start the MCP server which implements the Model Context Protocol
+for interacting with AI models in compatible tools and editors.
+
+The server reads requests from stdin and writes responses to stdout, processing messages
+according to the JSON-RPC 2.0 protocol.
+
+Example:
+  runreveal mcp < requests.jsonl
+
+Usage:
+  runreveal mcp [flags]
+
+Flags:
+  -h, --help   help for mcp
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### notification-history
+
+View the history of sent notifications and alerts. Track notification delivery status, troubleshoot notification issues, and audit alert communications.
+
+```bash
+Usage:
+  runreveal notification-history [command]
+
+Available Commands:
+  list          
+  list-by-alert 
+
+Flags:
+  -h, --help   help for notification-history
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### notification-history list
+
+```bash
+Usage:
+  runreveal notification-history list [flags]
+
+Flags:
+  -h, --help        help for list
+      --limit int   help text
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### notification-history list-by-alert
+
+```bash
+Usage:
+  runreveal notification-history list-by-alert [flags]
+
+Flags:
+      --alertid string   (required)
+  -h, --help             help for list-by-alert
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### notifications
+
+Configure notification destinations for security alerts and detection matches. Set up integrations with Slack, email, webhooks, and other communication channels for incident response.
+
+```bash
+commands for managing notification destinations
+
+Usage:
+  runreveal notifications [command]
+
+Available Commands:
+  del         Delete notification destination by ID
+  email       Manage email notifications
+  list        List slack notification destinations
+  slack       Manage slack integration via webhook
+  test        Test the notification channel
+  webhook     Manage webhooks as a notification source
+
+Flags:
+  -h, --help   help for notifications
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### notifications del
+
+```bash
+Delete notification destination by ID
+
+Usage:
+  runreveal notifications del [flags]
+
+Flags:
+  -h, --help   help for del
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### notifications email
+
+```bash
+Manage email notifications
+
+Usage:
+  runreveal notifications email [command]
+
+Available Commands:
+  add         Add email notification destination
+  update      Edit configuration of your emmail notification
+
+Flags:
+  -h, --help   help for email
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### notifications list
+
+```bash
+List slack notification destinations
+
+Usage:
+  runreveal notifications list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### notifications slack
+
+```bash
+Manage slack integration via webhook
+
+Usage:
+  runreveal notifications slack [command]
+
+Available Commands:
+  add         Add slack notification destination
+  update      Edit configuration of your slack notification
+
+Flags:
+  -h, --help   help for slack
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### notifications test
+
+```bash
+Test the notification channel
+
+Usage:
+  runreveal notifications test [flags]
+
+Flags:
+  -h, --help   help for test
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### notifications webhook
+
+```bash
+Manage webhooks as a notification source
+
+Usage:
+  runreveal notifications webhook [command]
+
+Available Commands:
+  add         Add webhook notification destination
+  update      Edit configuration of your webhook notification
+
+Flags:
+  -h, --help   help for webhook
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### openapi
+
+Generate OpenAPI 3.0 specifications for the RunReveal API. Use the generated specification to build custom integrations, validate API requests, or import into API documentation tools.
+
+```bash
+Generate the OpenAPI 3.0 specification for the RunReveal API in JSON format.
+
+This specification can be used to:
+- Generate client libraries for the RunReveal API
+- Understand the available endpoints and their schemas
+- Import into API documentation tools
+- Validate API requests and responses
+
+The specification is written directly to a JSON file. If no output file is specified,
+it defaults to 'runreveal-openapi.json' in the current directory.
+
+Examples:
+  runreveal openapi                           # Creates runreveal-openapi.json
+  runreveal openapi --output api-spec.json   # Creates api-spec.json
+  runreveal openapi -o /path/to/spec.json    # Creates spec at specific path
+
+Usage:
+  runreveal openapi [flags]
+
+Flags:
+  -h, --help            help for openapi
+  -o, --output string   Output file path for the OpenAPI specification (default "runreveal-openapi.json")
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### pipelines
+
+Monitor and manage data ingestion pipelines. View pipeline status, throughput metrics, and troubleshoot data flow issues from sources to destinations.
+
+```bash
+Usage:
+  runreveal pipelines [command]
+
+Available Commands:
+  list        
+
+Flags:
+  -h, --help   help for pipelines
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### pipelines list
+
+```bash
+Usage:
+  runreveal pipelines list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### query
+
+Execute saved queries and manage query scheduling. Run parameterized queries, view scheduled query results, and manage automated query execution for regular reporting.
+
+```bash
+commands for managing saved queries
+
+Usage:
+  runreveal query [command]
+
+Available Commands:
+  run         Execute a named query
+  schedule    commands for managing query schedules
+
+Flags:
+  -h, --help   help for query
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### query run
+
+```bash
+Execute a named query
+
+Usage:
+  runreveal query run [flags]
+
+Flags:
+  -f, --format string          Prints the results to standard out in the supplied format [csv, json, table] (default "table")
+  -h, --help                   help for run
+  -p, --param stringToString   Named query parameter mappings, -p key=value (default [])
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### query schedule
+
+```bash
+commands for managing query schedules
+
+Usage:
+  runreveal query schedule [command]
+
+Available Commands:
+  result      Display the results from a scheduled query run
+
+Flags:
+  -h, --help   help for schedule
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### sources
+
+View and manage log data sources connected to RunReveal. Monitor source health, connection status, and data ingestion from various platforms and services.
+
+```bash
+Usage:
+  runreveal sources [command]
+
+Available Commands:
+  list        
+
+Flags:
+  -h, --help   help for sources
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### sources list
+
+```bash
+Usage:
+  runreveal sources list [flags]
+
+Flags:
+  -h, --help           help for list
+      --type strings
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### topics
+
+Manage data organization topics for log categorization and routing. Configure how different types of security events are classified and processed within RunReveal.
+
+```bash
+Usage:
+  runreveal topics [command]
+
+Available Commands:
+  list        
+
+Flags:
+  -h, --help   help for topics
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### topics list
+
+```bash
+Usage:
+  runreveal topics list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### transforms
+
+Configure data transformation rules to normalize and structure incoming log data. Apply parsing, field mapping, and data standardization before storage in the data lake.
+
+```bash
+Usage:
+  runreveal transforms [command]
+
+Available Commands:
+  list        
+
+Flags:
+  -h, --help   help for transforms
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### transforms list
+
+```bash
+Usage:
+  runreveal transforms list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+---
+
+### workspaces
+
+Manage RunReveal workspaces, user access, and workspace switching. Control team access, invite users, manage roles, and switch between different organizational contexts.
+
+```bash
+Usage:
+  runreveal workspaces [command]
+
+Available Commands:
+  current     Show active workspace
+  invite-user 
+  list        
+  list-users  
+  remove-user 
+  use         Switch to a different workspace
+
+Flags:
+  -h, --help   help for workspaces
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### workspaces current
+
+```bash
+Show active workspace
+
+Usage:
+  runreveal workspaces current [flags]
+
+Flags:
+  -h, --help   help for current
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### workspaces invite-user
+
+```bash
+Usage:
+  runreveal workspaces invite-user [flags]
+
+Flags:
+      --email string   (required)
+  -h, --help           help for invite-user
+      --role string    (required)
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### workspaces list
+
+```bash
+Usage:
+  runreveal workspaces list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### workspaces list-users
+
+```bash
+Usage:
+  runreveal workspaces list-users [flags]
+
+Flags:
+  -h, --help   help for list-users
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### workspaces remove-user
+
+```bash
+Usage:
+  runreveal workspaces remove-user [flags]
+
+Flags:
+      --email string   (required)
+  -h, --help           help for remove-user
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### workspaces use
+
+```bash
+Switch to a different workspace
+
+Usage:
+  runreveal workspaces use [flags]
+
+Flags:
+  -h, --help        help for use
+      --id string   The workspace id that you'd like to make active.
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
