@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://docs.runreveal.com/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
