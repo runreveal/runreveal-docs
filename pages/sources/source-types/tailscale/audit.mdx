@@ -1,22 +1,22 @@
+---
+title: 'Tailscale Audit Logs'
+description: 'Collect Tailscale audit logs for comprehensive network access monitoring. Track user authentication, device connections, and administrative actions across your Tailscale network.'
+---
+
 # Tailscale Audit Logs
 
-Tailscale is a VPN service that simplifies secure network connections using a peer-to-peer mesh network. Tailscale audit logs capture information about user and device activity, such as authentication events, access control changes, connection attempts, and traffic flow across the network. These logs are valuable for monitoring network security, tracking who accessed resources, and auditing for compliance with access policies.
+Tailscale Audit Logs provide a comprehensive record of administrative actions and user activities within a Tailscale network, capturing events such as user authentication, device connections and disconnections, policy changes, and administrative modifications. These logs are essential for security monitoring, compliance reporting, and understanding user behavior across your organization's Tailscale-managed network infrastructure.
 
 ## Ingest Method
 
-This source is a polling source and will download new logs from the app API approximately every 60 seconds. 
-When first added RunReveal will backfill the last 30 days worth of audit logs.
+This source uses am HTTP webhook to ingest events. Create the source in RunReveal and a new webhook URL will be generated. Use this URL when setting up your source.
+
+![webhook-setup](/webhook-setup.png)
 
 ## Setup
 
-Create a new OAuth Client under your Tailnet settings and provide it the
-Audit Logs Read scope.
+Once you're assigned a webhook URL, in Tailscale's Logs product, select "Audit logs",
+create a Splunk streaming destination, and set RunReveal's webhook URL as your
+webhook URL without any Token or API key.
 
-<img style={{maxWidth:"500px"}} src="/tailscale-audit-1.png"/>
-
-
-Once created, you'll be provided a `Client ID` and a `Client secret`. Paste these
-into the RunReveal dashboard, along with the name of your tailnet, and we'll begin
-collecting your tailscale logs immediately.
-
-<img style={{maxWidth:"700px"}} src="/tailscale-audit-2.png"/>
+<img src="/tailscale-audit-2.png"/>

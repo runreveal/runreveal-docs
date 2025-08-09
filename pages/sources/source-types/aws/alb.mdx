@@ -1,10 +1,15 @@
+---
+title: 'AWS ALB Logs'
+description: 'Collect AWS Application Load Balancer logs for traffic monitoring and security analysis. Track request patterns, response times, and access attempts for comprehensive load balancer visibility.'
+---
+
 import { Callout } from 'nextra/components'
 
 # AWS ALB logs
 
-AWS ALB distributes incoming application traffic across multiple targets (such as EC2 instances, containers, or IP addresses) 
-to improve fault tolerance and scalability. ALB logs, known as access logs, provide details on request and response data, 
-including client IP, request path, latency, and response status, which help in monitoring traffic patterns, troubleshooting, 
+AWS ALB distributes incoming application traffic across multiple targets (such as EC2 instances, containers, or IP addresses)
+to improve fault tolerance and scalability. ALB logs, known as access logs, provide details on request and response data,
+including client IP, request path, latency, and response status, which help in monitoring traffic patterns, troubleshooting,
 and ensuring security.
 
 ## Ingest Methods
@@ -40,21 +45,21 @@ arn:aws:sns:<REGION>:253602268883:runreveal_alb
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::elb-account-id:root"
-            },
-            "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::{your-bucket-name}/AWSLogs/*"
-        }
-    ]
+"Version": "2012-10-17",
+"Statement": [
+{
+"Effect": "Allow",
+"Principal": {
+"AWS": "arn:aws:iam::elb-account-id:root"
+},
+"Action": "s3:PutObject",
+"Resource": "arn:aws:s3:::{your-bucket-name}/AWSLogs/*"
+}
+]
 }
 ```
 
-5. Replace `elb-account-id` with the appropriate ID for your region. You can find the list of IDs [here](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html#access-logging-bucket-permissions).
+5. Replace `elb-account-id` with the appropriate ID for your region. You can find the list of IDs [here](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html).
 6. Click "Save changes".
 
 ### Step 3: Enable Access Logs for Your ALB
@@ -75,7 +80,5 @@ arn:aws:sns:<REGION>:253602268883:runreveal_alb
 2. Go back to the S3 console and open your bucket.
 3. Navigate to the "AWSLogs" folder (or the custom prefix you specified).
 4. You should see log files appearing in this location.
-
----
 
 For more information, refer to the [official AWS documentation on ALB access logs](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html).

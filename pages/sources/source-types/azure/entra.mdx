@@ -1,3 +1,8 @@
+---
+title: 'Azure Entra Logs'
+description: 'Collect Azure Entra identity and access management logs for comprehensive authentication monitoring. Track user sign-ins, MFA events, and directory changes for security and compliance.'
+---
+
 import { Callout, Tabs, Steps } from 'nextra/components'
 
 # Azure Entra Logs
@@ -9,7 +14,7 @@ Azure Entra is Microsoft's identity and access management solution, encompassing
 Azure Entra logs can be ingested using either an Azure storage bucket or pushed to RunReveal using a webhook.
 
 Azure storage buckets are inherently cheaper than using the webhook method but logs can be delayed by up to an hour. The webhook ingestion
-imports logs as soon as they are generated, but using an event hub can become more expensive if there are lots of logs.
+imports logs as soon as they are generated, but using event hubs to forward every event can become more expensive if there are lots of logs.
 
 - [Azure Blob Storage](/sources/object-storage/azure)
 - [Webhook Ingestion](#webhook-ingestion)
