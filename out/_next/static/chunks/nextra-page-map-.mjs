@@ -1,0 +1,1616 @@
+import meta from "../../../pages/_meta.ts";
+import ai_chat_meta from "../../../pages/ai-chat/_meta.ts";
+import bring_your_own_cloud_meta from "../../../pages/bring-your-own-cloud/_meta.ts";
+import bring_your_own_cloud_rrsch_meta from "../../../pages/bring-your-own-cloud/rrsch/_meta.ts";
+import detections_meta from "../../../pages/detections/_meta.ts";
+import detections_detection_as_code_meta from "../../../pages/detections/detection-as-code/_meta.ts";
+import enrichments_meta from "../../../pages/enrichments/_meta.ts";
+import how_to_guides_meta from "../../../pages/how-to-guides/_meta.ts";
+import integrations_meta from "../../../pages/integrations/_meta.ts";
+import notifications_meta from "../../../pages/notifications/_meta.ts";
+import reference_meta from "../../../pages/reference/_meta.ts";
+import release_notes_meta from "../../../pages/release-notes/_meta.ts";
+import sources_meta from "../../../pages/sources/_meta.ts";
+import sources_object_storage_meta from "../../../pages/sources/object-storage/_meta.ts";
+import sources_source_types_meta from "../../../pages/sources/source-types/_meta.ts";
+import sources_source_types_aws_meta from "../../../pages/sources/source-types/aws/_meta.ts";
+import sources_source_types_azure_meta from "../../../pages/sources/source-types/azure/_meta.ts";
+import sources_source_types_cloudflare_meta from "../../../pages/sources/source-types/cloudflare/_meta.ts";
+import sources_source_types_crowdstrike_meta from "../../../pages/sources/source-types/crowdstrike/_meta.ts";
+import sources_source_types_github_meta from "../../../pages/sources/source-types/github/_meta.ts";
+import sources_source_types_tailscale_meta from "../../../pages/sources/source-types/tailscale/_meta.ts";
+export const pageMap = [{
+  data: meta
+}, {
+  name: "ai-chat",
+  route: "/ai-chat",
+  children: [{
+    data: ai_chat_meta
+  }, {
+    name: "custom-prompts",
+    route: "/ai-chat/custom-prompts",
+    frontMatter: {
+      "title": "Custom Prompts",
+      "description": "Create custom prompt templates for RunReveal AI Chat. Define reusable analysis requests and detection templates with dynamic argument injection."
+    }
+  }, {
+    name: "model-context-protocol",
+    route: "/ai-chat/model-context-protocol",
+    frontMatter: {
+      "title": "Model Context Protocol",
+      "description": "Connect AI assistants like Claude and Cursor to RunReveal using MCP. Set up remote MCP servers for secure data access and tool integration."
+    }
+  }, {
+    name: "native-ai-chat",
+    route: "/ai-chat/native-ai-chat",
+    frontMatter: {
+      "title": "Native AI Chat",
+      "description": "Use RunReveal's Native AI Chat for secure, auditable security investigations. Analyze logs conversationally with direct data access and persistent context."
+    }
+  }]
+}, {
+  name: "ai-chat",
+  route: "/ai-chat",
+  frontMatter: {
+    "title": "AI Chat (Native & MCP)",
+    "description": "Use RunReveal's AI Chat for security investigations with Native AI Chat and Model Context Protocol (MCP) integration. Analyze data conversationally with Claude, Cursor, and other AI assistants."
+  }
+}, {
+  name: "bring-your-own-cloud",
+  route: "/bring-your-own-cloud",
+  children: [{
+    data: bring_your_own_cloud_meta
+  }, {
+    name: "authentication",
+    route: "/bring-your-own-cloud/authentication",
+    frontMatter: {
+      "title": "Authentication",
+      "description": "Configure authentication for BYOC RunReveal deployments. Set up Google, Microsoft, and GitHub OAuth providers for secure user access in your VPC."
+    }
+  }, {
+    name: "data-model",
+    route: "/bring-your-own-cloud/data-model",
+    frontMatter: {
+      "title": "Data Model",
+      "description": "Understand RunReveal's data model and log schema. Learn about normalized fields, rawLog storage, and creating custom views for your security data."
+    }
+  }, {
+    name: "deployment",
+    route: "/bring-your-own-cloud/deployment",
+    frontMatter: {
+      "title": "Deployment",
+      "description": "Deploy RunReveal in your own cloud environment with BYOC. Contact our team for personalized guidance and setup assistance for your specific requirements."
+    }
+  }, {
+    name: "rrq",
+    route: "/bring-your-own-cloud/rrq",
+    frontMatter: {
+      "title": "RRQ",
+      "description": "Configure RRQ data pipeline for BYOC deployments. Ingest data from various sources and process through unified pipeline with parallel processing."
+    }
+  }, {
+    name: "rrsch",
+    route: "/bring-your-own-cloud/rrsch",
+    children: [{
+      data: bring_your_own_cloud_rrsch_meta
+    }, {
+      name: "schedule-types",
+      route: "/bring-your-own-cloud/rrsch/schedule-types",
+      frontMatter: {
+        "title": "RRSCH Scheduler Types",
+        "description": "Configure RRSCH scheduler types for BYOC deployments. Set up query, report, threat feed, notification retry, and enrichment schedulers with specific options."
+      }
+    }]
+  }, {
+    name: "rrsch",
+    route: "/bring-your-own-cloud/rrsch",
+    frontMatter: {
+      "title": "RRSCH",
+      "description": "Configure RRSCH scheduler for BYOC deployments. Manage scheduled tasks including queries, reports, threat feeds, notifications, and enrichments."
+    }
+  }]
+}, {
+  name: "bring-your-own-cloud",
+  route: "/bring-your-own-cloud",
+  frontMatter: {
+    "title": "Bring Your Own Cloud (BYOC) - Self-Hosted RunReveal Deployment",
+    "description": "Deploy RunReveal within your own cloud environment for enhanced security, compliance, and data sovereignty. Learn BYOC deployment, authentication, and infrastructure configuration."
+  }
+}, {
+  name: "detections",
+  route: "/detections",
+  children: [{
+    data: detections_meta
+  }, {
+    name: "detection-as-code",
+    route: "/detections/detection-as-code",
+    children: [{
+      data: detections_detection_as_code_meta
+    }, {
+      name: "deployment",
+      route: "/detections/detection-as-code/deployment",
+      frontMatter: {
+        "title": "Deployment",
+        "description": "Deploy detection as code using GitHub Actions and CI/CD workflows. Set up automated testing, syncing, and version control for your security detections."
+      }
+    }, {
+      name: "export-detections",
+      route: "/detections/detection-as-code/export-detections",
+      frontMatter: {
+        "title": "Export Detections",
+        "description": "Export all detections from RunReveal using the CLI. Download detection state into organized directories for version control and CI/CD integration."
+      }
+    }, {
+      name: "getting-started",
+      route: "/detections/detection-as-code/getting-started",
+      frontMatter: {
+        "title": "Getting Started",
+        "description": "Get started with detection as code using the RunReveal CLI. Install the CLI, authenticate, and understand the detection data model for version control."
+      }
+    }, {
+      name: "uploading-detections",
+      route: "/detections/detection-as-code/uploading-detections",
+      frontMatter: {
+        "title": "Uploading Detections",
+        "description": "Upload detection files to RunReveal using the CLI. Test uploads with dry-run, handle conflicts, and manage detection lifecycle through version control."
+      }
+    }]
+  }, {
+    name: "detection-as-code",
+    route: "/detections/detection-as-code",
+    frontMatter: {
+      "title": "Detection as Code - Version Control and CI/CD for Security Rules",
+      "description": "Implement detection as code workflows with RunReveal CLI. Review, test, and deploy security detections using version control and automation practices."
+    }
+  }, {
+    name: "sigma-streaming",
+    route: "/detections/sigma-streaming",
+    frontMatter: {
+      "title": "Sigma Streaming Detections - Real-Time Security Rule Processing",
+      "description": "Create Sigma-based streaming detections for real-time security analysis. Learn Sigma rule syntax, source matching, and notification integration for threat detection."
+    }
+  }, {
+    name: "writing-a-detection",
+    route: "/detections/writing-a-detection",
+    frontMatter: {
+      "title": "Writing SQL Detections - Query Parameters and Time Windowing",
+      "description": "Learn how to write SQL detections in RunReveal with proper parameters, time windowing, and ClickHouse syntax. Create effective scheduled security queries."
+    }
+  }]
+}, {
+  name: "detections",
+  route: "/detections",
+  frontMatter: {
+    "title": "Detections - Scheduled Security Queries & Alert Management",
+    "description": "Learn how RunReveal detections work as scheduled queries that execute and save results to the database. Understand the detection data model, signals vs alerts, and querying detection history."
+  }
+}, {
+  name: "enrichments",
+  route: "/enrichments",
+  children: [{
+    data: enrichments_meta
+  }, {
+    name: "loading-rules-from-csv",
+    route: "/enrichments/loading-rules-from-csv",
+    frontMatter: {
+      "title": "Loading Rules From CSV",
+      "description": "Import enrichment rules from CSV files for bulk configuration. Create comma-delimited files with match types, patterns, and data for efficient rule management."
+    }
+  }, {
+    name: "using-the-api",
+    route: "/enrichments/using-the-api",
+    frontMatter: {
+      "title": "Using The API",
+      "description": "Create and manage enrichments programmatically using the RunReveal API. Authenticate with tokens, make requests, and automate enrichment rule management."
+    }
+  }]
+}, {
+  name: "enrichments",
+  route: "/enrichments",
+  frontMatter: {
+    "title": "Log Enrichments - Augment Security Data with Supplemental Information",
+    "description": "Enhance your log events with supplemental data using RunReveal enrichments. Learn how to create enrichment configurations and rules for pattern matching and data augmentation."
+  }
+}, {
+  name: "filtering",
+  route: "/filtering",
+  frontMatter: {
+    "title": "Log Filtering - Filter Security Data with Regular Expressions",
+    "description": "Filter logs in RunReveal using regular expressions to drop unwanted events. Learn regex filtering patterns, flags, and best practices for log data management."
+  }
+}, {
+  name: "glossary",
+  route: "/glossary",
+  frontMatter: {
+    "title": "RunReveal Glossary - Security Terms and Platform Definitions",
+    "description": "Comprehensive glossary of security terms, RunReveal platform definitions, and detection terminology. Find explanations for technical concepts and platform features."
+  }
+}, {
+  name: "how-to-guides",
+  route: "/how-to-guides",
+  children: [{
+    data: how_to_guides_meta
+  }, {
+    name: "collect-nginx-logs",
+    route: "/how-to-guides/collect-nginx-logs",
+    frontMatter: {
+      "title": "Collect Nginx Logs",
+      "description": "Set up Nginx log collection using Reveald daemon. Configure syslog forwarding, webhook destinations, and monitor web traffic in RunReveal."
+    }
+  }, {
+    name: "detections-signals-alerts-quick-start",
+    route: "/how-to-guides/detections-signals-alerts-quick-start",
+    frontMatter: {
+      "title": "Quick Start: Detections, Signals, and Alerts",
+      "description": "Step-by-step guide for sending security logs, creating detections, alerts, and signals to the RunReveal platform"
+    }
+  }, {
+    name: "kubernetes-logs",
+    route: "/how-to-guides/kubernetes-logs",
+    frontMatter: {
+      "title": "Kubernetes Logs",
+      "description": "Deploy Reveald as a Kubernetes daemonset to collect pod logs. Configure log collection from container runtime and monitor application activity across your cluster."
+    }
+  }]
+}, {
+  name: "how-to-guides",
+  route: "/how-to-guides",
+  frontMatter: {
+    "title": "How-To Guides - Step-by-Step Instructions for RunReveal",
+    "description": "Step-by-step guides for common RunReveal tasks including log collection, Kubernetes integration, detection creation, and security workflow setup."
+  }
+}, {
+  name: "index",
+  route: "/",
+  frontMatter: {
+    "title": "RunReveal - Modern SIEM Platform for Security Detection & Analysis",
+    "description": "RunReveal is a data detection platform that rethinks SIEM from the ground up. Transform security logs into insights with open-source database technology, customizable detection, and efficient threat analysis."
+  }
+}, {
+  name: "integrations",
+  route: "/integrations",
+  children: [{
+    data: integrations_meta
+  }, {
+    name: "grafana",
+    route: "/integrations/grafana",
+    frontMatter: {
+      "title": "Grafana",
+      "description": "Connect RunReveal to Grafana for powerful security dashboard creation. Install the RunReveal plugin, configure data sources, and build custom security visualizations."
+    }
+  }, {
+    name: "jupyter",
+    route: "/integrations/jupyter",
+    frontMatter: {
+      "title": "Jupyter",
+      "description": "Use RunReveal with Jupyter notebooks for advanced security data analysis. Install the Python package, authenticate with API tokens, and create pandas DataFrames from your logs."
+    }
+  }]
+}, {
+  name: "integrations",
+  route: "/integrations",
+  frontMatter: {
+    "title": "Integrations - Connect RunReveal with Visualization & Analysis Tools",
+    "description": "Integrate RunReveal with Grafana dashboards and Jupyter notebooks for advanced data visualization and analysis. Enhance security operations with familiar tools."
+  }
+}, {
+  name: "notifications",
+  route: "/notifications",
+  children: [{
+    data: notifications_meta
+  }, {
+    name: "email",
+    route: "/notifications/email",
+    frontMatter: {
+      "title": "Email",
+      "description": "Configure email notifications in RunReveal for direct alert delivery to your inbox. Simple setup process for receiving security alerts via email."
+    }
+  }, {
+    name: "getting-started",
+    route: "/notifications/getting-started",
+    frontMatter: {
+      "title": "Getting Started with Notifications",
+      "description": "Learn how to set up and configure notifications in RunReveal"
+    }
+  }, {
+    name: "history-api",
+    route: "/notifications/history-api",
+    frontMatter: {
+      "title": "Using The API",
+      "description": "Access notification history programmatically using the RunReveal API. Authentication, endpoints, and code examples for retrieving alert delivery status."
+    }
+  }, {
+    name: "jira",
+    route: "/notifications/jira",
+    frontMatter: {
+      "title": "Jira",
+      "description": "Create Jira issues automatically when security detections trigger. Configure project keys, issue types, labels, and API tokens for seamless integration."
+    }
+  }, {
+    name: "pagerduty",
+    route: "/notifications/pagerduty",
+    frontMatter: {
+      "title": "PagerDuty",
+      "description": "Integrate RunReveal with PagerDuty for automated incident creation from security detections. Configure Events API V2 integration and custom incident details."
+    }
+  }, {
+    name: "slack",
+    route: "/notifications/slack",
+    frontMatter: {
+      "title": "Slack",
+      "description": "Set up Slack webhook integration for real-time security alerts in your workspace channels. Step-by-step guide for creating Slack apps and configuring notifications."
+    }
+  }, {
+    name: "templates",
+    route: "/notifications/templates",
+    frontMatter: {
+      "title": "Templates",
+      "description": "Create custom notification templates using Handlebars syntax. Dynamic message formatting with query data, conditional rendering, and built-in partials."
+    }
+  }, {
+    name: "tines",
+    route: "/notifications/tines",
+    frontMatter: {
+      "title": "Tines",
+      "description": "Connect RunReveal to Tines for security orchestration and automated response workflows. Configure webhook URLs and secrets for SOAR integration."
+    }
+  }, {
+    name: "webhooks",
+    route: "/notifications/webhooks",
+    frontMatter: {
+      "title": "Webhooks",
+      "description": "Send security alerts to custom systems via HTTP POST webhooks. Learn webhook schema, signing verification, and integration with external services."
+    }
+  }]
+}, {
+  name: "notifications",
+  route: "/notifications",
+  frontMatter: {
+    "title": "Notification Channels - Alert Management for Security Events",
+    "description": "Configure comprehensive notification systems in RunReveal including email, Slack, PagerDuty, Jira, webhooks, and Tines integration for security alerting."
+  }
+}, {
+  name: "pipelines",
+  route: "/pipelines",
+  children: [{
+    name: "getting-started",
+    route: "/pipelines/getting-started",
+    frontMatter: {
+      "title": "Getting Started",
+      "description": "Learn how to create custom processing pipelines in RunReveal. Configure topics, transforms, enrichments, and filters for fine-grained log event control."
+    }
+  }]
+}, {
+  name: "reference",
+  route: "/reference",
+  children: [{
+    data: reference_meta
+  }, {
+    name: "logs-api",
+    route: "/reference/logs-api",
+    frontMatter: {
+      "title": "Logs API - Programmatic Access to RunReveal Data",
+      "description": "Comprehensive API documentation for querying RunReveal logs programmatically. Authentication, endpoints, response formats, and code examples for data access."
+    }
+  }, {
+    name: "role-based-access-control",
+    route: "/reference/role-based-access-control",
+    frontMatter: {
+      "title": "Role-Based Access Control - User Permissions and Security",
+      "description": "Configure role-based access control in RunReveal with admin, analyst, operator, and CIBot roles. Manage user permissions and secure workspace access."
+    }
+  }, {
+    name: "using-the-cli",
+    route: "/reference/using-the-cli",
+    frontMatter: {
+      "title": "RunReveal CLI - Command Line Interface for Automation",
+      "description": "Install and configure the RunReveal CLI for automation and integration. Learn authentication, environment variables, and command-line tools for security operations."
+    }
+  }]
+}, {
+  name: "reference",
+  route: "/reference",
+  frontMatter: {
+    "title": "Reference Documentation - APIs, CLI, and Technical Resources",
+    "description": "Technical reference documentation for RunReveal APIs, CLI tools, role-based access control, and developer resources. Complete guides for integration and automation."
+  }
+}, {
+  name: "release-notes",
+  route: "/release-notes",
+  children: [{
+    data: release_notes_meta
+  }, {
+    name: "2024-release-notes",
+    route: "/release-notes/2024-release-notes",
+    frontMatter: {
+      "sidebarTitle": "2024 Release Notes"
+    }
+  }, {
+    name: "release-v2025-4-10",
+    route: "/release-notes/release-v2025-4-10",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 10"
+    }
+  }, {
+    name: "release-v2025-4-11",
+    route: "/release-notes/release-v2025-4-11",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 11"
+    }
+  }, {
+    name: "release-v2025-4-12",
+    route: "/release-notes/release-v2025-4-12",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 12"
+    }
+  }, {
+    name: "release-v2025-4-13",
+    route: "/release-notes/release-v2025-4-13",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 13"
+    }
+  }, {
+    name: "release-v2025-4-14",
+    route: "/release-notes/release-v2025-4-14",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 14"
+    }
+  }, {
+    name: "release-v2025-4-15",
+    route: "/release-notes/release-v2025-4-15",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 15"
+    }
+  }, {
+    name: "release-v2025-4-16",
+    route: "/release-notes/release-v2025-4-16",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 16"
+    }
+  }, {
+    name: "release-v2025-4-17",
+    route: "/release-notes/release-v2025-4-17",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 17"
+    }
+  }, {
+    name: "release-v2025-4-18",
+    route: "/release-notes/release-v2025-4-18",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 18"
+    }
+  }, {
+    name: "release-v2025-4-19",
+    route: "/release-notes/release-v2025-4-19",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 19"
+    }
+  }, {
+    name: "release-v2025-4-20",
+    route: "/release-notes/release-v2025-4-20",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 20"
+    }
+  }, {
+    name: "release-v2025-4-21",
+    route: "/release-notes/release-v2025-4-21",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 21"
+    }
+  }, {
+    name: "release-v2025-4-22",
+    route: "/release-notes/release-v2025-4-22",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 22"
+    }
+  }, {
+    name: "release-v2025-4-23",
+    route: "/release-notes/release-v2025-4-23",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 23"
+    }
+  }, {
+    name: "release-v2025-4-24",
+    route: "/release-notes/release-v2025-4-24",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 24"
+    }
+  }, {
+    name: "release-v2025-4-25",
+    route: "/release-notes/release-v2025-4-25",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 25"
+    }
+  }, {
+    name: "release-v2025-4-26",
+    route: "/release-notes/release-v2025-4-26",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 26"
+    }
+  }, {
+    name: "release-v2025-4-27",
+    route: "/release-notes/release-v2025-4-27",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 27"
+    }
+  }, {
+    name: "release-v2025-4-28",
+    route: "/release-notes/release-v2025-4-28",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 28"
+    }
+  }, {
+    name: "release-v2025-4-29",
+    route: "/release-notes/release-v2025-4-29",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 29"
+    }
+  }, {
+    name: "release-v2025-4-5",
+    route: "/release-notes/release-v2025-4-5",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 5"
+    }
+  }, {
+    name: "release-v2025-4-6",
+    route: "/release-notes/release-v2025-4-6",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 6"
+    }
+  }, {
+    name: "release-v2025-4-7",
+    route: "/release-notes/release-v2025-4-7",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 7"
+    }
+  }, {
+    name: "release-v2025-4-8",
+    route: "/release-notes/release-v2025-4-8",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 8"
+    }
+  }, {
+    name: "release-v2025-4-9",
+    route: "/release-notes/release-v2025-4-9",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 9"
+    }
+  }, {
+    name: "release-v2025-4-x",
+    route: "/release-notes/release-v2025-4-x",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 4 X"
+    }
+  }, {
+    name: "release-v2025-5-1",
+    route: "/release-notes/release-v2025-5-1",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 1"
+    }
+  }, {
+    name: "release-v2025-5-10",
+    route: "/release-notes/release-v2025-5-10",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 10"
+    }
+  }, {
+    name: "release-v2025-5-11",
+    route: "/release-notes/release-v2025-5-11",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 11"
+    }
+  }, {
+    name: "release-v2025-5-12",
+    route: "/release-notes/release-v2025-5-12",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 12"
+    }
+  }, {
+    name: "release-v2025-5-13",
+    route: "/release-notes/release-v2025-5-13",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 13"
+    }
+  }, {
+    name: "release-v2025-5-14",
+    route: "/release-notes/release-v2025-5-14",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 14"
+    }
+  }, {
+    name: "release-v2025-5-15",
+    route: "/release-notes/release-v2025-5-15",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 15"
+    }
+  }, {
+    name: "release-v2025-5-16",
+    route: "/release-notes/release-v2025-5-16",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 16"
+    }
+  }, {
+    name: "release-v2025-5-17",
+    route: "/release-notes/release-v2025-5-17",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 17"
+    }
+  }, {
+    name: "release-v2025-5-18",
+    route: "/release-notes/release-v2025-5-18",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 18"
+    }
+  }, {
+    name: "release-v2025-5-19",
+    route: "/release-notes/release-v2025-5-19",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 19"
+    }
+  }, {
+    name: "release-v2025-5-2",
+    route: "/release-notes/release-v2025-5-2",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 2"
+    }
+  }, {
+    name: "release-v2025-5-20",
+    route: "/release-notes/release-v2025-5-20",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 20"
+    }
+  }, {
+    name: "release-v2025-5-21",
+    route: "/release-notes/release-v2025-5-21",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 21"
+    }
+  }, {
+    name: "release-v2025-5-22",
+    route: "/release-notes/release-v2025-5-22",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 22"
+    }
+  }, {
+    name: "release-v2025-5-23",
+    route: "/release-notes/release-v2025-5-23",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 23"
+    }
+  }, {
+    name: "release-v2025-5-24",
+    route: "/release-notes/release-v2025-5-24",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 24"
+    }
+  }, {
+    name: "release-v2025-5-25",
+    route: "/release-notes/release-v2025-5-25",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 25"
+    }
+  }, {
+    name: "release-v2025-5-26",
+    route: "/release-notes/release-v2025-5-26",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 26"
+    }
+  }, {
+    name: "release-v2025-5-27",
+    route: "/release-notes/release-v2025-5-27",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 27"
+    }
+  }, {
+    name: "release-v2025-5-28",
+    route: "/release-notes/release-v2025-5-28",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 28"
+    }
+  }, {
+    name: "release-v2025-5-29",
+    route: "/release-notes/release-v2025-5-29",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 29"
+    }
+  }, {
+    name: "release-v2025-5-3",
+    route: "/release-notes/release-v2025-5-3",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 3"
+    }
+  }, {
+    name: "release-v2025-5-30",
+    route: "/release-notes/release-v2025-5-30",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 30"
+    }
+  }, {
+    name: "release-v2025-5-31",
+    route: "/release-notes/release-v2025-5-31",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 31"
+    }
+  }, {
+    name: "release-v2025-5-32",
+    route: "/release-notes/release-v2025-5-32",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 32"
+    }
+  }, {
+    name: "release-v2025-5-33",
+    route: "/release-notes/release-v2025-5-33",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 33"
+    }
+  }, {
+    name: "release-v2025-5-34",
+    route: "/release-notes/release-v2025-5-34",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 34"
+    }
+  }, {
+    name: "release-v2025-5-35",
+    route: "/release-notes/release-v2025-5-35",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 35"
+    }
+  }, {
+    name: "release-v2025-5-36",
+    route: "/release-notes/release-v2025-5-36",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 36"
+    }
+  }, {
+    name: "release-v2025-5-37",
+    route: "/release-notes/release-v2025-5-37",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 37"
+    }
+  }, {
+    name: "release-v2025-5-38",
+    route: "/release-notes/release-v2025-5-38",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 38"
+    }
+  }, {
+    name: "release-v2025-5-39",
+    route: "/release-notes/release-v2025-5-39",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 39"
+    }
+  }, {
+    name: "release-v2025-5-4",
+    route: "/release-notes/release-v2025-5-4",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 4"
+    }
+  }, {
+    name: "release-v2025-5-40",
+    route: "/release-notes/release-v2025-5-40",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 40"
+    }
+  }, {
+    name: "release-v2025-5-6",
+    route: "/release-notes/release-v2025-5-6",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 6"
+    }
+  }, {
+    name: "release-v2025-5-7",
+    route: "/release-notes/release-v2025-5-7",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 7"
+    }
+  }, {
+    name: "release-v2025-5-8",
+    route: "/release-notes/release-v2025-5-8",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 8"
+    }
+  }, {
+    name: "release-v2025-5-9",
+    route: "/release-notes/release-v2025-5-9",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 5 9"
+    }
+  }, {
+    name: "release-v2025-6-1",
+    route: "/release-notes/release-v2025-6-1",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 1"
+    }
+  }, {
+    name: "release-v2025-6-10",
+    route: "/release-notes/release-v2025-6-10",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 10"
+    }
+  }, {
+    name: "release-v2025-6-11",
+    route: "/release-notes/release-v2025-6-11",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 11"
+    }
+  }, {
+    name: "release-v2025-6-12",
+    route: "/release-notes/release-v2025-6-12",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 12"
+    }
+  }, {
+    name: "release-v2025-6-13",
+    route: "/release-notes/release-v2025-6-13",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 13"
+    }
+  }, {
+    name: "release-v2025-6-14",
+    route: "/release-notes/release-v2025-6-14",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 14"
+    }
+  }, {
+    name: "release-v2025-6-15",
+    route: "/release-notes/release-v2025-6-15",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 15"
+    }
+  }, {
+    name: "release-v2025-6-16",
+    route: "/release-notes/release-v2025-6-16",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 16"
+    }
+  }, {
+    name: "release-v2025-6-17",
+    route: "/release-notes/release-v2025-6-17",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 17"
+    }
+  }, {
+    name: "release-v2025-6-18",
+    route: "/release-notes/release-v2025-6-18",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 18"
+    }
+  }, {
+    name: "release-v2025-6-2",
+    route: "/release-notes/release-v2025-6-2",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 2"
+    }
+  }, {
+    name: "release-v2025-6-20",
+    route: "/release-notes/release-v2025-6-20",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 20"
+    }
+  }, {
+    name: "release-v2025-6-21",
+    route: "/release-notes/release-v2025-6-21",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 21"
+    }
+  }, {
+    name: "release-v2025-6-22",
+    route: "/release-notes/release-v2025-6-22",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 22"
+    }
+  }, {
+    name: "release-v2025-6-23",
+    route: "/release-notes/release-v2025-6-23",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 23"
+    }
+  }, {
+    name: "release-v2025-6-24",
+    route: "/release-notes/release-v2025-6-24",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 24"
+    }
+  }, {
+    name: "release-v2025-6-25",
+    route: "/release-notes/release-v2025-6-25",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 25"
+    }
+  }, {
+    name: "release-v2025-6-26",
+    route: "/release-notes/release-v2025-6-26",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 26"
+    }
+  }, {
+    name: "release-v2025-6-27",
+    route: "/release-notes/release-v2025-6-27",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 27"
+    }
+  }, {
+    name: "release-v2025-6-28",
+    route: "/release-notes/release-v2025-6-28",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 28"
+    }
+  }, {
+    name: "release-v2025-6-29",
+    route: "/release-notes/release-v2025-6-29",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 29"
+    }
+  }, {
+    name: "release-v2025-6-3",
+    route: "/release-notes/release-v2025-6-3",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 3"
+    }
+  }, {
+    name: "release-v2025-6-30",
+    route: "/release-notes/release-v2025-6-30",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 30"
+    }
+  }, {
+    name: "release-v2025-6-31",
+    route: "/release-notes/release-v2025-6-31",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 31"
+    }
+  }, {
+    name: "release-v2025-6-32",
+    route: "/release-notes/release-v2025-6-32",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 32"
+    }
+  }, {
+    name: "release-v2025-6-33",
+    route: "/release-notes/release-v2025-6-33",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 33"
+    }
+  }, {
+    name: "release-v2025-6-34",
+    route: "/release-notes/release-v2025-6-34",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 34"
+    }
+  }, {
+    name: "release-v2025-6-35",
+    route: "/release-notes/release-v2025-6-35",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 35"
+    }
+  }, {
+    name: "release-v2025-6-36",
+    route: "/release-notes/release-v2025-6-36",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 36"
+    }
+  }, {
+    name: "release-v2025-6-37",
+    route: "/release-notes/release-v2025-6-37",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 37"
+    }
+  }, {
+    name: "release-v2025-6-38",
+    route: "/release-notes/release-v2025-6-38",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 38"
+    }
+  }, {
+    name: "release-v2025-6-39",
+    route: "/release-notes/release-v2025-6-39",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 39"
+    }
+  }, {
+    name: "release-v2025-6-4",
+    route: "/release-notes/release-v2025-6-4",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 4"
+    }
+  }, {
+    name: "release-v2025-6-40",
+    route: "/release-notes/release-v2025-6-40",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 40"
+    }
+  }, {
+    name: "release-v2025-6-41",
+    route: "/release-notes/release-v2025-6-41",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 41"
+    }
+  }, {
+    name: "release-v2025-6-42",
+    route: "/release-notes/release-v2025-6-42",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 42"
+    }
+  }, {
+    name: "release-v2025-6-43",
+    route: "/release-notes/release-v2025-6-43",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 43"
+    }
+  }, {
+    name: "release-v2025-6-44",
+    route: "/release-notes/release-v2025-6-44",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 44"
+    }
+  }, {
+    name: "release-v2025-6-45",
+    route: "/release-notes/release-v2025-6-45",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 45"
+    }
+  }, {
+    name: "release-v2025-6-5",
+    route: "/release-notes/release-v2025-6-5",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 5"
+    }
+  }, {
+    name: "release-v2025-6-6",
+    route: "/release-notes/release-v2025-6-6",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 6"
+    }
+  }, {
+    name: "release-v2025-6-7",
+    route: "/release-notes/release-v2025-6-7",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 7"
+    }
+  }, {
+    name: "release-v2025-6-8",
+    route: "/release-notes/release-v2025-6-8",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 8"
+    }
+  }, {
+    name: "release-v2025-6-9",
+    route: "/release-notes/release-v2025-6-9",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 6 9"
+    }
+  }, {
+    name: "release-v2025-7-1",
+    route: "/release-notes/release-v2025-7-1",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 1"
+    }
+  }, {
+    name: "release-v2025-7-12",
+    route: "/release-notes/release-v2025-7-12",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 12"
+    }
+  }, {
+    name: "release-v2025-7-13",
+    route: "/release-notes/release-v2025-7-13",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 13"
+    }
+  }, {
+    name: "release-v2025-7-14",
+    route: "/release-notes/release-v2025-7-14",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 14"
+    }
+  }, {
+    name: "release-v2025-7-15",
+    route: "/release-notes/release-v2025-7-15",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 15"
+    }
+  }, {
+    name: "release-v2025-7-16",
+    route: "/release-notes/release-v2025-7-16",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 16"
+    }
+  }, {
+    name: "release-v2025-7-2",
+    route: "/release-notes/release-v2025-7-2",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 2"
+    }
+  }, {
+    name: "release-v2025-7-3",
+    route: "/release-notes/release-v2025-7-3",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 3"
+    }
+  }, {
+    name: "release-v2025-7-4",
+    route: "/release-notes/release-v2025-7-4",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 4"
+    }
+  }, {
+    name: "release-v2025-7-5",
+    route: "/release-notes/release-v2025-7-5",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 5"
+    }
+  }, {
+    name: "release-v2025-7-6",
+    route: "/release-notes/release-v2025-7-6",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 6"
+    }
+  }, {
+    name: "release-v2025-7-7",
+    route: "/release-notes/release-v2025-7-7",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 7"
+    }
+  }, {
+    name: "release-v2025-7-8",
+    route: "/release-notes/release-v2025-7-8",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 8"
+    }
+  }, {
+    name: "release-v2025-7-9",
+    route: "/release-notes/release-v2025-7-9",
+    frontMatter: {
+      "sidebarTitle": "Release V2025 7 9"
+    }
+  }]
+}, {
+  name: "release-notes",
+  route: "/release-notes",
+  frontMatter: {
+    "title": "Release Notes - RunReveal Platform Updates and New Features",
+    "description": "Stay updated with the latest RunReveal platform releases, new features, improvements, and bug fixes. Track version history and upcoming enhancements."
+  }
+}, {
+  name: "sources",
+  route: "/sources",
+  children: [{
+    data: sources_meta
+  }, {
+    name: "object-storage",
+    route: "/sources/object-storage",
+    children: [{
+      data: sources_object_storage_meta
+    }, {
+      name: "azure",
+      route: "/sources/object-storage/azure",
+      frontMatter: {
+        "title": "Azure",
+        "description": "Configure Azure Blob Storage for log ingestion in RunReveal. Set up storage accounts, event subscriptions, and queue processing for automated log collection."
+      }
+    }, {
+      name: "external-s3",
+      route: "/sources/object-storage/external-s3",
+      frontMatter: {
+        "title": "External S3",
+        "description": "Configure AWS S3 with custom SQS queue for log ingestion in RunReveal. Set up IAM roles, SQS permissions, and external queue management for automated log processing."
+      }
+    }, {
+      name: "gcs",
+      route: "/sources/object-storage/gcs",
+      frontMatter: {
+        "title": "GCS",
+        "description": "Configure Google Cloud Storage for log ingestion in RunReveal. Set up service accounts, pub/sub notifications, and authentication for automated log processing."
+      }
+    }, {
+      name: "r2",
+      route: "/sources/object-storage/r2",
+      frontMatter: {
+        "title": "R2",
+        "description": "Configure Cloudflare R2 bucket for log ingestion in RunReveal. Set up R2 credentials, Workers Queues, and event notifications for automated log processing."
+      }
+    }, {
+      name: "s3",
+      route: "/sources/object-storage/s3",
+      frontMatter: {
+        "title": "S3",
+        "description": "Configure AWS S3 bucket for log ingestion in RunReveal. Set up bucket policies, IAM roles, SNS notifications, and authentication for automated log processing."
+      }
+    }]
+  }, {
+    name: "source-types",
+    route: "/sources/source-types",
+    children: [{
+      data: sources_source_types_meta
+    }, {
+      name: "1password",
+      route: "/sources/source-types/1password",
+      frontMatter: {
+        "sidebarTitle": "1password"
+      }
+    }, {
+      name: "atlassian",
+      route: "/sources/source-types/atlassian",
+      frontMatter: {
+        "title": "Atlassian Audit Logs",
+        "description": "Ingest Atlassian audit logs for comprehensive organization activity tracking. Monitor user actions, security events, and administrative changes across your Atlassian products."
+      }
+    }, {
+      name: "auth0",
+      route: "/sources/source-types/auth0",
+      frontMatter: {
+        "title": "Auth0",
+        "description": "Configure Auth0 webhook integration for authentication and authorization event monitoring. Set up log streaming for comprehensive identity and access management logging."
+      }
+    }, {
+      name: "aws",
+      route: "/sources/source-types/aws",
+      children: [{
+        data: sources_source_types_aws_meta
+      }, {
+        name: "alb",
+        route: "/sources/source-types/aws/alb",
+        frontMatter: {
+          "title": "AWS ALB Logs",
+          "description": "Collect AWS Application Load Balancer logs for traffic monitoring and security analysis. Track request patterns, response times, and access attempts for comprehensive load balancer visibility."
+        }
+      }, {
+        name: "cloudtrail",
+        route: "/sources/source-types/aws/cloudtrail",
+        frontMatter: {
+          "title": "AWS CloudTrail",
+          "description": "Collect AWS CloudTrail logs for comprehensive API activity monitoring. Track user actions, resource changes, and administrative events across your AWS infrastructure for security and compliance."
+        }
+      }, {
+        name: "dns",
+        route: "/sources/source-types/aws/dns",
+        frontMatter: {
+          "title": "AWS DNS Logs",
+          "description": "Collect AWS VPC DNS query logs for network monitoring and security analysis. Track DNS resolution patterns, domain queries, and potential malicious domain access across your VPC infrastructure."
+        }
+      }, {
+        name: "flow",
+        route: "/sources/source-types/aws/flow",
+        frontMatter: {
+          "title": "AWS VPC Flow Logs",
+          "description": "Collect AWS VPC Flow Logs for network traffic monitoring and security analysis. Track IP traffic patterns, connection attempts, and network behavior across your VPC infrastructure."
+        }
+      }, {
+        name: "guardduty",
+        route: "/sources/source-types/aws/guardduty",
+        frontMatter: {
+          "title": "AWS GuardDuty",
+          "description": "Collect AWS GuardDuty findings for threat detection and response. Monitor malicious behavior, compromised instances, and anomalous API activity across your AWS environment."
+        }
+      }, {
+        name: "hosted-zone",
+        route: "/sources/source-types/aws/hosted-zone",
+        frontMatter: {
+          "sidebarTitle": "Hosted Zone"
+        }
+      }]
+    }, {
+      name: "azure",
+      route: "/sources/source-types/azure",
+      children: [{
+        data: sources_source_types_azure_meta
+      }, {
+        name: "activity-logs",
+        route: "/sources/source-types/azure/activity-logs",
+        frontMatter: {
+          "title": "Azure Activity Logs",
+          "description": "Collect Azure Activity Logs for comprehensive resource monitoring and audit trails. Track control plane operations, resource changes, and administrative actions across your Azure infrastructure."
+        }
+      }, {
+        name: "azure-flow",
+        route: "/sources/source-types/azure/azure-flow",
+        frontMatter: {
+          "title": "Azure Flow Logs",
+          "description": "Collect Azure Virtual Network Flow logs for network traffic monitoring. Track inbound and outbound traffic patterns, security rule evaluations, and network connectivity for comprehensive Azure network visibility."
+        }
+      }, {
+        name: "entra",
+        route: "/sources/source-types/azure/entra",
+        frontMatter: {
+          "title": "Azure Entra Logs",
+          "description": "Collect Azure Entra identity and access management logs for comprehensive authentication monitoring. Track user sign-ins, MFA events, and directory changes for security and compliance."
+        }
+      }]
+    }, {
+      name: "cloudentity",
+      route: "/sources/source-types/cloudentity",
+      frontMatter: {
+        "title": "Cloudentity",
+        "description": "Configure Cloudentity identity and authorization logs for API security monitoring. Track authentication events, policy evaluations, and access control decisions for comprehensive API security."
+      }
+    }, {
+      name: "cloudflare",
+      route: "/sources/source-types/cloudflare",
+      children: [{
+        data: sources_source_types_cloudflare_meta
+      }, {
+        name: "audit",
+        route: "/sources/source-types/cloudflare/audit",
+        frontMatter: {
+          "title": "Cloudflare Audit Logs",
+          "description": "Monitor Cloudflare account activity with audit logs. Track resource changes, administrative actions, and security events across your Cloudflare organization."
+        }
+      }, {
+        name: "gateway-dns",
+        route: "/sources/source-types/cloudflare/gateway-dns",
+        frontMatter: {
+          "title": "Cloudflare Gateway DNS",
+          "description": "Collect Cloudflare Gateway DNS logs for secure DNS filtering and monitoring. Track domain queries, enforce content filtering, and detect malicious domains across your network."
+        }
+      }, {
+        name: "gateway-http",
+        route: "/sources/source-types/cloudflare/gateway-http",
+        frontMatter: {
+          "title": "Cloudflare Gateway HTTP",
+          "description": "Collect Cloudflare Gateway HTTP logs for secure web gateway monitoring. Track web traffic, enforce security policies, and detect malicious activity across your organization."
+        }
+      }, {
+        name: "http",
+        route: "/sources/source-types/cloudflare/http",
+        frontMatter: {
+          "title": "Cloudflare HTTP Logs",
+          "description": "Collect Cloudflare HTTP logs for web traffic monitoring and security analysis. Track request patterns, performance metrics, and potential security threats across your CDN infrastructure."
+        }
+      }]
+    }, {
+      name: "crowdstrike",
+      route: "/sources/source-types/crowdstrike",
+      children: [{
+        data: sources_source_types_crowdstrike_meta
+      }, {
+        name: "event-stream",
+        route: "/sources/source-types/crowdstrike/event-stream",
+        frontMatter: {
+          "title": "CrowdStrike Event Stream",
+          "description": "Configure CrowdStrike Event Stream for real-time security event monitoring. Track endpoint telemetry, threat data, and security events for comprehensive endpoint detection and response."
+        }
+      }, {
+        name: "fdr",
+        route: "/sources/source-types/crowdstrike/fdr",
+        frontMatter: {
+          "title": "CrowdStrike Falcon Data Replicator",
+          "description": "Configure CrowdStrike Falcon Data Replicator for comprehensive endpoint telemetry collection. Export threat data and security events to external storage for enhanced analysis and compliance."
+        }
+      }]
+    }, {
+      name: "dnsfilter",
+      route: "/sources/source-types/dnsfilter",
+      frontMatter: {
+        "sidebarTitle": "Dnsfilter"
+      }
+    }, {
+      name: "dropbox",
+      route: "/sources/source-types/dropbox",
+      frontMatter: {
+        "title": "Dropbox Event Logs",
+        "description": "Collect Dropbox event logs for team activity monitoring and security analysis. Track file access, sharing events, and user actions across your Dropbox organization."
+      }
+    }, {
+      name: "fluent-bit",
+      route: "/sources/source-types/fluent-bit",
+      frontMatter: {
+        "sidebarTitle": "Fluent Bit"
+      }
+    }, {
+      name: "gcp",
+      route: "/sources/source-types/gcp",
+      frontMatter: {
+        "title": "Google Cloud Platform (GCP) Logs",
+        "description": "Collect GCP logs for comprehensive cloud monitoring and security. Track API calls, system events, and user activity across all Google Cloud services for audit and compliance."
+      }
+    }, {
+      name: "generic",
+      route: "/sources/source-types/generic",
+      frontMatter: {
+        "title": "Generic Log Sources",
+        "description": "Configure generic log sources for flexible event ingestion. Support multiple storage options and webhook integration for custom log formats and third-party systems."
+      }
+    }, {
+      name: "github",
+      route: "/sources/source-types/github",
+      children: [{
+        data: sources_source_types_github_meta
+      }, {
+        name: "audit",
+        route: "/sources/source-types/github/audit",
+        frontMatter: {
+          "sidebarTitle": "Audit"
+        }
+      }, {
+        name: "webhook",
+        route: "/sources/source-types/github/webhook",
+        frontMatter: {
+          "title": "GitHub Webhook Events",
+          "description": "Configure GitHub webhook events for repository monitoring. Track push events, pull requests, issues, and other repository activities for comprehensive development security."
+        }
+      }]
+    }, {
+      name: "github",
+      route: "/sources/source-types/github",
+      frontMatter: {
+        "title": "GitHub",
+        "description": "Integrate GitHub audit logs and webhook events for comprehensive repository monitoring. Track user activity, code changes, and security events across your GitHub organization."
+      }
+    }, {
+      name: "gitlab",
+      route: "/sources/source-types/gitlab",
+      frontMatter: {
+        "title": "GitLab S3 Streaming Audit Logs",
+        "description": "Collect GitLab audit logs for comprehensive repository monitoring. Track user activity, project changes, and group modifications for security and compliance purposes."
+      }
+    }, {
+      name: "google-workspace-logs",
+      route: "/sources/source-types/google-workspace-logs",
+      frontMatter: {
+        "title": "Google Workspace Audit Logs",
+        "description": "Collect Google Workspace audit logs for comprehensive user activity monitoring. Track Gmail, Drive, and Meet usage for security compliance and incident investigation."
+      }
+    }, {
+      name: "jamf",
+      route: "/sources/source-types/jamf",
+      frontMatter: {
+        "title": "JAMF Logs",
+        "description": "Ingest JAMF logs for Apple device management monitoring. Track policy deployments, application installations, security compliance, and device inventory updates."
+      }
+    }, {
+      name: "jamfprotect",
+      route: "/sources/source-types/jamfprotect",
+      frontMatter: {
+        "sidebarTitle": "Jamfprotect"
+      }
+    }, {
+      name: "jumpcloud",
+      route: "/sources/source-types/jumpcloud",
+      frontMatter: {
+        "title": "JumpCloud Directory Insights",
+        "description": "Collect JumpCloud Directory Insights logs for comprehensive directory monitoring. Track authentication, authorization, and directory management events across your JumpCloud environment."
+      }
+    }, {
+      name: "keeper",
+      route: "/sources/source-types/keeper",
+      frontMatter: {
+        "sidebarTitle": "Keeper"
+      }
+    }, {
+      name: "kubernetes",
+      route: "/sources/source-types/kubernetes",
+      frontMatter: {
+        "title": "Kubernetes Audit Logs",
+        "description": "Collect Kubernetes audit logs for cluster security monitoring. Track API calls, user actions, and resource modifications to ensure compliance and detect security incidents."
+      }
+    }, {
+      name: "mongodb",
+      route: "/sources/source-types/mongodb",
+      frontMatter: {
+        "sidebarTitle": "Mongodb"
+      }
+    }, {
+      name: "notion",
+      route: "/sources/source-types/notion",
+      frontMatter: {
+        "title": "Notion Logs",
+        "description": "Collect Notion logs for collaboration monitoring and access control. Track page views, edits, comments, sharing actions, and permission changes."
+      }
+    }, {
+      name: "obsidian-security",
+      route: "/sources/source-types/obsidian-security",
+      frontMatter: {
+        "title": "Obsidian Security",
+        "description": "Integrate Obsidian Security for SaaS threat detection and response. Monitor user behavior, detect account compromise, and track security incidents across your SaaS applications."
+      }
+    }, {
+      name: "okta",
+      route: "/sources/source-types/okta",
+      frontMatter: {
+        "title": "Okta Security Logs",
+        "description": "Collect Okta security logs for identity monitoring and threat detection. Configure Okta API integration to ingest authentication and security events."
+      }
+    }, {
+      name: "opal",
+      route: "/sources/source-types/opal",
+      frontMatter: {
+        "title": "Opal",
+        "description": "Configure Opal webhook integration for security event monitoring. Set up authentication and event streaming for comprehensive SaaS security logging."
+      }
+    }, {
+      name: "palo-pano-traffic",
+      route: "/sources/source-types/palo-pano-traffic",
+      frontMatter: {
+        "title": "Palo Alto Panorama Traffic Logs",
+        "description": "Collect Palo Alto Panorama traffic logs for network security monitoring. Track network traffic, application usage, and session details for comprehensive firewall analysis."
+      }
+    }, {
+      name: "reveald",
+      route: "/sources/source-types/reveald",
+      frontMatter: {
+        "title": "Reveald Log Collection",
+        "description": "Deploy Reveald log collection agent for efficient host-level log ingestion. Support multiple sources and destinations for comprehensive log collection and forwarding."
+      }
+    }, {
+      name: "sentinelone",
+      route: "/sources/source-types/sentinelone",
+      frontMatter: {
+        "title": "SentinelOne",
+        "description": "Collect SentinelOne endpoint security logs for comprehensive threat detection and response. Monitor endpoint activity, behavioral anomalies, and automated threat mitigation across your organization."
+      }
+    }, {
+      name: "slack",
+      route: "/sources/source-types/slack",
+      frontMatter: {
+        "title": "Slack Audit Logs",
+        "description": "Ingest Slack audit logs into RunReveal for security monitoring. Configure Slack API integration to collect user activity and security events."
+      }
+    }, {
+      name: "sophos",
+      route: "/sources/source-types/sophos",
+      frontMatter: {
+        "sidebarTitle": "Sophos"
+      }
+    }, {
+      name: "structured-webhooks",
+      route: "/sources/source-types/structured-webhooks",
+      frontMatter: {
+        "title": "Structured Webhooks",
+        "description": "Send structured webhook events to RunReveal using standardized JSON format. Configure custom event data with normalized fields for comprehensive security monitoring."
+      }
+    }, {
+      name: "tailscale",
+      route: "/sources/source-types/tailscale",
+      children: [{
+        data: sources_source_types_tailscale_meta
+      }, {
+        name: "audit",
+        route: "/sources/source-types/tailscale/audit",
+        frontMatter: {
+          "title": "Tailscale Audit Logs",
+          "description": "Collect Tailscale audit logs for comprehensive network access monitoring. Track user authentication, device connections, and administrative actions across your Tailscale network."
+        }
+      }, {
+        name: "flow",
+        route: "/sources/source-types/tailscale/flow",
+        frontMatter: {
+          "title": "Tailscale Flow Logs",
+          "description": "Collect Tailscale flow logs for network traffic monitoring. Track network usage, traffic patterns, and peer-to-peer connections within your Tailscale network."
+        }
+      }]
+    }, {
+      name: "teleport",
+      route: "/sources/source-types/teleport",
+      frontMatter: {
+        "sidebarTitle": "Teleport"
+      }
+    }, {
+      name: "wiz-threats",
+      route: "/sources/source-types/wiz-threats",
+      frontMatter: {
+        "sidebarTitle": "Wiz Threats"
+      }
+    }, {
+      name: "zendesk",
+      route: "/sources/source-types/zendesk",
+      frontMatter: {
+        "title": "Zendesk",
+        "description": "Collect Zendesk support logs for customer service monitoring and audit trails. Track ticket events, user activities, and administrative actions across your support platform."
+      }
+    }]
+  }]
+}, {
+  name: "sources",
+  route: "/sources",
+  frontMatter: {
+    "title": "Data Sources - Log Ingestion Methods for RunReveal",
+    "description": "Configure data sources in RunReveal using webhooks, polling, or object storage methods. Learn about ingestion types, transforms, health checks, and supported cloud providers."
+  }
+}, {
+  name: "transforms",
+  route: "/transforms",
+  frontMatter: {
+    "title": "Log Transforms",
+    "description": "Transform raw log data into RunReveal's normalized schema using processors. Extract, modify, and map log fields with JSON extraction, regex, and text manipulation tools."
+  }
+}];

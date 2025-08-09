@@ -13,7 +13,11 @@ const config: DocsThemeConfig = {
   },
   head: (
     <>
+      <title>RunReveal Documentation</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="description" content="Modern SIEM platform documentation for security detection and analysis" />
+      <meta property="og:title" content="RunReveal Documentation" />
+      <meta property="og:description" content="Modern SIEM platform documentation for security detection and analysis" />
       <meta property="og:type" content="website" />
       <meta property="og:url" content="https://docs.runreveal.com" />
       <meta property="og:site_name" content="RunReveal Documentation" />
@@ -21,6 +25,8 @@ const config: DocsThemeConfig = {
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="RunReveal Documentation" />
+      <meta name="twitter:description" content="Modern SIEM platform documentation for security detection and analysis" />
       <meta name="twitter:site" content="@runreveal" />
       <meta name="twitter:creator" content="@runreveal" />
       <meta name="twitter:image" content="https://docs.runreveal.com/og-image.png" />
@@ -30,7 +36,6 @@ const config: DocsThemeConfig = {
       <link rel="canonical" href="https://docs.runreveal.com" />
     </>
   ),
-
 
   docsRepositoryBase: 'https://github.com/runreveal/runreveal-docs/blob/main',
   footer: {
