@@ -5,6 +5,11 @@ const { globby } = require('globby')
 async function generateSitemap() {
   const baseUrl = 'https://docs.runreveal.com'
   
+  // Add error handling for Cloudflare environment
+  if (process.env.CF_PAGES) {
+    console.log('Running in Cloudflare Pages environment')
+  }
+  
   // Get all pages from the built output (more reliable)
   const pages = await globby([
     'pages/**/*.mdx',

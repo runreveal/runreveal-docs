@@ -10,6 +10,12 @@ export default withYAML(withNextra({
   // Configure for Cloudflare Pages compatibility
   output: 'export',
   images: {
-    unoptimized: true,
+    unoptimized: true, // Skip image optimization
   },
+  experimental: {
+    optimizeCss: true, // Optimize CSS
+  },
+  // Reduce build memory usage
+  swcMinify: true,
+  compress: true,
 }))
