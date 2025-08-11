@@ -5,237 +5,346 @@ import { useState, useEffect } from 'react'
 export function CopyPageButton() {
   const [copied, setCopied] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [buttonPosition, setButtonPosition] = useState({ top: 20, left: 0 })
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 })
   const [isVisible, setIsVisible] = useState(false)
 
+  // Handle responsive behavior on resize
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    const handleResize = () => {
+      const width = window.innerWidth
+      const mobile = width < 768
+      setIsMobile(mobile)
+      
+      // Reset visibility when switching between mobile/desktop
+      if (mobile) {
+        setIsVisible(true) // Mobile button should always be visible
+      } else {
+        // Check if article and h1 exist for desktop
+        const article = document.querySelector('main article, article.nextra-content, .nextra-content article, article')
+        const h1 = article?.querySelector('h1')
+        setIsVisible(!!h1)
+      }
+    }
+    
+    // Initial check
+    handleResize()
+    
+    // Add resize listener with debounce for performance
+    let resizeTimer: NodeJS.Timeout
+    const debouncedResize = () => {
+      clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(handleResize, 100)
+    }
+    
+    window.addEventListener('resize', debouncedResize)
+    return () => {
+      window.removeEventListener('resize', debouncedResize)
+      clearTimeout(resizeTimer)
+    }
   }, [])
 
-  // Calculate position relative to article and update on scroll
+  // Position button for desktop mode
   useEffect(() => {
-    const updatePosition = () => {
-      const article = document.querySelector('article, .nextra-content, main[role="main"], .prose')
-      if (!article) return
+    if (isMobile) return
 
-      const rect = article.getBoundingClientRect()
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+    const positionButton = () => {
+      const article = document.querySelector('main article, article.nextra-content, .nextra-content article, article')
+      if (!article) {
+        setIsVisible(false)
+        return
+      }
+
+      const h1 = article.querySelector('h1')
+      if (!h1) {
+        setIsVisible(false)
+        return
+      }
+
+      const h1Rect = h1.getBoundingClientRect()
+      const articleRect = article.getBoundingClientRect()
+      const scrollTop = window.scrollY || document.documentElement.scrollTop
       
-      // Calculate position relative to article, moving with the page
+      // Calculate position: vertically centered with h1, horizontally at article's right edge
+      const topPosition = h1Rect.top + scrollTop + (h1Rect.height / 2) - 14 // Center vertically
+      const leftPosition = articleRect.right - 100 // 100px from right edge for button width + padding
+      
       setButtonPosition({
-        top: rect.top + scrollTop + 20, // 20px from top of article
-        left: rect.left + rect.width - 120 // 120px from right edge of article
+        top: topPosition,
+        left: leftPosition
       })
       
       setIsVisible(true)
     }
 
-    // Update position on scroll and resize
+    // Initial positioning
+    const timer = setTimeout(positionButton, 100)
+    
+    // Reposition on scroll
     const handleScroll = () => {
-      updatePosition()
+      if (!isMobile) {
+        positionButton()
+      }
     }
-
-    const handleResize = () => {
-      updatePosition()
-    }
-
-    const timer = setTimeout(updatePosition, 100)
+    
     window.addEventListener('scroll', handleScroll)
+    
+    // Reposition on resize (for desktop adjustments)
+    const handleResize = () => {
+      if (!isMobile) {
+        positionButton()
+      }
+    }
+    
     window.addEventListener('resize', handleResize)
+    
+    // Watch for DOM changes
+    const observer = new MutationObserver(() => {
+      if (!isMobile) {
+        positionButton()
+      }
+    })
+    
+    const article = document.querySelector('main article, article')
+    if (article) {
+      observer.observe(article, { childList: true, subtree: true })
+    }
 
     return () => {
       clearTimeout(timer)
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('resize', handleResize)
+      observer.disconnect()
     }
-  }, [])
+  }, [isMobile])
 
   const copyPageContent = async () => {
     try {
-      // Find the main article content
-      const article = document.querySelector('article, .nextra-content, main[role="main"], .prose')
+      const article = document.querySelector('main article, article.nextra-content, .nextra-content article')
+      if (!article) return
+
+      let output = ''
+      const baseUrl = window.location.origin
       
-      if (!article) {
-        console.error('No article content found')
-        return
+      // Helper function to convert relative URLs to absolute
+      const makeAbsoluteUrl = (url: string) => {
+        if (!url) return ''
+        if (url.startsWith('http://') || url.startsWith('https://')) return url
+        if (url.startsWith('#')) return window.location.href.split('#')[0] + url
+        if (url.startsWith('/')) return baseUrl + url
+        return baseUrl + '/' + url
       }
 
-      // Clone to avoid modifying DOM
-      const clone = article.cloneNode(true) as HTMLElement
-      
-      // Remove unwanted elements more aggressively
-      const removeSelectors = [
-        'nav', 
-        'aside', 
-        'button', 
-        '.nextra-toc', 
-        '.nextra-breadcrumb',
-        '.nextra-breadcrumb-container',
-        '.nextra-footer',
-        '.nextra-footer-container',
-        '.nextra-nav',
-        '.nextra-sidebar',
-        '.nextra-sidebar-container',
-        '.nextra-theme-toggle',
-        '.nextra-toc-footer',
-        '.nextra-toc-container',
-        '[role="navigation"]',
-        '[role="complementary"]',
-        '.theme-toggle',
-        '.sidebar',
-        '.navigation',
-        '.footer',
-        '.breadcrumb',
-        '.toc',
-        '.toc-container',
-        '.sidebar-container',
-        '.nav-container',
-        '.footer-container'
-      ]
-      removeSelectors.forEach(selector => {
-        clone.querySelectorAll(selector).forEach(el => el.remove())
-      })
-
-      // Remove specific text content that we don't want
-      const removeTextContent = (element: HTMLElement) => {
-        const walker = document.createTreeWalker(
-          element,
-          NodeFilter.SHOW_TEXT,
-          null
-        )
-
-        const textNodes: Text[] = []
-        let node
-        while (node = walker.nextNode()) {
-          textNodes.push(node as Text)
-        }
-
-        textNodes.forEach(textNode => {
-          const text = textNode.textContent || ''
-          const parent = textNode.parentElement
-
-          // Remove "Last updated on" text
-          if (text.includes('Last updated on') || text.includes('last updated')) {
-            if (parent) {
-              parent.remove()
-            }
-          }
-
-          // Remove "How To Guides" text
-          if (text.includes('How To Guides')) {
-            if (parent) {
-              parent.remove()
-            }
-          }
-
-          // Remove Previous/Next navigation text
-          if (text.includes('Previous') || text.includes('Next') || text.includes('←') || text.includes('→')) {
-            if (parent && (parent.tagName === 'A' || parent.closest('a'))) {
-              parent.remove()
-            }
-          }
-
-          // Remove "Next Steps" section if it contains navigation links
-          if (text.includes('Next Steps') && parent) {
-            const nextStepsSection = parent.closest('section, div, h2, h3')
-            if (nextStepsSection) {
-              // Check if this section contains navigation links
-              const hasNavLinks = nextStepsSection.querySelectorAll('a[href*="/"]').length > 0
-              if (hasNavLinks) {
-                nextStepsSection.remove()
+      // Helper function to process inline content with links
+      const processInlineContent = (element: Element): string => {
+        let result = ''
+        
+        element.childNodes.forEach(node => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            result += node.textContent || ''
+          } else if (node.nodeType === Node.ELEMENT_NODE) {
+            const el = node as HTMLElement
+            
+            // Handle links
+            if (el.tagName === 'A') {
+              const href = el.getAttribute('href')
+              const text = el.textContent || ''
+              if (href) {
+                const absoluteUrl = makeAbsoluteUrl(href)
+                result += `[${text}](${absoluteUrl})`
+              } else {
+                result += text
               }
             }
+            // Handle inline code
+            else if (el.tagName === 'CODE') {
+              result += `\`${el.textContent || ''}\``
+            }
+            // Handle strong/bold
+            else if (el.tagName === 'STRONG' || el.tagName === 'B') {
+              result += `**${el.textContent || ''}**`
+            }
+            // Handle emphasis/italic
+            else if (el.tagName === 'EM' || el.tagName === 'I') {
+              result += `*${el.textContent || ''}*`
+            }
+            // Recursively process other elements
+            else {
+              result += processInlineContent(el)
+            }
           }
         })
+        
+        return result
       }
-
-      removeTextContent(clone)
-
-      // Process links to include URLs
-      const processLinks = (element: HTMLElement) => {
-        const links = element.querySelectorAll('a[href]')
-        links.forEach(link => {
-          const href = link.getAttribute('href')
-          const text = link.textContent || ''
-          
-          if (href && !text.includes(href)) {
-            // Add URL to link text if it's not already there
-            link.textContent = `${text} (${href})`
-          }
-        })
-      }
-
-      processLinks(clone)
-
-      // Remove any remaining navigation-like elements
-      const removeNavigationElements = (element: HTMLElement) => {
-        // Remove elements that look like navigation
-        const navLikeSelectors = [
-          'div:has(a[href*="/"])', // divs containing internal links
-          'section:has(a[href*="/"])', // sections containing internal links
-          'ul:has(a[href*="/"])', // lists containing internal links
-          'ol:has(a[href*="/"])' // ordered lists containing internal links
-        ]
-
-        // Remove elements with navigation-like classes
-        const navClasses = [
-          'nav',
-          'navigation', 
-          'sidebar',
-          'toc',
-          'breadcrumb',
-          'footer',
-          'pagination',
-          'prev',
-          'next',
-          'back',
-          'forward'
-        ]
-
-        navClasses.forEach(className => {
-          element.querySelectorAll(`.${className}, [class*="${className}"]`).forEach(el => {
-            el.remove()
-          })
-        })
-
-        // Remove elements containing only links (likely navigation)
-        const linkOnlyElements = element.querySelectorAll('div, section, ul, ol')
-        linkOnlyElements.forEach(el => {
-          const children = Array.from(el.children)
-          const allChildrenAreLinks = children.length > 0 && children.every(child => 
-            child.tagName === 'A' || child.querySelector('a')
-          )
-          
-          if (allChildrenAreLinks) {
-            el.remove()
-          }
-        })
-      }
-
-      removeNavigationElements(clone)
-
-      // Get the HTML content
-      const htmlContent = clone.innerHTML.trim()
       
-      // Create both HTML and plain text versions
-      const htmlBlob = new Blob([htmlContent], { type: 'text/html' })
-      const plainText = clone.innerText || clone.textContent || ''
+      // Process elements in order to maintain document structure
+      const walker = document.createTreeWalker(
+        article,
+        NodeFilter.SHOW_ELEMENT,
+        {
+          acceptNode: (node) => {
+            const element = node as HTMLElement
+            
+            // Skip navigation elements
+            if (element.closest('button') ||
+                element.closest('.nextra-breadcrumb') ||
+                element.closest('.nextra-toc') ||
+                element.closest('nav') ||
+                element.closest('[role="navigation"]')) {
+              return NodeFilter.FILTER_REJECT
+            }
+            
+            // Accept content elements
+            const tagName = element.tagName.toLowerCase()
+            const contentTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'ul', 'ol', 'li', 
+                               'pre', 'code', 'table', 'thead', 'tbody', 'tr', 'td', 'th',
+                               'blockquote', 'details', 'summary', 'div']
+            
+            if (contentTags.includes(tagName)) {
+              return NodeFilter.FILTER_ACCEPT
+            }
+            
+            return NodeFilter.FILTER_SKIP
+          }
+        }
+      )
+
+      const processedElements = new Set()
+      let node
       
-      // Try to copy as HTML (for rich text paste) and plain text fallback
-      try {
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            'text/html': htmlBlob,
-            'text/plain': new Blob([plainText], { type: 'text/plain' })
+      while (node = walker.nextNode()) {
+        const element = node as HTMLElement
+        
+        // Skip if already processed
+        if (processedElements.has(element)) continue
+        
+        const tagName = element.tagName.toLowerCase()
+        
+        // Handle headings
+        if (tagName.match(/^h[1-6]$/)) {
+          const level = parseInt(tagName[1])
+          const prefix = '#'.repeat(level)
+          const text = processInlineContent(element).trim()
+          if (text && !text.includes('Copy Text') && !text.includes('Copied!')) {
+            output += `\n\n${prefix} ${text}\n`
+          }
+          processedElements.add(element)
+        }
+        
+        // Handle paragraphs
+        else if (tagName === 'p') {
+          const text = processInlineContent(element).trim()
+          if (text && !text.includes('Last updated') && !text.includes('On This Page')) {
+            output += `\n${text}\n`
+          }
+          processedElements.add(element)
+        }
+        
+        // Handle code blocks
+        else if (tagName === 'pre') {
+          const codeElement = element.querySelector('code')
+          const code = codeElement?.textContent || element.textContent || ''
+          
+          // Try to detect language from class
+          const langClass = codeElement?.className.match(/language-(\w+)/)
+          const lang = langClass ? langClass[1] : ''
+          
+          output += `\n\`\`\`${lang}\n${code}\n\`\`\`\n`
+          processedElements.add(element)
+          if (codeElement) processedElements.add(codeElement)
+        }
+        
+        // Handle tables
+        else if (tagName === 'table') {
+          output += '\n'
+          
+          // Process table headers
+          const headers: string[] = []
+          element.querySelectorAll('thead th').forEach(th => {
+            headers.push(processInlineContent(th).trim())
           })
-        ])
-      } catch {
-        // Fallback to plain text only
-        await navigator.clipboard.writeText(plainText)
+          
+          if (headers.length > 0) {
+            output += '| ' + headers.join(' | ') + ' |\n'
+            output += '|' + headers.map(() => ' --- ').join('|') + '|\n'
+          }
+          
+          // Process table body
+          const rows = element.querySelectorAll('tbody tr')
+          rows.forEach(row => {
+            const cells: string[] = []
+            row.querySelectorAll('td').forEach(td => {
+              cells.push(processInlineContent(td).trim())
+            })
+            if (cells.length > 0) {
+              output += '| ' + cells.join(' | ') + ' |\n'
+            }
+          })
+          
+          output += '\n'
+          
+          // Mark all table elements as processed
+          element.querySelectorAll('*').forEach(child => processedElements.add(child))
+          processedElements.add(element)
+        }
+        
+        // Handle lists
+        else if (tagName === 'ul' || tagName === 'ol') {
+          const items = element.querySelectorAll(':scope > li')
+          items.forEach((item, index) => {
+            const text = processInlineContent(item).trim()
+            const prefix = tagName === 'ol' ? `${index + 1}.` : '-'
+            if (text) {
+              output += `${prefix} ${text}\n`
+            }
+            processedElements.add(item)
+          })
+          output += '\n'
+          processedElements.add(element)
+        }
+        
+        // Handle blockquotes
+        else if (tagName === 'blockquote') {
+          const text = processInlineContent(element).trim()
+          if (text) {
+            // Add > prefix to each line
+            const lines = text.split('\n').map(line => `> ${line}`).join('\n')
+            output += `\n${lines}\n`
+          }
+          processedElements.add(element)
+        }
+        
+        // Handle details/summary (collapsible sections)
+        else if (tagName === 'details') {
+          const summary = element.querySelector('summary')
+          const summaryText = summary ? processInlineContent(summary).trim() : ''
+          
+          if (summaryText) {
+            output += `\n**${summaryText}**\n`
+          }
+          
+          // Process content excluding summary
+          Array.from(element.children).forEach(child => {
+            if (child.tagName !== 'SUMMARY' && !processedElements.has(child)) {
+              const childTag = child.tagName.toLowerCase()
+              if (childTag === 'p') {
+                output += processInlineContent(child).trim() + '\n'
+              }
+            }
+          })
+          
+          element.querySelectorAll('*').forEach(child => processedElements.add(child))
+          processedElements.add(element)
+        }
       }
+      
+      // Clean up formatting
+      const cleanedText = output
+        .replace(/\n{4,}/g, '\n\n\n')  // Maximum 3 newlines
+        .replace(/[ \t]+$/gm, '')       // Remove trailing spaces
+        .replace(/^\s+|\s+$/g, '')      // Trim start and end
+      
+      await navigator.clipboard.writeText(cleanedText)
       
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -244,7 +353,29 @@ export function CopyPageButton() {
     }
   }
 
-  if (isMobile) return null
+  // Mobile: fixed button at bottom left
+  if (isMobile) {
+    return (
+      <button
+        onClick={copyPageContent}
+        className="fixed bottom-4 left-4 z-10 bg-gray-700 dark:bg-gray-800 border border-gray-500 dark:border-gray-600 shadow-lg p-2 rounded-full text-gray-200 hover:bg-gray-600 transition-all duration-200 opacity-90 hover:opacity-100"
+        title="Copy article content"
+      >
+        {copied ? (
+          <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+        )}
+      </button>
+    )
+  }
+
+  // Desktop: absolute positioned at h1 level, right edge of article
+  if (!isVisible) return null
 
   return (
     <button
@@ -253,31 +384,23 @@ export function CopyPageButton() {
         position: 'absolute',
         top: `${buttonPosition.top}px`,
         left: `${buttonPosition.left}px`,
-        zIndex: 1,
-        opacity: isVisible ? 1 : 0,
-        transition: 'opacity 0.3s ease-in-out'
+        zIndex: 10,
+        transition: 'opacity 0.2s ease-in-out',
+        opacity: 1
       }}
-      className={`
-        bg-gray-700 dark:bg-gray-800
-        border border-gray-500 dark:border-gray-600
-        shadow-sm
-        px-2 py-1 rounded
-        flex items-center gap-1
-        text-xs font-medium
-        ${copied ? 'text-green-400' : 'text-gray-200'}
-      `}
+      className="bg-gray-700 dark:bg-gray-800 border border-gray-500 dark:border-gray-600 shadow-sm px-2 py-1 rounded flex items-center gap-1 text-xs font-medium text-gray-200 hover:bg-gray-600 transition-colors"
       title="Copy article content"
     >
       {copied ? (
         <>
-          <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
-          Copied!
+          <span className="text-green-400">Copied!</span>
         </>
       ) : (
         <>
-          <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
           </svg>
           Copy Text

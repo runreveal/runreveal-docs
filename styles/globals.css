@@ -5,4 +5,13 @@
 /* Global image styling */
 img {
   border-radius: 5px;
+}
+
+/* Limit first h1 width on desktop */
+@media (min-width: 768px) {
+  main article h1:first-of-type,
+  main .nextra-content h1:first-of-type,
+  article h1:first-of-type {
+    max-width: 90%;
+  }
 } 
