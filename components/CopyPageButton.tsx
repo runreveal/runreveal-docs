@@ -149,8 +149,13 @@ export function CopyPageButton() {
               const href = el.getAttribute('href')
               const text = el.textContent || ''
               if (href) {
-                const absoluteUrl = makeAbsoluteUrl(href)
-                result += `[${text}](${absoluteUrl})`
+                // Skip anchor links (those starting with #)
+                if (href.startsWith('#')) {
+                  result += text
+                } else {
+                  const absoluteUrl = makeAbsoluteUrl(href)
+                  result += `[${text}](${absoluteUrl})`
+                }
               } else {
                 result += text
               }
