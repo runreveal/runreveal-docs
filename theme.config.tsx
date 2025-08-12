@@ -23,7 +23,7 @@ const config: DocsThemeConfig = {
 
   docsRepositoryBase: 'https://github.com/runreveal/runreveal-docs/blob/main',
   footer: {
-    content: 'RunReveal docs',
+    component: () => null,
   },
 }
 
