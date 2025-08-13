@@ -1,0 +1,7 @@
+# Redirects for moved AI Chat pages
+/reference/native-ai-chat /ai-chat/native-ai-chat 301
+/reference/model-context-protocol /ai-chat/model-context-protocol 301
+/reference/custom-prompts /ai-chat/custom-prompts 301
+/references/native-ai-chat /ai-chat/native-ai-chat 301
+
+

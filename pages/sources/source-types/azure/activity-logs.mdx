@@ -1,3 +1,8 @@
+---
+title: 'Azure Activity Logs'
+description: 'Collect Azure Activity Logs for comprehensive resource monitoring and audit trails. Track control plane operations, resource changes, and administrative actions across your Azure infrastructure.'
+---
+
 import { Callout, Tabs, Steps } from 'nextra/components'
 
 # Azure Activity Logs
@@ -9,7 +14,7 @@ Azure Activity Logs provide a record of operations performed on Azure resources,
 Azure activity logs can be ingested using either an Azure storage bucket or pushed to RunReveal using a webhook.
 
 Azure storage buckets are inherently cheaper than using the webhook method but logs can be delayed by up to an hour. The webhook ingestion
-imports logs as soon as they are generated, but using an event hub can become more expensive if there are lots of logs.
+imports logs as soon as they are generated, but using event hubs to forward every event can become more expensive if there are lots of logs.
 
 - [Azure Blob Storage](/sources/object-storage/azure)
 - [Webhook Ingestion](#webhook-ingestion)
