@@ -26,7 +26,7 @@ const config: DocsThemeConfig = {
     content: 'RunReveal docs',
   },
   sidebar: {
-    defaultMenuCollapsed: true,
+    defaultMenuCollapseLevel: 1,
   },
 }
 

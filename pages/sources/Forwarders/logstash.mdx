@@ -1,13 +1,19 @@
 ---
-title: 'Logstash'
-description: 'Configure Logstash to forward logs to RunReveal'
+title: 'Logstash Log Forwarder'
+description: 'Configure Logstash to forward logs to RunReveal using webhooks'
 ---
 
 import { Callout, Tabs, Steps } from 'nextra/components'
 
 # Logstash Log Forwarder
 
-[Logstash](https://www.elastic.co/logstash) is a powerful data processing pipeline that can collect, transform, and route logs to RunReveal.
+<Callout type="info">
+**Before you begin**: Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
+</Callout>
+
+[Logstash](https://www.elastic.co/guide/en/logstash/current/index.html) can be configured to send data to RunReveal using the HTTP output plugin. It's designed to collect, parse, filter, and forward logs to various destinations, making it ideal for sending data to RunReveal.
+
+---
 
 ## Quick Start
 
@@ -21,7 +27,7 @@ This step creates a webhook source in RunReveal and generates the webhook URL yo
 
 1. **Navigate to RunReveal**: Go to your RunReveal dashboard
 2. **Create Source**: Click on "Sources" in the left sidebar
-3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks)  based on your data format.
+3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks)" based on your data format.
 4. **Configure**: Give your webhook a name and description
 5. **Copy URL**: Copy the generated webhook URL to use in your configuration. (It's always available after you save the source)
 
@@ -31,23 +37,29 @@ This step installs Logstash on your system using your preferred method. Logstash
 
 <Tabs items={['macOS', 'Ubuntu/Debian', 'CentOS/RHEL', 'Docker', 'Binary']}>
   <Tabs.Tab>
-```bash
-# Install via Homebrew
+
+```bash copy
+# Install using Homebrew
 brew install logstash
+
+# Create config directory
+mkdir -p ~/.config/logstash
 
 # Verify installation
 logstash --version
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+
+```bash copy
 # Add Elastic repository
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
+echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
 
 # Install Logstash
-sudo apt-get update
-sudo apt-get install logstash
+sudo apt update
+sudo apt install logstash
 
 # Enable service
 sudo systemctl enable logstash
@@ -55,15 +67,17 @@ sudo systemctl enable logstash
 # Verify installation
 logstash --version
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+
+```bash copy
 # Add Elastic repository
 sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
-sudo tee /etc/yum.repos.d/elastic.repo << EOF
-[elastic-7.x]
-name=Elastic repository for 7.x packages
-baseurl=https://artifacts.elastic.co/packages/7.x/yum
+sudo cat > /etc/yum.repos.d/elastic.repo << EOF
+[elastic-8.x]
+name=Elastic repository for 8.x packages
+baseurl=https://artifacts.elastic.co/packages/8.x/yum
 gpgcheck=1
 gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
 enabled=1
@@ -80,11 +94,13 @@ sudo systemctl enable logstash
 # Verify installation
 logstash --version
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+
+```bash copy
 # Pull Logstash image
-docker pull docker.elastic.co/logstash/logstash:7.17.0
+docker pull docker.elastic.co/logstash/logstash:8.11.0
 
 # Create config directory
 mkdir -p $(pwd)/logstash-config
@@ -92,24 +108,31 @@ mkdir -p $(pwd)/logstash-config
 # Run Logstash container
 docker run -d \
   --name logstash \
-  -v $(pwd)/logstash-config:/usr/share/logstash/pipeline \
-  -v /var/log:/var/log:ro \
-  docker.elastic.co/logstash/logstash:7.17.0
-
-# Verify container is running
-docker ps | grep logstash
+  -v $(pwd)/logstash-config:/usr/share/logstash/config \
+  -v ~/logs:/logs \
+  docker.elastic.co/logstash/logstash:8.11.0
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+
+```bash copy
 # Download Logstash binary
-curl -L -O https://artifacts.elastic.co/downloads/logstash/logstash-7.17.0.tar.gz
-tar -xzf logstash-7.17.0.tar.gz
-cd logstash-7.17.0
+wget https://artifacts.elastic.co/downloads/logstash/logstash-8.11.0.tar.gz
+
+# Extract binary
+tar -xzf logstash-8.11.0.tar.gz
+
+# Move to system path
+sudo mv logstash-8.11.0 /opt/logstash
+
+# Create symlink
+sudo ln -s /opt/logstash/bin/logstash /usr/local/bin/logstash
 
 # Verify installation
-./bin/logstash --version
+logstash --version
 ```
+
   </Tabs.Tab>
 </Tabs>
 
@@ -119,146 +142,161 @@ This step creates sample log files with security events that Logstash will monit
 
 <Tabs items={['macOS/Linux', 'Windows']}>
   <Tabs.Tab>
-```bash
-# Create logs directory
-mkdir -p logs
 
-# Create test log file
-cat > logs/app.log << 'EOF'
-{"eventTime": "'$(date -Iseconds)'", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"}
-{"eventTime": "'$(date -Iseconds)'", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"}
+```bash copy
+# Create log directory in your home directory
+mkdir -p ~/logs/app
+
+# Create sample application logs
+cat > ~/logs/app/application.log << EOF
+{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
+{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
+{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
 EOF
 
-# Verify log file was created
-ls -la logs/
+# Verify logs were created
+ls -la ~/logs/app/
+cat ~/logs/app/application.log
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
+
 ```powershell
-# Create logs directory
-mkdir C:\logs
+# Create log directory in your home directory
+New-Item -ItemType Directory -Path "$env:USERPROFILE\logs\app" -Force
 
-# Create test log file
-echo {"eventTime": "2024-01-01T12:00:00Z", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"} > C:\logs\app.log
-echo {"eventTime": "2024-01-01T12:01:00Z", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"} >> C:\logs\app.log
+# Create sample application logs
+@"
+{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
+{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
+{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
+"@ | Out-File -FilePath "$env:USERPROFILE\logs\app\application.log" -Encoding UTF8
 
-# Verify log file was created
-dir C:\logs\
+# Verify logs were created
+Get-ChildItem "$env:USERPROFILE\logs\app\"
+Get-Content "$env:USERPROFILE\logs\app\application.log"
 ```
+
   </Tabs.Tab>
 </Tabs>
 
 ### Step 4: Configure Logstash
 
-This step creates the Logstash configuration file that tells Logstash where to find logs and how to send them to RunReveal. The configuration defines both the input (where logs come from) and the output (where logs go).
+This step creates the Logstash configuration file that defines how to collect logs and send them to RunReveal.
 
-<Tabs items={['Pipeline Config', 'Docker Config']}>
-  <Tabs.Tab>
-Create `logstash.conf`:
-
-```ruby
+```json copy
+# logstash.conf
 input {
   file {
-    path => "./logs/*.log"
+    path => "~/logs/app/*.log"
     start_position => "beginning"
-    codec => json
+    sincedb_path => "/dev/null"
   }
 }
 
 filter {
+  json {
+    source => "message"
+  }
+  
   mutate {
     add_field => {
-      "host" => "%{hostname}"
-      "ingestion_timestamp" => "%{@timestamp}"
-      "environment" => "production"
-      "service" => "web-application"
+      "eventName" => "LogEvent"
+      "eventTime" => "%{@timestamp}"
+      "readOnly" => false
+      "service.name" => "application"
+      "tags.source" => "logstash"
     }
   }
 }
 
 output {
   http {
-    url => "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+    url => "YOUR_WEBHOOK_URL"
     http_method => "post"
+    headers => {
+      "Content-Type" => "application/json"
+    }
     format => "json"
     mapping => {
-      "eventTime" => "%{eventTime}"
       "eventName" => "%{eventName}"
-      "action" => "%{action}"
-      "actor" => "%{actor}"
-      "src" => "%{src}"
-      "outcome" => "%{outcome}"
-      "service" => "%{service}"
-      "host" => "%{host}"
-      "ingestion_timestamp" => "%{ingestion_timestamp}"
-      "environment" => "%{environment}"
+      "eventTime" => "%{eventTime}"
+      "readOnly" => "%{readOnly}"
+      "message" => "%{message}"
+      "service" => {
+        "name" => "%{service.name}"
+      }
+      "tags" => {
+        "source" => "%{tags.source}"
+      }
     }
   }
 }
 ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-Create `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-services:
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.17.0
-    container_name: logstash
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-      - ./logs:/var/log/app:ro
-    ports:
-      - "5044:5044"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    command: logstash -f /usr/share/logstash/pipeline/logstash.conf
-```
-  </Tabs.Tab>
-</Tabs>
-
-<Callout type="warning">
-Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
-</Callout>
 
 ### Step 5: Start Logstash
 
 This step starts Logstash with your configuration, which will begin monitoring the log files and forwarding events to RunReveal in real-time. Logstash will continuously watch for new log entries and send them to your webhook.
 
-<Tabs items={['Local', 'Docker']}>
-  <Tabs.Tab>
-```bash
-# Test configuration
+```bash copy
+# Validate configuration
 logstash -f logstash.conf --config.test_and_exit
 
-# Run Logstash
-logstash -f logstash.conf
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash
-# Start with Docker Compose
-docker-compose up -d
+# Test configuration locally (optional)
+logstash -f logstash.conf --config.test_and_exit --verbose
 
-# Check logs
-docker-compose logs -f logstash
+# Run Logstash in foreground
+logstash -f logstash.conf
+
+# Run Logstash in background
+logstash -f logstash.conf -d
 ```
-  </Tabs.Tab>
-</Tabs>
+
+**Local Testing Commands:**
+
+```bash copy
+# Test with a simple HTTP endpoint first
+curl -X POST http://localhost:8080/test -H "Content-Type: application/json" -d '{"test": "data"}'
+
+# Test Logstash configuration with local file output
+# Create a test config that outputs to a local file instead of HTTP
+cat > logstash-test.conf << EOF
+input {
+  file {
+    path => "~/logs/app/*.log"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+  }
+}
+
+output {
+  file {
+    path => "/tmp/logstash-test.log"
+    codec => json
+  }
+}
+EOF
+
+# Run test configuration
+logstash -f logstash-test.conf
+
+# Check the test output
+tail -f /tmp/logstash-test.log
+```
+
 
 ### Step 6: Validate Delivery
 
-This step verifies that logs are being successfully delivered to RunReveal by checking the webhook source and querying for events.
+This step verifies that logs are successfully being delivered to RunReveal by checking the webhook source and querying for events.
 
-1. **Check Webhook Source**: Go to RunReveal → Sources → Your Webhook Source
-2. **View Recent Events**: Look for incoming events in the source details
-3. **Query for Events**: Use the search bar to query `sourceType = 'webhook'` or `sourceType = 'structured-webhook'` depending on your webhook type
-4. **Verify Data**: Confirm that your test log events appear in the results
-
-If you see your test events in RunReveal, Logstash is successfully forwarding logs to your webhook.
+1. **Check Webhook Source**: Go to RunReveal → Sources → Your webhook source
+2. **View Recent Events**: Look for recent events in the source details
+3. **Query for Events**: Use the query `sourceType = 'webhook'` or `sourceType = 'structured-webhook'` to find your events
 
 </Steps>
+
+---
 
 ## Logstash Configuration
 
@@ -267,15 +305,16 @@ If you see your test events in RunReveal, Logstash is successfully forwarding lo
 
 ### Inputs
 
-Inputs collect data from various sources. For RunReveal, you'll typically use file inputs or system inputs. See the [Logstash Input Plugins](https://www.elastic.co/guide/en/logstash/current/input-plugins.html) for comprehensive documentation.
+Inputs collect data from various sources. For RunReveal, you'll typically use file inputs or system inputs. See the [Logstash Input Plugins Reference](https://www.elastic.co/guide/en/logstash/current/input-plugins.html) for comprehensive documentation.
 
 **File Input Example**
-```ruby
+```json copy
 input {
   file {
-    path => ["/var/log/app/*.log", "/var/log/api/*.json"]
+    path => "/var/log/app/*.log"
     start_position => "beginning"
-    codec => json
+    sincedb_path => "/dev/null"
+    type => "application"
   }
 }
 ```
@@ -283,11 +322,13 @@ input {
 Collects application logs in JSON format, perfect for security event analysis and compliance reporting.
 
 **System Input Example**
-```ruby
+```json copy
 input {
-  syslog {
-    port => 5140
-    type => "syslog"
+  file {
+    path => "/var/log/syslog"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+    type => "system"
   }
 }
 ```
@@ -295,11 +336,13 @@ input {
 Captures system authentication and authorization events, essential for security monitoring and threat detection.
 
 **Docker Input Example**
-```ruby
+```json copy
 input {
-  beats {
-    port => 5044
-    type => "beats"
+  file {
+    path => "/var/lib/docker/containers/*/*.log"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+    type => "container"
   }
 }
 ```
@@ -311,106 +354,154 @@ Monitors containerized applications for security incidents, performance issues, 
 
 ### Filters
 
-Filters modify and enrich your data. These are crucial for preparing data for RunReveal's analysis. See the [Logstash Filter Plugins](https://www.elastic.co/guide/en/logstash/current/filter-plugins.html) for comprehensive documentation.
+Filters process and transform data as it flows through the pipeline. For RunReveal, you'll typically use JSON parsing, mutation, or conditional filters. See the [Logstash Filter Plugins Reference](https://www.elastic.co/guide/en/logstash/current/filter-plugins.html) for comprehensive documentation.
 
-**Add Metadata Filter**
-```ruby
+**JSON Parser Example**
+```json copy
 filter {
+  json {
+    source => "message"
+  }
+  
   mutate {
     add_field => {
-      "host" => "%{hostname}"
-      "ingestion_timestamp" => "%{@timestamp}"
-      "environment" => "production"
-      "service" => "web-application"
+      "eventName" => "LogEvent"
+      "eventTime" => "%{@timestamp}"
+      "readOnly" => false
+      "service.name" => "application"
+      "tags.source" => "logstash"
     }
   }
 }
 ```
 
-Adds essential context for security analysis, making it easier to correlate events across different systems and environments.
+Parses JSON-formatted logs into structured fields for better analysis and querying.
 
-**Parse JSON Filter**
-```ruby
+**Conditional Filter Example**
+```json copy
 filter {
-  if [message] {
+  if [type] == "application" {
     json {
       source => "message"
     }
   }
-}
-```
-
-Extracts structured data from log messages, enabling advanced filtering, searching, and alerting based on specific event attributes.
-
-**Filter Events**
-```ruby
-filter {
-  if [eventName] in ["UserLogin", "FileAccess", "DataExport"] {
-    # Process security events
-  } else {
+  
+  if [level] == "DEBUG" {
     drop {}
+  }
+  
+  mutate {
+    add_field => {
+      "environment" => "production"
+      "hostname" => "%{host}"
+    }
   }
 }
 ```
 
-Focuses on security-relevant events, reducing noise and improving detection accuracy while optimizing data transfer costs.
+Applies different processing rules based on log type and filters out unwanted events.
+
+**Date Filter Example**
+```json copy
+filter {
+  date {
+    match => [ "timestamp", "ISO8601" ]
+    target => "@timestamp"
+  }
+  
+  mutate {
+    add_field => {
+      "eventName" => "LogEvent"
+      "eventTime" => "%{@timestamp}"
+    }
+  }
+}
+```
+
+Transforms timestamps to proper format and adds required fields for RunReveal.
 
   </Tabs.Tab>
   <Tabs.Tab>
 
 ### Outputs
 
-Outputs send processed data to external systems. For RunReveal, you'll use the HTTP output. See the [Logstash Output Plugins](https://www.elastic.co/guide/en/logstash/current/output-plugins.html) for comprehensive documentation.
+Outputs send data to external destinations. For RunReveal, you'll configure HTTP output to send logs via webhooks. See the [Logstash Output Plugins Reference](https://www.elastic.co/guide/en/logstash/current/output-plugins.html) for comprehensive documentation.
 
-**HTTP Output for RunReveal**
-```ruby
+**HTTP Output Example**
+```json copy
 output {
   http {
-    url => "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+    url => "YOUR_WEBHOOK_URL"
     http_method => "post"
-    format => "json"
-    mapping => {
-      "eventTime" => "%{eventTime}"
-      "eventName" => "%{eventName}"
-      "action" => "%{action}"
-      "actor" => "%{actor}"
-      "src" => "%{src}"
-      "outcome" => "%{outcome}"
-      "service" => "%{service}"
-      "host" => "%{host}"
-      "ingestion_timestamp" => "%{ingestion_timestamp}"
-      "environment" => "%{environment}"
-    }
-    request_timeout => 30
     headers => {
       "Content-Type" => "application/json"
     }
+    format => "json"
+    mapping => {
+      "eventName" => "%{eventName}"
+      "eventTime" => "%{eventTime}"
+      "readOnly" => "%{readOnly}"
+      "message" => "%{message}"
+      "service" => {
+        "name" => "%{service.name}"
+      }
+      "tags" => {
+        "source" => "%{tags.source}"
+      }
+    }
   }
 }
 ```
 
-Ensures reliable delivery of security events with proper timeout and header configuration.
+Sends logs to RunReveal via HTTP POST requests with proper JSON formatting and field mapping.
 
-**Multiple Output Example**
-```ruby
+**Batch Configuration Example**
+```json copy
 output {
-  if [eventName] in ["UserLogin", "FileAccess"] {
+  http {
+    url => "YOUR_WEBHOOK_URL"
+    http_method => "post"
+    headers => {
+      "Content-Type" => "application/json"
+    }
+    format => "json"
+    retry_non_idempotent => true
+    request_timeout => 30
+  }
+}
+```
+
+Configures batch processing for optimal throughput and reduced network overhead.
+
+**Multiple Outputs Example**
+```json copy
+output {
+  if [type] == "security" {
     http {
-      url => "https://api.runreveal.com/sources/hook/YOUR_STRUCTURED_WEBHOOK"
+      url => "YOUR_WEBHOOK_URL"
       http_method => "post"
+      headers => {
+        "Content-Type" => "application/json"
+      }
       format => "json"
     }
-  } else {
+  }
+  
+  if [type] == "application" {
     http {
-      url => "https://api.runreveal.com/sources/hook/YOUR_GENERIC_WEBHOOK"
+      url => "YOUR_WEBHOOK_URL"
       http_method => "post"
+      headers => {
+        "Content-Type" => "application/json"
+      }
       format => "json"
     }
   }
 }
 ```
 
-Routes different types of events to appropriate webhook types, optimizing for both structured analysis and flexible data collection.
+
+Routes different types of logs to separate endpoints for specialized processing.
 
   </Tabs.Tab>
 </Tabs>
@@ -428,73 +519,58 @@ Now that you have Logstash configured and logs flowing to RunReveal, explore the
 - **[AI Chat](/ai-chat)** - Use AI-powered analysis for threat hunting and investigation
 - **[Enrichments](/enrichments)** - Add context and metadata to your security events
 - **[Filters](/filtering)** - Create custom filters to focus on specific security events
-- **[Pipelines](/pipelines)** - Build data processing pipelines for complex workflows
 
 ---
 
 ## Troubleshooting
 
-### Logstash Won't Start
+### Common Issues
 
-1. **Check Configuration Syntax**
-   ```bash
-   logstash -f logstash.conf --config.test_and_exit
-   ```
+1. **Logstash won't start**: Check the configuration syntax and file permissions
+2. **No logs being sent**: Verify the log file paths exist and are readable
+3. **Webhook errors**: Check that your webhook URL is correct and accessible
+4. **Permission issues**: Ensure Logstash has read access to your log files
 
-2. **Verify File Permissions**
-   - Ensure Logstash has read access to log files
-   - Check that Logstash can write to its working directory
+### Debug Commands
 
-3. **Review Logstash Logs**
-   ```bash
-   logstash -f logstash.conf --log.level debug
-   ```
+```bash copy
+# Check Logstash status
+sudo systemctl status logstash
 
-### Logs Not Reaching RunReveal
+# View Logstash logs
+sudo journalctl -u logstash -f
 
-1. **Verify Webhook URL**
-   - Check that the webhook URL is correct and active
-   - Ensure the URL includes the full path from RunReveal
+# Test webhook connectivity
+curl -v YOUR_WEBHOOK_URL
 
-2. **Test Network Connectivity**
-   ```bash
-   curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL \
-     -H "Content-Type: application/json" \
-     -d '{"test": "message"}'
-   ```
+# Test configuration syntax
+logstash -f logstash.conf --config.test_and_exit
 
-3. **Check Logstash Output Configuration**
-   - Verify the HTTP output is properly configured
-   - Check for any authentication requirements
+# Run Logstash in debug mode
+logstash -f logstash.conf --debug
+```
 
-### High Resource Usage
 
-1. **Optimize Buffer Settings**
-   - Adjust buffer size and flush intervals
-   - Consider using persistent queues for high-volume data
+### Performance Tuning
 
-2. **Review Filter Complexity**
-   - Simplify complex filter chains
-   - Use conditional filtering to reduce data volume
+<Callout type="info">
+**Best Practices:**
 
-3. **Monitor System Resources**
-   ```bash
-   top -p $(pgrep logstash)
-   ```
+1. **Worker Threads**: Configure appropriate worker threads for your log volume
+2. **Batch Processing**: Adjust batch sizes for optimal throughput
+3. **Memory Limits**: Set appropriate heap size to prevent OOM issues
+4. **Retry Logic**: Configure retry settings for failed webhook requests
+5. **Monitoring**: Set up alerts for Logstash service failures
+</Callout>
 
-### Data Format Issues
-
-1. **Check Log Format**
-   - Ensure logs are in the expected format (JSON, syslog, etc.)
-
-2. **Review Filter Rules**
-   - Check that filters are correctly parsing data
-   - Verify field mappings match your log structure
-
-3. **Test with Sample Data**
-   - Use Logstash's `--config.test_and_exit` to validate configuration
-   - Check output format before sending to RunReveal
+---
 
 ## Resources
 
-* [Logstash Official Documentation](https://www.elastic.co/guide/en/logstash/current/index.html)
+- [Logstash Official Documentation](https://www.elastic.co/guide/en/logstash/current/index.html)
+- [Logstash Configuration Reference](https://www.elastic.co/guide/en/logstash/current/configuration.html)
+- [Logstash Input Plugins](https://www.elastic.co/guide/en/logstash/current/input-plugins.html)
+- [Logstash Filter Plugins](https://www.elastic.co/guide/en/logstash/current/filter-plugins.html)
+- [Logstash Output Plugins](https://www.elastic.co/guide/en/logstash/current/output-plugins.html)
+- [Logstash GitHub Repository](https://github.com/elastic/logstash)
+- [Elastic Community](https://discuss.elastic.co/)

@@ -26,7 +26,7 @@ This step installs Vector on your system using your preferred method. Vector wil
 
 <Tabs items={['macOS', 'Ubuntu/Debian', 'CentOS/RHEL', 'Docker', 'Binary']}>
   <Tabs.Tab>
-```bash
+```bash copy
 # Install via Homebrew
 brew install vector
 
@@ -38,7 +38,7 @@ vector --version
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+```bash copy
 # Add Vector repository
 curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.deb.sh' | sudo -E bash
 
@@ -54,7 +54,7 @@ vector --version
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+```bash copy
 # Add Vector repository
 curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.rpm.sh' | sudo -E bash
 
@@ -69,7 +69,7 @@ vector --version
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+```bash copy
 # Pull Vector image
 docker pull timberio/vector:latest-alpine
 
@@ -88,7 +88,7 @@ docker ps | grep vector
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+```bash copy
 # Linux x86_64
 curl -L https://github.com/vectordotdev/vector/releases/latest/download/vector-x86_64-unknown-linux-gnu.tar.gz | tar -xz
 sudo mv vector-*/bin/vector /usr/local/bin/
@@ -113,7 +113,7 @@ This step creates sample log files with security events that Vector will monitor
 
 <Tabs items={['macOS/Linux', 'Windows']}>
   <Tabs.Tab>
-```bash
+```bash copy
 # Create logs directory
 mkdir -p logs
 
@@ -150,7 +150,7 @@ This step creates the Vector configuration file that tells Vector where to find 
   <Tabs.Tab>
 Create `vector.toml`:
 
-```toml
+```toml copy
 # Vector data directory
 data_dir = "./vector-data"
 
@@ -204,7 +204,7 @@ sinks:
   <Tabs.Tab>
 Create `vector.json`:
 
-```json
+```json copy
 {
   "data_dir": "./vector-data",
   "sources": {
@@ -244,7 +244,7 @@ This step starts Vector with your configuration, which will begin monitoring the
 
 <Tabs items={['TOML', 'YAML', 'JSON']}>
   <Tabs.Tab>
-```bash
+```bash copy
 # Test configuration
 vector validate --config vector.toml
 
@@ -253,7 +253,7 @@ vector --config vector.toml
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+```bash copy
 # Test configuration
 vector validate --config vector.yaml
 
@@ -262,7 +262,7 @@ vector --config vector.yaml
 ```
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+```bash copy
 # Test configuration
 vector validate --config vector.json
 
@@ -295,7 +295,7 @@ If you see your test events in RunReveal, Vector is successfully forwarding logs
 Sources collect data from various inputs. For RunReveal, you'll typically use file sources or system sources. See the [Vector Sources Reference](https://vector.dev/docs/reference/configuration/sources/) for comprehensive documentation.
 
 **File Source Example**
-```toml
+```toml copy
 [sources.application_logs]
 type = "file"
 include = ["/var/log/app/*.log", "/var/log/api/*.json"]
@@ -305,7 +305,7 @@ read_from = "beginning"
 Collects application logs in JSON format, perfect for security event analysis and compliance reporting.
 
 **System Source Example**
-```toml
+```toml copy
 [sources.system_logs]
 type = "journald"
 include_units = ["ssh", "sudo", "audit"]
@@ -314,7 +314,7 @@ include_units = ["ssh", "sudo", "audit"]
 Captures system authentication and authorization events, essential for security monitoring and threat detection.
 
 **Docker Source Example**
-```toml
+```toml copy
 [sources.container_logs]
 type = "docker_logs"
 include_images = ["nginx", "postgres", "redis"]
@@ -330,7 +330,7 @@ Monitors containerized applications for security incidents, performance issues, 
 Transforms modify and enrich your data. These are crucial for preparing data for RunReveal's analysis. See the [Vector Transforms Reference](https://vector.dev/docs/reference/configuration/transforms/) for comprehensive documentation.
 
 **Add Metadata Transform**
-```toml
+```toml copy
 [transforms.add_runreveal_metadata]
 type = "remap"
 inputs = ["application_logs"]
@@ -345,7 +345,7 @@ source = '''
 Adds essential context for security analysis, making it easier to correlate events across different systems and environments.
 
 **Parse JSON Transform**
-```toml
+```toml copy
 [transforms.parse_json_logs]
 type = "remap"
 inputs = ["application_logs"]
@@ -359,7 +359,7 @@ if is_string(.message) {
 Extracts structured data from log messages, enabling advanced filtering, searching, and alerting based on specific event attributes.
 
 **Filter Transform**
-```toml
+```toml copy
 [transforms.filter_security_events]
 type = "remap"
 inputs = ["application_logs"]
@@ -382,7 +382,7 @@ Focuses on security-relevant events, reducing noise and improving detection accu
 Sinks send processed data to external systems. For RunReveal, you'll use the HTTP sink. See the [Vector Sinks Reference](https://vector.dev/docs/reference/configuration/sinks/) for comprehensive documentation.
 
 **HTTP Sink for RunReveal**
-```toml
+```toml copy
 [sinks.runreveal_webhook]
 type = "http"
 inputs = ["add_runreveal_metadata"]
@@ -404,7 +404,7 @@ when_full = "block"
 Ensures reliable delivery of security events with compression for efficiency and disk buffering for resilience during network issues.
 
 **Multiple Sink Example**
-```toml
+```toml copy
 [sinks.runreveal_structured]
 type = "http"
 inputs = ["filter_security_events"]
@@ -447,7 +447,7 @@ Now that you have Vector configured and logs flowing to RunReveal, explore the d
 ### Vector Won't Start
 
 1. **Check Configuration Syntax**
-   ```bash
+   ```bash copy
    vector validate --config vector.toml
    ```
 
@@ -456,7 +456,7 @@ Now that you have Vector configured and logs flowing to RunReveal, explore the d
    - Check that Vector can write to its working directory
 
 3. **Review Vector Logs**
-   ```bash
+   ```bash copy
    vector --config vector.toml --log-level debug
    ```
 
@@ -467,7 +467,7 @@ Now that you have Vector configured and logs flowing to RunReveal, explore the d
    - Ensure the URL includes the full path from RunReveal
 
 2. **Test Network Connectivity**
-   ```bash
+   ```bash copy
    curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL \
      -H "Content-Type: application/json" \
      -d '{"test": "message"}'
@@ -488,7 +488,7 @@ Now that you have Vector configured and logs flowing to RunReveal, explore the d
    - Use filtering to reduce data volume
 
 3. **Monitor System Resources**
-   ```bash
+   ```bash copy
    top -p $(pgrep vector)
    ```
 

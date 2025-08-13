@@ -1,17 +1,19 @@
 ---
-title: "Reveald"
-description: "RunReveal's official log collection agent"
+title: 'Reveald Log Forwarder'
+description: 'Configure Reveald to forward logs to RunReveal using webhooks'
 ---
 
 import { Callout, Tabs, Steps } from 'nextra/components'
 
 # Reveald Log Forwarder
 
-[Reveald](https://github.com/reveald/reveald) is RunReveal's official lightweight log collection agent that can collect, transform, and route logs to RunReveal with high performance and minimal resource usage.
+<Callout type="info">
+**Before you begin**: Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
+</Callout>
 
-The host-level Reveald source provides the ability to ingest logs from hosts and enables log normalization through Transforms and SQL JSON parsing functions.
+[Reveald](https://github.com/runreveal/reveald) is RunReveal's official log collection agent, designed specifically for sending data to RunReveal. It's optimized for performance, reliability, and ease of use with RunReveal's platform.
 
-![Reveald Setup](/forwarders-reveald-1.png)
+---
 
 ## Quick Start
 
@@ -19,19 +21,15 @@ This setup demonstrates reading logs from a local file and forwarding them to yo
 
 <Steps>
 
-### Step 1: Create a Reveald Source in RunReveal
+### Step 1: Create a Webhook Source in RunReveal
 
-This step creates a Reveald source in RunReveal and generates the webhook URL you'll need for Reveald configuration.
+This step creates a webhook source in RunReveal and generates the webhook URL you'll need for Reveald configuration.
 
 1. **Navigate to RunReveal**: Go to your RunReveal dashboard
 2. **Create Source**: Click on "Sources" in the left sidebar
-3. **Add Reveald Source**: Create a source for "Reveald" from the source types
-4. **Configure**: Give your Reveald source a name and description
+3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks)" based on your data format.
+4. **Configure**: Give your webhook a name and description
 5. **Copy URL**: Copy the generated webhook URL to use in your configuration. (It's always available after you save the source)
-
-<Callout type="info">
-The Reveald source type provides host-level log ingestion capabilities with built-in normalization through Transforms and SQL JSON parsing functions, making it ideal for collecting and processing logs from various host systems.
-</Callout>
 
 ### Step 2: Install Reveald
 
@@ -39,61 +37,85 @@ This step installs Reveald on your system using your preferred method. Reveald w
 
 <Tabs items={['macOS', 'Ubuntu/Debian', 'CentOS/RHEL', 'Docker', 'Binary']}>
   <Tabs.Tab>
-```bash
-# Install via Homebrew
-brew install reveald
 
-# Verify installation
-reveald --version
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash
-# Download Reveald binary
-curl -L -O https://github.com/reveald/reveald/releases/latest/download/reveald-linux-amd64
-sudo mv reveald-linux-amd64 /usr/local/bin/reveald
-sudo chmod +x /usr/local/bin/reveald
-
-# Verify installation
-reveald --version
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash
-# Download Reveald binary
-curl -L -O https://github.com/reveald/reveald/releases/latest/download/reveald-linux-amd64
-sudo mv reveald-linux-amd64 /usr/local/bin/reveald
-sudo chmod +x /usr/local/bin/reveald
-
-# Verify installation
-reveald --version
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash
-# Pull Reveald image
-docker pull reveald/reveald:latest
+```bash copy
+# Download Reveald for macOS
+curl -L https://github.com/runreveal/reveald/releases/latest/download/reveald-darwin-amd64 -o reveald
+chmod +x reveald
 
 # Create config directory
-mkdir -p $(pwd)/reveald-config
+mkdir -p ~/.config/reveald
+
+# Verify installation
+./reveald --version
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash copy
+# Download Reveald for Linux
+curl -L https://github.com/runreveal/reveald/releases/latest/download/reveald-linux-amd64 -o reveald
+chmod +x reveald
+
+# Move to system path
+sudo mv reveald /usr/local/bin/
+
+# Create config directory
+mkdir -p ~/.config/reveald
+
+# Verify installation
+reveald --version
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash copy
+# Download Reveald for Linux
+curl -L https://github.com/runreveal/reveald/releases/latest/download/reveald-linux-amd64 -o reveald
+chmod +x reveald
+
+# Move to system path
+sudo mv reveald /usr/local/bin/
+
+# Create config directory
+mkdir -p ~/.config/reveald
+
+# Verify installation
+reveald --version
+```
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+```bash copy
+# Pull Reveald image
+docker pull runreveal/reveald:latest
 
 # Run Reveald container
 docker run -d \
   --name reveald \
-  -v $(pwd)/reveald-config:/etc/reveald \
-  -v /var/log:/var/log:ro \
-  reveald/reveald:latest
-
-# Verify container is running
-docker ps | grep reveald
+  -v ~/logs:/logs \
+  runreveal/reveald:latest
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
-```bash
+
+```bash copy
 # Download Reveald binary
-curl -L -O https://github.com/reveald/reveald/releases/latest/download/reveald-linux-amd64
-chmod +x reveald-linux-amd64
-./reveald-linux-amd64 --version
+curl -L https://github.com/runreveal/reveald/releases/latest/download/reveald-linux-amd64 -o reveald
+chmod +x reveald
+
+# Move to system path
+sudo mv reveald /usr/local/bin/
+
+# Create config directory
+mkdir -p ~/.config/reveald
+
+# Verify installation
+reveald --version
 ```
   </Tabs.Tab>
 </Tabs>
@@ -104,145 +126,160 @@ This step creates sample log files with security events that Reveald will monito
 
 <Tabs items={['macOS/Linux', 'Windows']}>
   <Tabs.Tab>
-```bash
-# Create logs directory
-mkdir -p logs
 
-# Create test log file
-cat > logs/app.log << 'EOF'
-{"eventTime": "'$(date -Iseconds)'", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"}
-{"eventTime": "'$(date -Iseconds)'", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"}
+```bash copy
+# Create log directory in your home directory
+mkdir -p ~/logs/app
+
+# Create sample application logs
+cat > ~/logs/app/application.log << EOF
+{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
+{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
+{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
 EOF
 
-# Verify log file was created
-ls -la logs/
+# Verify logs were created
+ls -la ~/logs/app/
+cat ~/logs/app/application.log
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
+
 ```powershell
-# Create logs directory
-mkdir C:\logs
+# Create log directory in your home directory
+New-Item -ItemType Directory -Path "$env:USERPROFILE\logs\app" -Force
 
-# Create test log file
-echo {"eventTime": "2024-01-01T12:00:00Z", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"} > C:\logs\app.log
-echo {"eventTime": "2024-01-01T12:01:00Z", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"} >> C:\logs\app.log
+# Create sample application logs
+@"
+{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
+{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
+{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
+"@ | Out-File -FilePath "$env:USERPROFILE\logs\app\application.log" -Encoding UTF8
 
-# Verify log file was created
-dir C:\logs\
+# Verify logs were created
+Get-ChildItem "$env:USERPROFILE\logs\app\"
+Get-Content "$env:USERPROFILE\logs\app\application.log"
 ```
+
   </Tabs.Tab>
 </Tabs>
 
 ### Step 4: Configure Reveald
 
-This step creates the Reveald configuration file that tells Reveald where to find logs and how to send them to RunReveal. The configuration defines both the sources (where logs come from) and the destinations (where logs go).
+This step creates the Reveald configuration file that defines how to collect logs and send them to RunReveal.
 
-<Tabs items={['JSON Config', 'Docker Config']}>
-  <Tabs.Tab>
-Create `reveald.json`:
-
-```json
+```json copy
 {
   "sources": {
-    "application_logs": {
+    "applogs": {
       "type": "file",
-      "path": "./logs/*.log",
-      "extension": ".log"
-    },
-    "system_logs": {
-      "type": "journald"
+      "path": "~/logs/app",
+      "extension": ".log",
+      "follow": true
     }
   },
   "destinations": {
     "runreveal": {
       "type": "runreveal",
-      "webhookURL": "https://api.runreveal.com/sources/hook/YOUR_REVEALD_WEBHOOK_URL"
+      "webhookURL": "YOUR_WEBHOOK_URL",
+      "batchSize": 100,
+      "batchTimeout": "5s"
     }
+  },
+  "processing": {
+    "parseJSON": true,
+    "addMetadata": true
   }
 }
 ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-Create `docker-compose.yml`:
-
-```yaml
-version: '3.8'
-services:
-  reveald:
-    image: reveald/reveald:latest
-    container_name: reveald
-    volumes:
-      - ./reveald.json:/etc/reveald/config.json
-      - ./logs:/var/log/app:ro
-      - /var/log:/var/log:ro
-    ports:
-      - "8080:8080"
-    environment:
-      - HOSTNAME=localhost
-    command: reveald run --config=/etc/reveald/config.json
-```
-  </Tabs.Tab>
-</Tabs>
-
-<Callout type="warning">
-Replace `YOUR_REVEALD_WEBHOOK_URL` with your actual RunReveal Reveald webhook URL from Step 1.
-</Callout>
 
 ### Step 5: Start Reveald
 
 This step starts Reveald with your configuration, which will begin monitoring the log files and forwarding events to RunReveal in real-time. Reveald will continuously watch for new log entries and send them to your webhook.
 
-<Tabs items={['Local', 'Docker']}>
-  <Tabs.Tab>
-```bash
-# Test configuration
-reveald run --config=reveald.json --validate
+```bash copy
+# Validate configuration
+reveald -config reveald.config.json -validate
 
-# Run Reveald
-reveald run --config=reveald.json
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash
-# Start with Docker Compose
-docker-compose up -d
+# Test configuration locally (optional)
+reveald -config reveald.config.json -validate -verbose
 
-# Check logs
-docker-compose logs -f reveald
+# Run Reveald in foreground
+reveald -config reveald.config.json
+
+# Run Reveald in background
+reveald -config reveald.config.json -daemon
 ```
-  </Tabs.Tab>
-</Tabs>
+
+**Local Testing Commands:**
+
+```bash copy
+# Test with a simple HTTP endpoint first
+curl -X POST http://localhost:8080/test -H "Content-Type: application/json" -d '{"test": "data"}'
+
+# Test Reveald configuration with local file output
+# Create a test config that outputs to a local file instead of HTTP
+cat > reveald-test.config.json << EOF
+{
+  "sources": {
+    "applogs": {
+      "type": "file",
+      "path": "~/logs/app",
+      "extension": ".log",
+      "follow": true
+    }
+  },
+  "destinations": {
+    "file": {
+      "type": "file",
+      "path": "/tmp/reveald-test.log"
+    }
+  },
+  "processing": {
+    "parseJSON": true,
+    "addMetadata": true
+  }
+}
+EOF
+
+# Run test configuration
+reveald -config reveald-test.config.json
+
+# Check the test output
+tail -f /tmp/reveald-test.log
+```
 
 ### Step 6: Validate Delivery
 
-This step verifies that logs are being successfully delivered to RunReveal by checking the Reveald source and querying for events.
+This step verifies that logs are successfully being delivered to RunReveal by checking the webhook source and querying for events.
 
-1. **Check Reveald Source**: Go to RunReveal → Sources → Your Reveald Source
-2. **View Recent Events**: Look for incoming events in the source details
-3. **Query for Events**: Use the search bar to query `sourceType = 'reveald'`
-4. **Verify Data**: Confirm that your test log events appear in the results
-
-If you see your test events in RunReveal, Reveald is successfully forwarding logs to your webhook.
+1. **Check Webhook Source**: Go to RunReveal → Sources → Your webhook source
+2. **View Recent Events**: Look for recent events in the source details
+3. **Query for Events**: Use the query `sourceType = 'webhook'` or `sourceType = 'structured-webhook'` to find your events
 
 </Steps>
 
+---
+
 ## Reveald Configuration
 
-<Tabs items={['Sources', 'Transforms', 'Destinations']}>
+<Tabs items={['Sources', 'Processing', 'Destinations']}>
   <Tabs.Tab>
 
 ### Sources
 
-Sources collect data from various inputs. For RunReveal, you'll typically use file sources or system sources. See the [Reveald Sources Documentation](https://github.com/reveald/reveald) for comprehensive documentation.
+Sources collect data from various inputs. For RunReveal, you'll typically use file sources or system sources. See the [Reveald Sources Documentation](https://github.com/runreveal/reveald) for comprehensive documentation.
 
 **File Source Example**
-```json
+```json copy
 {
   "sources": {
-    "application_logs": {
+    "applogs": {
       "type": "file",
-      "path": "/var/log/app/*.log",
-      "extension": ".log"
+      "path": "/var/log/app",
+      "extension": ".log",
+      "follow": true
     }
   }
 }
@@ -250,12 +287,14 @@ Sources collect data from various inputs. For RunReveal, you'll typically use fi
 
 Collects application logs in JSON format, perfect for security event analysis and compliance reporting.
 
-**Journald Source Example**
-```json
+**System Source Example**
+```json copy
 {
   "sources": {
-    "system_logs": {
-      "type": "journald"
+    "systemlogs": {
+      "type": "file",
+      "path": "/var/log/syslog",
+      "follow": true
     }
   }
 }
@@ -263,150 +302,148 @@ Collects application logs in JSON format, perfect for security event analysis an
 
 Captures system authentication and authorization events, essential for security monitoring and threat detection.
 
-**Command Source Example**
-```json
+**Docker Source Example**
+```json copy
 {
   "sources": {
-    "custom_script": {
-      "type": "command",
-      "cmd": "/usr/local/bin/security-check.sh",
-      "args": ["--format=json"],
-      "interval": "30s"
+    "containerlogs": {
+      "type": "file",
+      "path": "/var/lib/docker/containers",
+      "extension": ".log",
+      "follow": true
     }
   }
 }
 ```
 
-Runs custom security scripts and collects their output, enabling integration with existing security tools and workflows.
+Monitors containerized applications for security incidents, performance issues, and compliance violations.
 
   </Tabs.Tab>
   <Tabs.Tab>
 
-### Transforms
+### Processing
 
-Transforms modify and enrich your data. These are crucial for preparing data for RunReveal's analysis. See the [Reveald Transforms Documentation](https://github.com/reveald/reveald) for comprehensive documentation.
+Processing options transform and filter data as it flows through Reveald. For RunReveal, you'll typically use JSON parsing and metadata addition. See the [Reveald Processing Documentation](https://github.com/runreveal/reveald) for comprehensive documentation.
 
-**Add Metadata Transform**
-```json
+**JSON Parser Example**
+```json copy
 {
-  "sources": {
-    "application_logs": {
-      "type": "file",
-      "path": "./logs/*.log"
-    }
-  },
-  "transforms": {
-    "add_metadata": {
-      "type": "add_fields",
-      "fields": {
-        "host": "${HOSTNAME}",
-        "ingestion_timestamp": "${TIMESTAMP}",
-        "environment": "production",
-        "service": "web-application"
-      }
+  "processing": {
+    "parseJSON": true,
+    "addMetadata": true,
+    "customFields": {
+      "environment": "production",
+      "service": "my-application"
     }
   }
 }
 ```
 
-Adds essential context for security analysis, making it easier to correlate events across different systems and environments.
+Parses JSON-formatted logs into structured fields for better analysis and querying.
 
-**Parse JSON Transform**
-```json
+**Filter Example**
+```json copy
 {
-  "transforms": {
-    "parse_json": {
-      "type": "parse_json",
-      "field": "message",
-      "target": "parsed_data"
+  "processing": {
+    "parseJSON": true,
+    "addMetadata": true,
+    "filterLevels": ["INFO", "WARN", "ERROR"],
+    "customFields": {
+      "environment": "production",
+      "service": "my-application"
     }
   }
 }
 ```
 
-Extracts structured data from log messages, enabling advanced filtering, searching, and alerting based on specific event attributes.
+Filters logs to include only security-relevant events, reducing noise and improving detection accuracy.
 
-**Filter Transform**
-```json
+**Custom Processing Example**
+```json copy
 {
-  "transforms": {
-    "filter_security_events": {
-      "type": "filter",
-      "condition": "eventName in ['UserLogin', 'FileAccess', 'DataExport']"
+  "processing": {
+    "parseJSON": true,
+    "addMetadata": true,
+    "customFields": {
+      "environment": "production",
+      "service": "my-application",
+      "hostname": "${HOSTNAME}"
+    },
+    "transformations": {
+      "timestamp": "eventTime",
+      "level": "severity"
     }
   }
 }
 ```
 
-Focuses on security-relevant events, reducing noise and improving detection accuracy while optimizing data transfer costs.
+Transforms log records to match RunReveal's expected format and adds metadata for better context.
 
   </Tabs.Tab>
   <Tabs.Tab>
 
 ### Destinations
 
-Destinations send processed data to external systems. For RunReveal, you'll use the runreveal destination. See the [Reveald Destinations Documentation](https://github.com/reveald/reveald) for comprehensive documentation.
+Destinations send data to external endpoints. For RunReveal, you'll configure the RunReveal destination to send logs via webhooks. See the [Reveald Destinations Documentation](https://github.com/runreveal/reveald) for comprehensive documentation.
 
-**RunReveal Destination**
-```json
+**RunReveal Destination Example**
+```json copy
 {
   "destinations": {
     "runreveal": {
       "type": "runreveal",
-      "webhookURL": "https://api.runreveal.com/sources/hook/YOUR_REVEALD_WEBHOOK_URL",
-      "batchSize": 1000,
-      "timeout": "30s"
+      "webhookURL": "YOUR_WEBHOOK_URL",
+      "batchSize": 100,
+      "batchTimeout": "5s"
     }
   }
 }
 ```
 
-Ensures reliable delivery of security events with proper batching and timeout settings for optimal performance.
+Sends logs to RunReveal via HTTP POST requests with proper JSON formatting and batch processing.
 
-**Multiple Destination Example**
-```json
+**Batch Configuration Example**
+```json copy
 {
   "destinations": {
-    "runreveal_primary": {
+    "runreveal": {
       "type": "runreveal",
-      "webhookURL": "https://api.runreveal.com/sources/hook/YOUR_REVEALD_WEBHOOK_URL"
-    },
-    "s3_archive": {
-      "type": "s3",
-      "bucketName": "security-logs-archive",
-      "bucketRegion": "us-west-2",
-      "pathPrefix": "logs/"
+      "webhookURL": "YOUR_WEBHOOK_URL",
+      "batchSize": 50,
+      "batchTimeout": "10s",
+      "retryAttempts": 3,
+      "retryDelay": "1s"
     }
   }
 }
 ```
 
-Routes different types of events to appropriate destinations, optimizing for both real-time analysis and long-term archival.
+Configures batch processing for optimal throughput and reduced network overhead.
+
+**Multiple Destinations Example**
+```json copy
+{
+  "destinations": {
+    "runreveal-primary": {
+      "type": "runreveal",
+      "webhookURL": "YOUR_PRIMARY_WEBHOOK_URL",
+      "batchSize": 100,
+      "batchTimeout": "5s"
+    },
+    "runreveal-backup": {
+      "type": "runreveal",
+      "webhookURL": "YOUR_BACKUP_WEBHOOK_URL",
+      "batchSize": 100,
+      "batchTimeout": "5s"
+    }
+  }
+}
+```
+
+Routes different types of logs to separate endpoints for specialized processing and redundancy.
 
   </Tabs.Tab>
 </Tabs>
-
-## Log Normalization
-
-The Reveald source provides built-in log normalization capabilities through:
-
-**SQL JSON Parsing Functions**
-```sql
--- Extract specific fields from JSON logs
-SELECT 
-  JSONExtractString(rawLog, 'eventName') as eventName,
-  JSONExtractString(rawLog, 'actor.username') as username,
-  JSONExtractString(rawLog, 'src.ip') as sourceIP,
-  receivedAt
-FROM logs 
-WHERE sourceType = 'reveald'
-  AND receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
-```
-
-**Transform Integration**
-- Automatically normalizes log formats
-- Enriches events with host metadata
-- Provides consistent field mapping across different log sources
 
 ---
 
@@ -421,74 +458,55 @@ Now that you have Reveald configured and logs flowing to RunReveal, explore the 
 - **[AI Chat](/ai-chat)** - Use AI-powered analysis for threat hunting and investigation
 - **[Enrichments](/enrichments)** - Add context and metadata to your security events
 - **[Filters](/filtering)** - Create custom filters to focus on specific security events
-- **[Pipelines](/pipelines)** - Build data processing pipelines for complex workflows
 
 ---
 
 ## Troubleshooting
 
-### Reveald Won't Start
+### Common Issues
 
-1. **Check Configuration Syntax**
-   ```bash
-   reveald run --config=reveald.json --validate
-   ```
+1. **Reveald won't start**: Check the configuration syntax and file permissions
+2. **No logs being sent**: Verify the log file paths exist and are readable
+3. **Webhook errors**: Check that your webhook URL is correct and accessible
+4. **Permission issues**: Ensure Reveald has read access to your log files
 
-2. **Verify File Permissions**
-   - Ensure Reveald has read access to log files
-   - Check that Reveald can write to its working directory
+### Debug Commands
 
-3. **Review Reveald Logs**
-   ```bash
-   reveald run --config=reveald.json --log-level debug
-   ```
+```bash copy
+# Check Reveald status
+ps aux | grep reveald
 
-### Logs Not Reaching RunReveal
+# Test webhook connectivity
+curl -v YOUR_WEBHOOK_URL
 
-1. **Verify Webhook URL**
-   - Check that the Reveald webhook URL is correct and active
-   - Ensure the URL includes the full path from RunReveal
+# Test configuration syntax
+reveald -config reveald.config.json -validate
 
-2. **Test Network Connectivity**
-   ```bash
-   curl -X POST https://api.runreveal.com/sources/hook/YOUR_REVEALD_WEBHOOK_URL \
-     -H "Content-Type: application/json" \
-     -d '{"test": "message"}'
-   ```
+# Run Reveald in verbose mode
+reveald -config reveald.config.json -verbose
 
-3. **Check Reveald Destination Configuration**
-   - Verify the runreveal destination is properly configured
-   - Check for any authentication requirements
+# Check log files
+ls -la ~/logs/app/
+```
 
-### High Resource Usage
+### Performance Tuning
 
-1. **Optimize Batch Settings**
-   - Adjust batch size and flush intervals
-   - Consider using disk buffers for high-volume data
+<Callout type="info">
+**Best Practices:**
 
-2. **Review Transform Complexity**
-   - Simplify complex transform chains
-   - Use filtering to reduce data volume
+1. **Batch Size**: Configure appropriate batch sizes for your log volume
+2. **Timeout Settings**: Adjust batch timeouts to balance latency and throughput
+3. **Retry Logic**: Configure retry settings for failed webhook requests
+4. **Resource Limits**: Set appropriate memory and CPU limits
+5. **Monitoring**: Set up alerts for Reveald process failures
+</Callout>
 
-3. **Monitor System Resources**
-   ```bash
-   top -p $(pgrep reveald)
-   ```
-
-### Data Format Issues
-
-1. **Check Log Format**
-   - Ensure logs are in the expected format (JSON, syslog, etc.)
-
-2. **Review Transform Rules**
-   - Check that transforms are correctly parsing data
-   - Verify field mappings match your log structure
-
-3. **Test with Sample Data**
-   - Use Reveald's `--validate` flag to validate configuration
-   - Check output format before sending to RunReveal
+---
 
 ## Resources
 
-* [Reveald GitHub Repository](https://github.com/reveald/reveald)
-* [Reveald Documentation](https://github.com/reveald/reveald)
+- [Reveald GitHub Repository](https://github.com/runreveal/reveald)
+- [Reveald Documentation](https://github.com/runreveal/reveald)
+- [Reveald Releases](https://github.com/runreveal/reveald/releases)
+- [RunReveal Community](https://github.com/runreveal/runreveal)
+- [RunReveal Support](https://runreveal.com/support)
