@@ -17,16 +17,16 @@ runreveal openapi -o /path/to/custom-spec.json
 
 ## Method 2: HTTP Endpoint (Runtime)
 
-Retrieve the specification dynamically from a running RunReveal instance:
+Retrieve the specification dynamically from a running RunReveal instance. The token you use needs `Workspace Read` [permissions](../reference/role-based-access-control):
 
 ```bash
 # Get spec from live environment
 curl -H "Authorization: Basic YOUR_TOKEN" \
-     https://api.runreveal.com/openapi/spec
+     https://api.runreveal.com/openapi
 
 # Get spec from custom environment
 curl -H "Authorization: Basic YOUR_TOKEN" \
-     https://your-custom-domain.com/openapi/spec
+     https://your-custom-domain.com/openapi
 ```
 
 The OpenAPI specification enables easier integration with RunReveal and more reliable API usage:
