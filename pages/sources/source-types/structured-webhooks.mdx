@@ -66,6 +66,18 @@ $ curl https://api.runreveal.com/sources/hook/<WEBHOOKID> -d '{
 
 ```
 
+Structured Webhook sources are configured with a bearer token by default, so you'll need to pass that token in the `Authorization` header on the request.
+
+```
+$ curl https://api.runreveal.com/sources/hook/<WEBHOOKID> \
+        -H "Authorization: Bearer <TOKEN>" \
+        -d '{ "eventName":"MyEventName", ...
+```
+
+The token can be found under Source Details, or when editing the source.
+
+If you want to allow unauthenticated requests to your webhook URL, edit the Structured Webhook source and delete the text in the "Bearer token" field.
+
 ## Required Fields
 
 None of the fields in the above object are required. However, `eventTime` will be set to the `receivedAt` time if the `eventTime` field is unset.

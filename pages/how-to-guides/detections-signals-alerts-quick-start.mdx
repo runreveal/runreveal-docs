@@ -44,6 +44,8 @@ First, create a webhook source in RunReveal to receive test data:
      - **Description**: `Test webhook for detection guide`
    - Click **Create** or **Save**
    - **Copy the webhook URL** - it will look like: `https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID`
+   - You'll also need to **copy the bearer token** and pass it in the Authorization header with your webhook's request.
+     Alternatively, after saving the webhook source, you can edit it and remove the bearer token to allow unauthenticated requests for this webhook.
 
 ![Step 1: Create Webhook Source](/alerts-detections-signals-guide-webhook.png)
 
@@ -53,8 +55,9 @@ Now send a test security event using your webhook URL:
 
 1. **Test Event:**
    ```bash copy
-   curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
+   curl -X POST https://api.runreveal.com/sources/hook/31I8bKFd9hxbr3eXJlLiEAFOEKr \
      -H "Content-Type: application/json" \
+     -H "Authorization: Bearer 31I8bOdsVNEBTkZgSJ5E7zvhCXF" \
      -d '{
        "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
        "source": "test-system",
@@ -286,8 +289,9 @@ Now convert your detection to an alert:
 
 3. **Send another test event:**
    ```bash copy
-   curl -X POST https://api.runreveal.com/sources/hook/30pw8Fynw5W7PzjbnRyxnfMsID2 \
+   curl -X POST https://api.runreveal.com/sources/hook/31I8bKFd9hxbr3eXJlLiEAFOEKr \
      -H "Content-Type: application/json" \
+     -H "Authorization: Bearer 31I8bOdsVNEBTkZgSJ5E7zvhCXF" \
      -d '{
        "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
        "source": "test-system", 
