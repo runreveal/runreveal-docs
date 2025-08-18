@@ -1,7 +1,7 @@
 export default {
-    "vector": "Vector",
-    "logstash": "Logstash",
     "reveald": "Reveald",
+    "vector": "Vector",
+    "fluent-bit": "Fluent Bit",
     "datadog-forwarder": "Datadog",
-    "fluent-bit": "Fluent Bit"
+    "logstash": "Logstash"
 } 

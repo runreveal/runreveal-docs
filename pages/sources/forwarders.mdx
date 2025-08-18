@@ -13,8 +13,6 @@ Choose your preferred log forwarding tool to send data to RunReveal using webhoo
 **Before you begin**: Make sure you have created a webhook source in RunReveal. You'll need the webhook URL to configure your log forwarders.
 </Callout>
 
----
-
 ## Choose Your Webhook Type
 
 RunReveal supports two types of webhook sources, each with different use cases:
@@ -112,16 +110,11 @@ High-performance observability data pipeline that can collect, transform, and ro
 ### [Fluent Bit](/sources/forwarders/fluent-bit)
 Lightweight log processor and forwarder that can send data to RunReveal.
 
-### [Datadog Agent](/sources/forwarders/datadog-agent)
-Configure the Datadog Agent to forward logs to RunReveal in addition to or instead of Datadog.
-
-### [Fluentd](/sources/forwarders/fluentd)
-Data collector that can route logs to multiple destinations including RunReveal.
+### [Datadog](/sources/forwarders/datadog-forwarder)
+Configure an http forwarder within the Datadog UI to forward logs to RunReveal after being ingested by Datadog
 
 ### [Logstash](/sources/forwarders/logstash)
 Configure Logstash to send data to RunReveal using the HTTP output plugin.
-
----
 
 ## Getting Started
 
