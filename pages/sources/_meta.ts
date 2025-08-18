@@ -1,5 +1,4 @@
 export default {
     "object-storage": "Object Storage",
-    "source-types": "Source Types",
-    "forwarders": "Forwarders"
+    "source-types": "Source Types"
 }
