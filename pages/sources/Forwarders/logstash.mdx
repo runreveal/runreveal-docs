@@ -7,13 +7,7 @@ import { Callout, Tabs, Steps } from 'nextra/components'
 
 # Logstash Log Forwarder
 
-<Callout type="info">
-**Before you begin**: Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
-</Callout>
-
 [Logstash](https://www.elastic.co/guide/en/logstash/current/index.html) can be configured to send data to RunReveal using the HTTP output plugin. It's designed to collect, parse, filter, and forward logs to various destinations, making it ideal for sending data to RunReveal.
-
----
 
 ## Quick Start
 
@@ -27,7 +21,7 @@ This step creates a webhook source in RunReveal and generates the webhook URL yo
 
 1. **Navigate to RunReveal**: Go to your RunReveal dashboard
 2. **Create Source**: Click on "Sources" in the left sidebar
-3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks)" based on your data format.
+3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/forwarders#choose-your-webhook-type)" based on your data format.
 4. **Configure**: Give your webhook a name and description
 5. **Copy URL**: Copy the generated webhook URL to use in your configuration. (It's always available after you save the source)
 
@@ -144,38 +138,40 @@ This step creates sample log files with security events that Logstash will monit
   <Tabs.Tab>
 
 ```bash copy
-# Create log directory in your home directory
-mkdir -p ~/logs/app
+# Create logstash directory for testing
+mkdir -p logstash
+cd logstash
 
 # Create sample application logs
-cat > ~/logs/app/application.log << EOF
-{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
-{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
-{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
+cat > application.log << EOF
+{"eventName":"UserLogin","eventTime":"2024-01-15T10:30:00Z","readOnly":false,"actor":{"email":"service@company.com","id":"SVC111111","username":"service_account"},"src":{"ip":"192.168.1.108","port":443},"service":{"name":"logstash-application"},"tags":{"environment":"production","source":"logstash"}}
+{"eventName":"FileAccess","eventTime":"2024-01-15T10:31:00Z","readOnly":true,"actor":{"email":"config@company.com","id":"CFG222222","username":"config_manager"},"src":{"ip":"192.168.1.109","port":443},"service":{"name":"logstash-application"},"tags":{"environment":"production","source":"logstash"}}
+{"eventName":"DataExport","eventTime":"2024-01-15T10:32:00Z","readOnly":false,"actor":{"email":"logger@company.com","id":"LOG333333","username":"log_exporter"},"src":{"ip":"192.168.1.110","port":443},"service":{"name":"logstash-application"},"tags":{"environment":"production","source":"logstash"}}
 EOF
 
 # Verify logs were created
-ls -la ~/logs/app/
-cat ~/logs/app/application.log
+ls -la application.log
+cat application.log
 ```
 
   </Tabs.Tab>
   <Tabs.Tab>
 
 ```powershell
-# Create log directory in your home directory
-New-Item -ItemType Directory -Path "$env:USERPROFILE\logs\app" -Force
+# Create logstash directory for testing
+New-Item -ItemType Directory -Path "logstash" -Force
+Set-Location logstash
 
 # Create sample application logs
 @"
-{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
-{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
-{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
-"@ | Out-File -FilePath "$env:USERPROFILE\logs\app\application.log" -Encoding UTF8
+{"eventName":"UserLogin","eventTime":"2024-01-15T10:30:00Z","readOnly":false,"actor":{"email":"service@company.com","id":"SVC111111","username":"service_account"},"src":{"ip":"192.168.1.108","port":443},"service":{"name":"logstash-application"},"tags":{"environment":"production","source":"logstash"}}
+{"eventName":"FileAccess","eventTime":"2024-01-15T10:31:00Z","readOnly":true,"actor":{"email":"config@company.com","id":"CFG222222","username":"config_manager"},"src":{"ip":"192.168.1.109","port":443},"service":{"name":"logstash-application"},"tags":{"environment":"production","source":"logstash"}}
+{"eventName":"DataExport","eventTime":"2024-01-15T10:32:00Z","readOnly":false,"actor":{"email":"logger@company.com","id":"LOG333333","username":"log_exporter"},"src":{"ip":"192.168.1.110","port":443},"service":{"name":"logstash-application"},"tags":{"environment":"production","source":"logstash"}}
+"@ | Out-File -FilePath "application.log" -Encoding UTF8
 
 # Verify logs were created
-Get-ChildItem "$env:USERPROFILE\logs\app\"
-Get-Content "$env:USERPROFILE\logs\app\application.log"
+Get-ChildItem application.log
+Get-Content application.log
 ```
 
   </Tabs.Tab>
@@ -189,7 +185,7 @@ This step creates the Logstash configuration file that defines how to collect lo
 # logstash.conf
 input {
   file {
-    path => "~/logs/app/*.log"
+    path => "application.log"
     start_position => "beginning"
     sincedb_path => "/dev/null"
   }
@@ -264,7 +260,7 @@ curl -X POST http://localhost:8080/test -H "Content-Type: application/json" -d '
 cat > logstash-test.conf << EOF
 input {
   file {
-    path => "~/logs/app/*.log"
+    path => "application.log"
     start_position => "beginning"
     sincedb_path => "/dev/null"
   }

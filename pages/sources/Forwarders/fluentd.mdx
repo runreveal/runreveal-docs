@@ -7,13 +7,7 @@ import { Callout, Tabs, Steps } from 'nextra/components'
 
 # Fluentd Log Forwarder
 
-<Callout type="info">
-**Before you begin**: Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
-</Callout>
-
 [Fluentd](https://docs.fluentd.org/) is a data collector that can route logs to multiple destinations including RunReveal. It's designed to collect, parse, filter, and forward logs to various destinations, making it ideal for sending data to RunReveal.
-
----
 
 ## Quick Start
 
@@ -27,7 +21,7 @@ This step creates a webhook source in RunReveal and generates the webhook URL yo
 
 1. **Navigate to RunReveal**: Go to your RunReveal dashboard
 2. **Create Source**: Click on "Sources" in the left sidebar
-3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks)" based on your data format.
+3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/forwarders#choose-your-webhook-type)" based on your data format.
 4. **Configure**: Give your webhook a name and description
 5. **Copy URL**: Copy the generated webhook URL to use in your configuration. (It's always available after you save the source)
 
@@ -38,12 +32,9 @@ This step installs Fluentd on your system using your preferred method. Fluentd w
 <Tabs items={['macOS', 'Ubuntu/Debian', 'CentOS/RHEL', 'Docker', 'RubyGems']}>
   <Tabs.Tab>
 
-```bash filename="install-macos.sh" copy
+```bash copy
 # Install using Homebrew
 brew install fluentd
-
-# Create config directory
-mkdir -p ~/.config/fluentd
 
 # Verify installation
 fluentd --version
@@ -52,7 +43,7 @@ fluentd --version
   </Tabs.Tab>
   <Tabs.Tab>
 
-```bash filename="install-ubuntu.sh" copy
+```bash copy
 # Add Fluentd repository
 curl -fsSL https://toolbelt.treasuredata.com/sh/install-ubuntu-focal-td-agent4.sh | sh
 
@@ -70,7 +61,7 @@ fluentd --version
   </Tabs.Tab>
   <Tabs.Tab>
 
-```bash filename="install-centos.sh" copy
+```bash copy
 # Add Fluentd repository
 curl -fsSL https://toolbelt.treasuredata.com/sh/install-redhat-td-agent4.sh | sh
 
@@ -87,7 +78,7 @@ fluentd --version
   </Tabs.Tab>
   <Tabs.Tab>
 
-```bash filename="install-docker.sh" copy
+```bash copy
 # Pull Fluentd image
 docker pull fluent/fluentd:latest
 
@@ -98,19 +89,19 @@ mkdir -p $(pwd)/fluentd-config
 docker run -d \
   --name fluentd \
   -v $(pwd)/fluentd-config:/fluentd/etc \
-  -v ~/logs:/logs \
+  -v /var/log:/var/log:ro \
   fluent/fluentd:latest
+
+# Verify container is running
+docker ps | grep fluentd
 ```
 
   </Tabs.Tab>
   <Tabs.Tab>
 
-```bash filename="install-rubygems.sh" copy
+```bash copy
 # Install using RubyGems
 sudo gem install fluentd --no-doc
-
-# Create config directory
-mkdir -p ~/.config/fluentd
 
 # Verify installation
 fluentd --version
@@ -126,39 +117,41 @@ This step creates sample log files with security events that Fluentd will monito
 <Tabs items={['macOS/Linux', 'Windows']}>
   <Tabs.Tab>
 
-```bash filename="create-logs-macos-linux.sh" copy
-# Create log directory in your home directory
-mkdir -p ~/logs/app
+```bash copy
+# Create fluentd directory for testing
+mkdir -p fluentd
+cd fluentd
 
 # Create sample application logs
-cat > ~/logs/app/application.log << EOF
-{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
-{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
-{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
+cat > application.log << EOF
+{"eventName":"UserLogin","eventTime":"2024-01-15T10:30:00Z","readOnly":false,"actor":{"email":"superadmin@company.com","id":"SA777777","username":"super_admin"},"src":{"ip":"192.168.1.105","port":443},"service":{"name":"fluentd-application"},"tags":{"environment":"production","source":"fluentd"}}
+{"eventName":"FileAccess","eventTime":"2024-01-15T10:31:00Z","readOnly":true,"actor":{"email":"auditor@company.com","id":"AU888888","username":"security_auditor"},"src":{"ip":"192.168.1.106","port":443},"service":{"name":"fluentd-application"},"tags":{"environment":"production","source":"fluentd"}}
+{"eventName":"DataExport","eventTime":"2024-01-15T10:32:00Z","readOnly":false,"actor":{"email":"api@company.com","id":"API999999","username":"api_service"},"src":{"ip":"192.168.1.107","port":443},"service":{"name":"fluentd-application"},"tags":{"environment":"production","source":"fluentd"}}
 EOF
 
 # Verify logs were created
-ls -la ~/logs/app/
-cat ~/logs/app/application.log
+ls -la application.log
+cat application.log
 ```
 
   </Tabs.Tab>
   <Tabs.Tab>
 
-```powershell filename="create-logs-windows.ps1" copy
-# Create log directory in your home directory
-New-Item -ItemType Directory -Path "$env:USERPROFILE\logs\app" -Force
+```powershell
+# Create fluentd directory for testing
+New-Item -ItemType Directory -Path "fluentd" -Force
+Set-Location fluentd
 
 # Create sample application logs
 @"
-{"timestamp":"2024-01-15T10:30:00Z","level":"INFO","message":"User login successful","user_id":"12345","ip":"192.168.1.100"}
-{"timestamp":"2024-01-15T10:31:00Z","level":"WARN","message":"Failed login attempt","user_id":"unknown","ip":"192.168.1.101"}
-{"timestamp":"2024-01-15T10:32:00Z","level":"ERROR","message":"Database connection failed","error":"timeout","retry_count":3}
-"@ | Out-File -FilePath "$env:USERPROFILE\logs\app\application.log" -Encoding UTF8
+{"eventName":"UserLogin","eventTime":"2024-01-15T10:30:00Z","readOnly":false,"actor":{"email":"superadmin@company.com","id":"SA777777","username":"super_admin"},"src":{"ip":"192.168.1.105","port":443},"service":{"name":"fluentd-application"},"tags":{"environment":"production","source":"fluentd"}}
+{"eventName":"FileAccess","eventTime":"2024-01-15T10:31:00Z","readOnly":true,"actor":{"email":"auditor@company.com","id":"AU888888","username":"security_auditor"},"src":{"ip":"192.168.1.106","port":443},"service":{"name":"fluentd-application"},"tags":{"environment":"production","source":"fluentd"}}
+{"eventName":"DataExport","eventTime":"2024-01-15T10:32:00Z","readOnly":false,"actor":{"email":"api@company.com","id":"API999999","username":"api_service"},"src":{"ip":"192.168.1.107","port":443},"service":{"name":"fluentd-application"},"tags":{"environment":"production","source":"fluentd"}}
+"@ | Out-File -FilePath "application.log" -Encoding UTF8
 
 # Verify logs were created
-Get-ChildItem "$env:USERPROFILE\logs\app\"
-Get-Content "$env:USERPROFILE\logs\app\application.log"
+Get-ChildItem application.log
+Get-Content application.log
 ```
 
   </Tabs.Tab>
@@ -168,12 +161,12 @@ Get-Content "$env:USERPROFILE\logs\app\application.log"
 
 This step creates the Fluentd configuration file that defines how to collect logs and send them to RunReveal.
 
-```xml filename="fluentd.conf" copy
+```xml copy
 # fluentd.conf
 <source>
   @type tail
-  path ~/logs/app/*.log
-  pos_file ~/logs/fluentd/application.log.pos
+  path application.log
+  pos_file application.log.pos
   tag application
   <parse>
     @type json
@@ -210,54 +203,20 @@ This step creates the Fluentd configuration file that defines how to collect log
 
 ### Step 5: Start Fluentd
 
-This step starts Fluentd with your configuration, which will begin monitoring the log files and forwarding events to RunReveal in real-time. Fluentd will continuously watch for new log entries and send them to your webhook.
+This step starts Fluentd with your configuration, which will begin monitoring the log files and forwarding events to RunReveal in real-time.
 
-```bash filename="start-fluentd.sh" copy
+```bash copy
+# Make sure you're in the fluentd directory where the config file is located
+cd fluentd
+
 # Validate configuration
 fluentd -c fluentd.conf --dry-run
-
-# Test configuration locally (optional)
-fluentd -c fluentd.conf --dry-run --verbose
 
 # Run Fluentd in foreground
 fluentd -c fluentd.conf
 
-# Run Fluentd in background
+# Or run in background
 fluentd -c fluentd.conf -d
-```
-
-**Local Testing Commands:**
-
-```bash filename="test-locally.sh" copy
-# Test with a simple HTTP endpoint first
-curl -X POST http://localhost:8080/test -H "Content-Type: application/json" -d '{"test": "data"}'
-
-# Test Fluentd configuration with local file output
-# Create a test config that outputs to a local file instead of HTTP
-cat > fluentd-test.conf << EOF
-<source>
-  @type tail
-  path ~/logs/app/*.log
-  tag test.logs
-  <parse>
-    @type json
-  </parse>
-</source>
-
-<match test.logs>
-  @type file
-  path /tmp/fluentd-test.log
-  <format>
-    @type json
-  </format>
-</match>
-EOF
-
-# Run test configuration
-fluentd -c fluentd-test.conf
-
-# Check the test output
-tail -f /tmp/fluentd-test.log
 ```
 
 ### Step 6: Validate Delivery
@@ -282,7 +241,7 @@ This step verifies that logs are successfully being delivered to RunReveal by ch
 Sources collect data from various inputs. For RunReveal, you'll typically use file sources or system sources. See the [Fluentd Sources Reference](https://docs.fluentd.org/input) for comprehensive documentation.
 
 **File Source Example**
-```xml filename="file-source.xml" copy
+```xml copy
 <source>
   @type tail
   path /var/log/app/*.log
@@ -297,7 +256,7 @@ Sources collect data from various inputs. For RunReveal, you'll typically use fi
 Collects application logs in JSON format, perfect for security event analysis and compliance reporting.
 
 **System Source Example**
-```xml filename="system-source.xml" copy
+```xml copy
 <source>
   @type tail
   path /var/log/syslog
@@ -312,7 +271,7 @@ Collects application logs in JSON format, perfect for security event analysis an
 Captures system authentication and authorization events, essential for security monitoring and threat detection.
 
 **Docker Source Example**
-```xml filename="docker-source.xml" copy
+```xml copy
 <source>
   @type tail
   path /var/lib/docker/containers/*/*.log
@@ -335,7 +294,7 @@ Monitors containerized applications for security incidents, performance issues, 
 Filters process and transform data as it flows through the pipeline. For RunReveal, you'll typically use record transformers, parsers, or grep filters. See the [Fluentd Filters Reference](https://docs.fluentd.org/filter) for comprehensive documentation.
 
 **Record Transformer Example**
-```xml filename="record-transformer.xml" copy
+```xml copy
 <filter app.logs>
   @type record_transformer
   <record>
@@ -351,7 +310,7 @@ Filters process and transform data as it flows through the pipeline. For RunReve
 Transforms log records to match RunReveal's expected format and adds metadata for better context.
 
 **Parser Example**
-```xml filename="parser.xml" copy
+```xml copy
 <filter app.logs>
   @type parser
   key_name message
@@ -364,7 +323,7 @@ Transforms log records to match RunReveal's expected format and adds metadata fo
 Parses JSON-formatted logs into structured fields for better analysis and querying.
 
 **Grep Filter Example**
-```xml filename="grep-filter.xml" copy
+```xml copy
 <filter app.logs>
   @type grep
   regexp1 level ERROR|WARN|CRITICAL
@@ -381,7 +340,7 @@ Filters logs to include only security-relevant events, reducing noise and improv
 Outputs send data to external destinations. For RunReveal, you'll configure HTTP output to send logs via webhooks. See the [Fluentd Outputs Reference](https://docs.fluentd.org/output) for comprehensive documentation.
 
 **HTTP Output Example**
-```xml filename="http-output.xml" copy
+```xml copy
 <match app.logs>
   @type http
   endpoint YOUR_WEBHOOK_URL
@@ -402,7 +361,7 @@ Outputs send data to external destinations. For RunReveal, you'll configure HTTP
 Sends logs to RunReveal via HTTP POST requests with proper JSON formatting and buffering for reliability.
 
 **Batch Configuration Example**
-```xml filename="batch-output.xml" copy
+```xml copy
 <match app.logs>
   @type http
   endpoint YOUR_WEBHOOK_URL
@@ -425,7 +384,7 @@ Sends logs to RunReveal via HTTP POST requests with proper JSON formatting and b
 Configures batch processing for optimal throughput and reduced network overhead.
 
 **Multiple Outputs Example**
-```xml filename="multiple-outputs.xml" copy
+```xml copy
 <match security.*>
   @type http
   endpoint YOUR_WEBHOOK_URL
@@ -479,7 +438,7 @@ Now that you have Fluentd configured and logs flowing to RunReveal, explore the 
 
 ### Debug Commands
 
-```bash filename="debug-commands.sh" copy
+```bash copy
 # Check Fluentd status
 sudo systemctl status td-agent
 

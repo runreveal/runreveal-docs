@@ -1,3 +1,8 @@
+---
+title: 'Vector Log Forwarder'
+description: 'Configure Vector to forward logs to RunReveal using webhooks'
+---
+
 import { Callout, Tabs, Steps } from 'nextra/components'
 
 # Vector Log Forwarder
@@ -16,7 +21,7 @@ This step creates a webhook source in RunReveal and generates the webhook URL yo
 
 1. **Navigate to RunReveal**: Go to your RunReveal dashboard
 2. **Create Source**: Click on "Sources" in the left sidebar
-3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/Forwarders#structured-webhooks)  based on your data format.
+3. **Add Webhook**: Create a source for "[Structured Webhook or Generic Webhook](/sources/forwarders#choose-your-webhook-type)" based on your data format.
 4. **Configure**: Give your webhook a name and description
 5. **Copy URL**: Copy the generated webhook URL to use in your configuration. (It's always available after you save the source)
 
@@ -26,18 +31,18 @@ This step installs Vector on your system using your preferred method. Vector wil
 
 <Tabs items={['macOS', 'Ubuntu/Debian', 'CentOS/RHEL', 'Docker', 'Binary']}>
   <Tabs.Tab>
+
 ```bash copy
 # Install via Homebrew
 brew install vector
 
-# Create config directory
-mkdir -p ~/.config/vector
-
 # Verify installation
 vector --version
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
+
 ```bash copy
 # Add Vector repository
 curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.deb.sh' | sudo -E bash
@@ -52,8 +57,10 @@ sudo systemctl enable vector
 # Verify installation
 vector --version
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
+
 ```bash copy
 # Add Vector repository
 curl -1sLf 'https://repositories.timber.io/public/vector/cfg/setup/bash.rpm.sh' | sudo -E bash
@@ -67,8 +74,10 @@ sudo systemctl enable vector
 # Verify installation
 vector --version
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
+
 ```bash copy
 # Pull Vector image
 docker pull timberio/vector:latest-alpine
@@ -86,8 +95,10 @@ docker run -d \
 # Verify container is running
 docker ps | grep vector
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
+
 ```bash copy
 # Linux x86_64
 curl -L https://github.com/vectordotdev/vector/releases/latest/download/vector-x86_64-unknown-linux-gnu.tar.gz | tar -xz
@@ -104,6 +115,7 @@ sudo mv vector-*/bin/vector /usr/local/bin/
 # Verify installation
 vector --version
 ```
+
   </Tabs.Tab>
 </Tabs>
 
@@ -113,177 +125,183 @@ This step creates sample log files with security events that Vector will monitor
 
 <Tabs items={['macOS/Linux', 'Windows']}>
   <Tabs.Tab>
-```bash copy
-# Create logs directory
-mkdir -p logs
 
-# Create test log file
-cat > logs/app.log << 'EOF'
-{"eventTime": "'$(date -Iseconds)'", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"}
-{"eventTime": "'$(date -Iseconds)'", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"}
+```bash copy
+# Create vector directory for testing
+mkdir -p vector
+cd vector
+
+# Create sample application logs
+cat > application.log << EOF
+{"eventName":"UserLogin","eventTime":"2024-01-15T10:30:00Z","readOnly":false,"actor":{"email":"mfa@company.com","id":"MFA777777","username":"mfa_user"},"src":{"ip":"192.168.1.114","port":443},"service":{"name":"vector-application"},"tags":{"environment":"production","source":"vector"}}
+{"eventName":"FileAccess","eventTime":"2024-01-15T10:31:00Z","readOnly":true,"actor":{"email":"db@company.com","id":"DB888888","username":"database_service"},"src":{"ip":"192.168.1.115","port":443},"service":{"name":"vector-application"},"tags":{"environment":"production","source":"vector"}}
+{"eventName":"DataExport","eventTime":"2024-01-15T10:32:00Z","readOnly":false,"actor":{"email":"metrics@company.com","id":"MET999999","username":"metrics_exporter"},"src":{"ip":"192.168.1.116","port":443},"service":{"name":"vector-application"},"tags":{"environment":"production","source":"vector"}}
 EOF
 
-# Verify log file was created
-ls -la logs/
+# Verify logs were created
+ls -la application.log
+cat application.log
 ```
+
   </Tabs.Tab>
   <Tabs.Tab>
+
 ```powershell
-# Create logs directory
-mkdir C:\logs
+# Create vector directory for testing
+New-Item -ItemType Directory -Path "vector" -Force
+Set-Location vector
 
-# Create test log file
-echo {"eventTime": "2024-01-01T12:00:00Z", "eventName": "UserLogin", "action": "authentication", "actor": {"username": "john.doe", "userAgent": "Mozilla/5.0"}, "src": {"ip": "192.168.1.100"}, "outcome": "success", "service": "web-api"} > C:\logs\app.log
-echo {"eventTime": "2024-01-01T12:01:00Z", "eventName": "FileAccess", "action": "file_read", "actor": {"username": "jane.smith"}, "object": {"path": "/secure/documents/report.pdf"}, "outcome": "allowed", "service": "file-server"} >> C:\logs\app.log
+# Create sample application logs
+@"
+{"eventName":"UserLogin","eventTime":"2024-01-15T10:30:00Z","readOnly":false,"actor":{"email":"mfa@company.com","id":"MFA777777","username":"mfa_user"},"src":{"ip":"192.168.1.114","port":443},"service":{"name":"vector-application"},"tags":{"environment":"production","source":"vector"}}
+{"eventName":"FileAccess","eventTime":"2024-01-15T10:31:00Z","readOnly":true,"actor":{"email":"db@company.com","id":"DB888888","username":"database_service"},"src":{"ip":"192.168.1.115","port":443},"service":{"name":"vector-application"},"tags":{"environment":"production","source":"vector"}}
+{"eventName":"DataExport","eventTime":"2024-01-15T10:32:00Z","readOnly":false,"actor":{"email":"metrics@company.com","id":"MET999999","username":"metrics_exporter"},"src":{"ip":"192.168.1.116","port":443},"service":{"name":"vector-application"},"tags":{"environment":"production","source":"vector"}}
+"@ | Out-File -FilePath "application.log" -Encoding UTF8
 
-# Verify log file was created
-dir C:\logs\
+# Verify logs were created
+Get-ChildItem application.log
+Get-Content application.log
 ```
+
   </Tabs.Tab>
 </Tabs>
 
 ### Step 4: Configure Vector
 
-This step creates the Vector configuration file that tells Vector where to find logs and how to send them to RunReveal. The configuration defines both the source (where logs come from) and the sink (where logs go).
+This step creates the Vector configuration file that defines how to collect logs and send them to RunReveal.
 
-<Tabs items={['TOML', 'YAML', 'JSON']}>
+<Tabs items={['Basic (No Auth)', 'Bearer Token Auth']}>
   <Tabs.Tab>
-Create `vector.toml`:
+
+**Basic Configuration - No Authentication Required**
+
+Use this configuration when your RunReveal webhook doesn't require a bearer token for authentication.
 
 ```toml copy
-# Vector data directory
+# vector.toml
 data_dir = "./vector-data"
 
 # Source: Read log files
 [sources.my_logs]
 type = "file"
-include = ["./logs/*.log"]
+include = ["application.log"]
 read_from = "beginning"
 
 # Sink: Send to RunReveal
 [sinks.runreveal]
 type = "http"
 inputs = ["my_logs"]
-uri = "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
+uri = "YOUR_WEBHOOK_URL"
 method = "post"
-encoding.codec = "json"
-compression = "none"
-healthcheck.enabled = false
+
+[sinks.runreveal.encoding]
+codec = "json"
+
+[sinks.runreveal.request]
+timeout_secs = 30
 ```
+
+Replace `YOUR_WEBHOOK_URL` with your actual webhook URL from Step 1.
+
   </Tabs.Tab>
   <Tabs.Tab>
-Create `vector.yaml`:
 
-```yaml
-# Vector data directory
-data_dir: "./vector-data"
+**Configuration with Bearer Token Authentication**
+
+Use this configuration when your RunReveal webhook requires bearer token authentication.
+
+```toml copy
+# vector.toml
+data_dir = "./vector-data"
 
 # Source: Read log files
-sources:
-  my_logs:
-    type: file
-    include:
-      - "./logs/*.log"
-    read_from: beginning
+[sources.my_logs]
+type = "file"
+include = ["application.log"]
+read_from = "beginning"
 
-# Sink: Send to RunReveal
-sinks:
-  runreveal:
-    type: http
-    inputs:
-      - my_logs
-    uri: "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL"
-    method: post
-    encoding:
-      codec: json
-    compression: none
-    healthcheck:
-      enabled: false
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-Create `vector.json`:
+# Sink: Send to RunReveal with authentication
+[sinks.runreveal]
+type = "http"
+inputs = ["my_logs"]
+uri = "${YOUR_WEBHOOK_URL}" # Use environment variable
+method = "post"
 
-```json copy
-{
-  "data_dir": "./vector-data",
-  "sources": {
-    "my_logs": {
-      "type": "file",
-      "include": ["./logs/*.log"],
-      "read_from": "beginning"
-    }
-  },
-  "sinks": {
-    "runreveal": {
-      "type": "http",
-      "inputs": ["my_logs"],
-      "uri": "https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_URL",
-      "method": "post",
-      "encoding": {
-        "codec": "json"
-      },
-      "compression": "none",
-      "healthcheck": {
-        "enabled": false
-      }
-    }
-  }
-}
+# Bearer token authentication - sets bearer prefix on token automatically.
+[sinks.runreveal.auth]
+strategy = "bearer"
+token = "${YOUR_BEARER_TOKEN}"  # Use environment variable for security - Bearer prefix is not needed for environment variable. 
+
+[sinks.runreveal.encoding]
+codec = "json"
+
+[sinks.runreveal.request]
+timeout_secs = 30
 ```
+
+**Set environment variables before running Vector:**
+
+```bash copy
+# Set your webhook URL and bearer token
+export YOUR_WEBHOOK_URL="https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID"
+export YOUR_BEARER_TOKEN="your-secret-bearer-token-here"
+
+# Test authentication with curl (optional)
+curl -H "Authorization: Bearer ${YOUR_BEARER_TOKEN}" \
+     -H "Content-Type: application/json" \
+     -X POST \
+     -d '[{"test":"event"}]' \
+     ${YOUR_WEBHOOK_URL}
+```
+
   </Tabs.Tab>
 </Tabs>
 
-<Callout type="warning">
-Replace `YOUR_WEBHOOK_URL` with your actual RunReveal webhook URL from Step 1.
+<Callout type="info">
+**Authentication Notes:**
+- Export YOUR_WEBHOOK_URL as an environment variable instead of adding the url directly to the config.
+- Use bearer token authentication only if your RunReveal webhook requires it
+- Always use environment variables for sensitive data like tokens
+- Never commit authentication tokens to version control
+- Bearer auth support requires Vector v0.9.0 or later ([see documentation](https://vector.dev/highlights/2020-05-20-add-bearer-auth-strategy/))
 </Callout>
 
 ### Step 5: Start Vector
 
-This step starts Vector with your configuration, which will begin monitoring the log files and forwarding events to RunReveal in real-time. Vector will continuously watch for new log entries and send them to your webhook.
+This step starts Vector with your configuration, which will begin monitoring the log files and forwarding events to RunReveal in real-time.
 
-<Tabs items={['TOML', 'YAML', 'JSON']}>
-  <Tabs.Tab>
 ```bash copy
-# Test configuration
-vector validate --config vector.toml
+# Make sure you're in the vector directory where the config file is located
+cd vector
 
-# Run Vector
+# Validate configuration
+vector validate vector.toml
+
+# Run Vector in foreground
 vector --config vector.toml
+
+# Or run in background
+vector --config vector.toml --quiet &
 ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash copy
-# Test configuration
-vector validate --config vector.yaml
 
-# Run Vector
-vector --config vector.yaml
+### Step 6: Verify Delivery in RunReveal
+
+- Return to **Sources** in RunReveal and open your `Vector` Webhook source card.
+- Confirm the **Last Event** timestamp and recent volume.
+
+Click **Query** to explore incoming logs. Start with the sourceID which corresponds to the source id found on each source card on the sources page to only view logs from this source:
+
+```sql copy
+SELECT *
+FROM {table:Identifier}
+WHERE ({tsColumn:Identifier} >= now() - INTERVAL 1 HOUR) 
+ AND ({tsColumn:Identifier} < now()) 
+ AND ((sourceID = 'WEBHOOK_SOURCE_ID'))
+LIMIT 10
 ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-```bash copy
-# Test configuration
-vector validate --config vector.json
-
-# Run Vector
-vector --config vector.json
-```
-  </Tabs.Tab>
-</Tabs>
-
-### Step 6: Validate Delivery
-
-This step verifies that logs are being successfully delivered to RunReveal by checking the webhook source and querying for events.
-
-1. **Check Webhook Source**: Go to RunReveal → Sources → Your Webhook Source
-2. **View Recent Events**: Look for incoming events in the source details
-3. **Query for Events**: Use the search bar to query `sourceType = 'webhook'` or `sourceType = 'structured-webhook'` depending on your webhook type
-4. **Verify Data**: Confirm that your test log events appear in the results
-
-If you see your test events in RunReveal, Vector is successfully forwarding logs to your webhook.
-
 </Steps>
+
+---
 
 ## Vector Configuration
 
@@ -448,7 +466,7 @@ Now that you have Vector configured and logs flowing to RunReveal, explore the d
 
 1. **Check Configuration Syntax**
    ```bash copy
-   vector validate --config vector.toml
+   vector validate vector.toml
    ```
 
 2. **Verify File Permissions**
@@ -482,15 +500,6 @@ Now that you have Vector configured and logs flowing to RunReveal, explore the d
 1. **Optimize Buffer Settings**
    - Adjust buffer size and flush intervals
    - Consider using disk buffers for high-volume data
-
-2. **Review Transform Complexity**
-   - Simplify complex remap transforms
-   - Use filtering to reduce data volume
-
-3. **Monitor System Resources**
-   ```bash copy
-   top -p $(pgrep vector)
-   ```
 
 ### Data Format Issues
 
