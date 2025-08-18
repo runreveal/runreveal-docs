@@ -3,6 +3,5 @@ export default {
     "logstash": "Logstash",
     "reveald": "Reveald",
     "datadog-forwarder": "Datadog",
-    "fluentd": "Fluentd",
     "fluent-bit": "Fluent Bit"
 } 
