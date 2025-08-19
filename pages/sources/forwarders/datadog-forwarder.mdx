@@ -1,0 +1,98 @@
+---
+title: 'Datadog Log Forwarder'
+description: 'Configure Datadog to forward logs to RunReveal using the HTTP destination'
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Datadog Log Forwarder
+
+This guide explains how to forward Datadog logs to RunReveal via an HTTP destination that points at a RunReveal **Webhook (Generic)** source. Use this when you want to stream selected Datadog logs into RunReveal for detections, analytics, and long-term retention.
+
+## Quick Start
+
+<Steps>
+
+### Step 1: Create a Webhook Source in RunReveal
+
+1. In RunReveal, go to **Sources → Add Source → Webhook (Generic)**.
+2. Name the source (for example, `Datadog Logs`).
+3. Copy both values for use in Datadog:
+   - **Webhook URL** (for example: `https://api.runreveal.com/sources/webhook/<WEBHOOK_ID>`)
+   - **Bearer token** (used in the `Authorization` header)
+
+_Example Webhook Source configuration:_
+
+![RunReveal Webhook Source edit screen](/datadog-forwarder-webhook-1.png)
+
+> The **Webhook URL** is the HTTP endpoint Datadog will call. The **Bearer token** authenticates Datadog to RunReveal.
+
+---
+
+### Step 2: Create a Datadog HTTP Destination
+
+1. In Datadog, open **Logs → Configuration → Destinations → New Destination**.
+2. Select **HTTP** as the destination type and name it (for example, `RunReveal`).
+3. Configure the endpoint:
+   - **URL**: `https://api.runreveal.com/sources/webhook/<WEBHOOK_ID>`
+   - **Authentication type**: **Request Header**
+   - **Header name**: `Authorization`
+   - **Header value**: `Bearer <YOUR_RUNREVEAL_BEARER_TOKEN>`
+4. (Optional) Choose **All Tags** to forward everything that matches your routing, or select specific tags to minimize volume.
+
+_Example Datadog destination setup:_
+
+![Datadog HTTP destination configuration for RunReveal](/datadog-forwarder-1.png)
+
+<Callout type="warning">
+<strong>Important:</strong> The value must include the literal prefix <code>Bearer</code> followed by a space and your token (for example, <code>Bearer 31Hy6Y...</code>).
+</Callout>
+
+---
+
+### Step 3: Verify Delivery in RunReveal
+
+- Return to **Sources** in RunReveal and open your `Datadog Logs` Webhook source card.
+- Confirm the **Last Event** timestamp and recent volume.
+
+_Example healthy source card:_
+
+![RunReveal Source card showing healthy status and recent logs](/datadog-forwarder-webhook-2.png)
+
+Click **Query** to explore incoming logs. Start with the sourceID which corresponds to the source id found on each source card on the sources page:
+
+```sql copy
+SELECT *
+FROM {table:Identifier}
+WHERE ({tsColumn:Identifier} >= now() - INTERVAL 1 HOUR) 
+ AND ({tsColumn:Identifier} < now()) 
+ AND ((sourceID = '2yNH5zTW5USNLjRHWgbdVMjOsYY'))
+LIMIT 10
+```
+
+</Steps>
+
+## Troubleshooting
+
+**No logs arriving**
+
+- Verify the destination URL: `https://api.runreveal.com/sources/webhook/<WEBHOOK_ID>`.
+- Confirm the header value includes the `Bearer ` prefix.
+- Use the `curl` test above to isolate Datadog vs. RunReveal issues.
+- Check the RunReveal source card for **Last Error** details and **Last Event** time.
+
+**HTTP 401/403 from RunReveal**
+
+- The token is missing or malformed. Re-copy the **Bearer token** from the RunReveal source and update the Datadog destination.
+
+
+---
+
+## Next Steps
+
+- **[Detections-as-Code](https://docs.runreveal.com/detections)** — build SQL or Sigma detections and deploy via Git workflows.
+- **[Destinations & BYODB](https://docs.runreveal.com/destinations)** — stream findings to Slack/PagerDuty or to a customer-managed ClickHouse.
+- **[AI Chat](https://docs.runreveal.com/ai-chat)** — explore AI-driven triage and investigation (“why am I not receiving Datadog logs?”).
+- **[RunReveal Query Language](https://docs.runreveal.com/query-language)** — learn fields, filters, and examples for faster investigations.
+- **[Structured Webhooks](https://docs.runreveal.com/sources/source-types/structured-webhooks)** — field mapping and payload guidance for best results.
+
