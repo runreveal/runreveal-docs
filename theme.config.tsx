@@ -23,10 +23,7 @@ const config: DocsThemeConfig = {
 
   docsRepositoryBase: 'https://github.com/runreveal/runreveal-docs/blob/main',
   footer: {
-    component: () => null,
-  },
-  sidebar: {
-    defaultMenuCollapseLevel: 1,
+    content: 'RunReveal docs',
   }
 }
 
