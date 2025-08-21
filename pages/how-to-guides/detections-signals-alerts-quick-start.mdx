@@ -122,11 +122,50 @@ Create a SQL detection that will trigger a signal from your test logs:
 
    ![Step 3: Create a Test Detection Rule](/alerts-detections-signals-guide-2.png)
 
+### **Step 4: Validate and Test Detection using CLI (optional)**
 
+#### Validate Detection Syntax with Lint (Recommended)
 
-### **Step 4: Test Detection using CLI (optional)**
+Before testing your detection, validate the syntax and format using the `lint` command. This catches common errors early and ensures your detection will work properly.
 
-Test your detection to verify it works:
+1. **For SQL detections:**
+   ```bash copy
+   # Lint your SQL detection file
+   runreveal lint sql test-suspicious-login.sql
+   ```
+
+2. **For Sigma detections:**
+   ```bash copy
+   # Lint your Sigma detection file
+   runreveal lint sigma test-suspicious-login-sigma.yaml
+   ```
+
+3. **Expected output for successful validation:**
+   ```bash
+   $ runreveal lint sql test-suspicious-login.sql
+   ✅ SQL file passed validation
+   
+   $ runreveal lint sigma test-suspicious-login-sigma.yaml
+   ✅ Sigma file passed validation
+   ```
+
+4. **If validation fails, fix the errors before proceeding:**
+   ```bash
+   $ runreveal lint sigma invalid-rule.yaml
+   ❌ Validation failed for invalid-rule.yaml:
+      - Missing required field: 'title'
+      - Invalid YAML syntax at line 5
+   ```
+
+<Callout type="info">
+**Lint Benefits:**
+- Catches syntax errors before testing
+- Validates required fields and structure
+- Ensures compliance with Sigma/SQL standards
+- Saves time by catching issues early in the development process
+</Callout>
+
+#### Test your detection to verify it works:
 
 1. **Install and configure CLI:**
    
