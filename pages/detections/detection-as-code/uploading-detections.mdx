@@ -1,7 +1,66 @@
-# Uploading Detections
-When it's time to upload detections, RunReveal's CLI is built specifically to
-make this process simple and not error prone. The upload takes place through
-our API.
+# Test/Upload Detections
+
+When it's time to upload detections, RunReveal's CLI provides comprehensive testing and validation tools to ensure your detections are properly formatted and error-free before deployment. This guide walks you through the complete workflow from validation to deployment.
+
+## Validate your detection syntax with lint
+
+Before uploading, validate your detection files for syntax errors and best practices using the `lint` command. This step catches common issues early and ensures your detections will deploy successfully.
+
+### Basic lint syntax
+
+```bash copy
+# Lint Sigma detections
+runreveal lint sigma <file-or-directory>
+
+# Lint SQL detections  
+runreveal lint sql <file-or-directory>
+```
+
+### Lint Sigma detections
+
+Validate Sigma rule files for proper YAML syntax and Sigma specification compliance:
+
+```bash copy
+# Lint a single Sigma file
+runreveal lint sigma ~/detection-as-code/1password/1password-unusual-client.yaml
+
+# Lint all Sigma files in a directory
+runreveal lint sigma ~/detection-as-code/sigma/
+
+# Lint multiple directories
+runreveal lint sigma ~/detection-as-code/1password/ ~/detection-as-code/cf-audit/
+```
+
+### Lint SQL detections
+
+Format and validate SQL detection files using ClickHouse standards:
+
+```bash copy
+# Lint a single SQL file
+runreveal lint sql ~/detection-as-code/sql/privilege-escalation.sql
+
+# Lint all SQL files in a directory
+runreveal lint sql ~/detection-as-code/sql/
+
+# Lint multiple directories
+runreveal lint sql ~/detection-as-code/sql/ ~/detection-as-code/custom-sql/
+```
+
+### Lint output examples
+
+**Successful lint (no errors):**
+```bash
+$ runreveal lint sigma ~/detection-as-code/1password/1password-unusual-client.yaml
+✅ All Sigma files passed validation
+```
+
+**Failed lint (with errors):**
+```bash
+$ runreveal lint sigma ~/detection-as-code/invalid-rule.yaml
+❌ Validation failed for invalid-rule.yaml:
+   - Missing required field: 'title'
+   - Invalid YAML syntax at line 5
+```
 
 ## Test your upload
 
@@ -58,11 +117,20 @@ If you see this error, then adding the `-o` flag will overwrite the existing
 detection and convert the detection from being `web` managed to being `cli`
 managed.
 
-## Force Uploading
-If you receive an error because the detections are managed with the web interface
-you'll need to run the following command to convert your detections to managed
-by the CLI
+## Force uploading with overwrite
+
+If you receive an error because the detections are managed with the web interface, you'll need to run the following command to convert your detections to managed by the CLI:
+
+```bash copy
+runreveal detections sync -o -d ~/detection-as-code
 ```
-$ runreveal detections sync -o -d ~/detection-as-code
-```
+
+## Recommended workflow
+
+1. **Lint your detections** - Validate syntax and format
+2. **Dry run** - Preview changes without deployment
+3. **Upload** - Deploy validated detections
+4. **Monitor** - Check for any runtime issues
+
+This workflow ensures your detections are properly validated before reaching production.
 
