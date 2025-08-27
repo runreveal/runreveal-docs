@@ -14,4 +14,80 @@ img {
   article h1:first-of-type {
     max-width: 90%;
   }
+}
+
+/* Hide footer */
+footer {
+  display: none !important;
+}
+
+/* Set Nextra primary color variables */
+:root {
+  --nextra-primary-hue: 270;
+  --nextra-primary-saturation: 100%;
+  --nextra-primary-lightness: 60%;
+}
+
+/* Clean Nextra styling overrides */
+@layer components {
+  /* Navbar styling */
+  header,
+  .nextra-nav-container,
+  .nextra-nav-container-blur {
+    @apply font-semibold;
+    border-bottom: 2px solid hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) var(--nextra-primary-lightness));
+  }
+
+  /* Navbar text styling */
+  header a,
+  header button,
+  header span,
+  .nextra-nav-container a,
+  .nextra-nav-container button,
+  .nextra-nav-container span,
+  .nextra-nav-container-blur a,
+  .nextra-nav-container-blur button,
+  .nextra-nav-container-blur span {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Sidebar text styling */
+  .nextra-sidebar a,
+  .nextra-sidebar button,
+  .nextra-sidebar .nextra-focus {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Sidebar hover states */
+  .nextra-sidebar .nextra-focus:hover,
+  .nextra-sidebar a:hover,
+  .nextra-sidebar button:hover {
+    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) var(--nextra-primary-lightness));
+    color: white;
+  }
+
+  /* Active sidebar navigation - the key fix */
+  .nextra-sidebar .nextra-focus[aria-current="page"],
+  .nextra-sidebar a[aria-current="page"],
+  .nextra-sidebar button[aria-current="page"],
+  .nextra-sidebar-container .nextra-focus[aria-current="page"],
+  .nextra-sidebar-container a[aria-current="page"],
+  .nextra-sidebar-container button[aria-current="page"],
+  .nextra-sidebar .nextra-focus._bg-primary-100,
+  .nextra-sidebar a._bg-primary-100,
+  .nextra-sidebar button._bg-primary-100,
+  .nextra-sidebar-container .nextra-focus._bg-primary-100,
+  .nextra-sidebar-container a._bg-primary-100,
+  .nextra-sidebar-container button._bg-primary-100 {
+    background-color: hsl(273.33deg 90% 96.08%);
+    color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) calc(var(--nextra-primary-lightness) - 40%));
+  }
+
+  /* Sidebar open menu states */
+  .nextra-sidebar li[open] > a,
+  .nextra-sidebar li[open] > button,
+  .nextra-sidebar li[open] > .nextra-focus {
+    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) var(--nextra-primary-lightness));
+    color: white;
+  }
 } 
