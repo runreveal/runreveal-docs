@@ -10,6 +10,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: [
+          'var(--font-ibm-plex)',
           '"IBM Plex Sans"',
           '"IBM Plex Sans Fallback"',
           '-apple-system',

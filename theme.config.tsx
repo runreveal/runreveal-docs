@@ -1,16 +1,17 @@
 import React from 'react'
+import Image from 'next/image'
 import { DocsThemeConfig } from 'nextra-theme-docs'
 
 const config: DocsThemeConfig = {
   logo: (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <img src="/runreveal_logo_white.png" width={24} height={24} alt="RunReveal" />
+      <Image src="/runreveal_logo_white.png" width={24} height={24} alt="RunReveal" />
       <span style={{ fontWeight: 700, textTransform: 'lowercase' }}>runreveal docs</span>
     </div>
   ),
   project: {
     link: 'https://runreveal.com',
-    icon: (<img src="/runreveal_logo_white.png" width={24} height={24} alt="RunReveal" />),
+    icon: (<Image src="/runreveal_logo_white.png" width={24} height={24} alt="RunReveal" />),
   },
 
   chat: {
@@ -23,8 +24,6 @@ const config: DocsThemeConfig = {
       <meta property="og:title" content="RunReveal docs" />
       <meta property="og:description" content="RunReveal documentation" />
       <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <title>RunReveal Docs</title>
     </>
   ),
