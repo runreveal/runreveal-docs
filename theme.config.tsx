@@ -36,6 +36,9 @@ const config: DocsThemeConfig = {
     defaultMenuCollapseLevel: 0,
     toggleButton: true,
     autoCollapse: false,
+  },
+  search: {
+    placeholder: 'Search documentation...'
   }
 }
 

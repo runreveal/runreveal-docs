@@ -90,4 +90,55 @@ footer {
     background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) var(--nextra-primary-lightness));
     color: white;
   }
+
+  /* Search bar and dropdown styling - IBM Plex font */
+  .nextra-search input,
+  .nextra-search-input,
+  .nextra-search-dropdown,
+  .nextra-search-results,
+  .nextra-search-result,
+  .nextra-search-modal,
+  .nextra-search-overlay,
+  .nextra-modal-content,
+  [data-nextra-search],
+  [data-nextra-search] input,
+  [data-nextra-search] .nextra-scrollbar,
+  [data-nextra-search] ul,
+  [data-nextra-search] li,
+  [data-nextra-search] a,
+  [data-nextra-search] p,
+  [data-nextra-search] span,
+  [data-reach-combobox-input],
+  [data-reach-combobox-list],
+  [data-reach-combobox-option],
+  .nextra-search-container,
+  .nextra-search-container input,
+  .nextra-search-container button,
+  .nextra-search-container div,
+  .nextra-search-container span,
+  .nextra-search-container p,
+  .nextra-search-container a,
+  .nextra-search-container li,
+  .nextra-search-container ul {
+    @apply font-sans;
+    font-family: var(--font-ibm-plex), "IBM Plex Sans", "IBM Plex Sans Fallback", -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+  }
+
+  /* Portal containers - specific targeting for search modals */
+  #__next ~ div,
+  [data-radix-portal],
+  [data-reach-portal] {
+    font-family: var(--font-ibm-plex), "IBM Plex Sans", "IBM Plex Sans Fallback", -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+  }
+
+  /* Additional search component targeting */
+  .nextra-search,
+  .nextra-search *,
+  .nextra-search-input,
+  .nextra-search-input *,
+  .nextra-search-dropdown *,
+  .nextra-search-results *,
+  .nextra-search-result * {
+    font-family: var(--font-ibm-plex), "IBM Plex Sans", "IBM Plex Sans Fallback", -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+  }
 } 
