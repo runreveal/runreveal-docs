@@ -1,0 +1,118 @@
+# PagerDuty
+
+Collect audit logs and events from your [PagerDuty](https://www.pagerduty.com/) account to monitor administrative changes and user activities. You'll find these logs in the `pagerduty_audit_logs` table(s).
+
+![PagerDuty Setup](/pagerduty-source-1.png)
+
+## Ingest Method
+
+This source uses polling to collect audit records every 60 seconds. The PagerDuty source polls audit records to collect administrative changes and user activities, including:
+
+- Account management
+- Service changes  
+- Incident management
+- User access patterns
+
+Logs should begin populating within a minute after being added.
+
+## Setup
+
+![PagerDuty Configuration](/pagerduty-source-2.png)
+
+### API Token
+
+To connect your PagerDuty account, you'll need to provide a PagerDuty API token. This token is used to authenticate and access your PagerDuty audit logs.
+
+1. Log into your PagerDuty account
+2. Navigate to your account settings
+3. Generate a new API token with appropriate permissions for audit log access
+4. Copy the token and paste it into the "PagerDuty API Token" field when creating your source
+
+### API Endpoint
+
+RunReveal uses the [PagerDuty Audit Records API](https://developer.pagerduty.com/api-reference/116868b0e9772-list-audit-records) to collect audit logs. This endpoint provides comprehensive audit records of administrative changes and user activities within your PagerDuty account.
+
+The API endpoint used is:
+```
+GET /audit/records
+```
+
+This endpoint returns audit records that include:
+- User authentication events
+- Account configuration changes
+- Service modifications
+- Incident management activities
+- User access and permission changes
+- Integration updates
+- Team and escalation policy changes
+
+### Source Configuration
+
+When setting up your PagerDuty source, you'll need to provide:
+
+- **Source Name**: A descriptive name for your PagerDuty source (defaults to "pagerduty")
+- **PagerDuty API Token**: Your PagerDuty API token for authentication
+- **Health Check Duration**: Configure how often to check source health (default: 1 day)
+- **Notification Channels**: Set up alerts for when the source stops receiving events
+
+### Verification
+
+After entering your API token, use the "Verify Settings" button to test the connection and ensure your token has the correct permissions to access PagerDuty audit logs.
+
+## Data Schema
+
+Your PagerDuty audit logs will be available in the `pagerduty_audit_logs` table with the source type `pagerduty`.
+
+## Log Format Example
+
+Here's an example of a single PagerDuty audit log record:
+
+```json
+{
+  "id": "PDRECORDID1_TEAM_CREATED",
+  "execution_time": "2020-06-04T15:30:16.272Z",
+  "execution_context": {
+    "request_id": "111lDEOIH-534-4ljhLHJjh111",
+    "remote_address": "201.19.20.19"
+  },
+  "actors": [
+    {
+      "id": "PDUSER",
+      "summary": "John Snow",
+      "type": "user_reference"
+    }
+  ],
+  "method": {
+    "type": "api_token",
+    "truncated_token": "3usr"
+  },
+  "root_resource": {
+    "id": "PXASDFE",
+    "type": "team_reference",
+    "summary": "my DevOps team"
+  },
+  "action": "create",
+  "details": {
+    "resource": {
+      "id": "PXASDFE",
+      "type": "team_reference",
+      "summary": "my DevOps team"
+    },
+    "fields": [
+      {
+        "name": "teamName",
+        "value": "DevOps team"
+      }
+    ]
+  }
+}
+```
+
+This example shows a team creation audit event with all the key fields including execution context, actors, method, and details.
+
+## Related Links
+
+- [PagerDuty Official Website](https://www.pagerduty.com/)
+- [PagerDuty API Documentation](https://developer.pagerduty.com/)
+- [PagerDuty Audit Records API](https://developer.pagerduty.com/api-reference/116868b0e9772-list-audit-records)
+- [PagerDuty Account Settings](https://app.pagerduty.com/account_settings)
