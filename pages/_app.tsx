@@ -1,17 +1,23 @@
 import type { AppProps } from 'next/app'
-import { Inter } from 'next/font/google'
+import { IBM_Plex_Sans } from 'next/font/google'
 import { CopyPageButton } from '../components/CopyPageButton'
 import '../styles/globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const ibmPlex = IBM_Plex_Sans({
+  subsets: ['latin'],
+  weight: ['100', '200', '300', '400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-ibm-plex',
+  display: 'swap',
+})
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <>
-      <main className={inter.className}>
+    <div className={`${ibmPlex.variable} font-sans`}>
+      <main>
         <Component {...pageProps} />
       </main>
       <CopyPageButton />
-    </>
+    </div>
   )
 }
