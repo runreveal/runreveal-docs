@@ -1,0 +1,113 @@
+import { Callout } from 'nextra/components'
+
+# AWS S3 Access Logs
+
+AWS S3 access logs provide detailed records of requests made to your S3 bucket, including information about who accessed your data, 
+when they accessed it, and what operations they performed. These logs capture details such as requester information, 
+request details, response status, and error codes, which are essential for security monitoring, compliance auditing, 
+and troubleshooting access issues.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_s3access
+```
+</Callout>
+
+## Setup
+
+### Step 1: Create a Target S3 Bucket for Access Logs
+
+1. Sign in to the AWS Management Console and open the Amazon S3 console.
+2. Click on "Create bucket".
+3. Enter a unique name for your bucket (e.g., `my-s3-access-logs`) and select the region.
+4. Configure the bucket settings as needed (e.g., versioning, encryption).
+5. Click "Create bucket" to finish.
+
+### Step 2: Configure Bucket Policy for Log Delivery
+
+1. In the S3 console, select the bucket you just created for access logs.
+2. Go to the "Permissions" tab.
+3. Under "Bucket policy", click "Edit".
+4. Paste the following policy, replacing `{target-bucket-name}` with your actual bucket name:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "logging.s3.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::{target-bucket-name}/*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "{source-bucket-account-id}"
+                }
+            }
+        }
+    ]
+}
+```
+
+5. Replace `{source-bucket-account-id}` with your AWS account ID.
+6. Click "Save changes".
+
+### Step 3: Enable Access Logging for Your Source S3 Bucket
+
+1. In the S3 console, select the source bucket for which you want to enable access logging.
+2. Go to the "Properties" tab.
+3. Scroll down to the "Server access logging" section and click "Edit".
+4. Check the box next to "Enable server access logging".
+5. Select the target bucket you created earlier from the "Target bucket" dropdown.
+6. Optionally, specify a prefix for the log files (e.g., `logs/`).
+7. Click "Save changes".
+
+### Step 4: Verify Log Delivery
+
+1. Wait for a few minutes to allow some access requests to your source bucket.
+2. Go back to the S3 console and open your target bucket.
+3. Navigate to the folder where you specified the prefix (or the root if no prefix was specified).
+4. You should see log files appearing in this location with names like `YYYY-MM-DD-HH-MM-SS-XXXXXXXXXX`.
+
+### Step 5: Understanding S3 Access Log Format
+
+S3 access logs contain the following fields in space-delimited format:
+
+- **Bucket Owner**: The canonical user ID of the bucket owner
+- **Bucket**: The name of the bucket
+- **Time**: The time when the request was received
+- **Remote IP**: The IP address of the requester
+- **Requester**: The canonical user ID of the requester
+- **Request ID**: A unique identifier for the request
+- **Operation**: The operation being performed (e.g., GET, PUT, DELETE)
+- **Key**: The key (path) of the object being accessed
+- **Request-URI**: The HTTP request URI
+- **HTTP Status**: The HTTP status code returned
+- **Error Code**: The S3 error code (if applicable)
+- **Bytes Sent**: The number of bytes sent
+- **Object Size**: The size of the object
+- **Total Time**: The total time of the request
+- **Turn-Around Time**: The time between when the request was received and the response was sent
+- **Referer**: The HTTP referer header
+- **User-Agent**: The HTTP user-agent header
+- **Version ID**: The version ID of the object (if versioning is enabled)
+- **Host ID**: The host ID of the S3 endpoint
+- **Signature Version**: The signature version used for authentication
+- **Cipher Suite**: The cipher suite used for HTTPS requests
+- **Authentication Type**: The type of authentication used
+- **Host Header**: The host header of the request
+- **TLS Version**: The TLS version used for HTTPS requests
+
+---
+
+For more information, refer to the [official AWS documentation on S3 server access logging](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html).
