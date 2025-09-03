@@ -1,9 +1,30 @@
+import { Callout } from 'nextra/components'
+
 # Cloudflare Gateway Network Logs
 
 Cloudflare Gateway Network logs provide detailed information about network traffic and security events processed through Cloudflare's Zero Trust Gateway. These logs capture data about user connections, application access, network policies, and security threats detected by Cloudflare's network security services.
 
-## Coming Soon
+## Ingest Methods
 
-Documentation for Cloudflare Gateway Network logs is currently being developed.
+Setup the ingestion of this source using one of the following guides.
 
-Please check back soon for complete documentation.
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Blob Storage](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+- [Cloudflare R2 Bucket](/sources/object-storage/r2)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_cf_gateway_network
+```
+</Callout>
+
+## Setup
+
+Setting up Cloudflare Gateway Network logs requires the use of Cloudflare Logpush.
+
+Navigate to the Logpush setup page in your Cloudflare account and create a new logpush job that sends your access request logs to your storage bucket.
+
+Once created Cloudflare will begin to push logs to your bucket and RunReveal will start to ingest them.

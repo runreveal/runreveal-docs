@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components'
+import { Callout, Tabs } from 'nextra/components'
 
 # AWS S3 Access Logs
 
@@ -11,19 +11,21 @@ and troubleshooting access issues.
 
 Setup the ingestion of this source using one of the following guides.
 
-- [AWS S3 Bucket](/sources/object-storage/s3)
-- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+<Tabs items={['AWS S3 Bucket', 'AWS S3 Bucket w/ Custom SQS']} defaultIndex="0">
 
-<Callout type='info'>
-If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+<Tabs.Tab>
+
+### AWS S3 Bucket
+
+Use the following SNS topic ARN to send your bucket notifications:
+
 ```
 arn:aws:sns:<REGION>:253602268883:runreveal_s3access
 ```
-</Callout>
 
-## Setup
+For detailed setup instructions, see the [AWS S3 Bucket](/sources/object-storage/s3) guide.
 
-### Step 1: Create a Target S3 Bucket for Access Logs
+#### Step 1: Create a Target S3 Bucket for Access Logs
 
 1. Sign in to the AWS Management Console and open the Amazon S3 console.
 2. Click on "Create bucket".
@@ -31,7 +33,7 @@ arn:aws:sns:<REGION>:253602268883:runreveal_s3access
 4. Configure the bucket settings as needed (e.g., versioning, encryption).
 5. Click "Create bucket" to finish.
 
-### Step 2: Configure Bucket Policy for Log Delivery
+#### Step 2: Configure Bucket Policy for Log Delivery
 
 1. In the S3 console, select the bucket you just created for access logs.
 2. Go to the "Permissions" tab.
@@ -62,7 +64,7 @@ arn:aws:sns:<REGION>:253602268883:runreveal_s3access
 5. Replace `{source-bucket-account-id}` with your AWS account ID.
 6. Click "Save changes".
 
-### Step 3: Enable Access Logging for Your Source S3 Bucket
+#### Step 3: Enable Access Logging for Your Source S3 Bucket
 
 1. In the S3 console, select the source bucket for which you want to enable access logging.
 2. Go to the "Properties" tab.
@@ -72,14 +74,107 @@ arn:aws:sns:<REGION>:253602268883:runreveal_s3access
 6. Optionally, specify a prefix for the log files (e.g., `logs/`).
 7. Click "Save changes".
 
-### Step 4: Verify Log Delivery
+#### Step 4: Configure SNS Event Notifications
+
+1. In the S3 console, select your target bucket (where access logs are being delivered).
+2. Go to the "Properties" tab.
+3. Scroll down to the "Event notifications" section and click "Create event notification".
+4. Configure the event notification:
+   - **Event name**: Enter a descriptive name (e.g., "S3AccessLogsToRunReveal")
+   - **Event types**: Select "All object create events"
+   - **Destination**: Choose "SNS topic"
+   - **SNS topic**: Select "Specify SNS topic ARN" and enter: `arn:aws:sns:<REGION>:253602268883:runreveal_s3access`
+5. Click "Save changes".
+
+#### Step 5: Verify Log Delivery
 
 1. Wait for a few minutes to allow some access requests to your source bucket.
 2. Go back to the S3 console and open your target bucket.
 3. Navigate to the folder where you specified the prefix (or the root if no prefix was specified).
 4. You should see log files appearing in this location with names like `YYYY-MM-DD-HH-MM-SS-XXXXXXXXXX`.
 
-### Step 5: Understanding S3 Access Log Format
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### AWS S3 Bucket w/ Custom SQS
+
+For detailed setup instructions, see the [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3) guide.
+
+#### Step 1: Create a Target S3 Bucket for Access Logs
+
+1. Sign in to the AWS Management Console and open the Amazon S3 console.
+2. Click on "Create bucket".
+3. Enter a unique name for your bucket (e.g., `my-s3-access-logs`) and select the region.
+4. Configure the bucket settings as needed (e.g., versioning, encryption).
+5. Click "Create bucket" to finish.
+
+#### Step 2: Configure Bucket Policy for Log Delivery
+
+1. In the S3 console, select the bucket you just created for access logs.
+2. Go to the "Permissions" tab.
+3. Under "Bucket policy", click "Edit".
+4. Paste the following policy, replacing `{target-bucket-name}` with your actual bucket name:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "logging.s3.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::{target-bucket-name}/*",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "{source-bucket-account-id}"
+                }
+            }
+        }
+    ]
+}
+```
+
+5. Replace `{source-bucket-account-id}` with your AWS account ID.
+6. Click "Save changes".
+
+#### Step 3: Enable Access Logging for Your Source S3 Bucket
+
+1. In the S3 console, select the source bucket for which you want to enable access logging.
+2. Go to the "Properties" tab.
+3. Scroll down to the "Server access logging" section and click "Edit".
+4. Check the box next to "Enable server access logging".
+5. Select the target bucket you created earlier from the "Target bucket" dropdown.
+6. Optionally, specify a prefix for the log files (e.g., `logs/`).
+7. Click "Save changes".
+
+#### Step 4: Configure SQS Queue Notifications
+
+1. Create an SQS queue following the [external S3 guide](/sources/object-storage/external-s3).
+2. In the S3 console, select your target bucket (where access logs are being delivered).
+3. Go to the "Properties" tab.
+4. Scroll down to the "Event notifications" section and click "Create event notification".
+5. Configure the event notification:
+   - **Event name**: Enter a descriptive name (e.g., "S3AccessLogsToSQS")
+   - **Event types**: Select "All object create events"
+   - **Destination**: Choose "SQS queue"
+   - **SQS queue**: Select your created SQS queue ARN
+6. Click "Save changes".
+
+#### Step 5: Verify Log Delivery
+
+1. Wait for a few minutes to allow some access requests to your source bucket.
+2. Go back to the S3 console and open your target bucket.
+3. Navigate to the folder where you specified the prefix (or the root if no prefix was specified).
+4. You should see log files appearing in this location with names like `YYYY-MM-DD-HH-MM-SS-XXXXXXXXXX`.
+
+</Tabs.Tab>
+
+</Tabs>
+
+## Understanding S3 Access Log Format
 
 S3 access logs contain the following fields in space-delimited format:
 
