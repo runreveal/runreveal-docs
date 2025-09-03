@@ -20,7 +20,7 @@ In this guide, you'll learn how to:
 - Test your notifications  
 - View alert history
 - Add notifications to detection rules:
-  - **Managed Detections** - Out-of-the-box detections with default detection rules enabled. These are read-only and must be cloned first to add notifications.
+  - **Managed Detections** - Out-of-the-box detections with default detection rules enabled. You can now add notification channels directly by clicking edit and choosing a channel from the dropdown.
   - **Custom Detections** - Detections that you create or cloned detections.
   - **Sigma Streaming Detections** - Add notification channels to your sigma streaming in YAML syntax.
   - **Detection as Code** - Notifications for detection as code rules are not managed through the UI. See [Detection as Code](/detections/detection-as-code) for information on managing notifications in your detection code.
@@ -81,26 +81,27 @@ When detection rules trigger alerts in RunReveal, they automatically send notifi
     
     ![Managed Detections Overview](/notifications-getting-started-managed-detections.png)
     
-    <Callout type="warning">
-      Managed detections are read-only. You must clone them before adding notifications. This applies to both managed SQL detections and managed sigma detections.
+    <Callout type="info">
+      You can now add notification channels directly to managed detections without cloning them first.
     </Callout>
 
-    1. **Clone the Detection**
+    1. **Edit the Managed Detection**
        1. Go to **Detections** → **Detection Queries**
-       2. Find the managed detection you want to customize
-       3. Click **Clone & Edit** to create a copy of the detection
+       2. Find the managed detection you want to add notifications to
+       3. Click **Edit** to modify the detection
 
     2. **Add Notification Channels**
-       1. In the cloned detection, scroll to **Notification Channels** section
+       1. In the detection editor, scroll to **Notification Channels** section
        2. Click to view a dropdown of available channels
-       3. Select your newly created notification channel
+       3. Select your desired notification channel(s)
 
-    3. **Save and Deploy**
+    3. **Save Changes**
        1. Click **Save Detection** to store your changes
-       2. The detection will now send notifications to your channel when alerts are triggered
+       2. The managed detection will now send notifications to your selected channel(s) when alerts are triggered
 
-    4. **Deactivate Original Detection**
-       1. Toggle the "Active" switch to **off** on the original managed detection to avoid duplicate alerts
+    <Callout type="info">
+      Managed detections can now be edited directly to add or remove notification channels without needing to clone them first.
+    </Callout>
   </Tabs.Tab>
 
   <Tabs.Tab>

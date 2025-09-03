@@ -2,17 +2,32 @@
 description: Quickly ingest your Cloudflare Audit logs
 ---
 
+import { Callout } from 'nextra/components'
+
+
 # Cloudflare Audit Logs
 
 Cloudflare Audit logs allow you to view audit events from your Cloudflare account. Audit logs give insights into what resources were changed in your Cloudflare organization.
 
 Cloudflare Audit logs will grab 30 days worth of logs for your account and backfill your source. After the initial load, RunReveal will attempt to poll the Cloudflare API to download your new audit logs every 60 seconds.
 
-## Ingest Method
 
-Currently, Cloudflare audit logs only support polling the Cloudflare API for new events every minute.
+## Ingest Methods
 
-## Setup
+Setup the ingestion of this source using one of the following guides.
+- API Polling
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Blob Storage](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_cf_audit
+```
+</Callout>
+## API Polling Setup
 
 The two fields we require from your Cloudflare account are your account identifier and an API token.
 
