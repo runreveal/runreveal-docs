@@ -64,7 +64,17 @@ Provide RunReveal with the following information to begin reading data:
 
 RunReveal will automatically begin processing new data as it becomes available in R2.
 
-## Rate limits
+## Troubleshooting
+
+### Rate limits
 Keep in mind that Cloudflare Workers Queues have ratelimits. These ratelimits are defined in [Cloudflare's docs](https://developers.cloudflare.com/queues/platform/limits/).
 
 For most use cases this shouldn't be an issue. However, sharing Workers API keys between sources, or writing lots of small objects can cause these limits to be reached.
+
+### 405 Method Not Allowed when trying to verify settings
+
+```
+error polling r2 queue: 405 Method Not Allowed
+```
+If you see this error after clicking "Verify Settings" when adding a source,  
+make sure you have enabled the **HTTP Pull** consumer for the Cloudflare Queue as described above.
