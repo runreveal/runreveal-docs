@@ -1,0 +1,94 @@
+# API Pagination
+
+We are progressively rolling out pagination for `List*` endpoints. This feature segments responses into smaller, manageable units to ensure optimal performance and scalability. We use cursor-based pagination for this implementation.
+
+## Pagination Parameters
+
+Two main parameters control pagination behavior:
+
+- **`limit`**: Specifies the number of records to retrieve. Default value is 150 if not specified. Maximum allowed value is 1000 records.
+- **`cursor`**: Identifies the starting point for the next set of results. This value should be obtained from a previous response to ensure consistent data retrieval.
+
+## Usage Example
+
+Here's a sample response from a paginated endpoint:
+
+```bash
+curl -H "Authorization: Basic <token>" -H "Content-Type: application/json" "https://api.runreveal.com/..."
+
+{"success":true,"result":[{...}],"page":{"next":"<id>"}}
+```
+
+To retrieve the next page, use the `next` value from the previous response:
+
+```bash
+curl -H "Authorization: Basic <token>" -H "Content-Type: application/json" "https://api.runreveal.com/...?cursor=<cursor>&<other_args>"
+
+{"success":true,"result":[{...}],"page":{"prev":"<id>","next":"<id2>"}}
+```
+
+## Automation Integration
+
+When building automation scripts, use the pagination fields to iterate through all available data systematically.
+
+### Python Example
+
+```python
+import requests
+
+def get_all_paginated_data(api_url, token, workspace_id, limit=150):
+    """
+    Iterate through all pages of a paginated API endpoint.
+    Args:
+        api_url: The API endpoint URL
+        token: Your RunReveal API token
+        workspace_id: Your workspace ID
+        limit: Number of records per page (default: 150, max: 1000)
+    Returns:
+        List of all records from all pages
+    """
+    headers = {
+        'Authorization': f'Basic {token}',
+        'Content-Type': 'application/json'
+    }
+    
+    all_data = []
+    cursor = None
+    
+    while True:
+        # Build URL with cursor if available
+        params = {'workspaceid': workspace_id, 'limit': limit}
+        if cursor:
+            params['cursor'] = cursor
+            
+        response = requests.get(api_url, headers=headers, params=params)
+        response.raise_for_status()
+        
+        data = response.json()
+        
+        if not data.get('success'):
+            raise Exception(f"API error: {data}")
+            
+        # Add current page results
+        all_data.extend(data.get('result', []))
+        
+        # Check if there's a next page
+        next_cursor = data.get('page', {}).get('next')
+        if not next_cursor:
+            break
+            
+        cursor = next_cursor
+    return all_data
+
+# Usage example
+if __name__ == "__main__":
+    api_url = "https://api.runreveal.com/your-list-endpoint"
+    token = "your-api-token"
+    workspace_id = "your-workspace-id"
+    
+    try:
+        all_records = get_all_paginated_data(api_url, token, workspace_id)
+        print(f"Retrieved {len(all_records)} total records")
+    except Exception as e:
+        print(f"Error: {e}")
+```
