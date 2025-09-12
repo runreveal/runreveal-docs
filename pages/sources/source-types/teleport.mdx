@@ -6,15 +6,19 @@ These logs are emitted by Teleport Cloud to an S3 bucket and it's worth noting t
 on the teleport cloud side is slightly unique compared to other providers. They will ask you to run
 several commands in AWS Cloud Shell to instantiate a collection of teleport buckets.
 
+![teleport-sources-tile](/teleport-sources-tile.png)
+
 ## Ingest Methods
 
 Setup the ingestion of this source using one of the following guides. 
 If using the `AWS External Audit Storage` method for sending Teleport logs to AWS perform the necessary setup first before finishing the RunReveal ingestion steps.
-
+There is a seperate Teleport Cloud Audit Logs via webhook source tile for forwarding teleport logs to a RunReveal Webhook. Please setup an event handler using Teleport's Guides and forward the logs using your selected log forwarder to the webhook url generated.
+ 
 - [AWS S3 Bucket](/sources/object-storage/s3.mdx)
 - [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
 - [Azure Blob Storage](/sources/object-storage/azure.mdx)
 - [Google Cloud Storage](/sources/object-storage/gcs.mdx)
+- [Teleport Webhook (Separate Source Tile)](#webhook-integration)
 
 <Callout type='info'>
 If using an AWS S3 bucket, use the following SNS topic ARN to send your bucket notifications.
@@ -23,7 +27,8 @@ arn:aws:sns:<REGION>:253602268883:runreveal_teleport
 ```
 </Callout>
 
-## Setup
+
+## Forward to AWS Setup Guide
 
 Teleport offers first party support for sending events to AWS. Otherwise you will need to setup your Teleport account to forward events to
 your cloud storage account most likely using their [fluentd guide](https://goteleport.com/docs/admin-guides/management/export-audit-events/fluentd/).
@@ -56,3 +61,113 @@ Once you provide teleport with this information they will ask you to continue wi
 an Amazon CloudShell command one final time to provision your buckets, and finally test the connection.
 
 <img src="/teleport-3.png"/>
+
+## Webhook Integration
+
+For the best experience with Teleport audit logs in RunReveal, we recommend using the webhook integration method. This approach provides real-time event forwarding and better compatibility with Teleport Cloud's log format.
+
+### Basic Setup Instructions
+
+The webhook integration uses Teleport's Event Handler plugin to forward audit events in real-time to RunReveal. For detailed setup instructions, refer to the [Teleport Fluentd documentation](https://goteleport.com/docs/zero-trust-access/export-audit-events/fluentd/).
+
+#### Step 1: Create RunReveal Webhook Source
+
+1. Navigate to the [RunReveal Dashboard](https://app.runreveal.com/dash/sources/add)
+2. Click **"Add Source"** and search for **"Teleport"**
+3. Select **"Teleport Audit Logs - Webhook"** as the source type
+4. Provide a descriptive name (e.g., "Production Teleport Audit Logs")
+5. Click **"Create Source"** to generate your webhook URL
+6. **Copy the webhook URL** - you'll need this for the Teleport configuration
+
+#### Step 2: Configure Teleport Event Handler
+
+Follow the [Teleport Fluentd documentation](https://goteleport.com/docs/zero-trust-access/export-audit-events/fluentd/) to:
+
+1. Install the Teleport Event Handler plugin
+2. Create the necessary bot user and role
+3. Generate identity credentials
+4. Configure the Event Handler service
+
+#### Step 3: Configure Event Handler for RunReveal
+
+The Teleport Event Handler plugin can be configured to send events directly to a webhook URL. However, the specific configuration format depends on your Teleport setup and the Event Handler plugin version you're using.
+
+**Important**: The Event Handler plugin configuration format varies depending on your Teleport deployment. Please refer to the [Teleport Fluentd documentation](https://goteleport.com/docs/zero-trust-access/export-audit-events/fluentd/) for the exact configuration syntax for your specific setup.
+
+**General Configuration Steps:**
+
+1. Configure the Event Handler to use your RunReveal webhook URL as the destination
+2. If using bearer token authentication, include the authorization header in your configuration
+3. Test the connection to ensure events are being forwarded successfully
+
+#### Fluentd Configuration Example
+
+If you're using Fluentd as a log forwarder, here's an example `fluent.conf` configuration:
+
+```xml copy
+<source>
+  @type http
+  port 8888
+  bind 0.0.0.0
+
+  <parse>
+    @type json
+    json_parser oj
+    # This time format is used by the plugin. This field is required.
+    time_type string
+    time_format %Y-%m-%dT%H:%M:%S
+  </parse>
+  
+  # If the number of events is high, fluentd will start failing the ingestion
+  # with the following error message: buffer space has too many data errors.
+  # The following configuration prevents data loss in case of a restart and
+  # overcomes the limitations of the default fluentd buffer configuration.
+  # This configuration is optional.
+  # See https://docs.fluentd.org/configuration/buffer-section for more details.
+  <buffer>
+    @type file
+    flush_thread_count 8
+    flush_interval 1s
+    chunk_limit_size 10M
+    queue_limit_length 16
+    retry_max_interval 30
+    retry_forever true
+  </buffer>
+</source>
+
+# Send all events to RunReveal webhook
+<match **>
+  @type http
+  endpoint https://api.runreveal.com/sources/teleport/webhook/YOUR_WEBHOOK_URL
+  headers {"Content-Type":"application/json"}
+  http_method post
+  open_timeout 5
+  read_timeout 10
+
+  <format>
+    @type json
+  </format>
+
+  <buffer>
+    @type memory
+    flush_interval 5s
+    retry_forever true
+  </buffer>
+</match>
+```
+
+<Callout type="info">
+**Note**: Replace `YOUR_WEBHOOK_URL` with the actual webhook URL provided by RunReveal in Step 1.
+</Callout>
+
+<Callout type="warning">
+**Configuration Note**: The exact configuration format for the Event Handler plugin varies by version and deployment method. Always refer to the official Teleport documentation for your specific setup to ensure proper configuration.
+</Callout>
+
+## References
+
+- [Teleport Event Handler Documentation](https://goteleport.com/docs/zero-trust-access/export-audit-events/fluentd/)
+- [Teleport External Audit Storage](https://goteleport.com/docs/admin-guides/management/external-audit-storage/)
+- [Teleport Audit Events Reference](https://goteleport.com/docs/admin-guides/audit-events/)
+- [Fluentd Configuration](https://docs.fluentd.org/configuration)
+- [RunReveal Webhook Integration Guide](/sources/forwarders)
