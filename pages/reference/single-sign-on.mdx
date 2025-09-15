@@ -1,0 +1,152 @@
+---
+title: Single Sign-On (SSO) Configuration
+description: Configure SAML-based SSO for your RunReveal workspace using SSOReady
+---
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+## Single Sign-On (SSO) Configuration
+
+RunReveal provides Single Sign-On (SSO) capabilities through SSOReady, enabling your organization to authenticate users via your existing identity provider (IdP) using SAML 2.0. This integration allows centralized user authentication while maintaining security compliance requirements and simplifying access management across your security operations team.
+
+SSO implementation in RunReveal focuses on streamlining the authentication process without compromising the platform's security-first approach. The integration validates users against your organization's identity provider while preserving RunReveal's role-based access control (RBAC) system for workspace permissions.
+
+## How SSO Works in RunReveal
+
+The SSO authentication flow operates through a SAML-based validation process that connects your identity provider with RunReveal's authentication system. When a user attempts to sign in with SSO, RunReveal redirects them to your configured identity provider for authentication. Upon successful validation, the identity provider sends a SAML assertion back to RunReveal via SSOReady, confirming the user's identity and email domain ownership.
+
+This process ensures that authentication remains within your organization's control while RunReveal handles authorization through its existing workspace and role management system. The separation of authentication (handled by your IdP) and authorization (managed by RunReveal) provides flexibility in user management while maintaining security boundaries.
+
+<Callout type="info">
+For technical details about the implementation timeline and architecture decisions, see our [SSOReady blog post](https://blog.runreveal.com/we-shipped-sso-support-in-a-day-how/) about shipping SSO support.
+</Callout>
+
+## Prerequisites
+
+Before initiating SSO configuration, ensure your organization meets these requirements:
+
+- **Identity Provider**: An active SAML 2.0-compatible identity provider (Okta, Azure AD, Google Workspace, OneLogin, or similar)
+- **Email Domains**: Confirmed ownership of the email domains your users will authenticate from
+- **Admin Access**: Administrative privileges in both RunReveal and your identity provider
+- **User Inventory**: A list of users who need RunReveal access with their corresponding roles
+
+## Configuration Process
+
+<Steps>
+
+### Request SSO Setup
+
+Contact RunReveal support to initiate the SSO configuration process. Provide the complete list of email domains that will use SSO authentication (for example, `@yourcompany.com`). RunReveal will verify domain ownership and prepare your workspace for SSO integration.
+
+### Receive Configuration Link
+
+RunReveal will generate a unique SSOReady configuration link specifically for your organization. This link provides access to the self-service setup portal where you'll configure the connection between your identity provider and RunReveal.
+
+<Callout type="warning">
+Configuration links expire after 24 hours for security purposes. If your link expires or is accessed by an unauthorized user, contact RunReveal support for a new link generation.
+</Callout>
+
+### Configure Identity Provider
+
+Access the SSOReady configuration portal using your provided link. The portal guides you through configuring your specific identity provider with the necessary SAML endpoints, certificates, and attribute mappings. The configuration interface adapts based on your selected IdP, providing provider-specific instructions and validation steps.
+
+Follow the provider-specific configuration guide available at [SSOReady IdP Configuration](https://ssoready.com/docs/idp-configuration/enabling-self-service-configuration-for-your-customers) for detailed setup instructions tailored to your identity provider.
+
+### User Provisioning
+
+After completing the SSO configuration, users must be explicitly invited to the RunReveal workspace. SSO validates authentication but doesn't automatically provision user accounts. Each user requires:
+
+- An invitation to the appropriate RunReveal workspace
+- Role assignment according to your security team's structure ([see RBAC documentation](/reference/role-based-access-control))
+- Email domain matching your configured SSO domains
+
+For bulk user provisioning, provide RunReveal support with a CSV containing email addresses and their corresponding roles. This accelerates initial deployment for large teams.
+
+### Test Authentication
+
+Verify the SSO configuration by having a test user authenticate through your identity provider. The authentication flow should redirect users from RunReveal's login page to your IdP, then back to RunReveal upon successful validation. Monitor both systems' audit logs during testing to ensure proper SAML assertion exchange.
+
+</Steps>
+
+## User Management
+
+![Invite User To Workspace](/sso-image-1.png)
+
+### Adding New Users
+
+New users joining your organization follow this onboarding process:
+
+1. **Workspace Invitation**: An administrator invites the user to the RunReveal workspace with appropriate role assignment
+2. **Email Verification**: The user receives an invitation email to their corporate address
+3. **SSO Authentication**: Upon accepting the invitation, the user authenticates via your identity provider
+4. **Access Grant**: RunReveal validates the SAML assertion and grants workspace access based on the assigned role
+
+### Role Assignment
+
+RunReveal maintains its own role-based access control system independent of your identity provider's groups or roles. This design ensures consistent permission management within the platform while allowing flexibility in your IdP configuration. Administrators must explicitly assign RunReveal roles during user invitation or through subsequent role modifications.
+
+Available roles include:
+- **Admin**: Full administrative control including workspace management and user administration
+- **Analyst**: Detection creation, modification, and analysis capabilities
+- **Operator**: Operational tasks including query execution and report management
+- **CIBot**: Automated system access for CI/CD pipelines and integrations
+
+For detailed role permissions, see the [Role-Based Access Control documentation](/reference/role-based-access-control).
+
+## Frequently Asked Questions
+
+### What are the current limitations of SSO in RunReveal?
+
+The current SSO implementation provides SAML 2.0 authentication with several planned enhancements on the roadmap:
+
+- **No SCIM Support**: User provisioning and deprovisioning must be handled manually through RunReveal's interface rather than automated synchronization with your identity provider
+- **No Just-In-Time (JIT) Provisioning**: Users cannot be automatically created upon first SSO login; they require prior invitation to the workspace
+- **Manual Role Management**: Role assignments and modifications occur within RunReveal rather than inheriting from IdP group memberships
+- **Single Domain per Configuration**: Each SSO configuration supports one primary email domain; multiple domains require coordination with RunReveal support
+- **No Group-Based Access Control**: Team or group memberships from your IdP don't automatically translate to RunReveal workspace access or roles
+
+### How does SSO affect existing user accounts?
+
+Users with existing RunReveal accounts linked to SSO-enabled email domains continue to function normally. Upon SSO activation, these users can authenticate using either their existing credentials or through SSO, though SSO becomes the recommended method for security consistency. Password-based authentication can be disabled upon request after successful SSO deployment.
+
+### What happens if our SSO provider experiences an outage?
+
+RunReveal maintains fallback authentication methods for critical access scenarios. Workspace owners can request emergency access procedures from RunReveal support during IdP outages. Consider maintaining a dedicated break-glass account with password authentication for business continuity planning.
+
+### How are SSO audit logs accessed?
+
+Authentication events are logged in both your identity provider and RunReveal's audit system. RunReveal audit logs capture successful and failed login attempts, including SSO-specific metadata. Check Explorer → Logs table for `runreveal-audit` sourceType to review audit logs.
+
+### How do we handle contractor or temporary user access?
+
+For users requiring temporary access without adding them to your primary IdP, RunReveal supports hybrid authentication models. These users can be invited with standard email/password authentication while your permanent staff uses SSO. Implement appropriate audit controls and regular access reviews for these exceptions.
+
+## Troubleshooting
+
+### Common Configuration Issues
+
+When SSO authentication fails, systematically verify each component of the authentication chain:
+
+1. **Domain Verification**: Confirm the user's email domain matches configured SSO domains exactly (including subdomains if applicable)
+2. **User Invitation Status**: Verify the user has an active invitation or existing account in the RunReveal workspace
+3. **SAML Certificate**: Check certificate expiration dates and ensure proper certificate chain validation
+4. **Network Connectivity**: Ensure firewall rules permit SAML assertion posts from your IdP to SSOReady endpoints
+
+### Support Resources
+
+For SSO configuration assistance or troubleshooting:
+- **Documentation**: [SSOReady Configuration Guides](https://ssoready.com/docs)
+- **Audit Logs**: Review authentication attempts in both RunReveal and your IdP audit systems
+
+<Callout type="info">
+For urgent authentication issues affecting multiple users, contact RunReveal support immediately for priority assistance and potential emergency access activation.
+</Callout>
+
+## Next Steps
+
+After successful SSO deployment, consider these security enhancements:
+
+- Enable mandatory SSO for all users with corporate email domains
+- Implement regular access reviews aligned with your security compliance requirements  
+- Configure automated alerting for authentication anomalies using RunReveal's detection capabilities
+- Document your SSO configuration and emergency access procedures in your security runbooks
