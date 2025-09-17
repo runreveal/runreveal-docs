@@ -37,8 +37,16 @@ If one of these properties matches a source type, e.g. the `service` field match
 We also offer two extra fields to specify which sources this rule applies to `sourcenames` and `sourcetypes`.
 
 **`sourcenames`** is a string array where you can list the unique names of your sources that you want this rule to evaluate on. This is useful if you have multiple sources with the same type (like a cloudtrail source for different environments) but only want a detection to run for your 'prod-cloudtrail' source.
+**`sourcenames`** corresponds to the **Name:** listed in the source tile and on the edit source page.
+
+
+  ![sigma-docs-1](/sigma-docs-1.png)
+
 
 **`sourcetypes`** is also a string array where you can list multiple source types that the detection should match against. This can be useful if you want the same detection rule to match on different source types.
+**`sourcetypes`** corresponds to the **Type:** listed in the source tile.
+
+  ![sigma-docs-2](/sigma-docs-2.png)
 
 ### Sigma provided fields
 
