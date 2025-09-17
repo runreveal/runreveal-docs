@@ -40,7 +40,7 @@ const config: DocsThemeConfig = {
     // Default OG image
     const ogImage = frontMatter?.image 
       ? `https://docs.runreveal.com${frontMatter.image}`
-      : 'https://docs.runreveal.com/runreveal_logo_white.png'
+      : 'https://docs.runreveal.com/Unfurl-White.png'
     
     // Simple structured data with defaults
     const structuredData = {
@@ -59,7 +59,7 @@ const config: DocsThemeConfig = {
         "name": "RunReveal",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://docs.runreveal.com/runreveal_logo_white.png"
+          "url": "https://docs.runreveal.com/Unfurl-White.png"
         }
       },
       "audience": {
