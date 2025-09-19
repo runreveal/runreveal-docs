@@ -1,9 +1,69 @@
-# Bitwarden
+---
+title: 'Bitwarden Security Logs'
+description: 'Collect comprehensive audit trails from Bitwarden password management activities including user authentication, password changes, vault access, and administrative actions for security monitoring and compliance.'
+---
+
+import { Callout } from 'nextra/components'
+
+# Bitwarden Security Logs
 
 Bitwarden logs provide comprehensive audit trails of password management activities, including user authentication events, password changes, vault access, and administrative actions. These logs are essential for security monitoring, compliance auditing, and detecting potential unauthorized access to sensitive credential data.
 
-## Coming Soon
+![Bitwarden Source Tile](/bitwarden-source-1.png)
 
-Documentation for Bitwarden integration is currently being developed.
+## Ingest Methods
 
-Please check back soon for complete documentation.
+Setup the ingestion of this source using the following method:
+
+- [API Polling](#api-polling-setup)
+
+## API Polling Setup
+
+Bitwarden integration uses OAuth2 client credentials flow with 60-second polling intervals to collect audit logs. The integration supports global, EU, or self-hosted Bitwarden domains.
+
+### Required Credentials
+
+To connect your Bitwarden account, you'll need to provide:
+
+- **Client ID** - Your Bitwarden organization API client ID
+- **Client Secret** - Your Bitwarden organization API client secret  
+- **Domain** - Your Bitwarden domain (global, EU, or self-hosted)
+
+### Getting Your API Credentials
+
+1. Log into your Bitwarden Admin Console
+2. Navigate to **Settings** → **Organization info**
+3. Click **View API key** (you'll be prompted to re-enter your master password)
+4. Copy the `client_id` and `client_secret` values from your organization's API key
+
+### Domain Configuration
+
+Choose the appropriate domain based on your Bitwarden deployment:
+
+- **Global**: `https://api.bitwarden.com` (default)
+- **EU**: `https://api.bitwarden.eu`
+- **Self-hosted**: Your custom Bitwarden API endpoint
+
+### Source Configuration
+
+When setting up your Bitwarden source, provide:
+
+- **Source Name**: A descriptive name for your Bitwarden source (defaults to "bitwarden")
+- **Client ID**: Your Bitwarden organization API client ID
+- **Client Secret**: Your Bitwarden organization API client secret
+- **Domain**: Your Bitwarden API domain
+- **Health Check Duration**: Configure how often to check source health (default: 1 day)
+- **Notification Channels**: Set up alerts for when the source stops receiving events
+
+### Verification
+
+After entering your credentials, use the "Verify Settings" button to test the connection and ensure your organization API key has the correct permissions to access Bitwarden audit logs.
+
+## Data Schema
+
+Your Bitwarden audit logs will be available in the `bitwarden_audit_logs` table with the source type `bitwarden`.
+
+## Related Links
+
+- [Bitwarden Official Website](https://bitwarden.com/)
+- [Bitwarden API Documentation](https://bitwarden.com/help/public-api/#authentication)
