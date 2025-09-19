@@ -1,13 +1,13 @@
 ---
 title: 'Fastly WAF Security Logs'
-description: 'Collect security events and threat detection data from Fastly Web Application Firewall including blocked requests, security rule violations, attack patterns, and traffic analysis.'
+description: 'Collect security events and threat detection data from Fastly Web Application Firewall.'
 ---
 
 import { Callout } from 'nextra/components'
 
 # Fastly WAF Security Logs
 
-Fastly Web Application Firewall (WAF) logs capture security events and threat detection data from Fastly's edge security services. These logs include information about blocked requests, security rule violations, attack patterns, and traffic analysis that helps protect web applications from various cyber threats.
+Fastly Web Application Firewall (WAF) logs capture security events and threat detection data from Fastly's edge security services. These logs include information about HTTP requests, response states, client information, and geographic data that helps protect web applications from various cyber threats.
 
 ![Fastly Source Tile](/fastly-source-1.png)
 
@@ -45,7 +45,6 @@ Configure Fastly to stream WAF logs to your chosen storage bucket using Fastly's
 | **Azure Blob Storage** | Configure Fastly to stream WAF logs to Azure Blob Storage for integration with Azure analytics services | [Fastly Azure Blob Storage Logging Guide](https://www.fastly.com/documentation/guides/integrations/logging-endpoints/log-streaming-azure-blob-storage/) |
 | **Cloudflare R2** | Use Cloudflare R2's S3-compatible API to receive Fastly WAF logs. Configure as an S3 endpoint with R2 credentials | [Cloudflare R2 S3 API Documentation](https://developers.cloudflare.com/r2/api/s3/) |
 
-
 ### Source Configuration
 
 When setting up your Fastly WAF source, provide:
@@ -62,5 +61,6 @@ Your Fastly WAF logs will be available in the `fastly_waf_logs` table with the s
 ## Related Links
 
 - [Fastly Official Website](https://www.fastly.com/)
+- [Fastly NGWAF Data Flows Documentation - Example Logs](https://docs.fastly.com/en/ngwaf/module-flows)
 - [Fastly Integrations Documentation](https://www.fastly.com/documentation/guides/integrations/)
 - [Fastly Log Streaming Endpoints](https://www.fastly.com/documentation/guides/integrations/logging-endpoints/)
