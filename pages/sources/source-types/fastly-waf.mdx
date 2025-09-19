@@ -1,9 +1,66 @@
-# Fastly WAF
+---
+title: 'Fastly WAF Security Logs'
+description: 'Collect security events and threat detection data from Fastly Web Application Firewall including blocked requests, security rule violations, attack patterns, and traffic analysis.'
+---
+
+import { Callout } from 'nextra/components'
+
+# Fastly WAF Security Logs
 
 Fastly Web Application Firewall (WAF) logs capture security events and threat detection data from Fastly's edge security services. These logs include information about blocked requests, security rule violations, attack patterns, and traffic analysis that helps protect web applications from various cyber threats.
 
-## Coming Soon
+![Fastly Source Tile](/fastly-source-1.png)
 
-Documentation for Fastly WAF integration is currently being developed.
+## Ingest Methods
 
-Please check back soon for complete documentation.
+Setup the ingestion of this source using one of the following guides:
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Blob Storage](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+- [Cloudflare R2 Bucket](/sources/object-storage/r2)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_fastlywaf
+```
+</Callout>
+
+## Setup
+
+Setting up Fastly WAF logs requires the use of Fastly's log streaming service to send logs to your object storage bucket. For a detailed guide on collecting logs from a storage bucket review the links under **Ingest Methods** above.
+
+### Fastly Log Streaming Configuration
+
+Configure Fastly to stream WAF logs to your chosen storage bucket using Fastly's real-time log streaming feature. This provides immediate delivery of security events for real-time monitoring and analysis.
+
+#### Supported Storage Providers
+
+| Provider | Description | Setup Guide |
+|----------|-------------|-------------|
+| **AWS S3** | Stream WAF logs directly to Amazon S3 for scalable storage and integration with AWS analytics services | [Fastly S3 Logging Guide](https://www.fastly.com/documentation/guides/integrations/logging-endpoints/log-streaming-amazon-s3/) |
+| **Google Cloud Storage** | Send WAF logs to Google Cloud Storage for integration with BigQuery and other GCP analytics tools | [Fastly Google Cloud Storage Logging Guide](https://www.fastly.com/documentation/guides/integrations/logging-endpoints/log-streaming-google-cloud-storage/) |
+| **Azure Blob Storage** | Configure Fastly to stream WAF logs to Azure Blob Storage for integration with Azure analytics services | [Fastly Azure Blob Storage Logging Guide](https://www.fastly.com/documentation/guides/integrations/logging-endpoints/log-streaming-azure-blob-storage/) |
+| **Cloudflare R2** | Use Cloudflare R2's S3-compatible API to receive Fastly WAF logs. Configure as an S3 endpoint with R2 credentials | [Cloudflare R2 S3 API Documentation](https://developers.cloudflare.com/r2/api/s3/) |
+
+
+### Source Configuration
+
+When setting up your Fastly WAF source, provide:
+
+- **Source Name**: A descriptive name for your Fastly WAF source
+- **Object Storage Configuration**: Based on your chosen storage method
+- **Health Check Duration**: Configure how often to check source health (default: 1 day)
+- **Notification Channels**: Set up alerts for when the source stops receiving events
+
+## Data Schema
+
+Your Fastly WAF logs will be available in the `fastly_waf_logs` table with the source type `fastly-waf`.
+
+## Related Links
+
+- [Fastly Official Website](https://www.fastly.com/)
+- [Fastly Integrations Documentation](https://www.fastly.com/documentation/guides/integrations/)
+- [Fastly Log Streaming Endpoints](https://www.fastly.com/documentation/guides/integrations/logging-endpoints/)
