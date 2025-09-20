@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Highlight heading styling */
+.bg-highlight-best h3,
+.bg-highlight-affordable h3,
+.bg-highlight-simple h3,
+.bg-highlight-modern h3 {
+  color: white !important;
+  margin-top: 0 !important;
+}
+
 /* Global image styling */
 img {
   border-radius: 5px;

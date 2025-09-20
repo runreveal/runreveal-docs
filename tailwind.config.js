@@ -39,6 +39,28 @@ module.exports = {
           900: '#581c87',
         },
         'purple-lightest': 'hsl(273.33deg 90% 96.08%)',
+        // Highlight colors
+        'highlight-best': '#7c3aed', // Purple - confidence and innovation
+        'highlight-fastest': '#F1B31C', // Yellow - optimism and clarity
+        'highlight-affordable': '#10b981', // Green - growth and reliability
+        'highlight-simple': '#ec4899', // Pink - energy and creativity
+        'highlight-modern': '#3b82f6', // Blue - trust and intelligence
+        // Theme colors
+        'primary': '#7c3aed',
+        'primary-light': '#f5f3ff',
+        'primary-dark': '#5b21b6',
+        'secondary': '#ec4899',
+        'secondary-light': '#fce7f3',
+        'secondary-dark': '#be185d',
+        'accent': '#F1B31C',
+        'accent-light': '#fef3c7',
+        'accent-dark': '#d97706',
+        'vitality': '#10b981',
+        'vitality-light': '#d1fae5',
+        'vitality-dark': '#065f46',
+        'insight': '#3b82f6',
+        'insight-light': '#dbeafe',
+        'insight-dark': '#1e40af',
       },
     },
   },
