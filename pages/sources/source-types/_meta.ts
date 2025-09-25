@@ -33,6 +33,7 @@ export default {
     "reveald": "Reveald",
     "sentinelone": "SentinelOne",
     "slack": "Slack",
+    "snowflake": "Snowflake",
     "sophos": "Sophos",
     "structured-webhooks": "Structured Webhooks",
     "tailscale": "Tailscale",
