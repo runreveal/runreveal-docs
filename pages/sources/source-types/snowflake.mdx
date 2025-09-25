@@ -1,0 +1,144 @@
+---
+title: Snowflake login history
+---
+import { Callout } from 'nextra/components'
+
+# Snowflake Login History
+
+<Callout type="warning">
+Snowflake login history logs require a **Pro plan** subscription in RunReveal.
+</Callout>
+
+## Setup
+
+### Step 1: start RunReveal source creation
+
+1. Navigate to the RunReveal UI and go to the source creation page.
+2. Select **"Snowflake"** as your source type.
+3. Provide a descriptive name for your Snowflake source.
+4. Fill in your Snowflake Account Identifier.  
+   See the [Snowflake docs on Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) for more information.
+5. Copy the Redirect URL provided near the top of the page -- you'll need this later.
+
+### Step 2: Create a new Snowflake role
+
+1. Log into Snowflake and open a worksheet.
+2. Execute the following commands:
+   ```sql
+   CREATE ROLE runreveal_role;
+   GRANT IMPORTED PRIVILEGES ON DATABASE SNOWFLAKE TO ROLE runreveal_role;
+   GRANT USAGE ON WAREHOUSE COMPUTE_WH TO ROLE runreveal_role;
+   ```
+
+Note: You may use a different role name here, but be sure to use the same role in later commands, and change the default role on the Source settings page in RunReveal.
+
+### Step 3: Create a service user in Snowflake
+
+This is the account you'll use to authenticate with Snowflake during the OAuth flow when adding the source.
+
+1. You can create the user through the Snowflake UI, or with a SQL statement like this:
+   ```sql
+   CREATE USER svc_runreveal
+     PASSWORD = 'abc123_Be57P@Ssw0rd_Ev3r'
+     DEFAULT_ROLE = runreveal_role
+     DEFAULT_WAREHOUSE = COMPUTE_WH;
+   ```
+
+2. Then grant the custom role you created earlier to this service user:
+   ```sql
+   GRANT ROLE runreveal_role TO USER svc_runreveal;
+   ```
+
+### Step 4: Create a "Security Integration" in Snowflake
+
+From a Snowflake worksheet, execute the following command -- substitute the Redirect URL you copied earlier for the `OAUTH_REDIRECT_URI` value.
+
+```sql
+CREATE SECURITY INTEGRATION RUNREVEAL
+  TYPE = OAUTH
+  OAUTH_CLIENT = CUSTOM
+  OAUTH_CLIENT_TYPE = 'CONFIDENTIAL'
+  OAUTH_REDIRECT_URI = 'https://www-api.runreveal.com/sources/snowflake/auth/cb/<YOUR_UNIQUE_IDENTIFIER_HERE>'
+  ENABLED = TRUE
+  PRE_AUTHORIZED_ROLES_LIST = ('RUNREVEAL_ROLE')
+  OAUTH_ALLOW_NON_TLS_REDIRECT_URI = FALSE
+  COMMENT = 'This is the OAuth integration that allows RunReveal to retrieve audit logs from Snowflake';
+```
+
+See also [Snowflake docs on "CREATE SECURITY INTEGRATION (Snowflake OAuth)"](https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-oauth-snowflake)
+
+### Step 5: Collect the OAuth details for the new integration
+
+You'll need to supply the OAuth Client ID and Client Secret to RunReveal so it can connect to Snowflake.
+
+Run the following commands from your Snowflake worksheet.
+
+1. For the Client ID:
+   ```sql
+   SELECT get_path(parse_json(SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS( 'RUNREVEAL' )),
+                   'OAUTH_CLIENT_ID');
+   ```
+
+2. For the Client Secret:
+   ```sql
+   SELECT get_path(parse_json(SELECT SYSTEM$SHOW_OAUTH_CLIENT_SECRETS( 'RUNREVEAL' )),
+                   'OAUTH_CLIENT_SECRET');
+   ```
+Copy each of these strings without the quotes.
+
+### Step 6: Complete the source creation in RunReveal
+
+1. Return to the page you opened earlier on RunReveal and fill in the remaining values: Client ID and Client Secret.   
+   Make sure your Account Identifier is filled in, and that the Snowflake role matches the one you used in the above steps.
+2. Click **Connect**
+3. You will be sent to a Snowflake login page -- log in with the username and password of the service user you created earlier (ex: `svc_runreveal`).
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a few minutes.
+
+You can validate we are receiving your logs by running the following SQL query:
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'snowflake' LIMIT 1
+```
+
+## Troubleshooting
+
+### `Invalid Client`
+
+If you see this source error:
+```
+failed to get oauth token using refresh token: oauth2: "invalid_client"
+```
+it indicates trouble with the OAuth integration in Snowflake.   
+Check that the Client ID and Client Secret you entered in RunReveal match the values from Snowflake.
+
+### Login fails with `Invalid consent request.`
+
+If you get the error "Invalid consent request" when attempting to log into Snowflake as part of the OAuth flow in adding the source to RunReveal, check the following:
+
+- make sure you're logging in with the correct *service user* credentials
+- make sure that user has been granted the correct role. (This will be `runreveal_role` if you followed the instructions above.)
+- make sure that role is mentioned in the `CREATE SECURITY INTEGRATION` statement you issued as part of the setup.
+
+### `no refresh token available`
+
+If you see the source error `no refresh token available`,
+make sure you included `OAUTH_ISSUE_REFRESH_TOKENS = TRUE` when creating the integration.
+
+### `User's configured default role 'OTHER_ROLE' is not granted to this user.`
+
+If you see this source error, be sure you've granted the correct role (usually `runreveal_role`) to the service user, and that you logged in with that service user during the OAuth flow.
+
+### `'SNOWFLAKE.ACCOUNT_USAGE' does not exist or not authorized`
+
+If you see this source error, double check the `runreveal_role` (or other role, if you specified a different one in the Source setup page) was created properly, and that the role was granted to the service user.
+
+### `you must specify the warehouse....`
+
+If you see this source error
+```
+snowflake API returned status code 422: Unable to run the command. You must specify the warehouse to use by either setting the warehouse field in the body of the request or by setting the DEFAULT_NAMESPACE property for the current user.
+```
+make sure to set `DEFAULT_WAREHOUSE` when creating the service user.
