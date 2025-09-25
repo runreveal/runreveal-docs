@@ -16,6 +16,7 @@ export default {
   "enrichments": "Enrichments",
   "notifications": "Notifications",
   "integrations": "Integrations",
+  "dashboards": "Dashboards",
   "reference": "Reference",
   "bring-your-own-cloud": "Bring Your Own Cloud",
   "glossary": "Glossary",
