@@ -58,146 +58,144 @@ export default function RunRevealIntroduction() {
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [])
+  // Color pattern for cards - ensures no adjacent duplicates in 3-column grid
+  const colorPatterns = [
+    {
+      bgColor: "bg-insight-light dark:bg-insight/20",
+      hoverBgColor: "group-hover:bg-insight/30 dark:group-hover:bg-insight/30",
+      buttonColor: "bg-insight hover:bg-insight-dark",
+      hoverTextColor: "group-hover:text-insight"
+    },
+    {
+      bgColor: "bg-primary-light dark:bg-primary/20",
+      hoverBgColor: "group-hover:bg-primary/30 dark:group-hover:bg-primary/30",
+      buttonColor: "bg-primary hover:bg-primary-dark",
+      hoverTextColor: "group-hover:text-primary"
+    },
+    {
+      bgColor: "bg-vitality-light dark:bg-vitality/20",
+      hoverBgColor: "group-hover:bg-vitality/30 dark:group-hover:bg-vitality/30",
+      buttonColor: "bg-vitality hover:bg-vitality-dark",
+      hoverTextColor: "group-hover:text-vitality"
+    },
+    {
+      bgColor: "bg-accent-light dark:bg-accent/20",
+      hoverBgColor: "group-hover:bg-accent/30 dark:group-hover:bg-accent/30",
+      buttonColor: "bg-accent hover:bg-accent-dark",
+      hoverTextColor: "group-hover:text-accent"
+    },
+    {
+      bgColor: "bg-secondary-light dark:bg-secondary/20",
+      hoverBgColor: "group-hover:bg-secondary/30 dark:group-hover:bg-secondary/30",
+      buttonColor: "bg-secondary hover:bg-secondary-dark",
+      hoverTextColor: "group-hover:text-secondary"
+    },
+    {
+      bgColor: "bg-slate-100 dark:bg-slate-800/20",
+      hoverBgColor: "group-hover:bg-slate-200 dark:group-hover:bg-slate-800/30",
+      buttonColor: "bg-slate-600 hover:bg-slate-700",
+      hoverTextColor: "group-hover:text-slate-600"
+    }
+  ]
+
   const learnMoreCards = [
     {
       href: "/how-to-guides",
       icon: "/icons/files.svg",
       title: "How To Guides",
       description: "Step-by-step guides to get you running quickly.",
-      bgColor: "bg-blue-50 dark:bg-blue-900/20",
-      hoverBgColor: "group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30",
-      buttonColor: "bg-blue-500 hover:bg-blue-600",
-      hoverTextColor: "group-hover:text-blue-600"
+      ...colorPatterns[0] // Blue
     },
     {
       href: "/ai-chat",
       icon: "/icons/Icon-AIDetective.svg",
       title: "AI Chat",
       description: "Chat with your security data using AI-powered investigations.",
-      bgColor: "bg-green-50 dark:bg-green-900/20",
-      hoverBgColor: "group-hover:bg-green-100 dark:group-hover:bg-green-900/30",
-      buttonColor: "bg-green-500 hover:bg-green-600",
-      hoverTextColor: "group-hover:text-green-600"
+      ...colorPatterns[1] // Purple
     },
     {
       href: "/pipelines/getting-started",
       icon: "/icons/rows.svg",
       title: "Pipelines",
       description: "Build and manage data processing pipelines.",
-      bgColor: "bg-teal-50 dark:bg-teal-900/20",
-      hoverBgColor: "group-hover:bg-teal-100 dark:group-hover:bg-teal-900/30",
-      buttonColor: "bg-teal-500 hover:bg-teal-600",
-      hoverTextColor: "group-hover:text-teal-600"
+      ...colorPatterns[2] // Green
     },
     {
       href: "/sources",
       icon: "/icons/link.svg",
       title: "Sources",
       description: "Connect 70+ tools to centralize all your security data.",
-      bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
-      hoverBgColor: "group-hover:bg-yellow-100 dark:group-hover:bg-yellow-900/30",
-      buttonColor: "bg-yellow-500 hover:bg-yellow-600",
-      hoverTextColor: "group-hover:text-yellow-600"
+      ...colorPatterns[3] // Yellow
     },
     {
       href: "/transforms",
       icon: "/icons/Edit.svg",
       title: "Transforms",
       description: "Normalize data for consistent queries and dashboards.",
-      bgColor: "bg-purple-50 dark:bg-purple-900/20",
-      hoverBgColor: "group-hover:bg-purple-100 dark:group-hover:bg-purple-900/30",
-      buttonColor: "bg-purple-500 hover:bg-purple-600",
-      hoverTextColor: "group-hover:text-purple-600"
+      ...colorPatterns[4] // Pink
     },
     {
       href: "/filtering",
       icon: "/icons/DataSort.svg",
       title: "Filtering",
       description: "Powerful querying and sampling for noisy streams.",
-      bgColor: "bg-orange-50 dark:bg-orange-900/20",
-      hoverBgColor: "group-hover:bg-orange-100 dark:group-hover:bg-orange-900/30",
-      buttonColor: "bg-orange-500 hover:bg-orange-600",
-      hoverTextColor: "group-hover:text-orange-600"
+      ...colorPatterns[5] // Slate
     },
     {
       href: "/detections",
       icon: "/icons/Search.svg",
       title: "Detections",
       description: "Manage rules with detection-as-code workflows.",
-      bgColor: "bg-red-50 dark:bg-red-900/20",
-      hoverBgColor: "group-hover:bg-red-100 dark:group-hover:bg-red-900/30",
-      buttonColor: "bg-red-500 hover:bg-red-600",
-      hoverTextColor: "group-hover:text-red-600"
+      ...colorPatterns[0] // Blue (cycle back)
     },
     {
       href: "/enrichments",
       icon: "/icons/stars.svg",
       title: "Enrichments",
       description: "Add context and metadata to every event.",
-      bgColor: "bg-pink-50 dark:bg-pink-900/20",
-      hoverBgColor: "group-hover:bg-pink-100 dark:group-hover:bg-pink-900/30",
-      buttonColor: "bg-pink-500 hover:bg-pink-600",
-      hoverTextColor: "group-hover:text-pink-600"
+      ...colorPatterns[1] // Purple
     },
     {
       href: "/notifications",
       icon: "/icons/AlertCircle.svg",
       title: "Notifications",
       description: "Configure alerts and notifications for security events.",
-      bgColor: "bg-indigo-50 dark:bg-indigo-900/20",
-      hoverBgColor: "group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/30",
-      buttonColor: "bg-indigo-500 hover:bg-indigo-600",
-      hoverTextColor: "group-hover:text-indigo-600"
+      ...colorPatterns[2] // Green
     },
     {
       href: "/integrations",
       icon: "/icons/Lightning.svg",
       title: "Integrations",
       description: "Connect with Grafana, Jupyter, and other tools.",
-      bgColor: "bg-cyan-50 dark:bg-cyan-900/20",
-      hoverBgColor: "group-hover:bg-cyan-100 dark:group-hover:bg-cyan-900/30",
-      buttonColor: "bg-cyan-500 hover:bg-cyan-600",
-      hoverTextColor: "group-hover:text-cyan-600"
+      ...colorPatterns[3] // Yellow
     },
     {
       href: "/reference",
       icon: "/icons/table.svg",
       title: "Reference",
       description: "Complete API and CLI documentation.",
-      bgColor: "bg-slate-50 dark:bg-slate-900/20",
-      hoverBgColor: "group-hover:bg-slate-100 dark:group-hover:bg-slate-900/30",
-      buttonColor: "bg-slate-500 hover:bg-slate-600",
-      hoverTextColor: "group-hover:text-slate-600"
+      ...colorPatterns[4] // Pink
     },
     {
       href: "/bring-your-own-cloud",
       icon: "/icons/cloud.svg",
       title: "Bring Your Own Cloud",
       description: "Deploy RunReveal in your own environment.",
-      bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
-      hoverBgColor: "group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/30",
-      buttonColor: "bg-emerald-500 hover:bg-emerald-600",
-      hoverTextColor: "group-hover:text-emerald-600"
+      ...colorPatterns[5] // Slate
     },
     {
       href: "/glossary",
       icon: "/icons/file.svg",
       title: "Glossary",
       description: "Definitions of security and technical terms.",
-      bgColor: "bg-violet-50 dark:bg-violet-900/20",
-      hoverBgColor: "group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30",
-      buttonColor: "bg-violet-500 hover:bg-violet-600",
-      hoverTextColor: "group-hover:text-violet-600"
+      ...colorPatterns[0] // Blue
     },
     {
       href: "/release-notes",
       icon: "/icons/newsletter.svg",
       title: "Release Notes",
       description: "Stay up to date with the latest updates.",
-      bgColor: "bg-rose-50 dark:bg-rose-900/20",
-      hoverBgColor: "group-hover:bg-rose-100 dark:group-hover:bg-rose-900/30",
-      buttonColor: "bg-rose-500 hover:bg-rose-600",
-      hoverTextColor: "group-hover:text-rose-600"
+      ...colorPatterns[1] // Purple
     }
   ]
 
@@ -335,11 +333,11 @@ export default function RunRevealIntroduction() {
             <div className="space-y-8">
               <div className="group">
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center group-hover:bg-violet-200 dark:group-hover:bg-violet-900/50 transition-colors">
-                    <img src="/icons/Multi_Member.svg" alt="" className="h-8 w-8" aria-hidden="true" />
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors bg-primary-light">
+                     <img src="/icons/Multi_Member.svg" alt="" className="h-8 w-8" aria-hidden="true" />
                   </div>
                   <div>
-                     <h3 className="text-xl font-black text-violet-600 mb-2">Built for Everyone</h3>
+                     <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Built for Everyone</h3>
                     <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
                       For teams of 1 to 100,000. Every company deserves the tools to detect compromises.
                     </div>
@@ -349,11 +347,11 @@ export default function RunRevealIntroduction() {
 
               <div className="group">
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
-                    <img src="/icons/Multi_Home.svg" alt="" className="h-8 w-8" aria-hidden="true" />
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors bg-insight-light">
+                     <img src="/icons/Multi_Home.svg" alt="" className="h-8 w-8" aria-hidden="true" />
                   </div>
                   <div>
-                     <h3 className="text-xl font-black text-violet-600 mb-2">Own Your Data</h3>
+                     <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Own Your Data</h3>
                     <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
                       Built on an open-source database so you retain control—without sacrificing performance.
                     </div>
@@ -365,11 +363,11 @@ export default function RunRevealIntroduction() {
             <div className="space-y-8">
               <div className="group">
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
-                    <img src="/icons/Multi_Settings.svg" alt="" className="h-8 w-8" aria-hidden="true" />
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors bg-primary-light">
+                     <img src="/icons/Multi_Settings.svg" alt="" className="h-8 w-8" aria-hidden="true" />
                   </div>
                   <div>
-                     <h3 className="text-xl font-black text-violet-600 mb-2">Customizable & Simple</h3>
+                     <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Customizable & Simple</h3>
                     <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
                       Configure formats, visualizations, and enrichments—while the UI stays effortless.
                     </div>
@@ -379,11 +377,11 @@ export default function RunRevealIntroduction() {
 
               <div className="group">
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors">
-                    <img src="/icons/Multi_Speed.svg" alt="" className="h-8 w-8" aria-hidden="true" />
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors bg-vitality-light">
+                     <img src="/icons/Multi_Speed.svg" alt="" className="h-8 w-8" aria-hidden="true" />
                   </div>
                   <div>
-                     <h3 className="text-xl font-black text-violet-600 mb-2">Performance & Pricing</h3>
+                     <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Performance & Pricing</h3>
                     <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
                       ClickHouse-powered speed with transparent pricing that beats legacy SIEMs.
                     </div>
@@ -415,8 +413,8 @@ export default function RunRevealIntroduction() {
             {/* Sources */}
             <div className="w-full max-w-md text-center rounded-2xl ring-1 ring-inset ring-blue-200 dark:ring-blue-800 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
               <div className="mb-4" aria-hidden="true">
-                <div className="mx-auto w-24 h-24 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <img src="/icons/link.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
+                <div className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center shadow-lg bg-insight">
+                   <img src="/icons/link.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
                 </div>
               </div>
                <h4 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">
@@ -438,8 +436,8 @@ export default function RunRevealIntroduction() {
             <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               <div className="text-center rounded-2xl ring-1 ring-inset ring-purple-200 dark:ring-purple-800 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="mb-3" aria-hidden="true">
-                  <div className="mx-auto w-20 h-20 bg-purple-500 rounded-xl flex items-center justify-center shadow-md">
-                    <img src="/icons/Edit.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-primary">
+                     <img src="/icons/Edit.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
                   </div>
                 </div>
                  <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Transforms</h4>
@@ -448,8 +446,8 @@ export default function RunRevealIntroduction() {
 
               <div className="text-center rounded-2xl ring-1 ring-inset ring-orange-200 dark:ring-orange-800 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="mb-3" aria-hidden="true">
-                  <div className="mx-auto w-20 h-20 bg-orange-500 rounded-xl flex items-center justify-center shadow-md">
-                    <img src="/icons/DataSort.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-accent">
+                     <img src="/icons/DataSort.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
                   </div>
                 </div>
                  <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Filtering & Sampling</h4>
@@ -468,8 +466,8 @@ export default function RunRevealIntroduction() {
             <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               <div className="text-center rounded-2xl ring-1 ring-inset ring-green-200 dark:ring-green-800 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="mb-3" aria-hidden="true">
-                  <div className="mx-auto w-20 h-20 bg-green-500 rounded-xl flex items-center justify-center shadow-md">
-                    <img src="/icons/Server.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-vitality">
+                     <img src="/icons/Server.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
                   </div>
                 </div>
                  <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Data Storage & Search</h4>
@@ -478,8 +476,8 @@ export default function RunRevealIntroduction() {
 
               <div className="text-center rounded-2xl ring-1 ring-inset ring-blue-200 dark:ring-blue-800 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="mb-3" aria-hidden="true">
-                  <div className="mx-auto w-20 h-20 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
-                    <img src="/icons/terminal.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-primary">
+                     <img src="/icons/terminal.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
                   </div>
                 </div>
                  <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">AI Chat & MCP</h4>
@@ -498,18 +496,18 @@ export default function RunRevealIntroduction() {
             <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               <div className="text-center rounded-2xl ring-1 ring-inset ring-purple-200 dark:ring-purple-800 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="mb-3" aria-hidden="true">
-                  <div className="mx-auto w-20 h-20 bg-purple-500 rounded-xl flex items-center justify-center shadow-md">
-                    <img src="/icons/Search.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-primary">
+                     <img src="/icons/Search.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
                   </div>
                 </div>
                  <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Detections</h4>
                 <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Build and deploy security rules.</div>
               </div>
 
-              <div className="text-center rounded-2xl ring-1 ring-inset ring-orange-200 dark:ring-orange-800 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="text-center rounded-2xl ring-1 ring-inset ring-red-200 dark:ring-red-800 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="mb-3" aria-hidden="true">
-                  <div className="mx-auto w-20 h-20 bg-orange-500 rounded-xl flex items-center justify-center shadow-md">
-                    <img src="/icons/AlertTriangle.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-red-500">
+                     <img src="/icons/AlertTriangle.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
                   </div>
                 </div>
                  <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Alerting</h4>
@@ -518,8 +516,8 @@ export default function RunRevealIntroduction() {
 
               <div className="text-center rounded-2xl ring-1 ring-inset ring-teal-200 dark:ring-teal-800 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200 sm:col-span-2 lg:col-span-1">
                 <div className="mb-3" aria-hidden="true">
-                  <div className="mx-auto w-20 h-20 bg-teal-500 rounded-xl flex items-center justify-center shadow-md">
-                    <img src="/icons/Presentation.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-insight">
+                     <img src="/icons/Presentation.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
                   </div>
                 </div>
                  <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Reports</h4>
@@ -537,8 +535,8 @@ export default function RunRevealIntroduction() {
             {/* Destinations */}
             <div className="w-full max-w-md text-center rounded-2xl ring-1 ring-inset ring-gray-200 dark:ring-gray-800 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20 p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
               <div className="mb-4" aria-hidden="true">
-                  <div className="mx-auto w-24 h-24 bg-gray-500 rounded-2xl flex items-center justify-center shadow-lg">
-                    <img src="/icons/Home.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
+                  <div className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center shadow-lg bg-gray-500">
+                     <img src="/icons/Home.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
                   </div>
                 </div>
                  <h4 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">Destinations</h4>

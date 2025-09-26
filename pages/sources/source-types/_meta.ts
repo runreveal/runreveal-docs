@@ -18,6 +18,7 @@ export default {
     "github": "GitHub",
     "gitlab": "GitLab",
     "google-workspace-logs": "Google Workspace",
+    "heroku": "Heroku",
     "jamf": "JAMF",
     "jamfprotect": "JAMF Protect",
     "jumpcloud": "JumpCloud",

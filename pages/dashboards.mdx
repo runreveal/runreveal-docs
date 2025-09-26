@@ -1,138 +1,144 @@
 ---
-title: 'Dashboard Graphs Guide'
-description: 'Complete guide to creating and configuring dashboard graphs in RunReveal with SQL examples, best practices, and configuration options.'
+title: "Dashboards & Graphs"
+description: "Build custom security visualizations with RunReveal's powerful dashboard system"
 ---
 
-import { Callout } from 'nextra/components'
+import { Callout, Tabs, Steps } from 'nextra/components'
 
-# Dashboard Graphs Guide
+# Dashboards & Graphs
 
-RunReveal's dashboard system allows you to create custom visualizations of your security and infrastructure data using SQL queries against ClickHouse tables. This guide covers everything you need to know to build effective dashboards.
+RunReveal's dashboard system enables you to create custom visualizations of your security data using SQL queries against your ClickHouse tables. Build dashboards that surface critical insights and track key metrics in real-time.
 
-## Overview
+<Callout type="info">
+<strong>Getting Started</strong>: Navigate to <strong>Dashboards → Graphs</strong> to create your first visualization, or go directly to <strong>Dashboards → Create Layout</strong> to build a complete dashboard.
+</Callout>
 
-Dashboard graphs in RunReveal consist of three main components:
+![Dashboard Overview](/dashboards-graphs-1.png)
 
-- **Graphs**: SQL queries that define the data and visualization type
-- **Panels**: Containers that display graphs with specific sizing and positioning
-- **Layouts**: Dashboard arrangements that organize multiple panels
+## Dashboard Components
 
-## Graph Configuration
+Your RunReveal dashboards consist of three hierarchical components:
 
-### Graph Properties
+1. **Graphs** — Individual visualizations powered by SQL queries.
+2. **Panels** — Containers that hold and size your graphs.
+3. **Dashboard Layouts** — The overall arrangement of panels.
 
-Each graph has the following configurable properties:
+## Available Visualization Types
 
-| Property | Type | Description | Example |
-|----------|------|-------------|---------|
-| `name` | string | Unique identifier (slug format) | `failed-logins` |
-| `displayName` | string | Human-readable title | `Failed Login Attempts` |
-| `query` | string | SQL query for data | `SELECT ... FROM okta_logs` |
-| `type` | string | Chart visualization type | `line`, `bar`, `pie`, `area` |
-| `xAxisColumnName` | string | Column for X-axis | `hour`, `country`, `user` |
-| `yAxisColumnName` | string | Column for Y-axis | `count`, `events`, `users` |
-| `xTitle` | string | X-axis label | `Time`, `Country`, `User` |
-| `yTitle` | string | Y-axis label | `Count`, `Events`, `Users` |
-| `fill` | boolean | Fill area under line/bar | `true`, `false` |
-| `stack` | string | Stacking behavior | `default`, `stacked`, `stacked100`, `unstacked` |
-| `stackColumn` | string | Column to stack by | `severity`, `source`, `type` |
+<Tabs items={['Time Series', 'Comparison', 'Distribution', 'Metrics']} defaultIndex={0}>
 
-### Chart Types
+<Tabs.Tab>
 
-#### Line Charts
-Best for time series data showing trends over time.
+### Time-Based Visualizations
 
-```sql
-SELECT 
-    toStartOfHour(eventTime) as hour,
-    count() as events
-FROM logs 
-WHERE eventTime >= now() - INTERVAL 24 HOUR
-GROUP BY hour
-ORDER BY hour
+**Line Chart**
+- Best for continuous trends over time
+- Shows changes in metrics like event rates, response times
+- Supports multiple data series
+
+**Area Chart**  
+- Renders as a filled line for volume trends
+- Useful for cumulative or stacked metrics over time
+
+**Column Chart**
+- Perfect for time-bucketed data
+- Compares values across time periods
+- Supports stacking for multi-series data
+
+```sql copy
+-- Example: Events over time (best practice time bounds)
+SELECT
+  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) AS time_bucket,
+  count() AS event_count
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY time_bucket
+ORDER BY time_bucket
 ```
+</Tabs.Tab>
 
-#### Bar Charts
-Ideal for categorical data comparisons.
+<Tabs.Tab>
 
-```sql
-SELECT 
-    srcASCountryCode as country,
-    count() as events
-FROM logs 
-WHERE eventTime >= now() - INTERVAL 24 HOUR
-    AND srcASCountryCode != ''
-GROUP BY country
+### Categorical Comparisons
+
+**Bar Chart**
+- Compare values across categories
+- Top-N analysis (users, sources, errors)
+
+**Column Chart**
+- Vertical comparison of categories
+- Supports grouped and stacked modes
+
+```sql copy
+-- Example: Top event sources
+SELECT
+  sourceType,
+  count() AS events
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY sourceType
 ORDER BY events DESC
 LIMIT 10
 ```
+</Tabs.Tab>
 
-#### Pie Charts
-Perfect for showing proportional data.
+<Tabs.Tab>
 
-```sql
-SELECT 
-    eventName,
-    count() as count
-FROM google_workspace_logs 
-WHERE eventTime >= now() - INTERVAL 7 DAY
-GROUP BY eventName
+### Proportional Analysis
+
+**Pie Chart**
+- Shows distribution as percentage of whole
+- Ideal for 5–10 categories (avoid too many slices)
+
+**Stacked Area/Bar**
+- Compare proportions over time
+- 100% stacking for normalized view
+
+```sql copy
+-- Example: Event distribution
+SELECT
+  sourceType,
+  count() AS count
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY sourceType
 ORDER BY count DESC
-LIMIT 8
 ```
+</Tabs.Tab>
 
-#### Area Charts
-Similar to line charts but with filled areas.
+<Tabs.Tab>
 
-```sql
-SELECT 
-    toStartOfDay(eventTime) as day,
-    count() as daily_events
-FROM logs 
-WHERE eventTime >= now() - INTERVAL 30 DAY
-GROUP BY day
-ORDER BY day
+### Single Metrics
+
+**Stat Card (Single Value/KPI)**
+- Display key KPIs and metrics
+- Single number with label
+- Ideal for dashboard headers
+
+**Scatter Plot** *(limited availability)*
+- Correlation analysis and outlier detection
+
+```sql copy
+-- Example: Total events KPI
+SELECT count() AS total_events 
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
 ```
+</Tabs.Tab>
 
-### Stacking Options
+</Tabs>
 
-#### Default (No Stacking)
-```json
-{
-  "stack": "default"
-}
-```
-
-#### Stacked
-```json
-{
-  "stack": "stacked",
-  "stackColumn": "severity"
-}
-```
-
-#### 100% Stacked
-```json
-{
-  "stack": "stacked100",
-  "stackColumn": "sourceType"
-}
-```
-
-#### Unstacked
-```json
-{
-  "stack": "unstacked"
-}
-```
-
-## Available Data Sources
-
-### Security & Authentication Logs
+{/* ## Available Data Sources
 
 <Callout type="info">
-All tables support time-based filtering using `eventTime >= now() - INTERVAL X DAY/HOUR`
+All tables support time-based filtering using `receivedAt >= {from:DateTime}` and `receivedAt < {to:DateTime}`
 </Callout>
+
+<Tabs items={['Security & Auth', 'Network & Infrastructure', 'Applications', 'Security Tools', 'System Tables']} defaultIndex="0">
+
+<Tabs.Tab>
+
+### Security & Authentication Logs
 
 #### Core Security Tables
 - `logs` - General log events from all sources
@@ -141,7 +147,7 @@ All tables support time-based filtering using `eventTime >= now() - INTERVAL X D
 - `okta_logs` - Okta authentication and authorization events
 - `auth0_logs` - Auth0 authentication events
 - `entra_logs` - Microsoft Entra ID (Azure AD) logs
-- `google_workspace_logs` - Google Workspace admin and user events
+- `gsuite_logs` - Google Workspace admin and user events
 - `github_logs` - GitHub audit and security events
 - `gitlab_logs` - GitLab audit events
 
@@ -150,6 +156,11 @@ All tables support time-based filtering using `eventTime >= now() - INTERVAL X D
 - `duo_logs` - Duo Security authentication logs
 - `teleport_audit_logs` - Teleport access logs
 - `lumos_logs` - Lumos access management events
+
+And More +
+</Tabs.Tab>
+
+<Tabs.Tab>
 
 ### Network & Infrastructure
 
@@ -169,6 +180,10 @@ All tables support time-based filtering using `eventTime >= now() - INTERVAL X D
 - `cf_gateway_network_logs` - Cloudflare Gateway network logs
 - `cf_access_requests_logs` - Cloudflare Access requests
 
+</Tabs.Tab>
+
+<Tabs.Tab>
+
 ### Application & Service Logs
 
 #### Development & CI/CD
@@ -182,6 +197,10 @@ All tables support time-based filtering using `eventTime >= now() - INTERVAL X D
 - `atlassian_logs` - Atlassian product logs (Jira, Confluence)
 - `pagerduty_logs` - PagerDuty incident logs
 - `zendesk_logs` - Zendesk ticket and activity logs
+
+</Tabs.Tab>
+
+<Tabs.Tab>
 
 ### Security Tools
 
@@ -199,563 +218,219 @@ All tables support time-based filtering using `eventTime >= now() - INTERVAL X D
 - `wiz_issue_webhook_logs` - Wiz security issues
 - `abnormal_logs` - Abnormal Security events
 
+</Tabs.Tab>
+
+<Tabs.Tab>
+
 ### RunReveal System Tables
 
 #### Detection & Alerting
 - `alerts` - Security detection alerts
 - `signals` - Security signals and findings
 - `detections` - Detection rule results
-- `signals_grouped` - Grouped security signals
+
 
 #### System Monitoring
 - `runreveal_audit_logs` - RunReveal system audit logs
 - `runreveal_source_volumes` - Data source volume metrics
-- `usage_events` - Usage tracking events
-- `external_metrics` - Custom metrics and KPIs
 
-## SQL Query Examples
 
-### Authentication & Access Control
+</Tabs.Tab>
 
-#### Failed Login Attempts Over Time
-```sql
-SELECT 
-    toStartOfHour(eventTime) as hour,
-    count() as failed_logins
-FROM okta_logs 
-WHERE eventType = 'user.session.start' 
-    AND outcome.result = 'FAILURE'
-    AND eventTime >= now() - INTERVAL 7 DAY
-GROUP BY hour
-ORDER BY hour
+</Tabs> */}
+
+## Creating Graphs
+
+![Dashboard Layout Editor](/dashboards-graphs-4.png)
+
+<Steps>
+
+### 1) Navigate to Graph Creation
+
+Go to <strong>Dashboards → Graphs → Create Graph</strong> or click the <strong>edit layout</strong> button on an existing dashboard.
+
+### 2) Write Your SQL Query
+
+Use RunReveal's query parameters for dynamic time ranges:
+
+```sql copy
+SELECT
+  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) AS time_bucket,
+  count() AS events,
+  sourceType
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY time_bucket, sourceType
+ORDER BY time_bucket
 ```
 
-#### Top Source Countries for Logins
-```sql
-SELECT 
-    srcASCountryCode as country,
-    count() as login_attempts,
-    countDistinct(actor.email) as unique_users
-FROM okta_logs 
-WHERE eventType = 'user.session.start'
-    AND eventTime >= now() - INTERVAL 24 HOUR
-    AND srcASCountryCode != ''
-GROUP BY country
-ORDER BY login_attempts DESC
-LIMIT 15
+**Available Parameters**
+- `{from:DateTime}` — Start time from the time picker
+- `{to:DateTime}` — End time from the time picker (inclusive)
+- `{interval:Int64}` — Time interval in seconds (auto-calculated)
+
+### 3) Configure Visualization
+
+- **Chart Type**: Select from supported types (Line, Column, Area, Bar, Pie, KPI; Scatter optional).
+- **X Axis Column**: Choose your X-axis data column.
+- **Y Axis Column**: Choose your Y-axis data column.
+- **Stack Column**: (Optional) Column for data stacking.
+- **Axis Titles**: Add descriptive labels.
+
+### 4) Test and Save
+
+Click <strong>Run Query</strong> to preview your visualization, adjust as needed, then save with a descriptive name.
+
+</Steps>
+
+## Creating Dashboards
+
+![Graph Editor](/dashboards-graphs-2.png)
+
+<Steps>
+
+### 1) Create Dashboard Layout
+
+Navigate to <strong>Dashboards → Create Layout</strong> and provide a **Dashboard Name**.
+
+### 2) Add Panels
+
+Click <strong>Add Panel</strong> to create visualization containers. Choose from panel sizes:
+- `xs` — Extra small  
+- `sm` — Small
+- `md` — Medium
+- `lg` — Large
+- `xl` — Extra large
+
+### 3) Assign Graphs to Panels
+
+- Select existing graphs from the dropdown.
+- Or create new graphs directly in the panel editor.
+- Configure panel-specific settings.
+
+### 4) Arrange and Save
+
+Panels automatically arrange in a responsive grid. Save your dashboard when complete.
+
+</Steps>
+
+## Stacking Options
+
+Control how multi-series data is displayed:
+
+| Stack Type       | Description                        | Use Case                      |
+|------------------|------------------------------------|-------------------------------|
+| **Default/None** | Series rendered independently      | Compare absolute values       |
+| **Stacked**      | Series add on top of each other    | See cumulative totals         |
+| **Stacked 100%** | Normalized to 100%                 | Compare proportions over time |
+
+<Callout type="info">
+Stacking is supported for: Bar/Column, Area, and Line charts.
+</Callout>
+
+## Query Examples
+
+### Event Volume by Source (Line Chart)
+
+```sql copy
+-- Event volume trends by source type
+SELECT
+  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) ts,
+  sourceType,
+  count(*) counter
+FROM
+  runreveal.logs
+WHERE
+  receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY
+  ts,
+  sourceType
+ORDER BY ts
 ```
 
-#### Privilege Escalation Events
-```sql
+### AWS S3 Events (Area Chart)
+
+```sql copy
+-- S3 API events over time with filled area
 SELECT 
-    eventTime,
-    actor.email as assigned_by,
-    JSONExtractString(rawLog, 'events', 0, 'parameters', 1, 'value') as user_email,
-    JSONExtractString(rawLog, 'events', 0, 'parameters', 0, 'value') as role_name
-FROM google_workspace_logs 
-WHERE eventName IN ('ASSIGN_ROLE', 'UNASSIGN_ROLE')
-    AND eventTime >= now() - INTERVAL 30 DAY
-ORDER BY eventTime DESC
+  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) AS time, 
+  count() AS s3Events 
+FROM aws_cloudtrail_logs 
+WHERE receivedAt > {from:DateTime} 
+  AND receivedAt <= {to:DateTime} 
+  AND eventSource = 's3.amazonaws.com' 
+GROUP BY time 
+ORDER BY time
 ```
 
-### Network Security
+### Average Bytes per Event (Stat Card)
 
-#### Top Destination IPs by Traffic Volume
-```sql
+```sql copy
+-- KPI: Average bytes per event processed
 SELECT 
-    dstIP,
-    count() as connection_count,
-    sum(bytes) as total_bytes
-FROM flow_logs 
-WHERE eventTime >= now() - INTERVAL 1 HOUR
-    AND dstIP != ''
-GROUP BY dstIP
-ORDER BY total_bytes DESC
-LIMIT 20
+    toStartOfInterval(timestamp, INTERVAL 15 MINUTE) as time_bucket,
+    sum(CASE WHEN series = 'pipeline_entered_bytes' THEN value ELSE 0 END) / 
+    sum(CASE WHEN series = 'pipeline_entered' THEN value ELSE 0 END) as avg_bytes_per_event
+FROM external_metrics
+WHERE timestamp >= {from:DateTime}
+  AND timestamp <= {to:DateTime}
+  AND series IN ('pipeline_entered', 'pipeline_entered_bytes')
+GROUP BY time_bucket
+HAVING sum(CASE WHEN series = 'pipeline_entered' THEN value ELSE 0 END) > 0
+ORDER BY time_bucket ASC
 ```
 
-#### Geographic Distribution of Network Events
-```sql
+### AWS CloudTrail API Errors (Bar Chart)
+
+```sql copy
+-- API errors and operations by service
 SELECT 
-    srcASCountryCode as country,
-    count() as events,
-    countDistinct(srcIP) as unique_ips,
-    countDistinct(actor.email) as unique_users
-FROM logs 
-WHERE eventTime >= now() - INTERVAL 24 HOUR
-    AND srcASCountryCode != ''
-GROUP BY country
-ORDER BY events DESC
-LIMIT 15
-```
-
-#### Cloudflare Security Events
-```sql
-SELECT 
-    toStartOfHour(timestamp) as hour,
-    action,
-    count() as events
-FROM cf_firewall_logs 
-WHERE timestamp >= now() - INTERVAL 24 HOUR
-    AND action IN ('block', 'challenge', 'log')
-GROUP BY hour, action
-ORDER BY hour, action
-```
-
-### User Activity & Behavior
-
-#### Active Users by Hour
-```sql
-SELECT 
-    toStartOfHour(eventTime) as hour,
-    countDistinct(actor.email) as active_users
-FROM logs 
-WHERE eventTime >= now() - INTERVAL 24 HOUR
-    AND actor.email != ''
-GROUP BY hour
-ORDER BY hour
-```
-
-#### Top Applications by Usage
-```sql
-SELECT 
-    serviceName,
-    count() as events,
-    countDistinct(actor.email) as unique_users
-FROM google_workspace_logs 
-WHERE eventTime >= now() - INTERVAL 7 DAY
-    AND serviceName != ''
-GROUP BY serviceName
-ORDER BY events DESC
-LIMIT 10
-```
-
-#### Suspicious Login Patterns
-```sql
-SELECT 
-    actor.email,
-    srcASCountryCode,
-    count() as login_count,
-    min(eventTime) as first_seen,
-    max(eventTime) as last_seen
-FROM okta_logs 
-WHERE eventType = 'user.session.start'
-    AND outcome.result = 'SUCCESS'
-    AND eventTime >= now() - INTERVAL 30 DAY
-GROUP BY actor.email, srcASCountryCode
-HAVING login_count > 5
-ORDER BY login_count DESC
-```
-
-### Data Security & Compliance
-
-#### Data Exfiltration Indicators
-```sql
-SELECT 
-    eventTime,
-    actor.email,
-    srcIP,
-    JSONExtractString(rawLog, 'events', 0, 'name') as action,
-    JSONExtractString(rawLog, 'events', 0, 'parameters', 0, 'value') as file_name
-FROM google_workspace_logs 
-WHERE eventName = 'DOWNLOAD'
-    AND eventTime >= now() - INTERVAL 7 DAY
-ORDER BY eventTime DESC
-```
-
-#### File Sharing Events
-```sql
-SELECT 
-    toStartOfDay(eventTime) as day,
-    JSONExtractString(rawLog, 'events', 0, 'name') as share_action,
-    count() as events
-FROM google_workspace_logs 
-WHERE eventName LIKE '%SHARE%'
-    AND eventTime >= now() - INTERVAL 30 DAY
-GROUP BY day, share_action
-ORDER BY day, events DESC
-```
-
-### System Health & Monitoring
-
-#### Source Health and Volume
-```sql
-SELECT 
-    sourceID,
-    sourceType,
-    count() as event_count,
-    min(eventTime) as earliest_event,
-    max(eventTime) as latest_event
-FROM logs 
-WHERE eventTime >= now() - INTERVAL 24 HOUR
-GROUP BY sourceID, sourceType
-ORDER BY event_count DESC
-```
-
-#### Alert Trends by Severity
-```sql
-SELECT 
-    toStartOfHour(createdAt) as hour,
-    severity,
-    count() as alert_count
-FROM alerts 
-WHERE createdAt >= now() - INTERVAL 7 DAY
-GROUP BY hour, severity
-ORDER BY hour, severity
-```
-
-#### Detection Rule Performance
-```sql
-SELECT 
-    detectionName,
-    count() as triggers,
-    countDistinct(actor.email) as affected_users,
-    avg(riskScore) as avg_risk_score
-FROM detections 
-WHERE createdAt >= now() - INTERVAL 7 DAY
-GROUP BY detectionName
-ORDER BY triggers DESC
-LIMIT 20
-```
-
-## Panel Configuration
-
-### Panel Sizes
-
-Panels support the following width options:
-
-| Size | Description | Use Case |
-|------|-------------|----------|
-| `xxs` | Extra extra small | Single metric displays |
-| `xs` | Extra small | Simple charts |
-| `sm` | Small | Basic time series |
-| `md` | Medium | Standard charts |
-| `lg` | Large | Complex visualizations |
-| `xl` | Extra large | Full-width dashboards |
-
-### Panel Properties
-
-```json
-{
-  "id": "panel-1",
-  "graphId": "failed-logins-graph",
-  "width": "lg",
-  "title": "Failed Login Attempts",
-  "position": 1
-}
+    toStartOfHour(receivedAt) as time_bucket,
+    eventSource,
+    count(*) as api_calls,
+    countIf(readOnly = false) as write_operations,
+    countIf(errorCode != '') as error_count
+FROM aws_cloudtrail_logs 
+WHERE receivedAt >= {from:DateTime}
+    AND receivedAt <= {to:DateTime}
+GROUP BY time_bucket, eventSource
+ORDER BY time_bucket DESC, api_calls DESC
 ```
 
 ## Best Practices
 
 ### Query Optimization
 
-#### Time-Based Filtering
-Always include time-based filtering to improve performance:
+1. **Always use time filters** — Leverage `{from:DateTime}` and `{to:DateTime}` with `BETWEEN` or `>=`/`<=` operators.
+2. **Limit result sets** — Add `LIMIT` for top‑N queries.
+3. **Use efficient aggregations** — Prefer ClickHouse‑optimized functions:
+   - `toStartOfInterval()` for time bucketing
+   - `countIf()` for conditional counting
+   - `sumIf()` for conditional sums
 
-```sql
--- Good: Time-filtered query
-SELECT toStartOfHour(eventTime) as hour, count() as events
-FROM logs 
-WHERE eventTime >= now() - INTERVAL 7 DAY
-GROUP BY hour
-ORDER BY hour
+### Time Intervals
 
--- Bad: No time filtering
-SELECT toStartOfHour(eventTime) as hour, count() as events
-FROM logs 
-GROUP BY hour
-ORDER BY hour
+RunReveal automatically calculates appropriate intervals based on your time range:
+
+```sql copy
+-- Let RunReveal handle interval sizing
+toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND)
+
+-- Or use fixed intervals for consistency
+toStartOfHour(receivedAt)   -- Hourly buckets
+toStartOfDay(receivedAt)    -- Daily buckets
+toStartOfWeek(receivedAt)   -- Weekly buckets
 ```
 
-#### Appropriate Aggregation
-Use the right aggregation functions for your data:
+## Live Features
 
-```sql
--- Count events
-SELECT count() as total_events
+### Real-Time Updates
+- Graphs refresh automatically based on your time picker settings.
+- Live data updates without manual refresh.
+- Consistent data across all panels in a dashboard.
 
--- Count unique values
-SELECT countDistinct(actor.email) as unique_users
+### Interactivity
+- **Hover tooltips** — See detailed values on hover.
+- **Time range selection** — Integrated with global time picker.
+- **Responsive design** — Adapts to different screen sizes.
 
--- Sum numeric values
-SELECT sum(bytes) as total_bytes
-
--- Average values
-SELECT avg(responseTime) as avg_response_time
-```
-
-#### Result Limiting
-Limit results for large datasets:
-
-```sql
--- Limit top results
-SELECT country, count() as events
-FROM logs 
-GROUP BY country
-ORDER BY events DESC
-LIMIT 20
-```
-
-### Column Naming
-
-Use descriptive column names that work well in graphs:
-
-```sql
--- Good: Descriptive names
-SELECT 
-    toStartOfHour(eventTime) as hour,
-    count() as failed_logins,
-    countDistinct(actor.email) as unique_users
-
--- Bad: Generic names
-SELECT 
-    toStartOfHour(eventTime) as time,
-    count() as count,
-    countDistinct(actor.email) as distinct
-```
-
-### Graph Type Selection
-
-Choose the right chart type for your data:
-
-- **Line Charts**: Time series data, trends over time
-- **Bar Charts**: Categorical comparisons, rankings
-- **Pie Charts**: Proportional data, parts of a whole
-- **Area Charts**: Cumulative data, filled time series
-
-### Performance Considerations
-
-#### Query Complexity
-Keep queries simple and focused:
-
-```sql
--- Good: Simple, focused query
-SELECT toStartOfHour(eventTime) as hour, count() as events
-FROM logs 
-WHERE eventTime >= now() - INTERVAL 24 HOUR
-GROUP BY hour
-ORDER BY hour
-
--- Avoid: Overly complex queries with many joins
-SELECT /* complex query with multiple joins */
-```
-
-#### Data Volume
-Consider data volume when designing queries:
-
-- Use appropriate time ranges (1 hour, 24 hours, 7 days, 30 days)
-- Limit result sets with `LIMIT` clauses
-- Use aggregation to reduce data points
-
-## API Reference
-
-### Graph Management Endpoints
-
-#### Create Graph
-```bash
-POST /api/dashboard/graph/create
-Content-Type: application/json
-
-{
-  "name": "failed-logins",
-  "displayName": "Failed Login Attempts",
-  "query": "SELECT toStartOfHour(eventTime) as hour, count() as failed_logins FROM okta_logs WHERE eventType = 'user.session.start' AND outcome.result = 'FAILURE' AND eventTime >= now() - INTERVAL 7 DAY GROUP BY hour ORDER BY hour",
-  "type": "line",
-  "xAxisColumnName": "hour",
-  "yAxisColumnName": "failed_logins",
-  "xTitle": "Time",
-  "yTitle": "Failed Logins",
-  "fill": true,
-  "stack": "default"
-}
-```
-
-#### List Graphs
-```bash
-GET /api/dashboard/graph/list
-```
-
-#### Update Graph
-```bash
-POST /api/dashboard/graph/update
-Content-Type: application/json
-
-{
-  "id": "graph-id",
-  "query": "updated SQL query",
-  "displayName": "Updated Display Name"
-}
-```
-
-#### Delete Graph
-```bash
-POST /api/dashboard/graph/delete
-Content-Type: application/json
-
-{
-  "id": "graph-id"
-}
-```
-
-### Layout Management Endpoints
-
-#### Create Layout
-```bash
-POST /api/dashboard/layout/create
-Content-Type: application/json
-
-{
-  "name": "security-overview",
-  "displayName": "Security Overview Dashboard"
-}
-```
-
-#### Update Layout
-```bash
-POST /api/dashboard/layout/update
-Content-Type: application/json
-
-{
-  "id": "layout-id",
-  "panels": [
-    {
-      "id": "panel-1",
-      "graphId": "graph-id",
-      "width": "lg",
-      "title": "Failed Logins",
-      "position": 1
-    }
-  ]
-}
-```
-
-## Troubleshooting
-
-### Common Issues
-
-#### No Data in Graph
-- Check if the time range includes data
-- Verify table names and column names
-- Ensure proper WHERE clause filtering
-
-#### Slow Query Performance
-- Add time-based filtering
-- Use appropriate aggregation
-- Limit result sets
-- Check for missing indexes
-
-#### Graph Not Displaying
-- Verify column names match configuration
-- Check data types (numeric for Y-axis)
-- Ensure query returns results
-
-#### Incorrect Data
-- Validate SQL query logic
-- Check time zone handling
-- Verify aggregation functions
-
-### Debugging Tips
-
-1. **Test Queries First**: Use the query interface to test SQL before creating graphs
-2. **Check Column Types**: Ensure X-axis and Y-axis columns have correct data types
-3. **Validate Time Ranges**: Make sure your time filtering includes the expected data
-4. **Monitor Performance**: Watch for slow queries and optimize as needed
-
-## Example Dashboard Configurations
-
-### Security Overview Dashboard
-
-```json
-{
-  "name": "security-overview",
-  "displayName": "Security Overview",
-  "panels": [
-    {
-      "id": "failed-logins",
-      "graphId": "failed-logins-graph",
-      "width": "lg",
-      "title": "Failed Login Attempts",
-      "position": 1
-    },
-    {
-      "id": "top-countries",
-      "graphId": "top-countries-graph", 
-      "width": "md",
-      "title": "Top Source Countries",
-      "position": 2
-    },
-    {
-      "id": "alert-trends",
-      "graphId": "alert-trends-graph",
-      "width": "lg", 
-      "title": "Alert Trends",
-      "position": 3
-    }
-  ]
-}
-```
-
-### User Activity Dashboard
-
-```json
-{
-  "name": "user-activity",
-  "displayName": "User Activity Dashboard",
-  "panels": [
-    {
-      "id": "active-users",
-      "graphId": "active-users-graph",
-      "width": "md",
-      "title": "Active Users Over Time",
-      "position": 1
-    },
-    {
-      "id": "top-apps",
-      "graphId": "top-apps-graph",
-      "width": "md",
-      "title": "Top Applications",
-      "position": 2
-    },
-    {
-      "id": "user-geography",
-      "graphId": "user-geography-graph",
-      "width": "lg",
-      "title": "User Geographic Distribution",
-      "position": 3
-    }
-  ]
-}
-```
-
-This comprehensive guide provides everything you need to create effective dashboard graphs in RunReveal, from basic configuration to advanced query optimization and troubleshooting.---
-title: 'Dashboards'
-description: 'Create and manage dashboards to visualize your security data and gain insights into your environment.'
----
-
-# Dashboards
-
-Create and manage dashboards to visualize your security data and gain insights into your environment.
-
-## Overview
-
-Dashboards in RunReveal allow you to create custom visualizations of your security data, helping you monitor threats, track trends, and gain actionable insights.
-
-## Getting Started
-
-Coming soon - documentation for creating and managing dashboards will be available here.
-
-## Features
-
-- Custom dashboard creation
-- Real-time data visualization
-- Interactive charts and graphs
-- Dashboard sharing and collaboration
-- Pre-built dashboard templates
-
-## Need Help?
-
-If you have questions about dashboards, please contact our support team through:
-
-- Our [Discord community](https://discord.gg/n3y6WwPCg7)
-- Email at contact@runreveal.com
-- The chat bubble on our website
