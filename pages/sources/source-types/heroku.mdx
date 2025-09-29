@@ -1,0 +1,186 @@
+---
+title: 'Heroku Audit Trail Log Ingestion via API Polling'
+description: "This guide explains how to configure RunReveal to poll **Heroku Enterprise audit trail events** (e.g., app creation, destruction, add-on management, collaborator changes, team membership updates) using the Heroku Platform API."
+---
+
+import { Callout } from 'nextra/components'
+
+<style jsx>{`
+  img {
+    border-radius: 5px;
+  }
+`}</style>
+
+# Heroku Audit Trail Log Ingestion via API Polling
+
+This guide explains how to configure RunReveal to poll **Heroku Enterprise audit trail events** (e.g., app creation, destruction, add-on management, collaborator changes, team membership updates) using the Heroku Platform API.
+
+![heroku-audit-setup](/heroku-1.png)
+
+## Prerequisites
+
+- **Heroku Enterprise account access**  
+  You need a Heroku Enterprise organization with audit trail capabilities.
+- **Heroku API token with organization access**  
+  Token must have read permissions for your enterprise organization's audit trail.
+- **RunReveal account with permissions to add sources and view logs (admin/editor)**  
+  Ability to add sources and view logs.
+
+---
+
+## Step 1: Create Heroku Source in RunReveal
+
+1. **Navigate to Sources** in RunReveal  
+3. Look for **Heroku* source tile
+4. Provide a descriptive **Source Name** (e.g., "Heroku" or "Heroku Audit Prod")  
+5. Add your **Heroku Enterprise Name** and generated **API Token** to the tile from the steps below.
+## Step 2: Obtain Your Enterprise Account Name
+
+The Enterprise Account Name is your Heroku Enterprise organization identifier.
+
+### Finding Your Enterprise Account Name:
+
+**Method 1: Heroku Dashboard**
+1. Log into the [Heroku Dashboard](https://dashboard.heroku.com)
+2. Navigate to your Enterprise account (top-left dropdown)
+3. The Enterprise Account Name is displayed in the organization selector
+4. Format: `your-company-name` (lowercase, hyphenated)
+
+**Method 2: Heroku CLI**
+```bash
+# Install Heroku CLI if not already installed
+npm install -g heroku
+
+# Login to your account
+heroku login
+
+# List organizations you have access to
+heroku orgs
+
+# Example output:
+# your-company-name (enterprise)
+```
+
+**Method 3: API Request**
+```bash
+# Using your API token (see Step 3 below)
+curl -n https://api.heroku.com/enterprises \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Accept: application/vnd.heroku+json; version=3"
+```
+
+## Step 3: Generate Heroku API Token
+
+You need a Heroku API token with audit trail access permissions.
+
+### Creating a Heroku API Token:
+
+**Method 1: Heroku Dashboard**
+1. Log into [Heroku Dashboard](https://dashboard.heroku.com)
+2. Click your profile picture (top-right)
+3. Select "Account Settings"
+4. Navigate to "Applications" tab
+5. Scroll to "Authorizations" section
+6. Click "Create Authorization"
+7. Fill in the form:
+   - **Description**: `RunReveal Audit Trail Integration`
+   - **Scope**: Select "read" (minimum required)
+8. Click "Create"
+9. **Copy the token immediately** - it won't be shown again
+
+**Method 2: Heroku CLI**
+```bash
+# Login to Heroku
+heroku login
+
+# Create a new authorization
+heroku authorizations:create --description "RunReveal Audit Trail"
+
+# Example output:
+# Client:      <client-id>
+# ID:          <auth-id>
+# Description: RunReveal Audit Trail
+# Scope:       global
+# Token:       <your-api-token>
+```
+
+### Required Permissions
+
+Your API token must have access to:
+- **Organization audit events**: `read` scope
+- **Enterprise account access**: Must be a member of the enterprise organization
+
+### Audit Event Types to Monitor:
+RunReveal will automatically poll for all available audit trail events including:
+- `app-create` / `app-destroy` (application lifecycle)
+- `addon-attach` / `addon-detach` (add-on management)
+- `collaborator-add` / `collaborator-remove` (access changes)
+- `team-invite` / `team-remove` (team membership)
+- `domain-create` / `domain-delete` (domain management)
+- `config-add` / `config-remove` (configuration changes)
+
+## Step 4: Validate Data Collection
+
+1. Return to RunReveal and open your source tile for **Heroku** page 
+2. Confirm that events are being collected (initial polling may take 5 minutes)  
+3. Search in **Explorer** or use **Native AI Chat** to inspect recent Heroku audit events  
+4. Look for the `heroku_logs` table with your source ID filter  
+
+<Callout type="info">
+  **Note**: RunReveal polls for new Heroku audit events every 5 minutes. Historical audit events are available based on your Heroku Enterprise plan retention period.
+</Callout>
+
+## Security Best Practices
+
+### API Token Management
+- **Least privilege**: Use read-only scope when possible
+- **Rotation**: Rotate tokens regularly (quarterly recommended)
+- **Storage**: Store tokens securely (password manager, secrets management)
+- **Monitoring**: Monitor token usage through Heroku audit logs
+
+### Access Control
+- Use a **service account** rather than personal account for production integrations
+- Ensure the account has **minimal required permissions**:
+  - Enterprise organization member
+  - Audit trail read access
+- Document who has access to these credentials
+
+## Troubleshooting
+
+- **"Invalid Enterprise Account Name"**  
+  - Verify the exact spelling and format (lowercase, hyphenated)  
+  - Ensure you have access to the enterprise organization  
+  - Check that it's an Enterprise account, not Team or Individual  
+
+- **"Authentication Failed"**  
+  - Verify API token is correct and hasn't expired  
+  - Ensure the token has proper scope (read access minimum)  
+  - Confirm the user account is a member of the enterprise organization  
+
+- **"No Audit Events Found"**  
+  - Enterprise audit trails may take a few minutes to populate  
+  - Verify your enterprise account has recent activity  
+  - Check Heroku's status page for any API issues
+
+- **Rate Limiting Issues**  
+  - RunReveal automatically handles rate limits with exponential backoff
+  - If you see repeated rate limit errors, check your Heroku API usage
+
+### Testing Your Configuration
+
+Validate your credentials before saving in RunReveal:
+
+```bash
+# Test API token and enterprise access
+curl -n https://api.heroku.com/enterprises/YOUR_ENTERPRISE_NAME/audit-trail/events \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Accept: application/vnd.heroku+json; version=3"
+
+# Should return recent audit events JSON
+```
+
+## Helpful Links
+
+- [Heroku Platform API Reference - Audit Trail](https://devcenter.heroku.com/articles/platform-api-reference#audit-trail)  
+- [Heroku Enterprise Audit Trail Documentation](https://devcenter.heroku.com/articles/audit-trail)  
+- [Managing API Tokens in Heroku](https://devcenter.heroku.com/articles/platform-api-quickstart#authentication)

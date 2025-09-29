@@ -1,53 +1,591 @@
----
-title: "Introduction to RunReveal"
-description: "RunReveal is a modern security data platform designed to make detection simple. Built on ClickHouse for performance, with detection-as-code workflows and AI-native investigations."
-keywords: "RunReveal, SIEM, security platform, ClickHouse, detection-as-code, log management"
----
+import React from 'react'
 
-# Introduction
+export const frontMatter = {
+  title: 'RunReveal Docs',
+  description: 'Turn logs into answers—fast. Connect 70+ tools, investigate with AI, and detect threats in real time.',
+  breadcrumb: false,
+  fullWidth: true,
+  hidePageTitle: true,
+  copy: false,
+  hideBreadcrumb: true,
+  hideCopyButton: true
+}
 
-## What is RunReveal?
-RunReveal is a data detection platform designed to make detection simple. We've
-rethought the existing SIEM category from the ground up so we can instantly
-take any company's security data and logs and turn them into insights, provide
-the tools to build your own detailed detection, integrations, etc.
+export default function RunRevealIntroduction() {
+  // Add custom styles to hide breadcrumb and copy button
+  React.useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      /* Hide breadcrumb on homepage */
+      [data-pathname="/"] .nextra-breadcrumb,
+      [data-pathname="/"] .nextra-breadcrumb-container,
+      [data-pathname="/"] nav[aria-label="breadcrumb"],
+      .nextra-breadcrumb,
+      div.nextra-breadcrumb,
+      ._mt-1\\.5._flex._items-center._gap-1._overflow-hidden._text-sm._text-gray-500 {
+        display: none !important;
+      }
+      
+      /* Hide copy button on homepage */
+      [data-pathname="/"] .nextra-copy,
+      [data-pathname="/"] button[aria-label*="copy"],
+      [data-pathname="/"] button[title*="copy"],
+      [data-pathname="/"] button[title="Copy article content"],
+      .nextra-copy,
+      button[aria-label*="copy"],
+      button[title*="copy"],
+      button[title="Copy article content"] {
+        display: none !important;
+      }
+    `
+    document.head.appendChild(style)
+    
+    // Add keyboard shortcut for search (Ctrl+K / Cmd+K)
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        const searchInput = document.querySelector('input[placeholder*="Search documentation"]')
+        if (searchInput) {
+          searchInput.focus()
+        }
+      }
+    }
+    
+    document.addEventListener('keydown', handleKeyDown)
+    
+    return () => {
+      document.head.removeChild(style)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
+  // Color pattern for cards - ensures no adjacent duplicates in 3-column grid
+  const colorPatterns = [
+    {
+      bgColor: "bg-insight-light dark:bg-insight/20",
+      hoverBgColor: "group-hover:bg-insight/30 dark:group-hover:bg-insight/30",
+      buttonColor: "bg-insight hover:bg-insight-dark",
+      hoverTextColor: "group-hover:text-insight"
+    },
+    {
+      bgColor: "bg-primary-light dark:bg-primary/20",
+      hoverBgColor: "group-hover:bg-primary/30 dark:group-hover:bg-primary/30",
+      buttonColor: "bg-primary hover:bg-primary-dark",
+      hoverTextColor: "group-hover:text-primary"
+    },
+    {
+      bgColor: "bg-vitality-light dark:bg-vitality/20",
+      hoverBgColor: "group-hover:bg-vitality/30 dark:group-hover:bg-vitality/30",
+      buttonColor: "bg-vitality hover:bg-vitality-dark",
+      hoverTextColor: "group-hover:text-vitality"
+    },
+    {
+      bgColor: "bg-accent-light dark:bg-accent/20",
+      hoverBgColor: "group-hover:bg-accent/30 dark:group-hover:bg-accent/30",
+      buttonColor: "bg-accent hover:bg-accent-dark",
+      hoverTextColor: "group-hover:text-accent"
+    },
+    {
+      bgColor: "bg-secondary-light dark:bg-secondary/20",
+      hoverBgColor: "group-hover:bg-secondary/30 dark:group-hover:bg-secondary/30",
+      buttonColor: "bg-secondary hover:bg-secondary-dark",
+      hoverTextColor: "group-hover:text-secondary"
+    },
+    {
+      bgColor: "bg-slate-100 dark:bg-slate-800/20",
+      hoverBgColor: "group-hover:bg-slate-200 dark:group-hover:bg-slate-800/30",
+      buttonColor: "bg-slate-600 hover:bg-slate-700",
+      hoverTextColor: "group-hover:text-slate-600"
+    }
+  ]
 
-## How does RunReveal Work?
-There are quite a few components that make RunReveal tick.
- - **Sources** - RunReveal orchestrates and manages the collection of logs
- from the security tools and business tools that you use via APIs, Webhooks,
- direct integrations, and object storage.
- - **Data-storage and log search** - We provide tools to store your logs,
- search your logs, schedule detections, and easily investigate what's going
- on in your environment.
- - **Destinations** - Object storage and managed services for backing up and
- using your data in other third party services. We collect the data from different
- cloud services and save your data to object storage for a rainy day.
- - **Alerting** - We integrate with the tools you want to send alerts to and
- by default sends all of your alerts to your email.
- - **Reports** - Insights we forward to you on a daily basis about what's
- happening in your environment. These are queries we've written.
+  const learnMoreCards = [
+    {
+      href: "/how-to-guides",
+      icon: "/icons/files.svg",
+      title: "How To Guides",
+      description: "Step-by-step guides to get you running quickly.",
+      ...colorPatterns[0] // Blue
+    },
+    {
+      href: "/ai-chat",
+      icon: "/icons/Icon-AIDetective.svg",
+      title: "AI Chat",
+      description: "Chat with your security data using AI-powered investigations.",
+      ...colorPatterns[1] // Purple
+    },
+    {
+      href: "/pipelines/getting-started",
+      icon: "/icons/rows.svg",
+      title: "Pipelines",
+      description: "Build and manage data processing pipelines.",
+      ...colorPatterns[2] // Green
+    },
+    {
+      href: "/sources",
+      icon: "/icons/link.svg",
+      title: "Sources",
+      description: "Connect 70+ tools to centralize all your security data.",
+      ...colorPatterns[3] // Yellow
+    },
+    {
+      href: "/transforms",
+      icon: "/icons/Edit.svg",
+      title: "Transforms",
+      description: "Normalize data for consistent queries and dashboards.",
+      ...colorPatterns[4] // Pink
+    },
+    {
+      href: "/filtering",
+      icon: "/icons/DataSort.svg",
+      title: "Filtering",
+      description: "Powerful querying and sampling for noisy streams.",
+      ...colorPatterns[5] // Slate
+    },
+    {
+      href: "/detections",
+      icon: "/icons/Search.svg",
+      title: "Detections",
+      description: "Manage rules with detection-as-code workflows.",
+      ...colorPatterns[0] // Blue (cycle back)
+    },
+    {
+      href: "/enrichments",
+      icon: "/icons/stars.svg",
+      title: "Enrichments",
+      description: "Add context and metadata to every event.",
+      ...colorPatterns[1] // Purple
+    },
+    {
+      href: "/notifications",
+      icon: "/icons/AlertCircle.svg",
+      title: "Notifications",
+      description: "Configure alerts and notifications for security events.",
+      ...colorPatterns[2] // Green
+    },
+    {
+      href: "/integrations",
+      icon: "/icons/Lightning.svg",
+      title: "Integrations",
+      description: "Connect with Grafana, Jupyter, and other tools.",
+      ...colorPatterns[3] // Yellow
+    },
+    {
+      href: "/reference",
+      icon: "/icons/table.svg",
+      title: "Reference",
+      description: "Complete API and CLI documentation.",
+      ...colorPatterns[4] // Pink
+    },
+    {
+      href: "/bring-your-own-cloud",
+      icon: "/icons/cloud.svg",
+      title: "Bring Your Own Cloud",
+      description: "Deploy RunReveal in your own environment.",
+      ...colorPatterns[5] // Slate
+    },
+    {
+      href: "/glossary",
+      icon: "/icons/file.svg",
+      title: "Glossary",
+      description: "Definitions of security and technical terms.",
+      ...colorPatterns[0] // Blue
+    },
+    {
+      href: "/release-notes",
+      icon: "/icons/newsletter.svg",
+      title: "Release Notes",
+      description: "Stay up to date with the latest updates.",
+      ...colorPatterns[1] // Purple
+    }
+  ]
 
-## The secret sauce
-What's the secret sauce that RunReveal has that no other company's have? 
- - We work with companies of any size, whether 1 person or 100,000. All
- companies deserve to have the tools they need to detect compromises.
- - We're built on an open-source database so you can own your own data
- instead of renting it while using the most advanced database technology.
- - We are making every part of our platform customizable, but keeping the
- experience dead simple. By running on an open-source database, customers
- can customize log formats, visualization tools, enrichment capabilities,
- etc. But out of the box we provide a batteries fully included experience.
- - Efficiency. RunReveal is able to provide a faster and more performant
- experience than any other platform, and this enables us to provide
- simple transparent pricing that beats the competition.
+  return (
+    <>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-violet-600 focus:px-3 focus:py-2 focus:text-white"
+      >
+        Skip to content
+      </a>
 
-## Integrations with RunReveal
-RunReveal provides APIs, a CLI, and direct integrations with the platform.
- - **Detection as code** - We support detection as code workflows via github
- functions or API.
- - **Dashboarding and Visualization tools** - RunReveal has a direct integration
- with Grafana, can be used with Jupyter notebooks, and using our API we can
- support any specialty integrations you need.
- - **SOAR** - RunReveal supports SOAR platforms to automate the response,
- investigation, or whatever parts of the detection & response process.
+      <header className="relative isolate overflow-hidden px-6 py-8 sm:py-10 mb-12 text-left
+        border-2 border-gray-300/30 rounded-lg mx-0
+        bg-slate-900">
+
+        <div className="mx-auto max-w-7xl text-left">
+          {/* icon */}
+          <div className="mb-6">
+            <img src="/icons/Book.svg" alt="" className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 brightness-0 invert drop-shadow-lg" style={{ marginLeft: '-8px' }} aria-hidden="true" />
+          </div>
+
+          {/* headline */}
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-white drop-shadow-lg mb-4">
+            RunReveal Documentation
+          </h1>
+
+          {/* subheadline */}
+          <p className="max-w-3xl text-lg sm:text-xl text-white/90 leading-relaxed">
+            Turn logs into answers—fast. Connect 70+ tools, investigate with AI, and detect threats in real time.
+          </p>
+        </div>
+      </header>
+
+      {/* Search Box */}
+      {/* <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 mb-12">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Search documentation..."
+            className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent shadow-sm"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const query = e.target.value.trim()
+                if (query) {
+                  // Try to find and trigger Nextra's search
+                  const searchButton = document.querySelector('button[aria-label*="search" i]') || 
+                                     document.querySelector('[data-nextra-search]') ||
+                                     document.querySelector('.nextra-search button')
+                  
+                  if (searchButton) {
+                    searchButton.click()
+                    // Wait for search modal to open, then set the query
+                    setTimeout(() => {
+                      const searchModalInput = document.querySelector('.nextra-search input') ||
+                                             document.querySelector('[data-nextra-search] input') ||
+                                             document.querySelector('input[placeholder*="search" i]')
+                      if (searchModalInput) {
+                        searchModalInput.value = query
+                        searchModalInput.dispatchEvent(new Event('input', { bubbles: true }))
+                        searchModalInput.dispatchEvent(new Event('change', { bubbles: true }))
+                      }
+                    }, 200)
+                  } else {
+                    // Fallback: redirect to a search page or use browser search
+                    console.log('Search query:', query)
+                    // You could redirect to a search results page here
+                    // window.location.href = `/search?q=${encodeURIComponent(query)}`
+                  }
+                }
+              }
+            }}
+          />
+        </div>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 text-center">
+          Press Enter to search • Use Ctrl+K (Cmd+K on Mac) for quick search
+        </p>
+      </div> */}
+
+      <div className="w-full px-4 sm:px-6 lg:px-8">
+
+        {/* LEARN MORE */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+          {learnMoreCards.map((card) => (
+            <a
+              key={card.href}
+              href={card.href}
+              className="group flex flex-col h-full rounded-2xl bg-gray-50/70 dark:bg-white/5 ring-1 ring-inset ring-violet-200/60 dark:ring-violet-700 p-6 transition-all hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+            >
+              <div className={`w-full h-[120px] mb-4 rounded-xl flex items-center justify-center ${card.bgColor} ${card.hoverBgColor}`}>
+                <img src={card.icon} alt="" className="h-20 w-20" style={{ filter: 'brightness(0) saturate(100%) invert(42%) sepia(8%) saturate(1018%) hue-rotate(201deg) brightness(95%) contrast(89%)' }} aria-hidden="true" />
+              </div>
+              <div className="mb-2">
+                <div className={`text-xl font-black text-gray-900 dark:text-gray-100 ${card.hoverTextColor} transition-colors`}>
+                  {card.title}
+                </div>
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400 leading-tight flex-grow">
+                {card.description}
+              </div>
+              <div className="mt-4 flex justify-end">
+                <span className={`inline-flex items-center justify-center rounded-full w-8 h-8 text-white ${card.buttonColor} transition-colors`}>
+                  <svg className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M12.293 4.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 11-1.414-1.414L14.586 10H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 011.414-1.414z"/>
+                  </svg>
+                  <span className="sr-only">Learn more about {card.title}</span>
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {/* SPECIAL */}
+        <div className="mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-left border-b-4 border-violet-600 pb-4">
+            What Makes Us Special
+          </h2>
+          <div className="mt-2 text-left text-lg text-gray-600 dark:text-gray-400">
+            Built for modern security teams with modern needs
+          </div>
+        </div>
+
+        <section
+          aria-labelledby="special-title"
+          className="mb-16"
+        >
+          <h3 id="special-title" className="sr-only">What Makes RunReveal Special</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-8">
+              <div className="group">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors bg-primary-light">
+                     <img src="/icons/Multi_Member.svg" alt="" className="h-8 w-8" aria-hidden="true" />
+                  </div>
+                  <div>
+                     <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Built for Everyone</h3>
+                    <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                      For teams of 1 to 100,000. Every company deserves the tools to detect compromises.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors bg-insight-light">
+                     <img src="/icons/Multi_Home.svg" alt="" className="h-8 w-8" aria-hidden="true" />
+                  </div>
+                  <div>
+                     <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Own Your Data</h3>
+                    <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                      Built on an open-source database so you retain control—without sacrificing performance.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div className="group">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors bg-primary-light">
+                     <img src="/icons/Multi_Settings.svg" alt="" className="h-8 w-8" aria-hidden="true" />
+                  </div>
+                  <div>
+                     <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Customizable & Simple</h3>
+                    <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                      Configure formats, visualizations, and enrichments—while the UI stays effortless.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="group">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors bg-vitality-light">
+                     <img src="/icons/Multi_Speed.svg" alt="" className="h-8 w-8" aria-hidden="true" />
+                  </div>
+                  <div>
+                     <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Performance & Pricing</h3>
+                    <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                      ClickHouse-powered speed with transparent pricing that beats legacy SIEMs.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* HOW IT WORKS */}
+        <div className="mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-left border-b-4 border-violet-600 pb-4">
+            How RunReveal Works
+          </h2>
+          <div className="mt-2 text-left text-lg text-gray-600 dark:text-gray-400">
+            From data collection to threat detection in one seamless flow
+          </div>
+        </div>
+
+        <section
+          id="main"
+          aria-labelledby="how-it-works-title"
+          className="mb-16 bg-gray-100 dark:bg-gray-800 rounded-3xl p-8 sm:p-12"
+        >
+          <h3 id="how-it-works-title" className="sr-only">How RunReveal Works</h3>
+
+          <div className="flex flex-col items-center gap-8">
+            {/* Sources */}
+            <div className="w-full max-w-md text-center rounded-2xl ring-1 ring-inset ring-blue-200 dark:ring-blue-800 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="mb-4" aria-hidden="true">
+                <div className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center shadow-lg bg-insight">
+                   <img src="/icons/link.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
+                </div>
+              </div>
+               <h4 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">
+                 Sources
+               </h4>
+              <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Collect logs from 70+ security tools via APIs, webhooks, and integrations.
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div className="flex items-center justify-center" aria-hidden="true">
+              <svg className="h-12 w-12 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3a1 1 0 011 1v12.586l3.293-3.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L11 16.586V4a1 1 0 011-1z"/>
+              </svg>
+            </div>
+
+            {/* Transforms + Filtering */}
+            <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+              <div className="text-center rounded-2xl ring-1 ring-inset ring-purple-200 dark:ring-purple-800 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="mb-3" aria-hidden="true">
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-primary">
+                     <img src="/icons/Edit.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  </div>
+                </div>
+                 <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Transforms</h4>
+                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Transform and normalize data formats.</div>
+              </div>
+
+              <div className="text-center rounded-2xl ring-1 ring-inset ring-orange-200 dark:ring-orange-800 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="mb-3" aria-hidden="true">
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-accent">
+                     <img src="/icons/DataSort.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  </div>
+                </div>
+                 <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Filtering & Sampling</h4>
+                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Filter events and sample data.</div>
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div className="flex items-center justify-center" aria-hidden="true">
+              <svg className="h-12 w-12 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3a1 1 0 011 1v12.586l3.293-3.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L11 16.586V4a1 1 0 011-1z"/>
+              </svg>
+            </div>
+
+            {/* Storage + AI */}
+            <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+              <div className="text-center rounded-2xl ring-1 ring-inset ring-green-200 dark:ring-green-800 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="mb-3" aria-hidden="true">
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-vitality">
+                     <img src="/icons/Server.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  </div>
+                </div>
+                 <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Data Storage & Search</h4>
+                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Store, search, and analyze logs with ClickHouse.</div>
+              </div>
+
+              <div className="text-center rounded-2xl ring-1 ring-inset ring-blue-200 dark:ring-blue-800 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="mb-3" aria-hidden="true">
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-primary">
+                     <img src="/icons/terminal.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  </div>
+                </div>
+                 <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">AI Chat & MCP</h4>
+                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Natural language queries with tool integration to investigate logs and detections.</div>
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div className="flex items-center justify-center" aria-hidden="true">
+              <svg className="h-12 w-12 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3a1 1 0 011 1v12.586l3.293-3.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L11 16.586V4a1 1 0 011-1z"/>
+              </svg>
+            </div>
+
+            {/* Detections + Alerting + Reports */}
+            <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              <div className="text-center rounded-2xl ring-1 ring-inset ring-purple-200 dark:ring-purple-800 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="mb-3" aria-hidden="true">
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-primary">
+                     <img src="/icons/Search.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  </div>
+                </div>
+                 <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Detections</h4>
+                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Build and deploy security rules.</div>
+              </div>
+
+              <div className="text-center rounded-2xl ring-1 ring-inset ring-red-200 dark:ring-red-800 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="mb-3" aria-hidden="true">
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-red-500">
+                     <img src="/icons/AlertTriangle.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  </div>
+                </div>
+                 <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Alerting</h4>
+                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Get notified of security events.</div>
+              </div>
+
+              <div className="text-center rounded-2xl ring-1 ring-inset ring-teal-200 dark:ring-teal-800 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 p-6 shadow-sm hover:shadow-md transition-shadow duration-200 sm:col-span-2 lg:col-span-1">
+                <div className="mb-3" aria-hidden="true">
+                  <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-insight">
+                     <img src="/icons/Presentation.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
+                  </div>
+                </div>
+                 <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Reports</h4>
+                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Daily insights and analysis.</div>
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div className="flex items-center justify-center" aria-hidden="true">
+              <svg className="h-12 w-12 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 3a1 1 0 011 1v12.586l3.293-3.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L11 16.586V4a1 1 0 011-1z"/>
+              </svg>
+            </div>
+
+            {/* Destinations */}
+            <div className="w-full max-w-md text-center rounded-2xl ring-1 ring-inset ring-gray-200 dark:ring-gray-800 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20 p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="mb-4" aria-hidden="true">
+                  <div className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center shadow-lg bg-gray-500">
+                     <img src="/icons/Home.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
+                  </div>
+                </div>
+                 <h4 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">Destinations</h4>
+              <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Backup and export data to object storage and third-party services.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* INTEGRATIONS */}
+        {/* <div className="mb-6">
+          <h2 className="text-base font-semibold tracking-tight text-violet-950 dark:text-violet-100">
+            Powerful Integrations
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
+          <div className="rounded-2xl bg-violet-50 dark:bg-violet-900/20 p-6 ring-1 ring-inset ring-violet-200 dark:ring-violet-700 hover:shadow-md transition-shadow">
+            <div className="text-center mb-3" aria-hidden="true">
+              <img src="/icons/code.svg" alt="" className="mx-auto h-14 w-14 brightness-0 dark:invert" aria-hidden="true" />
+            </div>
+             <h3 className="text-lg font-black text-center text-violet-600">Detection as Code</h3>
+            <div className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+              Support detection-as-code workflows via GitHub functions or API for version-controlled rules.
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-violet-50 dark:bg-violet-900/20 p-6 ring-1 ring-inset ring-violet-200 dark:ring-violet-700 hover:shadow-md transition-shadow">
+            <div className="text-center mb-3" aria-hidden="true">
+              <img src="/icons/diagram.svg" alt="" className="mx-auto h-14 w-14 brightness-0 dark:invert" aria-hidden="true" />
+            </div>
+             <h3 className="text-lg font-black text-center text-violet-600">Visualization Tools</h3>
+            <div className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+              Direct integration with Grafana, Jupyter, and custom integrations via API.
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-violet-50 dark:bg-violet-900/20 p-6 ring-1 ring-inset ring-violet-200 dark:ring-violet-700 hover:shadow-md transition-shadow">
+            <div className="text-center mb-3" aria-hidden="true">
+              <img src="/icons/link.svg" alt="" className="mx-auto h-14 w-14 brightness-0 dark:invert" aria-hidden="true" />
+            </div>
+             <h3 className="text-lg font-black text-center text-violet-600">SOAR Integration</h3>
+            <div className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+              Support SOAR platforms to automate response, investigation, and other processes.
+            </div>
+          </div>
+        </div> */}
+      </div>
+    </>
+  )
+}

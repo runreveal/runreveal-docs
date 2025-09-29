@@ -1,0 +1,436 @@
+---
+title: "Dashboards & Graphs"
+description: "Build custom security visualizations with RunReveal's powerful dashboard system"
+---
+
+import { Callout, Tabs, Steps } from 'nextra/components'
+
+# Dashboards & Graphs
+
+RunReveal's dashboard system enables you to create custom visualizations of your security data using SQL queries against your ClickHouse tables. Build dashboards that surface critical insights and track key metrics in real-time.
+
+<Callout type="info">
+<strong>Getting Started</strong>: Navigate to <strong>Dashboards → Graphs</strong> to create your first visualization, or go directly to <strong>Dashboards → Create Layout</strong> to build a complete dashboard.
+</Callout>
+
+![Dashboard Overview](/dashboards-graphs-1.png)
+
+## Dashboard Components
+
+Your RunReveal dashboards consist of three hierarchical components:
+
+1. **Graphs** — Individual visualizations powered by SQL queries.
+2. **Panels** — Containers that hold and size your graphs.
+3. **Dashboard Layouts** — The overall arrangement of panels.
+
+## Available Visualization Types
+
+<Tabs items={['Time Series', 'Comparison', 'Distribution', 'Metrics']} defaultIndex={0}>
+
+<Tabs.Tab>
+
+### Time-Based Visualizations
+
+**Line Chart**
+- Best for continuous trends over time
+- Shows changes in metrics like event rates, response times
+- Supports multiple data series
+
+**Area Chart**  
+- Renders as a filled line for volume trends
+- Useful for cumulative or stacked metrics over time
+
+**Column Chart**
+- Perfect for time-bucketed data
+- Compares values across time periods
+- Supports stacking for multi-series data
+
+```sql copy
+-- Example: Events over time (best practice time bounds)
+SELECT
+  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) AS time_bucket,
+  count() AS event_count
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY time_bucket
+ORDER BY time_bucket
+```
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Categorical Comparisons
+
+**Bar Chart**
+- Compare values across categories
+- Top-N analysis (users, sources, errors)
+
+**Column Chart**
+- Vertical comparison of categories
+- Supports grouped and stacked modes
+
+```sql copy
+-- Example: Top event sources
+SELECT
+  sourceType,
+  count() AS events
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY sourceType
+ORDER BY events DESC
+LIMIT 10
+```
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Proportional Analysis
+
+**Pie Chart**
+- Shows distribution as percentage of whole
+- Ideal for 5–10 categories (avoid too many slices)
+
+**Stacked Area/Bar**
+- Compare proportions over time
+- 100% stacking for normalized view
+
+```sql copy
+-- Example: Event distribution
+SELECT
+  sourceType,
+  count() AS count
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY sourceType
+ORDER BY count DESC
+```
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Single Metrics
+
+**Stat Card (Single Value/KPI)**
+- Display key KPIs and metrics
+- Single number with label
+- Ideal for dashboard headers
+
+**Scatter Plot** *(limited availability)*
+- Correlation analysis and outlier detection
+
+```sql copy
+-- Example: Total events KPI
+SELECT count() AS total_events 
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+```
+</Tabs.Tab>
+
+</Tabs>
+
+{/* ## Available Data Sources
+
+<Callout type="info">
+All tables support time-based filtering using `receivedAt >= {from:DateTime}` and `receivedAt < {to:DateTime}`
+</Callout>
+
+<Tabs items={['Security & Auth', 'Network & Infrastructure', 'Applications', 'Security Tools', 'System Tables']} defaultIndex="0">
+
+<Tabs.Tab>
+
+### Security & Authentication Logs
+
+#### Core Security Tables
+- `logs` - General log events from all sources
+- `aws_cloudtrail_logs` - AWS CloudTrail API events
+- `aws_guardduty_logs` - AWS GuardDuty security findings
+- `okta_logs` - Okta authentication and authorization events
+- `auth0_logs` - Auth0 authentication events
+- `entra_logs` - Microsoft Entra ID (Azure AD) logs
+- `gsuite_logs` - Google Workspace admin and user events
+- `github_logs` - GitHub audit and security events
+- `gitlab_logs` - GitLab audit events
+
+#### Identity & Access Management
+- `jumpcloud_directory_logs` - JumpCloud directory events
+- `duo_logs` - Duo Security authentication logs
+- `teleport_audit_logs` - Teleport access logs
+- `lumos_logs` - Lumos access management events
+
+And More +
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Network & Infrastructure
+
+#### Network Monitoring
+- `flow_logs` - Network flow data
+- `nsg_flow_logs` - Azure Network Security Group flows
+- `azure_flow_logs` - Azure network flow logs
+- `aws_dns_logs` - AWS DNS query logs
+- `aws_hosted_zone_logs` - AWS Route53 logs
+
+#### Cloudflare Logs
+- `cf_audit_logs` - Cloudflare audit events
+- `cf_firewall_logs` - Cloudflare firewall events
+- `cf_http_logs` - Cloudflare HTTP request logs
+- `cf_gateway_dns_logs` - Cloudflare Gateway DNS logs
+- `cf_gateway_http_logs` - Cloudflare Gateway HTTP logs
+- `cf_gateway_network_logs` - Cloudflare Gateway network logs
+- `cf_access_requests_logs` - Cloudflare Access requests
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Application & Service Logs
+
+#### Development & CI/CD
+- `kubernetes_audit_logs` - Kubernetes API audit events
+- `circleci_audit_logs` - CircleCI build and deployment logs
+- `heroku_logs` - Heroku application logs
+
+#### Business Applications
+- `slack_logs` - Slack audit and activity logs
+- `notion_logs` - Notion workspace activity
+- `atlassian_logs` - Atlassian product logs (Jira, Confluence)
+- `pagerduty_logs` - PagerDuty incident logs
+- `zendesk_logs` - Zendesk ticket and activity logs
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Security Tools
+
+#### Endpoint Detection & Response
+- `crowdstrike_aidmaster_logs` - CrowdStrike AID master logs
+- `crowdstrike_managed_logs` - CrowdStrike managed logs
+- `crowdstrike_data_logs` - CrowdStrike data logs
+- `sentinelone_activity_logs` - SentinelOne activity logs
+- `sentinelone_threat_logs` - SentinelOne threat logs
+
+#### Security Monitoring
+- `sophos_alert_logs` - Sophos security alerts
+- `sophos_event_logs` - Sophos security events
+- `wiz_threat_webhook_logs` - Wiz threat intelligence
+- `wiz_issue_webhook_logs` - Wiz security issues
+- `abnormal_logs` - Abnormal Security events
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### RunReveal System Tables
+
+#### Detection & Alerting
+- `alerts` - Security detection alerts
+- `signals` - Security signals and findings
+- `detections` - Detection rule results
+
+
+#### System Monitoring
+- `runreveal_audit_logs` - RunReveal system audit logs
+- `runreveal_source_volumes` - Data source volume metrics
+
+
+</Tabs.Tab>
+
+</Tabs> */}
+
+## Creating Graphs
+
+![Dashboard Layout Editor](/dashboards-graphs-4.png)
+
+<Steps>
+
+### 1) Navigate to Graph Creation
+
+Go to <strong>Dashboards → Graphs → Create Graph</strong> or click the <strong>edit layout</strong> button on an existing dashboard.
+
+### 2) Write Your SQL Query
+
+Use RunReveal's query parameters for dynamic time ranges:
+
+```sql copy
+SELECT
+  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) AS time_bucket,
+  count() AS events,
+  sourceType
+FROM runreveal.logs
+WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY time_bucket, sourceType
+ORDER BY time_bucket
+```
+
+**Available Parameters**
+- `{from:DateTime}` — Start time from the time picker
+- `{to:DateTime}` — End time from the time picker (inclusive)
+- `{interval:Int64}` — Time interval in seconds (auto-calculated)
+
+### 3) Configure Visualization
+
+- **Chart Type**: Select from supported types (Line, Column, Area, Bar, Pie, KPI; Scatter optional).
+- **X Axis Column**: Choose your X-axis data column.
+- **Y Axis Column**: Choose your Y-axis data column.
+- **Stack Column**: (Optional) Column for data stacking.
+- **Axis Titles**: Add descriptive labels.
+
+### 4) Test and Save
+
+Click <strong>Run Query</strong> to preview your visualization, adjust as needed, then save with a descriptive name.
+
+</Steps>
+
+## Creating Dashboards
+
+![Graph Editor](/dashboards-graphs-2.png)
+
+<Steps>
+
+### 1) Create Dashboard Layout
+
+Navigate to <strong>Dashboards → Create Layout</strong> and provide a **Dashboard Name**.
+
+### 2) Add Panels
+
+Click <strong>Add Panel</strong> to create visualization containers. Choose from panel sizes:
+- `xs` — Extra small  
+- `sm` — Small
+- `md` — Medium
+- `lg` — Large
+- `xl` — Extra large
+
+### 3) Assign Graphs to Panels
+
+- Select existing graphs from the dropdown.
+- Or create new graphs directly in the panel editor.
+- Configure panel-specific settings.
+
+### 4) Arrange and Save
+
+Panels automatically arrange in a responsive grid. Save your dashboard when complete.
+
+</Steps>
+
+## Stacking Options
+
+Control how multi-series data is displayed:
+
+| Stack Type       | Description                        | Use Case                      |
+|------------------|------------------------------------|-------------------------------|
+| **Default/None** | Series rendered independently      | Compare absolute values       |
+| **Stacked**      | Series add on top of each other    | See cumulative totals         |
+| **Stacked 100%** | Normalized to 100%                 | Compare proportions over time |
+
+<Callout type="info">
+Stacking is supported for: Bar/Column, Area, and Line charts.
+</Callout>
+
+## Query Examples
+
+### Event Volume by Source (Line Chart)
+
+```sql copy
+-- Event volume trends by source type
+SELECT
+  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) ts,
+  sourceType,
+  count(*) counter
+FROM
+  runreveal.logs
+WHERE
+  receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+GROUP BY
+  ts,
+  sourceType
+ORDER BY ts
+```
+
+### AWS S3 Events (Area Chart)
+
+```sql copy
+-- S3 API events over time with filled area
+SELECT 
+  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) AS time, 
+  count() AS s3Events 
+FROM aws_cloudtrail_logs 
+WHERE receivedAt > {from:DateTime} 
+  AND receivedAt <= {to:DateTime} 
+  AND eventSource = 's3.amazonaws.com' 
+GROUP BY time 
+ORDER BY time
+```
+
+### Average Bytes per Event (Stat Card)
+
+```sql copy
+-- KPI: Average bytes per event processed
+SELECT 
+    toStartOfInterval(timestamp, INTERVAL 15 MINUTE) as time_bucket,
+    sum(CASE WHEN series = 'pipeline_entered_bytes' THEN value ELSE 0 END) / 
+    sum(CASE WHEN series = 'pipeline_entered' THEN value ELSE 0 END) as avg_bytes_per_event
+FROM external_metrics
+WHERE timestamp >= {from:DateTime}
+  AND timestamp <= {to:DateTime}
+  AND series IN ('pipeline_entered', 'pipeline_entered_bytes')
+GROUP BY time_bucket
+HAVING sum(CASE WHEN series = 'pipeline_entered' THEN value ELSE 0 END) > 0
+ORDER BY time_bucket ASC
+```
+
+### AWS CloudTrail API Errors (Bar Chart)
+
+```sql copy
+-- API errors and operations by service
+SELECT 
+    toStartOfHour(receivedAt) as time_bucket,
+    eventSource,
+    count(*) as api_calls,
+    countIf(readOnly = false) as write_operations,
+    countIf(errorCode != '') as error_count
+FROM aws_cloudtrail_logs 
+WHERE receivedAt >= {from:DateTime}
+    AND receivedAt <= {to:DateTime}
+GROUP BY time_bucket, eventSource
+ORDER BY time_bucket DESC, api_calls DESC
+```
+
+## Best Practices
+
+### Query Optimization
+
+1. **Always use time filters** — Leverage `{from:DateTime}` and `{to:DateTime}` with `BETWEEN` or `>=`/`<=` operators.
+2. **Limit result sets** — Add `LIMIT` for top‑N queries.
+3. **Use efficient aggregations** — Prefer ClickHouse‑optimized functions:
+   - `toStartOfInterval()` for time bucketing
+   - `countIf()` for conditional counting
+   - `sumIf()` for conditional sums
+
+### Time Intervals
+
+RunReveal automatically calculates appropriate intervals based on your time range:
+
+```sql copy
+-- Let RunReveal handle interval sizing
+toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND)
+
+-- Or use fixed intervals for consistency
+toStartOfHour(receivedAt)   -- Hourly buckets
+toStartOfDay(receivedAt)    -- Daily buckets
+toStartOfWeek(receivedAt)   -- Weekly buckets
+```
+
+## Live Features
+
+### Real-Time Updates
+- Graphs refresh automatically based on your time picker settings.
+- Live data updates without manual refresh.
+- Consistent data across all panels in a dashboard.
+
+### Interactivity
+- **Hover tooltips** — See detailed values on hover.
+- **Time range selection** — Integrated with global time picker.
+- **Responsive design** — Adapts to different screen sizes.
+
