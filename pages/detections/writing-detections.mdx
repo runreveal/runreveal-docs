@@ -1,0 +1,223 @@
+---
+title: 'How to Write Detections'
+description: 'Tips and tricks to write effective detections'
+---
+
+There isn't a single correct way to write detections, but following these guidelines will help you create more efficient and effective detections.
+
+## Query Detections
+
+When using the explore page and creating a detection, you'll notice that the generated query has `{from:DateTime}` and `{to:DateTime}` in it. These are **parameters**, and they are a ClickHouse-specific syntax that you can read more about in their documentation:
+
+[https://clickhouse.com/docs/en/sql-reference/syntax#defining-and-using-query-parameters](https://clickhouse.com/docs/en/sql-reference/syntax#defining-and-using-query-parameters)
+
+RunReveal passes the following parameters to each of your detections every time they run to help with windowing your data:
+- `from` - The start time of the current data window
+- `to` - The end time of the current data window
+
+By including these parameters in your detection, you can support effective windowing without needing to worry about lost data, delayed data, etc. By using the `receivedAt` field from the RunReveal log schema, you automatically handle situations where your services generate logs that arrive with a delay (for example, CloudTrail) - in addition, this is an indexed field, making searches faster.
+
+For example:
+```
+SELECT 
+    *
+FROM aws_cloudtrail_logs
+WHERE
+    eventName='Decrypt' AND
+    receivedAt >= {from:DateTime} AND
+    receivedAt < {to:DateTime}
+```
+
+All query detections should include one of the following:
+
+**Option 1:** A `HAVING` clause with timestamps:
+```sql
+HAVING (receivedAt >= {from:DateTime}) AND (receivedAt <= {to:DateTime})
+```
+
+**Option 2:** A `WHERE` clause with timestamps:
+```sql
+WHERE (receivedAt >= {from:DateTime}) AND (receivedAt <= {to:DateTime})
+```
+
+### Defining Your Own Parameters
+
+You can also define your own parameters for useful omissions, inclusions, etc. Several of RunReveal's pre-created detections contain custom parameters. For example, to create a detection that excludes your list of office IP addresses, you can create a SQL detection like this:
+```
+SELECT * from runreveal_logs
+WHERE eventName = 'thing-that-should-only-be-done-in-office'
+AND srcIP not in ({officeIPs:Array(String)})
+```
+
+Then, define the `officeIPs` parameter to include each of your office IPs:
+```
+1.2.3.4, 2.3.4.5, 4.3.2.1
+```
+
+
+### Context
+
+It is recommended to return as much context as possible in your query detections. Although returning small portions may seem like a good idea, returning as much context as you can from the log makes it easier to perform a full analysis on the alerts.
+
+We recommend your `SELECT` statements to look something like:
+
+```sql
+SELECT *,
+    JSONExtractString(property, 'sub-property') as my_property
+    ...
+...
+```
+This will pull all normalized fields from the event, as well as fields from nested properties that you want to surface to the top level.
+
+Additionally, if you are returning any custom data in your detection, ensure you are returning the **fields values** instead of objects.
+
+```sql
+SELECT *,
+        actor,          # --> Don't
+        actor.email     # --> Do
+...
+```
+
+## Stream Detections
+
+### Detections with GJSON
+
+Although Sigma does not support this out-of-the-box, we added [**GJSON**](https://github.com/tidwall/gjson/blob/master/SYNTAX.md) support in query selectors.
+
+This allows complex queries, logical selectors, array selectors, and much more. Here are some examples of selectors you can write for the following sample input:
+
+
+```json
+{
+  "field1": "value1",
+  "simpleArray": ["a", "b", "c"],
+  "complexArray": [
+    {
+      "caKey": "key1",
+      "caInt": 10,
+      "caField": "caValue1"
+    },
+    {
+      "caKey": "key2",
+      "caInt": 20,
+      "caField": "caValue2"
+    }
+  ]
+}
+```
+
+```yaml
+detection:
+    selection:
+        rawLog.complexArray.#(caKey=="key1").caField=="caValue1": true
+        rawLog.complexArray.#.caField: "caValue2"
+        rawLog.simpleArray: "a"
+        complexArray.#(caInt<15): true
+```
+
+
+### Targeting Values
+
+There are multiple fields that can be targeted in a detection. The following is a non-exhaustive list of possibilities:
+
+#### Event fields
+
+- `id`
+- `receivedAt`
+- `workspaceID`
+- `sourceType`
+- `sourceName`
+- `sourceID`
+- `eventID`
+- `eventName`
+- `eventTime`
+- `readOnly`
+- `serviceName`
+
+#### Actor
+
+- `actor.id`
+- `actor.email`
+- `actor.username`
+
+#### Source network fields
+
+- `srcIP`
+- `srcASOrganization`
+- `srcASNumber`
+- `srcASCountryCode`
+- `srcLatitude`
+- `srcLongitude`
+- `srcCity`
+- `srcConnectionType`
+- `srcISP`
+- `srcUserType`
+- `srcPort`
+
+#### Destination network fields
+
+- `dstIP`
+- `dstASOrganization`
+- `dstASNumber`
+- `dstASCountryCode`
+- `dstLatitude`
+- `dstLongitude`
+- `dstCity`
+- `dstConnectionType`
+- `dstISP`
+- `dstUserType`
+- `dstPort`
+
+#### Enrichments
+
+- `enrichments.<provider>.<key>`
+
+```json
+[
+  {
+    "data": {
+      "vpn-abuse": "true"
+    },
+    "name": "normalized.src.ip",
+    "provider": "ip_threat_intel",
+    "type": "custom",
+    "value": "37.19.210.0/23"
+  }
+]
+```
+
+- `enrichments.ip_threat_intel.vpn-abuse: true`
+
+#### Tags
+
+- `tags.<key>`
+
+#### RawLog
+
+All other fields that are not normalized in the processing phase will end up in the `rawLog`, which can also be used to query data.
+
+- `rawLog.<field>`
+- `<field>`
+
+#### Resources
+
+- `resources.<index>.<field>`
+
+
+## Important Fields
+
+RunReveal supports a property in the detection configs called `fields` which allows highlighting fields that are relevant to the analysts triaging the alerts.
+
+These will get pulled to the top of the alert table view, as long as there is a match.
+
+```yaml
+fields:
+    - actor.name
+    - events.#.parameters(name=="value")
+    - srcIP
+```
+
+The above example demonstrates a few of the possibilities that this property allows. It supports [**GJSON**](https://github.com/tidwall/gjson) as well, meaning you can write complex logic in the important fields to surface deeply nested, non-normalized data from the logs.
+
+![Fields Sigma Demo](/important_fields_demo.png)
+

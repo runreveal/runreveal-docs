@@ -1,5 +1,5 @@
 export default {
-    "writing-a-detection": "Writing a SQL Detection",
+    "detection-as-code": "Detection as Code",
     "sigma-streaming": "Sigma Streaming",
-    "detection-as-code": "Detection as Code"
+    "writing-detections": "Writing Detections"
 }
