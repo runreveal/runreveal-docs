@@ -3,9 +3,13 @@ title: 'How to Write Detections'
 description: 'Tips and tricks to write effective detections'
 ---
 
+import { Callout } from 'nextra/components'
+
+# How To Write Detections
+
 There isn't a single correct way to write detections, but following these guidelines will help you create more efficient and effective detections.
 
-## Query Detections
+## Query Detections (SQL)
 
 When using the explore page and creating a detection, you'll notice that the generated query has `{from:DateTime}` and `{to:DateTime}` in it. These are **parameters**, and they are a ClickHouse-specific syntax that you can read more about in their documentation:
 
@@ -78,7 +82,7 @@ SELECT *,
 ...
 ```
 
-## Stream Detections
+## Streaming Detections (Sigma)
 
 ### Detections with GJSON
 
@@ -116,7 +120,7 @@ detection:
 ```
 
 
-### Targeting Values
+## Targeting Values
 
 There are multiple fields that can be targeted in a detection. The following is a non-exhaustive list of possibilities:
 
@@ -220,4 +224,27 @@ fields:
 The above example demonstrates a few of the possibilities that this property allows. It supports [**GJSON**](https://github.com/tidwall/gjson) as well, meaning you can write complex logic in the important fields to surface deeply nested, non-normalized data from the logs.
 
 ![Fields Sigma Demo](/important_fields_demo.png)
+
+## AI-Powered Detection Writing
+
+RunReveal's AI chat can help you write and optimize detections. Use the native AI chat in the UI to:
+
+- **Generate SQL queries** from natural language descriptions
+- **Convert Sigma rules** to RunReveal's streaming detection format
+- **Optimize existing detections** for better performance
+- **Debug detection logic** and troubleshoot issues
+- **Suggest field mappings** and parameter configurations
+
+Simply describe what you want to detect in plain English, drop in existing detections for review, or ask for for the chat to review logs from x source and suggest relevant detections. Learn more about using our [Native AI Chat](/ai-chat/native-ai-chat) or the [Model Context Protocol (MCP) integration](/ai-chat/model-context-protocol) for advanced AI assistance with your detection development workflow.
+
+## Helpful Resources
+
+Now that you understand how to write effective detections, explore these related guides:
+
+- **[Detections, Signals & Alerts Quick Start Guide](/how-to-guides/detections-signals-alerts-quick-start)** - Complete setup guide for your detection workflow
+- **[Sigma Streaming](/detections/sigma-streaming)** - Use Sigma rules for standardized threat detection
+- **[Detection as Code](/detections/detection-as-code)** - Manage detections through code and version control
+- **[Notifications](/notifications/getting-started)** - Set up alerting and notification channels
+- **[Native AI Chat](/ai-chat/native-ai-chat)** - Use AI to help write and optimize detections
+- **[Model Context Protocol](/ai-chat/model-context-protocol)** - Advanced AI integration for detection development
 

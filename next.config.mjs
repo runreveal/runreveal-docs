@@ -31,8 +31,8 @@ export default withYAML(withNextra({
         permanent: true,
       },
       {
-        source: '/references/native-ai-chat',
-        destination: '/ai-chat/native-ai-chat',
+        source: '/detections/writing-a-detection',
+        destination: '/detections/writing-detections',
         permanent: true,
       },
     ]
