@@ -32,18 +32,6 @@ WHERE
     receivedAt < {to:DateTime}
 ```
 
-All query detections should include one of the following:
-
-**Option 1:** A `HAVING` clause with timestamps:
-```sql
-HAVING (receivedAt >= {from:DateTime}) AND (receivedAt <= {to:DateTime})
-```
-
-**Option 2:** A `WHERE` clause with timestamps:
-```sql
-WHERE (receivedAt >= {from:DateTime}) AND (receivedAt <= {to:DateTime})
-```
-
 ### Defining Your Own Parameters
 
 You can also define your own parameters for useful omissions, inclusions, etc. Several of RunReveal's pre-created detections contain custom parameters. For example, to create a detection that excludes your list of office IP addresses, you can create a SQL detection like this:
