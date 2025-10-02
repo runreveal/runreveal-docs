@@ -1,0 +1,90 @@
+---
+title: 'Linear'
+description: 'The Linear notification channel allows you to create Linear issues from RunReveal detections to streamline your security workflow.'
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Linear
+
+The Linear notification channel allows you to create Linear issues from RunReveal detections to streamline your security workflow.
+
+![Linear Notification](/linear-notification-1.png)
+
+## How It Works
+
+The Linear notification channel creates Linear issues automatically when detections are triggered:
+
+- **GraphQL API**: Uses Linear's GraphQL API to create issues
+- **Team/Project Resolution**: Looks up team and project IDs by name
+- **Label Management**: Resolves label names to IDs
+- **Issue Creation**: Creates issues with specified priority and metadata
+
+## Setup Instructions
+
+<Steps>
+
+### Step 1: Create a Linear API Key
+
+1. Open Linear in your browser
+2. Go to [Settings → API → Personal API Keys](https://linear.app/runreveal/settings/account/security)
+3. Click "Create Key"
+4. Enter a name (e.g., "RunReveal Integration")
+5. Select scopes:
+   - **read** (to look up teams, projects, labels)
+   - **write** (to create issues)
+6. Click "Create"
+7. Copy the API key (starts with `lin_api_...`)
+
+### Step 2: Gather Linear Information
+
+Before configuring in RunReveal, you need to know:
+
+- **Team Name**: The Linear team where issues will be created
+- **Project Name** (optional): The project within the team
+- **Labels** (optional): Comma-separated list of labels to apply
+- **Priority**: No priority, Urgent, High, Normal, Low
+
+### Step 3: Configure in RunReveal
+
+1. Go to [Notification Channels](https://app.runreveal.com/dash/notifications)
+2. Click "Add Notification Channel"
+3. Select "Linear"
+4. Fill in the form:
+   - **Display Name**: Security Issues (or your preferred name)
+   - **Name**: security-issues (internal identifier)
+   - **Team Name**: Enter the Linear team name (e.g., "Security Team")
+   - **Project Name**: Enter the project name (e.g., "Security Alerts")
+   - **Priority**: Select priority level
+   - **Labels**: Enter comma-separated labels (e.g., "security, alert, automated")
+   - **Linear API Key**: Paste the API key from Step 1
+5. Click "Test Notification" to verify the connection
+6. Click "Create Notification" to save
+
+### Step 4: Add Notification Channels to Detections
+
+Add notification channels to detections on individual notifications, within sigma rules, or mass subscribe via the detection query library tab of the detections page in RunReveal.
+
+</Steps>
+
+## Issue Format
+
+Linear issues are created with:
+
+- **Title**: "RunReveal Detection Alert"
+- **Description**: Detection details including query information and result links
+- **Team**: Specified team
+- **Project**: Specified project (if provided)
+- **Labels**: Specified labels (if provided)
+- **Priority**: Specified priority level
+
+You can create custom issue templates by going to [Notification Templates](/notifications/templates).
+
+## Best Practices
+
+- Use consistent naming conventions for teams and projects
+- Set appropriate priority levels based on detection severity
+- Use labels to categorize different types of alerts
+- Regularly rotate API keys for security
+- Test the integration before deploying to production
+- Monitor issue creation through RunReveal's alert history

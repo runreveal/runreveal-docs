@@ -1,0 +1,72 @@
+---
+title: 'Google Chat'
+description: 'The Google Chat notification channel allows you to send alerts to Google Chat spaces when detections are triggered.'
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Google Chat
+
+The Google Chat notification channel allows you to send alerts to Google Chat spaces when detections are triggered.
+
+![Google Chat Notification](/gchat-notification-1.png)
+
+## How It Works
+
+The Google Chat notification channel uses webhook URLs to send messages to Google Chat spaces:
+
+- **Webhook Integration**: Uses Google Chat's incoming webhook feature
+- **Message Format**: Sends formatted messages with detection details
+- **Threading**: Uses notification history ID as thread key for message grouping
+- **Template System**: Uses Handlebars templates for message formatting
+
+## Setup Instructions
+
+<Steps>
+
+### Step 1: Create a Google Chat Webhook
+
+1. Open Google Chat in your browser
+2. Navigate to the space where you want to receive notifications
+3. Click the space name at the top
+4. Select "Apps & integrations"
+5. Click "Add webhooks"
+6. Enter a name for your webhook (e.g., "RunReveal Alerts")
+7. Click "Save"
+8. Copy the webhook URL (starts with `https://hooks.gchat.com/services/...`)
+
+### Step 2: Configure in RunReveal
+
+1. Go to [Notification Channels](https://app.runreveal.com/dash/notifications)
+2. Click "Add Notification Channel"
+3. Select "Google Chat"
+4. Fill in the form:
+   - **Display Name**: Security Alerts (or your preferred name)
+   - **Name**: security-alerts (internal identifier)
+   - **Google Chat Webhook URL**: Paste the webhook URL from Step 1
+5. Click "Test Notification" to verify the connection
+6. Click "Create Notification" to save
+
+### Step 3: Add Notification Channels to Detections
+
+Add notification channels to detections on individual notifications, within sigma rules, or mass subscribe via the detection query library tab of the detections page in RunReveal.
+
+</Steps>
+
+## Message Format
+
+Google Chat notifications use Handlebars templates to format messages with detection details including:
+
+- Detection name and description
+- Risk score and severity
+- Detection results and context
+- Links back to RunReveal for detailed analysis
+
+You can create custom message templates by going to [Notification Templates](/notifications/templates).
+
+## Best Practices
+
+- Use descriptive webhook names for easy identification
+- Test notifications before deploying to production
+- Consider using different webhooks for different severity levels
+- Monitor notification delivery through RunReveal's alert history

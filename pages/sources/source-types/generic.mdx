@@ -7,7 +7,11 @@ import { Callout } from 'nextra/components'
 
 # Generic Log Sources
 
-Generic log sources allow you to send any type of event to RunReveal.
+Generic log sources allow you to send any source logs to RunReveal. Whether you have custom application logs, system metrics, or third-party data, RunReveal can ingest and analyze it. Choose from multiple ingestion methods including cloud storage solutions and direct webhook integration.
+
+<Callout type="info">
+**Setup Guides**: For detailed setup instructions for each cloud storage source, see the links below, or use the instructions for setting up a generic webhook source to send logs to a webhook located on this page.
+</Callout>
 
 ## Ingest Methods
 
@@ -17,7 +21,7 @@ RunReveal offers the following ways to ingest Generic log sources:
 - [AWS S3](/sources/object-storage/s3)
 - [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
 - [Google Cloud Storage](/sources/object-storage/gcs)
-- Webhooks
+- [Webhooks](#webhooks)
 
 
 <Callout type='info'>
@@ -26,3 +30,132 @@ If using an AWS S3 bucket use the following SNS topic ARN to send your bucket no
 arn:aws:sns:<REGION>:253602268883:runreveal_generic
 ```
 </Callout>
+
+## Webhooks
+
+Webhooks are a simple way to send data to RunReveal. Just make an HTTP POST request with your JSON data.
+
+### Setup
+
+1. Go to [Sources](https://app.runreveal.com/dash/sources/add) in RunReveal
+2. Click the **Webhook Generic Logs** source tile
+3. Give it a name and click **Connect Source** to generic a unique webhook url and bearer token (if needed)
+4. Copy your webhook URL which you'll use to send logs to as well as the bearer token you've set or generated (optional) 
+### Testing with curl
+
+Test your webhook with a simple curl command:
+
+**With Bearer Token (Recommended):**
+```bash copy
+curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "level": "INFO",
+    "message": "User authentication successful",
+    "user": "john@example.com",
+    "ip": "192.168.1.100"
+  }'
+```
+
+**Without Bearer Token:**
+Edit your webhook source and delete the token field, then:
+```bash copy
+curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID \
+  -H "Content-Type: application/json" \
+  -d '{
+    "level": "WARN",
+    "message": "Authentication disabled",
+    "service": "webhook-test"
+  }'
+```
+
+### Viewing Your Data
+
+Webhook data appears in the `logs` table with `sourceType = 'webhook'`. 
+
+Go to the **Explore** tab and run:
+```sql copy
+SELECT * FROM logs 
+WHERE sourceType = 'webhook' 
+ORDER BY receivedAt DESC 
+LIMIT 10
+```
+
+### Example Log Data
+
+You can send any JSON data you want. Here are some examples:
+
+```bash copy
+# User activity
+curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user": "john@example.com",
+    "action": "login",
+    "ip": "192.168.1.100"
+  }'
+
+# Application error
+curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID \
+  -H "Content-Type: application/json" \
+  -d '{
+    "level": "ERROR",
+    "message": "Database connection failed",
+    "service": "my-app",
+    "error_code": "DB_CONN_ERROR"
+  }'
+
+# System status
+curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "healthy",
+    "cpu_usage": 45.2,
+    "memory_usage": 67.8,
+    "hostname": "web-server-01"
+  }'
+```
+
+### Querying Your Data
+
+Since webhook data is stored as JSON, use `JSONExtractString()` to get specific fields from the `rawLog` column:
+
+```sql copy
+-- Find all error messages
+SELECT receivedAt, 
+       sourceType,
+       JSONExtractString(rawLog, 'level') as level,
+       JSONExtractString(rawLog, 'message') as message,
+       JSONExtractString(rawLog, 'service') as service,
+       JSONExtractString(rawLog, 'error_code') as error_code,
+       rawLog
+FROM logs 
+WHERE sourceType = 'webhook' 
+  AND JSONExtractString(rawLog, 'level') = 'ERROR'
+ORDER BY receivedAt DESC 
+LIMIT 5;
+
+-- Find specific user actions
+SELECT receivedAt, 
+       sourceType,
+       JSONExtractString(rawLog, 'user') as user,
+       JSONExtractString(rawLog, 'action') as action,
+       JSONExtractString(rawLog, 'ip') as ip,
+       rawLog
+FROM logs 
+WHERE sourceType = 'webhook' 
+  AND JSONExtractString(rawLog, 'user') = 'john@example.com'
+ORDER BY receivedAt DESC 
+LIMIT 5;
+
+-- Count events by level
+SELECT 
+  JSONExtractString(rawLog, 'level') as level,
+  count() as count
+FROM logs 
+WHERE sourceType = 'webhook' 
+GROUP BY level
+ORDER BY count DESC;
+```
+
