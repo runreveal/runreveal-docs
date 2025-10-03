@@ -30,6 +30,11 @@ export default withYAML(withNextra({
         destination: '/ai-chat/custom-prompts',
         permanent: true,
       },
+      {
+        source: '/detections/writing-a-detection',
+        destination: '/detections/writing-detections',
+        permanent: true,
+      },
     ]
   },
 }))
