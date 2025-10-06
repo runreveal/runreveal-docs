@@ -64,7 +64,7 @@ heroku orgs
 **Method 3: API Request**
 ```bash
 # Using your API token (see Step 3 below)
-curl -n https://api.heroku.com/enterprises \
+curl -n https://api.heroku.com/enterprise-accounts \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Accept: application/vnd.heroku+json; version=3"
 ```
@@ -172,7 +172,7 @@ Validate your credentials before saving in RunReveal:
 
 ```bash
 # Test API token and enterprise access
-curl -n https://api.heroku.com/enterprises/YOUR_ENTERPRISE_NAME/audit-trail/events \
+curl -n https://api.heroku.com/enterprise-accounts/YOUR_ENTERPRISE_NAME/events \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Accept: application/vnd.heroku+json; version=3"
 
