@@ -1,0 +1,291 @@
+---
+title: 'Box Integration Setup Guide'
+description: 'Complete guide for setting up Box audit logs integration with RunReveal'
+---
+
+# Box Integration Setup Guide
+
+This guide will walk you through setting up Box audit logs integration with RunReveal. The Box source collects audit logs from your Box Enterprise account, including user access, file operations, administrative changes, and security events.
+
+## Overview
+
+- **Source Type**: `box`
+- **Ingest Method**: API Polling (every 60 seconds)
+- **Data Collected**: Box admin logs and audit events
+- **API Version**: Box API v2.0 (2024.0)
+- **Plan**: Pro
+
+## Prerequisites
+
+- Box Enterprise account with admin access
+- Box Developer Console access
+- RunReveal Pro plan or higher
+
+## Step 1: Create a Box Application
+
+### 1.1 Access Box Developer Console
+
+1. Go to the [Box Developer Console](https://app.box.com/developers/console)
+2. Sign in with your Box Enterprise admin account
+3. Click **"Create New App"**
+
+### 1.2 Configure Application Settings
+
+1. **Choose App Type**: Select **"Custom App"**
+2. **Authentication Method**: Select **"OAuth 2.0 with JWT (Server Authentication)"**
+3. **App Name**: Enter a descriptive name (e.g., "RunReveal Audit Logs")
+4. **Description**: Add a description for your app
+
+### 1.3 Configure OAuth Settings
+
+1. In the **"OAuth 2.0 Credentials"** section:
+   - **Redirect URI**: Add `https://your-runreveal-domain.com/oauth/box/callback` (replace with your actual RunReveal domain)
+   - **Scopes**: Select the following scopes:
+     - `admin_logs` - Read admin logs
+     - `manage_enterprise` - Manage enterprise settings (if needed)
+
+### 1.4 Generate Application Keys
+
+1. Go to the **"Configuration"** tab
+2. In the **"Application Access"** section:
+   - Select **"Enterprise"** (for enterprise-wide access)
+3. In the **"Advanced Features"** section:
+   - Enable **"Perform Actions as Users"** (if needed)
+   - Enable **"Generate User Access Tokens"** (if needed)
+
+4. **Save** your configuration
+
+### 1.5 Get Application Credentials
+
+1. Go to the **"General"** tab
+2. Copy the following values:
+   - **Client ID** (you'll need this for RunReveal configuration)
+   - **Client Secret** (you'll need this for RunReveal configuration)
+
+## Step 2: Authorize the Application
+
+### 2.1 Enterprise Authorization
+
+1. In your Box Developer Console, go to your app
+2. Click **"Authorize"** in the top right
+3. Sign in with your Box Enterprise admin account
+4. Grant the requested permissions
+5. **Important**: Copy the **Refresh Token** that appears after authorization (you'll need this for RunReveal)
+
+### 2.2 Alternative: Manual Authorization
+
+If the automatic authorization doesn't work, you can manually authorize:
+
+1. Construct the authorization URL:
+   ```
+   https://app.box.com/api/oauth2/authorize?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&state=random_string
+   ```
+
+2. Replace:
+   - `YOUR_CLIENT_ID` with your actual Client ID
+   - `YOUR_REDIRECT_URI` with your configured redirect URI
+   - `random_string` with a random string for security
+
+3. Visit the URL in your browser
+4. Sign in and authorize the application
+5. You'll be redirected to your redirect URI with an authorization code
+6. Exchange the code for tokens using the Box API
+
+## Step 3: Configure RunReveal
+
+### 3.1 Create Box Source in RunReveal
+
+1. Log into your RunReveal dashboard
+2. Navigate to **Sources** → **Add Source**
+3. Select **"Box"** from the source list
+4. Choose **"Polling"** as the ingest type
+
+### 3.2 Configure Source Settings
+
+Fill in the following fields:
+
+**Settings:**
+- **Unique ID**: Enter a unique identifier for this source (e.g., `box-enterprise-001`)
+- **Client ID**: Enter the Client ID from your Box application
+
+**Secrets:**
+- **Client Secret**: Enter the Client Secret from your Box application
+- **Refresh Token**: Enter the Refresh Token obtained during authorization
+
+### 3.3 Test the Configuration
+
+1. Click **"Verify Settings"** to test the connection
+2. If successful, you should see a green checkmark
+3. If there are errors, check:
+   - Client ID and Client Secret are correct
+   - Refresh Token is valid and not expired
+   - Your Box application has the correct permissions
+   - Your Box Enterprise account has admin logs enabled
+
+## Step 4: Enable Admin Logs in Box
+
+### 4.1 Verify Admin Logs are Enabled
+
+1. Log into your Box Enterprise admin console
+2. Go to **Admin Console** → **Reports** → **Audit Logs**
+3. Ensure **"Admin Logs"** are enabled for your enterprise
+4. If not enabled, contact your Box administrator to enable them
+
+### 4.2 Configure Log Retention
+
+1. In the Box Admin Console, go to **Admin Console** → **Reports** → **Audit Logs**
+2. Set the appropriate retention period for your compliance needs
+3. Ensure logs are being generated (you should see recent activity)
+
+## Step 5: Monitor and Verify
+
+### 5.1 Check Data Ingestion
+
+1. After saving your Box source, wait 5-10 minutes
+2. Go to **Logs** in your RunReveal dashboard
+3. Filter by **Source Type**: `box`
+4. You should see Box audit events appearing
+
+### 5.2 Verify Event Types
+
+The Box integration collects the following types of events:
+- User login/logout events
+- File access and sharing events
+- Administrative changes
+- Security events
+- Application access events
+
+### 5.3 Check for Errors
+
+1. Go to **Sources** → **Errors** in RunReveal
+2. Look for any Box-related errors
+3. Common issues:
+   - Invalid credentials
+   - Expired refresh token
+   - Insufficient permissions
+   - Rate limiting
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. "Invalid Client ID or Secret"
+- Verify the Client ID and Client Secret are correct
+- Ensure there are no extra spaces or characters
+- Check that the application is properly configured in Box
+
+#### 2. "Invalid Refresh Token"
+- The refresh token may have expired
+- Re-authorize the application in Box Developer Console
+- Generate a new refresh token
+
+#### 3. "Insufficient Permissions"
+- Ensure your Box application has the `admin_logs` scope
+- Verify your Box account has admin access
+- Check that admin logs are enabled in your Box Enterprise
+
+#### 4. "No Events Found"
+- Verify admin logs are enabled in Box
+- Check that there's recent activity in your Box account
+- Ensure the source has been running for at least 10-15 minutes
+
+#### 5. Rate Limiting
+- Box API has rate limits (typically 100 requests per minute)
+- RunReveal polls every 60 seconds, which should be within limits
+- If you hit rate limits, contact Box support to increase your limits
+
+### Debug Steps
+
+1. **Check Box API Status**: Visit [Box API Status](https://status.box.com/) to ensure the API is operational
+
+2. **Verify Application Status**: In Box Developer Console, ensure your application is active and properly configured
+
+3. **Test API Access**: Use a tool like Postman to test the Box API directly:
+   ```
+   GET https://api.box.com/2.0/events?stream_type=admin_logs&limit=10
+   Authorization: Bearer YOUR_ACCESS_TOKEN
+   ```
+
+4. **Check RunReveal Logs**: Look at RunReveal's internal logs for more detailed error messages
+
+## Security Considerations
+
+### 1. Credential Management
+- Store Client Secret and Refresh Token securely
+- Rotate credentials regularly
+- Use environment variables or secure credential storage
+
+### 2. Access Control
+- Limit Box application access to necessary scopes only
+- Regularly review and audit application permissions
+- Monitor for unusual activity in Box admin logs
+
+### 3. Data Privacy
+- Ensure compliance with your organization's data privacy policies
+- Review what data is being collected and stored
+- Implement appropriate data retention policies
+
+## API Reference
+
+### Box Events API
+- **Endpoint**: `https://api.box.com/2.0/events`
+- **Method**: GET
+- **Authentication**: OAuth 2.0 Bearer Token
+- **Rate Limit**: 100 requests per minute
+- **Documentation**: [Box Events API](https://developer.box.com/reference/get-events/)
+
+### Required Headers
+```
+Authorization: Bearer {access_token}
+Content-Type: application/json
+Accept: application/json
+box-version: 2024.0
+```
+
+### Query Parameters
+- `stream_type`: `admin_logs` (required)
+- `limit`: Maximum number of events to return (default: 500)
+- `stream_position`: Position in the event stream (for pagination)
+- `created_after`: ISO 8601 timestamp for filtering events
+
+## Support and Resources
+
+### Box Documentation
+- [Box Developer Documentation](https://developer.box.com/)
+- [Box Events API Reference](https://developer.box.com/reference/get-events/)
+- [Box OAuth 2.0 Guide](https://developer.box.com/guides/authentication/oauth2/)
+- [Box Admin Logs Guide](https://developer.box.com/guides/admin-log/)
+
+### RunReveal Support
+- [RunReveal Documentation](https://docs.runreveal.com/)
+- [RunReveal Support](https://support.runreveal.com/)
+- [RunReveal Community](https://community.runreveal.com/)
+
+### Box Support
+- [Box Developer Support](https://developer.box.com/support/)
+- [Box Enterprise Support](https://support.box.com/)
+
+## Configuration Summary
+
+| Field | Value | Description |
+|-------|-------|-------------|
+| Source Type | `box` | Box audit logs source |
+| Ingest Type | `polling` | API polling method |
+| Polling Frequency | 60 seconds | How often to check for new events |
+| API Version | 2024.0 | Box API version |
+| Required Scopes | `admin_logs` | Box API permissions |
+| Plan | Pro | RunReveal plan requirement |
+
+## Next Steps
+
+After successfully setting up the Box integration:
+
+1. **Create Detection Rules**: Set up Sigma rules to detect suspicious Box activity
+2. **Configure Alerts**: Set up notifications for important security events
+3. **Review Logs**: Regularly review Box audit logs for security insights
+4. **Monitor Performance**: Keep an eye on the integration's performance and error rates
+5. **Update Credentials**: Plan for regular credential rotation and updates
+
+---
+
+*This guide covers the complete setup process for Box integration with RunReveal. For additional support or questions, please contact RunReveal support or refer to the official documentation.*
