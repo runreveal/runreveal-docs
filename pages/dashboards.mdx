@@ -330,72 +330,324 @@ Stacking is supported for: Bar/Column, Area, and Line charts.
 
 ## Query Examples
 
-### Event Volume by Source (Line Chart)
+Here are practical examples of common dashboard visualizations with complete SQL queries and configuration details.
 
-```sql copy
--- Event volume trends by source type
+<div className="space-y-8 mt-6">
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+  <div className="p-4">
+    <div className="flex items-center gap-3 mb-3">
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white">Average Bytes Per Event</h3>
+      <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium rounded-full">Stat Card</span>
+    </div>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Monitor data processing efficiency with a key performance indicator. This query calculates the average bytes per event processed by your pipeline, helping you track data volume trends and optimize processing. Stat cards are perfect for KPIs because they display a single, important metric prominently on your dashboard.
+    </div>
+
+    ![Average Bytes Per Event](/graphs/graph1.png)
+
+    <div className="space-y-6">
+      <div className="mt-3">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          SQL Query
+        </h4>
+        
+        ```sql copy
 SELECT
-  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) ts,
-  sourceType,
-  count(*) counter
-FROM
-  runreveal.logs
-WHERE
-  receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
-GROUP BY
-  ts,
-  sourceType
-ORDER BY ts
-```
-
-### AWS S3 Events (Area Chart)
-
-```sql copy
--- S3 API events over time with filled area
-SELECT 
-  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) AS time, 
-  count() AS s3Events 
-FROM aws_cloudtrail_logs 
-WHERE receivedAt > {from:DateTime} 
-  AND receivedAt <= {to:DateTime} 
-  AND eventSource = 's3.amazonaws.com' 
-GROUP BY time 
-ORDER BY time
-```
-
-### Average Bytes per Event (Stat Card)
-
-```sql copy
--- KPI: Average bytes per event processed
-SELECT 
-    toStartOfInterval(timestamp, INTERVAL 15 MINUTE) as time_bucket,
-    sum(CASE WHEN series = 'pipeline_entered_bytes' THEN value ELSE 0 END) / 
-    sum(CASE WHEN series = 'pipeline_entered' THEN value ELSE 0 END) as avg_bytes_per_event
+  toStartOfInterval(timestamp, INTERVAL 15 MINUTE) as time_bucket,
+  sum(CASE WHEN series = 'pipeline_entered_bytes' THEN value ELSE 0 END) /
+  sum(CASE WHEN series = 'pipeline_entered' THEN value ELSE 0 END) as avg_bytes_per_event
 FROM external_metrics
 WHERE timestamp >= {from:DateTime}
   AND timestamp <= {to:DateTime}
   AND series IN ('pipeline_entered', 'pipeline_entered_bytes')
 GROUP BY time_bucket
 HAVING sum(CASE WHEN series = 'pipeline_entered' THEN value ELSE 0 END) > 0
-ORDER BY time_bucket ASC
+ORDER BY time_bucket ASC;
+        ```
+      </div>
+      
+      <div>
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          Configuration
+        </h4>
+        
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Chart Type</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Stat Card</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">X Axis</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">time_bucket</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Y Axis</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">avg_bytes_per_event</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Stack Type</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Default</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+  <div className="p-4">
+    <div className="flex items-center gap-3 mb-3">
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white">Top 10 IPs Per Hour</h3>
+      <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium rounded-full">Column Chart</span>
+    </div>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Identify the most active IP addresses in your network traffic. This query uses window functions to rank IPs by activity within each hour, then filters to show only the top 10. Column charts with stacking are ideal for this because they show both the total volume and the relative contribution of each IP address over time.
+    </div>
+
+    ![Top 10 IPs Per Hour](/graphs/graph2.png)
+
+    <div className="space-y-6">
+      <div className="mt-3">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          SQL Query
+        </h4>
+        
+        ```sql copy
+SELECT
+  srcIP,
+  c,
+  t
+FROM (
+  SELECT
+    srcIP,
+    count() as c,
+    toStartOfHour(receivedAt) as t,
+    row_number() OVER (
+      PARTITION BY toStartOfHour(receivedAt)
+      ORDER BY count() DESC
+    ) as rn
+  FROM logs
+  WHERE receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+  GROUP BY t, srcIP
+) ranked
+WHERE rn <= 10
+ORDER BY t, c DESC;
+        ```
+      </div>
+      
+      <div>
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          Configuration
+        </h4>
+        
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Chart Type</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Column Chart</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">X Axis</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">t</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Y Axis</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">c</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Stack Type</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Stacked</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Stack By</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">srcIP</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+  <div className="p-4">
+    <div className="flex items-center gap-3 mb-3">
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white">Top Events Today</h3>
+      <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-sm font-medium rounded-full">Bar Chart</span>
+    </div>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Get a quick overview of the most frequent events in your system over the last 24 hours. This query uses CTEs to first filter recent events, then group and rank them by frequency. Bar charts are perfect for this type of categorical comparison because they make it easy to compare values across different event types and see the relative frequency at a glance.
+    </div>
+
+    ![Top Events Today](/graphs/graph3.png)
+
+    <div className="space-y-6">
+      <div className="mt-3">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          SQL Query
+        </h4>
+        
+        ```sql copy
+WITH "__subquery0" AS (
+  SELECT * FROM "logs"
+  WHERE "receivedAt" > minus(CURRENT_TIMESTAMP(), toIntervalDay(1))
+),
+"__subquery1" AS (
+  SELECT "sourceType" AS "sourceType",
+         "eventName" AS "eventName",
+         count() AS "c"
+  FROM "__subquery0"
+  GROUP BY "sourceType", "eventName"
+),
+"__subquery2" AS (
+  SELECT * FROM "__subquery1"
+  ORDER BY "c" DESC NULLS LAST
+  LIMIT 10
+)
+SELECT *,
+  'barchart' as "render_type",
+  'stacked' as "render_prop_kind"
+FROM "__subquery2";
+        ```
+      </div>
+      
+      <div>
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          Configuration
+        </h4>
+        
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Chart Type</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Bar Chart</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">X Axis</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">sourceType</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Y Axis</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">c</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Stack Type</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Stacked</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Stack By</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">eventName</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+  <div className="p-4">
+    <div className="flex items-center gap-3 mb-3">
+      <h3 className="text-xl font-bold text-gray-900 dark:text-white">Top GCP Events</h3>
+      <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium rounded-full">Column Chart</span>
+    </div>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Track the most frequent Google Cloud Platform events over time to monitor API usage patterns and identify peak activity periods. This query groups events by time buckets and event names, making it easy to see both temporal trends and the relative frequency of different GCP operations. Column charts with stacking are ideal here because they show both the total event volume and the breakdown by event type over time.
+    </div>
+
+    ![Top GCP Events](/graphs/graph4.png)
+
+    <div className="space-y-6">
+      <div className="mt-3">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          SQL Query
+        </h4>
+        
+        ```sql copy
+SELECT
+  toStartOfInterval(receivedAt, INTERVAL {interval:Int64} SECOND) as time_bucket,
+  eventName,
+  COUNT(*) as event_count
+FROM gcp_logs
+WHERE receivedAt > {from:DateTime}
+  AND receivedAt <= {to:DateTime}
+GROUP BY time_bucket, eventName
+ORDER BY time_bucket ASC, eventName;
+        ```
+      </div>
+      
+      <div>
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          Configuration
+        </h4>
+        
+        <div className="space-y-3">
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Chart Type</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Column Chart</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">X Axis</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">time_bucket</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Y Axis</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">event_count</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">X Axis Title</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Time Bucket</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Y Axis Title</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Event Count</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Stack Type</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">Stacked</span>
+          </div>
+          <div className="flex justify-between items-center py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+            <span className="text-sm text-gray-600 dark:text-gray-400">Stack By</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">eventName</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+## Creating Graphs with AI Chat
+
+RunReveal's AI chat makes it easy to create custom graphs using plain English. Simply describe what you want to see and the AI will generate the SQL query and configuration for you.
+
+### Template
+
+Use this template to create graphs with natural language:
+
+```
+Create a graph showing event volumes for [SOURCE_NAME] using datetime and interval best practices. 
+
+Specifically, I want to see:
+- Event volumes grouped by [FIELD_TO_GROUP_BY]
+- Time range: [TIME_RANGE]
+- Time interval: [INTERVAL]
+- Visualization type: [GRAPH_TYPE]
+
+[Optional: Additional filters]
 ```
 
-### AWS CloudTrail API Errors (Bar Chart)
+### Example
 
-```sql copy
--- API errors and operations by service
-SELECT 
-    toStartOfHour(receivedAt) as time_bucket,
-    eventSource,
-    count(*) as api_calls,
-    countIf(readOnly = false) as write_operations,
-    countIf(errorCode != '') as error_count
-FROM aws_cloudtrail_logs 
-WHERE receivedAt >= {from:DateTime}
-    AND receivedAt <= {to:DateTime}
-GROUP BY time_bucket, eventSource
-ORDER BY time_bucket DESC, api_calls DESC
+Here's a real example you can try:
+
 ```
+Create a graph for okta_logs showing event counts by eventType over the last 7 days using hourly intervals as a line chart.
+```
+
+The AI will generate the appropriate SQL query with proper time filtering, grouping, and visualization configuration automatically.
 
 ## Best Practices
 
