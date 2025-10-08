@@ -1,0 +1,125 @@
+---
+title: 'Scheduled Prompts'
+description: 'Automate AI chat prompts to run on a schedule'
+---
+
+# Complete Guide to Scheduled Prompts in RunReveal
+
+## What Are Scheduled Prompts?
+
+Scheduled prompts in RunReveal are automated AI-powered agents that run on a schedule to analyze your security logs and data. They combine:
+
+- **AI capabilities** (via providers like OpenAI, Anthropic, Ollama)
+- **Scheduled execution** (like cron jobs)
+- **Log analysis** using your RunReveal data
+
+## Example: Daily Security Report
+
+Here's a real-world example of a scheduled prompt that analyzes detection activity:
+
+> "Can you analyze the contents of the detections table and summarize the previous days activity. 
+I would like you to perform analytic functions about what types of findings there were, how many critical findings, actors who performed many risky activities. Most importantly, share some information about the actual key findings themselves. 
+I want to know exactly who did what if it's available in the data you see 
+Form this into a report for situational awareness"
+
+
+
+![Scheduled Prompts Example](/scheduledprompts-1.png)
+
+
+**What this prompt does:**
+- Analyzes the previous day's detection activity
+- Categorizes findings by type and severity
+- Identifies high-risk actors and activities
+- Provides detailed information about key security events
+- Generates a comprehensive situational awareness report
+
+## Setting Up Scheduled Prompts
+
+![Scheduled Prompts Setup](/scheduledprompts-2.png)
+
+When creating a scheduled prompt, you'll configure the following fields in the "Create AI Schedule" form:
+
+### 1. Display Name
+- **Purpose**: The name shown in the RunReveal UI for this scheduled automation
+- **Examples**: "Daily Security Report" or "Detection Overview"
+- **Best Practice**: Use descriptive names that clearly indicate the purpose and frequency
+
+### 2. Description
+- **Purpose**: A short explanation of what this scheduled task does
+- **Usage**: Appears in the schedule list and detail views to provide context
+- **Example**: "Daily analysis of detection activity with focus on critical findings and high-risk actors"
+
+### 3. AI Prompt
+- **Purpose**: The full text instruction sent to the selected AI model each time the schedule runs
+- **Function**: Defines what the AI should analyze or generate (e.g., summarizing detections, highlighting anomalies, or producing reports)
+- **Example**: Use the detection analysis prompt shown above
+
+### 4. Model
+- **Purpose**: The AI provider and version used to execute the prompt
+- **Examples**: Anthropic claude-sonnet-4.5, OpenAI GPT-4, etc.
+- **Impact**: Determines language understanding, reasoning style, and cost/performance profile
+
+### 5. Cron Schedule
+- **Purpose**: Specifies when the task runs using cron syntax
+- **Format**: `minute hour day month weekday`
+- **Examples**: 
+  - `0 9 * * *` - runs daily at 09:00 UTC
+  - `0 8 * * 1` - runs weekly on Monday at 08:00 UTC
+  - `0 */6 * * *` - runs every 6 hours
+
+### 6. Email Notifications
+- **Purpose**: Defines which notification channels or users will receive the AI's report via email
+- **Default**: If none are selected, the system defaults to the workspace's primary notification address
+- **Options**: Can specify individual users, teams, or notification channels
+
+### 7. Enabled
+- **Purpose**: A toggle to activate or pause the schedule
+- **Function**: When enabled, the AI prompt runs automatically according to the cron schedule
+- **Usage**: Allows you to temporarily disable schedules without deleting them
+
+## Common Use Cases
+
+### Daily Security Summaries
+- **Schedule**: `0 9 * * *` (Daily at 9 AM)
+- **Purpose**: Start each day with a comprehensive security overview
+- **Example**: Detection analysis, failed login summaries, critical alerts
+
+### Weekly Compliance Reports
+- **Schedule**: `0 8 * * 1` (Weekly on Monday at 8 AM)
+- **Purpose**: Regular compliance monitoring and reporting
+- **Example**: Privileged access reviews, policy violation summaries
+
+### Real-time Monitoring
+- **Schedule**: `0 */2 * * *` (Every 2 hours)
+- **Purpose**: Continuous monitoring of critical security events
+- **Example**: Incident detection, anomaly identification
+
+## Best Practices
+
+- **Start Simple**: Begin with straightforward prompts and refine based on results
+- **Use Specific Time Ranges**: Include clear time boundaries in your prompts
+- **Test Before Scheduling**: Run prompts manually to verify output quality
+- **Monitor Performance**: Track execution times and adjust schedules as needed
+- **Iterate on Prompts**: Refine based on the quality and relevance of AI responses
+- **Set Appropriate Schedules**: Balance timeliness with resource consumption
+- **Combine with Alerts**: Integrate scheduled prompt findings with your notification system
+
+## Advanced Features
+
+### Integration with Other RunReveal Features:
+- **Scheduled Queries**: Can work alongside traditional scheduled SQL queries
+- **Audit Trail**: All prompt management activities are logged for compliance and tracking
+- **Multi-Provider Support**: Switch between different AI providers based on your needs
+- **Parameterization**: Use dynamic parameters to create flexible, reusable prompts
+
+## Key Advantages
+
+- **AI-Powered Analysis**: Leverage LLMs for natural language understanding of security events
+- **Automation**: Reduce manual review time and ensure consistent analysis
+- **Consistency**: Apply the same analytical standards every time
+- **Scalability**: Analyze large volumes of data automatically
+- **Customization**: Tailor prompts to your specific security needs
+- **Historical Tracking**: All executions are logged for review and improvement
+
+This guide provides a foundation for using scheduled prompts in RunReveal. The feature allows you to automate security analysis tasks that would traditionally require manual review, freeing up your security team to focus on response and remediation.

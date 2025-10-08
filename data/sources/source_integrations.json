@@ -1,0 +1,684 @@
+{
+    "sources": [
+      {
+        "name": "AWS CloudTrail Logs",
+        "type": "cloudtrail",
+        "plan": "free",
+        "categories": ["aws", "cloud"],
+        "description": "Monitor the management and data events from a single AWS account or an organization.",
+        "tableName": ["aws_cloudtrail_logs"],
+        "ingestTypes": ["s3", "external-s3-sqs", "r2"],
+        "setupTypes": {
+          "s3": {
+            "description": "Direct S3 bucket access with RunReveal-managed SNS/SQS",
+            "requirements": ["S3 bucket", "SNS topic", "SQS queue", "IAM role for RunReveal"],
+            "configFields": ["bucketName", "roleARN", "externalID"]
+          },
+          "external-s3-sqs": {
+            "description": "Customer-managed S3 with SQS notifications",
+            "requirements": ["S3 bucket", "SQS queue", "IAM role for cross-account access"],
+            "configFields": ["bucketName", "roleARN", "externalID", "sqsQueueURL"]
+          },
+          "r2": {
+            "description": "Cloudflare R2 bucket access",
+            "requirements": ["R2 bucket", "API token"],
+            "configFields": ["bucketName", "apiToken"]
+          }
+        }
+      },
+      {
+        "name": "GCP Logs",
+        "type": "gcp",
+        "plan": "pro",
+        "categories": ["google", "cloud"],
+        "description": "Collect logs from your GCP projects.",
+        "tableName": ["gcp_logs"],
+        "ingestTypes": ["gcs", "webhook"],
+        "setupTypes": {
+          "gcs": {
+            "description": "Google Cloud Storage bucket with Pub/Sub notifications",
+            "requirements": ["GCS bucket", "Pub/Sub topic", "Service account"],
+            "configFields": ["bucketName", "subscription", "authenticationType", "awsRole", "awsExternalID"]
+          },
+          "webhook": {
+            "description": "Direct webhook from GCP Logging",
+            "requirements": ["GCP project", "Log sink configuration"],
+            "configFields": ["webhookURL", "authenticationType"]
+          }
+        }
+      },
+      {
+        "name": "Azure Activity Logs",
+        "type": "azure-activity",
+        "plan": "pro",
+        "categories": ["azure", "cloud"],
+        "description": "Your Azure Activity Logs show management across your Azure resources and subscriptions.",
+        "tableName": ["azure_activity_logs"],
+        "ingestTypes": ["azure-blob", "webhook"],
+        "setupTypes": {
+          "azure-blob": {
+            "description": "Azure Blob Storage with Event Grid notifications",
+            "requirements": ["Storage account", "Blob container", "Event Grid subscription"],
+            "configFields": ["storageAccount", "storageQueue", "clientID", "tenantID"]
+          },
+          "webhook": {
+            "description": "Direct webhook from Azure Activity Logs",
+            "requirements": ["Azure subscription", "Log Analytics workspace"],
+            "configFields": ["webhookURL", "webhookID"]
+          }
+        }
+      },
+      {
+        "name": "Okta",
+        "type": "okta",
+        "plan": "free",
+        "categories": ["polling"],
+        "description": "Ingest all information emitted by the Okta Audit Logs product. Once set up, we will ingest the previous 30 days of audit logs",
+        "tableName": ["okta_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Okta System Log API",
+            "requirements": ["Okta domain", "API token with System Log read permissions"],
+            "configFields": ["oktaDomain"],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
+        "name": "Auth0",
+        "type": "auth0",
+        "plan": "pro",
+        "categories": ["webhook"],
+        "description": "Collect logs from your Auth0 account.",
+        "tableName": ["auth0_logs"],
+        "ingestTypes": ["webhook"],
+        "setupTypes": {
+          "webhook": {
+            "description": "Direct webhook from Auth0 Management API",
+            "requirements": ["Auth0 tenant", "Webhook endpoint configuration"],
+            "configFields": ["webhookURL"],
+            "secrets": ["webhookSecret"]
+          }
+        }
+      },
+      {
+        "name": "Bitwarden",
+        "type": "bitwarden",
+        "plan": "pro",
+        "categories": ["polling"],
+        "description": "Collect audit and event logs from your Bitwarden organization, including user access, item events, and administrative changes.",
+        "tableName": ["bitwarden_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Bitwarden Events API",
+            "requirements": ["Bitwarden organization", "API client credentials"],
+            "configFields": ["domain", "clientID"],
+            "secrets": ["clientSecret"]
+          }
+        }
+      },
+      {
+        "name": "Cloudflare Audit Log",
+        "type": "cf-audit",
+        "plan": "free",
+        "categories": ["polling"],
+        "description": "Cloudflare Audit logs show changes to your Cloudflare account and management information about your Cloudflare account like new certificates issued for your zones.",
+        "tableName": ["cf_audit_logs"],
+        "ingestTypes": ["polling", "r2", "s3", "external-s3-sqs"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Cloudflare Audit Logs API",
+            "requirements": ["Cloudflare account", "API token with Zone:Read permissions"],
+            "configFields": ["accountIdentifier"],
+            "secrets": ["apiToken"]
+          },
+          "r2": {
+            "description": "Cloudflare R2 bucket with audit logs",
+            "requirements": ["R2 bucket", "API token"],
+            "configFields": ["bucketName"],
+            "secrets": ["apiToken"]
+          },
+          "s3": {
+            "description": "S3 bucket with Cloudflare audit logs",
+            "requirements": ["S3 bucket", "SNS topic", "SQS queue"],
+            "configFields": ["bucketName", "roleARN", "externalID"]
+          },
+          "external-s3-sqs": {
+            "description": "Customer-managed S3 with Cloudflare audit logs",
+            "requirements": ["S3 bucket", "SQS queue", "IAM role"],
+            "configFields": ["bucketName", "roleARN", "externalID", "sqsQueueURL"]
+          }
+        }
+      },
+      {
+        "name": "Teleport Cloud Audit Logs",
+        "type": "teleport-audit",
+        "plan": "ent",
+        "categories": ["s3"],
+        "description": "Ingest information from Teleport about what systems are being accessed via Teleport by your team-members.",
+        "tableName": ["teleport_audit_logs"],
+        "ingestTypes": ["s3", "external-s3-sqs", "azure-blob", "gcs", "r2"],
+        "setupTypes": {
+          "s3": {
+            "description": "S3 bucket with Teleport audit logs (Parquet format)",
+            "requirements": ["S3 bucket", "SNS topic", "SQS queue", "IAM role"],
+            "configFields": ["bucketName", "roleARN", "externalID"]
+          },
+          "external-s3-sqs": {
+            "description": "Customer-managed S3 with SQS notifications for Teleport logs",
+            "requirements": ["S3 bucket", "SQS queue", "IAM role for cross-account access"],
+            "configFields": ["bucketName", "roleARN", "externalID", "sqsQueueURL"]
+          },
+          "azure-blob": {
+            "description": "Azure Blob Storage with Teleport audit logs",
+            "requirements": ["Storage account", "Blob container", "Event Grid subscription"],
+            "configFields": ["storageAccount", "storageQueue", "clientID", "tenantID"]
+          },
+          "gcs": {
+            "description": "Google Cloud Storage with Teleport audit logs",
+            "requirements": ["GCS bucket", "Pub/Sub topic", "Service account"],
+            "configFields": ["bucketName", "subscription", "authenticationType"]
+          },
+          "r2": {
+            "description": "Cloudflare R2 with Teleport audit logs",
+            "requirements": ["R2 bucket", "API token"],
+            "configFields": ["bucketName"],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
+        "name": "Teleport Cloud Audit Logs via webhook",
+        "type": "teleport-audit-webhook",
+        "plan": "ent",
+        "categories": ["webhook"],
+        "description": "Ingest information from Teleport about what systems are being accessed via Teleport by your team-members. This allows for ingesting logs via webhook, instead of Parquet files pushed to an S3 bucket",
+        "tableName": ["teleport_audit_logs"],
+        "ingestTypes": ["webhook"],
+        "setupTypes": {
+          "webhook": {
+            "description": "Direct webhook from Teleport Cloud",
+            "requirements": ["Teleport Cloud account", "Webhook endpoint configuration"],
+            "configFields": ["webhookURL"],
+            "secrets": ["webhookSecret"]
+          }
+        }
+      },
+      {
+        "name": "Heroku",
+        "type": "heroku-audit",
+        "plan": "ent",
+        "categories": ["polling", "cloud"],
+        "description": "Collect audit trail events from your Heroku Enterprise account, including app creation, add-on management, collaborator changes, and team membership updates.",
+        "tableName": ["heroku_audit_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Heroku Enterprise Audit Trail API",
+            "requirements": ["Heroku Enterprise account", "API token with audit trail access"],
+            "configFields": ["enterpriseAccountName"],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
+        "name": "GitHub",
+        "type": "github",
+        "plan": "pro",
+        "categories": ["polling", "s3", "azure"],
+        "description": "Your GitHub organization logs about repositories, access changes, updates to your account, and more.",
+        "tableName": ["github_logs"],
+        "ingestTypes": ["s3", "external-s3-sqs", "azure-blob", "gcs", "r2", "polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from GitHub Audit Log API",
+            "requirements": ["GitHub organization", "Personal access token with audit log permissions"],
+            "configFields": ["organization"],
+            "secrets": ["accessToken"]
+          },
+          "s3": {
+            "description": "S3 bucket with GitHub audit logs",
+            "requirements": ["S3 bucket", "SNS topic", "SQS queue", "GitHub webhook"],
+            "configFields": ["bucketName", "roleARN", "externalID"]
+          },
+          "external-s3-sqs": {
+            "description": "Customer-managed S3 with GitHub audit logs",
+            "requirements": ["S3 bucket", "SQS queue", "IAM role", "GitHub webhook"],
+            "configFields": ["bucketName", "roleARN", "externalID", "sqsQueueURL"]
+          },
+          "azure-blob": {
+            "description": "Azure Blob Storage with GitHub audit logs",
+            "requirements": ["Storage account", "Blob container", "GitHub webhook"],
+            "configFields": ["storageAccount", "storageQueue", "clientID", "tenantID"]
+          },
+          "gcs": {
+            "description": "Google Cloud Storage with GitHub audit logs",
+            "requirements": ["GCS bucket", "Pub/Sub topic", "GitHub webhook"],
+            "configFields": ["bucketName", "subscription", "authenticationType"]
+          },
+          "r2": {
+            "description": "Cloudflare R2 with GitHub audit logs",
+            "requirements": ["R2 bucket", "API token", "GitHub webhook"],
+            "configFields": ["bucketName"],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
+        "name": "Google Workspace",
+        "type": "google-workspace",
+        "plan": "free",
+        "categories": ["polling"],
+        "description": "Ingest data from you Google Workspace products like drive, calendar, docs, and more.",
+        "tableName": ["gsuite_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Google Workspace Admin SDK",
+            "requirements": ["Google Workspace domain", "Service account with domain-wide delegation"],
+            "configFields": ["subject", "authenticationType", "awsRole", "awsExternalID"],
+            "secrets": ["serviceAccountKey"]
+          }
+        }
+      },
+      {
+        "name": "1Password",
+        "type": "1password",
+        "plan": "free",
+        "categories": ["polling"],
+        "description": "The 1Password source shows credential access and audit logs from your 1Password organization.",
+        "tableName": ["one_password_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from 1Password Events API",
+            "requirements": ["1Password Business account", "API token"],
+            "configFields": ["serverURL"],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
+        "name": "CrowdStrike",
+        "type": "crowdstrike",
+        "plan": "ent",
+        "categories": ["polling"],
+        "description": "Collect logs from your CrowdStrike account. This data is far less detailed than the Falcon Data Replicator source and we read it from the CrowdStrike API.",
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from CrowdStrike Event Stream API",
+            "requirements": ["CrowdStrike Falcon account", "API credentials"],
+            "configFields": ["apiURL", "clientID"],
+            "secrets": ["clientSecret"]
+          }
+        }
+      },
+      {
+        "name": "CrowdStrike Falcon Data Replicator",
+        "type": "crowdstrike-fdr",
+        "plan": "ent",
+        "categories": ["s3", "polling"],
+        "description": "The CrowdStrike Falcon Data Replicator source shows agent logs, app related logs, crowdstrike's managed alerts, and raw process data.",
+        "tableName": ["crowdstrike_data_logs", "crowdstrike_managed_logs", "crowdstrike_aidmaster_logs", "crowdstrike_appinfo_logs"],
+        "ingestTypes": ["external-s3-sqs"],
+        "setupTypes": {
+          "external-s3-sqs": {
+            "description": "Customer-managed S3 with CrowdStrike FDR logs",
+            "requirements": ["S3 bucket", "SQS queue", "CrowdStrike FDR configuration"],
+            "configFields": ["region", "sqsQueueURL", "accessKeyID"],
+            "secrets": ["secretAccessKey"]
+          }
+        }
+      },
+      {
+        "name": "MongoDB",
+        "type": "mongodb",
+        "plan": "ent",
+        "categories": ["polling"],
+        "description": "Collect logs from your MongoDB account.",
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from MongoDB Atlas Audit Logs API",
+            "requirements": ["MongoDB Atlas organization", "API key with audit log permissions"],
+            "configFields": ["organizationID"],
+            "secrets": ["apiKey"]
+          }
+        }
+      },
+      {
+        "name": "Sentinel One",
+        "type": "sentinelone",
+        "plan": "ent",
+        "categories": ["polling"],
+        "description": "Ingest data from your Sentinel One account about devices in your fleet.",
+        "tableName": ["sentinelone_activity_logs", "sentinelone_threat_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from SentinelOne Management API",
+            "requirements": ["SentinelOne console", "API token"],
+            "configFields": ["managementURL"],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
+        "name": "Sophos",
+        "type": "sophos",
+        "plan": "ent",
+        "categories": ["polling"],
+        "description": "Collect logs from your Sophos account.",
+        "tableName": ["sophos_alert_logs", "sophos_event_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Sophos Central API",
+            "requirements": ["Sophos Central account", "API credentials"],
+            "configFields": ["accessURL", "clientID"],
+            "secrets": ["clientSecret"]
+          }
+        }
+      },
+      {
+        "name": "Tailscale Audit",
+        "type": "tailscale-audit",
+        "plan": "free",
+        "categories": ["polling"],
+        "description": "Collect audit logs from your Tailscale tailnet showing changes and administrative events.",
+        "tableName": ["tailscale_audit_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Tailscale API",
+            "requirements": ["Tailscale tailnet", "API token"],
+            "configFields": ["tailnet", "clientID"],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
+        "name": "Webflow Audit",
+        "type": "webflow-audit",
+        "plan": "free",
+        "categories": ["polling"],
+        "description": "Collect audit logs from your Webflow workspace showing user access, content changes, and administrative events.",
+        "tableName": ["webflow_audit_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Webflow API",
+            "requirements": ["Webflow workspace", "API token"],
+            "configFields": ["workspaceID"],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
+        "name": "JumpCloud",
+        "type": "jumpcloud",
+        "plan": "pro",
+        "categories": ["cloud"],
+        "description": "JumpCloud Directory Insights logs capture authentication, authorization, and directory management events across your JumpCloud environment, including user logins, group modifications, system access attempts, and policy changes.",
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from JumpCloud Directory Insights API",
+            "requirements": ["JumpCloud organization", "API key"],
+            "configFields": ["organizationID"],
+            "secrets": ["apiKey"]
+          }
+        }
+      },
+      {
+        "name": "Duo Security",
+        "type": "duo",
+        "plan": "pro",
+        "categories": ["polling"],
+        "description": "Collect authentication logs from your Duo Security account to monitor user authentication events and multi-factor authentication activities.",
+        "tableName": ["duo_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Duo Admin API",
+            "requirements": ["Duo Security account", "Admin API credentials"],
+            "configFields": ["integrationKey"],
+            "secrets": ["secretKey"]
+          }
+        }
+      },
+      {
+        "name": "PagerDuty",
+        "type": "pagerduty",
+        "plan": "pro",
+        "categories": ["polling"],
+        "description": "Collect audit logs and events from your PagerDuty account to monitor administrative changes and user activities.",
+        "tableName": ["pagerduty_audit_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from PagerDuty Events API",
+            "requirements": ["PagerDuty account", "API token"],
+            "configFields": [],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
+        "name": "Slack",
+        "type": "slack",
+        "plan": "pro",
+        "categories": ["polling"],
+        "description": "Ingest Slack audit logs that show information about management events and access to your Slack resources.",
+        "tableName": ["slack_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Slack Audit Logs API",
+            "requirements": ["Slack Enterprise Grid", "OAuth token with audit logs scope"],
+            "configFields": ["teamID"],
+            "secrets": ["oauthToken"]
+          }
+        }
+      },
+      {
+        "name": "Snowflake",
+        "type": "snowflake",
+        "plan": "pro",
+        "categories": ["polling"],
+        "description": "Collect query history, login attempts, and security events from your Snowflake account.",
+        "tableName": ["snowflake_login_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from Snowflake Information Schema",
+            "requirements": ["Snowflake account", "Database user with ACCOUNTADMIN role"],
+            "configFields": ["accountIdentifier", "database", "schema"],
+            "secrets": ["username", "password"]
+          }
+        }
+      },
+      {
+        "name": "Webhook Generic Logs",
+        "type": "webhook",
+        "plan": "free",
+        "categories": ["webhook"],
+        "description": "The generic webhook source allows you to send any kind of log data to us and transform it into structured logs, or store the generic log.",
+        "ingestTypes": ["webhook"],
+        "setupTypes": {
+          "webhook": {
+            "description": "Direct HTTP webhook endpoint",
+            "requirements": ["HTTP endpoint URL", "Authentication (optional)"],
+            "configFields": ["webhookURL"],
+            "secrets": ["webhookSecret"]
+          }
+        }
+      },
+      {
+        "name": "Structured Webhook",
+        "type": "structured-webhook",
+        "plan": "free",
+        "categories": ["webhook"],
+        "description": "If you want to integrate directly with the RunReveal and send us a small to moderate amount of logs in a format that you've pre-structured then this likely your best option.",
+        "ingestTypes": ["webhook"],
+        "setupTypes": {
+          "webhook": {
+            "description": "Structured HTTP webhook with predefined schema",
+            "requirements": ["HTTP endpoint URL", "Structured JSON payload"],
+            "configFields": ["webhookURL", "schema"],
+            "secrets": ["webhookSecret"]
+          }
+        }
+      },
+      {
+        "name": "S3 Generic",
+        "type": "s3bucket",
+        "plan": "ent",
+        "categories": ["s3"],
+        "description": "The S3 generic source allows you to ingest just about any kind of log from an S3 bucket, and transform the format in real time.",
+        "ingestTypes": ["s3", "external-s3-sqs"],
+        "setupTypes": {
+          "s3": {
+            "description": "Direct S3 bucket access with RunReveal-managed notifications",
+            "requirements": ["S3 bucket", "SNS topic", "SQS queue", "IAM role"],
+            "configFields": ["bucketName", "roleARN", "externalID"]
+          },
+          "external-s3-sqs": {
+            "description": "Customer-managed S3 with SQS notifications",
+            "requirements": ["S3 bucket", "SQS queue", "IAM role"],
+            "configFields": ["bucketName", "roleARN", "externalID", "sqsQueueURL"]
+          }
+        }
+      },
+      {
+        "name": "Generic Azure Blob",
+        "type": "azure-blob",
+        "plan": "pro",
+        "categories": ["azure", "cloud"],
+        "description": "Ingest generic information and transform it in real time from Azure Blob storage. Great for any kind of structured logs",
+        "ingestTypes": ["azure-blob"],
+        "setupTypes": {
+          "azure-blob": {
+            "description": "Azure Blob Storage with Event Grid notifications",
+            "requirements": ["Storage account", "Blob container", "Event Grid subscription"],
+            "configFields": ["storageAccount", "storageQueue", "clientID", "tenantID"],
+            "secrets": ["clientSecret"]
+          }
+        }
+      },
+      {
+        "name": "Generic GCS Blob",
+        "type": "gcs",
+        "plan": "pro",
+        "categories": ["gcs", "cloud"],
+        "description": "Ingest generic information and transform it in real time from GCS Blob storage. Great for any kind of structured logs",
+        "ingestTypes": ["gcs"],
+        "setupTypes": {
+          "gcs": {
+            "description": "Google Cloud Storage with Pub/Sub notifications",
+            "requirements": ["GCS bucket", "Pub/Sub topic", "Service account"],
+            "configFields": ["bucketName", "subscription", "authenticationType"],
+            "secrets": ["serviceAccountKey"]
+          }
+        }
+      },
+      {
+        "name": "Generic GCP PubSub",
+        "type": "gcp-pubsub",
+        "plan": "pro",
+        "categories": ["gcp", "cloud"],
+        "description": "Ingest generic information and transform it in real time from GCP PubSub. Great for real-time event processing and high volume log streaming",
+        "ingestTypes": ["gcp-queue"],
+        "setupTypes": {
+          "gcp-queue": {
+            "description": "Google Cloud Pub/Sub subscription",
+            "requirements": ["GCP project", "Pub/Sub topic", "Subscription", "Service account"],
+            "configFields": ["projectID", "subscription", "authenticationType"],
+            "secrets": ["serviceAccountKey"]
+          }
+        }
+      },
+      {
+        "name": "Cloudflare R2 Generic Source",
+        "type": "r2",
+        "plan": "free",
+        "categories": ["cloud", "cloudflare"],
+        "description": "Ingest line delimited json and compressed json logs from Cloudflare's R2 blob storage.",
+        "tableName": [],
+        "ingestTypes": ["r2"],
+        "setupTypes": {
+          "r2": {
+            "description": "Cloudflare R2 bucket access",
+            "requirements": ["R2 bucket", "API token"],
+            "configFields": ["bucketName"],
+            "secrets": ["apiToken"]
+          }
+        }
+      }
+    ],
+    "ingestTypes": {
+      "s3": {
+        "description": "Direct S3 bucket access with RunReveal-managed SNS/SQS infrastructure",
+        "requirements": ["S3 bucket", "SNS topic", "SQS queue", "IAM role for RunReveal"],
+        "commonConfigFields": ["bucketName", "roleARN", "externalID"]
+      },
+      "external-s3-sqs": {
+        "description": "Customer-managed S3 with SQS notifications for cross-account access",
+        "requirements": ["S3 bucket", "SQS queue", "IAM role for cross-account access"],
+        "commonConfigFields": ["bucketName", "roleARN", "externalID", "sqsQueueURL"]
+      },
+      "r2": {
+        "description": "Cloudflare R2 bucket access",
+        "requirements": ["R2 bucket", "API token"],
+        "commonConfigFields": ["bucketName"],
+        "commonSecrets": ["apiToken"]
+      },
+      "gcs": {
+        "description": "Google Cloud Storage with Pub/Sub notifications",
+        "requirements": ["GCS bucket", "Pub/Sub topic", "Service account"],
+        "commonConfigFields": ["bucketName", "subscription", "authenticationType"],
+        "commonSecrets": ["serviceAccountKey"]
+      },
+      "azure-blob": {
+        "description": "Azure Blob Storage with Event Grid notifications",
+        "requirements": ["Storage account", "Blob container", "Event Grid subscription"],
+        "commonConfigFields": ["storageAccount", "storageQueue", "clientID", "tenantID"],
+        "commonSecrets": ["clientSecret"]
+      },
+      "webhook": {
+        "description": "Direct HTTP webhook endpoint",
+        "requirements": ["HTTP endpoint URL", "Authentication (optional)"],
+        "commonConfigFields": ["webhookURL"],
+        "commonSecrets": ["webhookSecret"]
+      },
+      "polling": {
+        "description": "API polling from third-party services",
+        "requirements": ["API credentials", "Service endpoint"],
+        "commonConfigFields": ["apiURL", "clientID", "organizationID"],
+        "commonSecrets": ["apiToken", "clientSecret", "accessToken"]
+      },
+      "gcp-queue": {
+        "description": "Google Cloud Pub/Sub subscription",
+        "requirements": ["GCP project", "Pub/Sub topic", "Subscription", "Service account"],
+        "commonConfigFields": ["projectID", "subscription", "authenticationType"],
+        "commonSecrets": ["serviceAccountKey"]
+      }
+    },
+    "setupComplexity": {
+      "easy": ["webhook", "polling"],
+      "medium": ["s3", "r2", "gcs", "azure-blob"],
+      "hard": ["external-s3-sqs", "gcp-queue"]
+    },
+    "authenticationTypes": {
+      "api-token": "Simple API token authentication",
+      "oauth": "OAuth 2.0 flow with client credentials",
+      "service-account": "Service account with JSON key",
+      "iam-role": "AWS IAM role assumption",
+      "webhook-secret": "HMAC signature verification",
+      "basic-auth": "Username/password authentication"
+    }
+  }
+  
