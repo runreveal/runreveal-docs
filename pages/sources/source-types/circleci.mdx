@@ -1,0 +1,32 @@
+---
+title: 'CircleCI Audit Logs'
+description: 'CircleCI audit logs provide a detailed record of actions and events within your CircleCI organization.'
+---
+
+import { Callout } from 'nextra/components'
+
+# CircleCI Audit Logs
+
+CircleCI audit logs provide a detailed record of actions and events within your CircleCI organization. These logs capture information such as user activities, build events, project changes, and security events. They help administrators track user activity, ensure security compliance, and audit changes for troubleshooting and incident investigation.
+
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Storage Account](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+- [Cloudflare R2 Bucket](/sources/object-storage/r2)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_circleci_audit
+```
+</Callout>
+
+## Setup
+
+For detailed setup instructions, see the [CircleCI documentation](https://circleci.com/docs/guides/security/audit-logs/#request-audit-logs-from-the-web-app) to configure audit log streaming to your chosen storage solution.
