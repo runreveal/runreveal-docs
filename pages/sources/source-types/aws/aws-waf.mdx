@@ -1,0 +1,77 @@
+---
+title: 'AWS WAF Logs'
+description: 'AWS WAF logs provide detailed information about web requests that are analyzed by your web ACL.'
+---
+
+import { Callout } from 'nextra/components'
+
+# AWS WAF Logs
+
+AWS WAF logs provide detailed information about web requests that are analyzed by your web ACL. These logs capture information such as request details, rule matches, actions taken, and geographic data. They help administrators monitor web traffic, analyze security threats, and troubleshoot web application issues.
+
+![configure](/waf-source-1.png)
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3.mdx)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3.mdx)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_awswaf
+```
+</Callout>
+
+## Setup
+
+For detailed setup instructions, see the [AWS WAF documentation](https://docs.aws.amazon.com/waf/latest/developerguide/logging.html) to configure WAF logging to your S3 bucket.
+
+### Best Practices for Bucket Configuration
+
+#### Single Bucket Approach
+- **Recommended for most use cases**: Use one S3 bucket per source type
+- **Benefits**: Simpler management, easier to track costs, centralized logging
+- **Use case**: Single AWS account or organization with moderate log volume
+- **Important**: RunReveal requires buckets to be unique across sources
+
+#### Single Bucket with Prefixes (Multiple WAF Types)
+- **Use when**: You have multiple AWS WAF web ACLs and want to consolidate all logs into one bucket
+- **Benefits**: Centralized storage, easier cost management, single RunReveal source configuration
+- **Configuration**: 
+  1. Create one S3 bucket for all AWS WAF logs
+  2. Configure each web ACL to use a unique prefix (e.g., `waf-logs/webacl-1/`, `waf-logs/webacl-2/`)
+  3. Set up one RunReveal source pointing to the bucket
+  4. All WAF logs from different web ACLs will be ingested automatically
+- **Example bucket structure**:
+  ```
+  my-waf-logs-bucket/
+  ├── waf-logs/webacl-prod/
+  │   ├── 2024/01/15/10/
+  │   └── 2024/01/15/11/
+  ├── waf-logs/webacl-staging/
+  │   ├── 2024/01/15/10/
+  │   └── 2024/01/15/11/
+  └── waf-logs/webacl-dev/
+      ├── 2024/01/15/10/
+      └── 2024/01/15/11/
+  ```
+
+#### Datalake Architecture (Advanced)
+- **Use when**: You want to centralize multiple AWS source types in one bucket
+- **Benefits**: Single bucket for all AWS logs, organized by prefixes, scalable architecture
+- **Configuration**: Use the [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3) method
+- **Setup**: Create separate SQS queues for each source type and configure S3 event notifications with prefixes
+- **Example structure**:
+  ```
+  datalake-bucket/
+  ├── AWSLogs/
+  │   └── 123456789012/
+  │       ├── CloudTrail/
+  │       ├── elasticloadbalancing/
+  │       └── waf-logs/
+  └── custom-logs/
+      └── waf-logs/
+  ```
