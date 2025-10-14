@@ -227,6 +227,29 @@ RunReveal's AI chat can help you write and optimize detections. Use the native A
 
 Simply describe what you want to detect in plain English, drop in existing detections for review, or ask for for the chat to review logs from x source and suggest relevant detections. Learn more about using our [Native AI Chat](/ai-chat/native-ai-chat) or the [Model Context Protocol (MCP) integration](/ai-chat/model-context-protocol) for advanced AI assistance with your detection development workflow.
 
+### MITRE ATT&CK Coverage
+
+You can use AI chat to generate detections for specific MITRE ATT&CK tactics and techniques. When you provide context that you're looking to add MITRE tactic coverage, the AI can suggest relevant detections based on your actual log data.
+
+**Example query:**
+
+```bash copy
+Review logs from my github source for the past day and suggest detections for the most critical MITRE tactics
+```
+
+The AI will analyze your GitHub logs and suggest detections for high-priority MITRE tactics like:
+- **Initial Access** (T1078 - Valid Accounts)
+- **Persistence** (T1098 - Account Manipulation) 
+- **Privilege Escalation** (T1078 - Valid Accounts)
+- **Defense Evasion** (T1070 - Indicator Removal)
+- **Credential Access** (T1552 - Unsecured Credentials)
+
+![AI Chat MITRE Detections](/ai-chat-mitre-detections.png)
+
+![AI Chat MITRE Detections Results](/ai-chat-mitre-detections-2.png)
+
+**Note:** The suggested detections may need some tweaking and can be tested on the detections creation page or explore tab, but they provide a solid starting point when you're looking to add coverage for specific sources and MITRE tactics.
+
 ## Helpful Resources
 
 Now that you understand how to write effective detections, explore these related guides:
