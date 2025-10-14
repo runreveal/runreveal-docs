@@ -1,0 +1,129 @@
+---
+title: 'Linear Audit Logs'
+description: 'Linear audit logs provide a detailed record of workspace events including account access, subscriptions, and settings changes.'
+---
+
+import { Callout } from 'nextra/components'
+
+# Linear Audit Logs
+
+Linear audit logs provide a detailed record of workspace events over the last 90 days. These logs capture information such as account access, subscriptions, settings changes, user activities, and administrative actions. They help administrators track workspace activity, ensure security compliance, and audit changes for troubleshooting and incident investigation.
+
+![Linear Source Setup](/linear-source-1.png)
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [Webhook](#Webhook)
+
+## Webhook
+
+Linear supports webhook streaming for audit logs, allowing you to receive real-time notifications of workspace events.
+
+### Setup
+
+1. Go to [Sources](https://app.runreveal.com/dash/sources/add) in RunReveal
+2. Click the **Linear Audit Logs** source tile
+3. Give it a name and click **Connect Source** to generate a unique webhook URL and bearer token (if needed)
+4. Copy your webhook URL which you'll use to send logs to as well as the signing secret you've set or generated (optional)
+
+### Linear Configuration
+
+1. Sign in to your Linear workspace as an administrator
+2. Go to **Workspace Settings** → **Administration** → **Audit Log**
+3. Enable **Stream logs** to configure webhook streaming
+4. Enter your RunReveal webhook URL in the webhook configuration
+5. Optionally, configure a signing secret for webhook verification
+
+For detailed setup instructions, see the [Linear webhook and SIEM support documentation](https://linear.app/docs/audit-log#webhook-and-siem-support).
+
+![Linear Source Configuration](/linear-source-2.png)
+
+<Callout type="info">
+**Signing Secret**: Linear sends a `Linear-Signature` header with each webhook request. If you've configured a signing secret in Linear, make sure to provide the same secret in your RunReveal source configuration to verify webhook authenticity.
+</Callout>
+
+### Webhook Events
+
+Linear audit logs include events such as:
+
+- **User Management**: User joins team, role changes, account access
+- **Workspace Changes**: Settings modifications, subscription updates
+- **Security Events**: Login attempts, authentication changes
+- **Administrative Actions**: Webhook creation, API key management
+- **Issue Management**: Issue creation, updates, and team assignments
+
+### Sample Webhook Payload
+
+Here's an example of a Linear audit log webhook payload:
+
+```json
+{
+  "action": "create",
+  "actor": {
+    "id": "8e03f2cf-e644-4d68-a7cc-f834ad2f43b4",
+    "name": "John Doe",
+    "email": "john@company.com",
+    "avatarUrl": "https://public.linear.dev/...",
+    "type": "user"
+  },
+  "createdAt": "2025-03-28T19:46:01.382Z",
+  "data": {
+    "id": "4b0186dc-a464-4330-9d4b-f4fc8f01db5b",
+    "createdAt": "2025-03-28T19:46:01.382Z",
+    "type": "userJoinedTeam",
+    "organizationId": "5a3b982d-8f04-4971-956c-fbcb2c68642a",
+    "actorId": "8e03f2cf-e644-4d68-a7cc-f834ad2f43b4",
+    "metadata": {
+      "teamName": "Engineering",
+      "teamKey": "ENG",
+      "teamId": "7586c601-2c9f-4764-bbc5-6132791c68c9",
+      "owner": false
+    },
+    "requestInformation": {}
+  },
+  "type": "AuditEntry",
+  "organizationId": "5a3b982d-8f04-4971-956c-fbcb2c68642a",
+  "webhookTimestamp": 1743191166416,
+  "webhookId": "f1d0caa0-a974-4604-a300-a4edbba66803"
+}
+```
+
+## Event Types Collected
+
+The Linear integration collects various types of audit events:
+
+### User Events
+- User login/logout
+- User joins/leaves teams
+- Role and permission changes
+- Account access and authentication
+
+### Workspace Events
+- Settings modifications
+- Subscription and billing changes
+- Organization configuration updates
+- Security policy changes
+
+### Administrative Events
+- Webhook creation and management
+- API key generation and revocation
+- Team and project management
+- Integration configurations
+
+### Issue Management Events
+- Issue creation and updates
+- Team assignments and transfers
+- Project and cycle management
+- Label and status changes
+
+## Support and Resources
+
+### Linear Documentation
+- [Linear Audit Log Documentation](https://linear.app/docs/audit-log)
+- [Linear Webhook Configuration](https://linear.app/docs/audit-log#webhook-and-siem-support)
+
+### Linear Support
+- [Linear Support](https://linear.app/support)
+- [Linear Community](https://linear.app/community)
