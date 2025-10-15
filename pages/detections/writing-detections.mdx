@@ -72,6 +72,28 @@ SELECT *,
 
 ## Streaming Detections (Sigma)
 
+### Specify SourceTypes
+
+Even though the engine will accept detections without a list of `sourcetypes` or `logsource`, detections should list whichever sources they are covering.
+
+Detections without a list of sources will be less performant, will run against more than necessary events and will be harder to reproduce using the built-in validators.
+
+Your detection configuration should contain one of:
+
+```yaml
+sourcetypes:
+- okta
+```
+
+or
+
+```yaml
+logsource:
+  product: aws
+  service: guardduty
+
+```
+
 ### Detections with GJSON
 
 Although Sigma does not support this out-of-the-box, we added [**GJSON**](https://github.com/tidwall/gjson/blob/master/SYNTAX.md) support in query selectors.
@@ -112,7 +134,7 @@ detection:
 
 There are multiple fields that can be targeted in a detection. The following is a non-exhaustive list of possibilities:
 
-**Noie**: If you are using legacy fields prefixed with `normalized`, there is backwards compatibility to still find those fields.
+**Note**: If you are using legacy fields prefixed with `normalized`, there is backwards compatibility to still find those fields.
 
 #### Event fields
 
