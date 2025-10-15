@@ -99,10 +99,11 @@ Admins can now configure multiple providers and set a default provider for the w
 
 ![Native AI Chat Settings](/native-ai-chat-ui.png)
 
-### Step 2: Add Your LLM API Keys
+### Step 2: Add Your LLM API Keys and Base URL (If applicable) 
 
 1. Add API keys for any providers you want to enable (Anthropic, OpenAI, Google AI, or Amazon Bedrock).
-2. You can add multiple providers; you do **not** need to remove unused keys.
+2. Input base url to configure openAI compatible models (If using OpenAI compatible models like grok https://api.x.ai/v1 or cloudflare ai https://api.cloudflare.com)
+3. You can add multiple providers; you do **not** need to remove unused keys.
 
 ### Step 3: Set a Default Provider (Admin Only)
 
@@ -140,7 +141,7 @@ Amazon Bedrock requires AWS IAM role configuration instead of API keys. Follow t
 
 1. In the RunReveal UI, go to **Workspace Settings → AI Model Providers**
 2. Click **Configure** next to Amazon Bedrock
-3. A modal will appear where you can input the arn of your IAM role and an External ID that you will add to your IAM role. If you've already configured a role for RunReveal to assume for reading S3, you can re-use that same role and External ID here after you've attached the bedrock access policy below.
+3. Input the arn of your IAM role and an External ID that you will add to your IAM role. If you've already configured a role for RunReveal to assume for reading S3, you can re-use that same role and External ID here after you've attached the bedrock access policy below.
 
 ![Native AI Chat Bedrock Configuration](/native-ai-chat-bedrock.png)
 
@@ -174,8 +175,8 @@ If you've configured a more general for role for RunReveal to assume, you can at
 1. **Log into AWS Console** and navigate to IAM
 2. **Create a new role** with the following configuration:
    - **Trusted entity**: AWS account
-   - **Account ID**: Use the account ID shown in the RunReveal modal
-   - **External ID**: Use the External ID shown in the RunReveal modal (this is required for security)
+   - **Account ID**: Use the account ID shown in the RunReveal AWS Bedrock configuration
+   - **External ID**: Use the External ID shown in the RunReveal AWS Bedrock configuration
 
 #### Trust Relationship Configuration
 
@@ -206,7 +207,7 @@ The trust relationship is a critical security component that controls which AWS 
 **Key Components:**
 - **Principal**: The AWS account that can assume this role (RunReveal's account)
 - **Action**: `sts:AssumeRole` allows the role to be assumed
-- **Condition**: The External ID must match exactly what's shown in the RunReveal modal
+- **Condition**: The External ID must match exactly what's shown in the RunReveal form
 
 <Callout type="info">
 **Learn More**: For detailed information about trust relationships and External IDs, see the [AWS IAM documentation on trust policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html) and [External ID best practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user_externalid.html).
@@ -219,7 +220,7 @@ You'll need to attach the bedrock policy created in step 2 to the role.
 ### Step 5: Get Role ARN
 
 1. After creating the role, copy the **Role ARN** (format: `arn:aws:iam::ACCOUNT-ID:role/ROLE-NAME`)
-2. **Paste the Role ARN** into the RunReveal Bedrock configuration modal
+2. **Paste the Role ARN** into the RunReveal Bedrock configuration form
 3. Click **Save** to complete the setup
 
 ### Step 6: Test Bedrock Access
@@ -229,7 +230,7 @@ You'll need to attach the bedrock policy created in step 2 to the role.
 3. Ask a test question to verify the connection works
 
 <Callout type="info">
-**Security Note**: The External ID in the RunReveal modal is unique to your workspace and helps prevent unauthorized access. Always use the exact External ID shown in the modal when creating your IAM role. See the [Trust Relationship Configuration](#trust-relationship-configuration) section above for detailed setup instructions.
+**Security Note**: The External ID on the AWS Bedrock form is unique to your workspace and helps prevent unauthorized access. Always use the exact External ID shown in the modal when creating your IAM role. See the [Trust Relationship Configuration](#trust-relationship-configuration) section above for detailed setup instructions.
 </Callout>
 
 ## Usage
@@ -281,3 +282,14 @@ Native AI Chat uses a structured approach to investigations:
 - Start broad, then narrow down: "Show me authentication events" → "Focus on failed logins"
 - Ask for explanations: "Why did this detection fire?"
 - Request recommendations: "What should I investigate next?" 
+
+## Helpful Resources
+
+Now that you've set up your chat settings, explore these related guides:
+
+- **[Detections, Signals & Alerts Quick Start Guide](/how-to-guides/detections-signals-alerts-quick-start)** - Complete setup guide for your detection workflow
+- **[Sigma Streaming](/detections/sigma-streaming)** - Use Sigma rules for standardized threat detection
+- **[Detection as Code](/detections/detection-as-code)** - Manage detections through code and version control
+- **[Notifications](/notifications/getting-started)** - Set up alerting and notification channels
+- **[Scheduled Prompts](/ai-chat/scheduled-prompts)** - Learn how to configure scheduled prompts
+- **[Model Context Protocol](/ai-chat/model-context-protocol)** - Advanced AI integration for detection development
