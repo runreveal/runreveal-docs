@@ -26,6 +26,7 @@ export default {
     "jumpcloud": "JumpCloud",
     "keeper": "Keeper Security",
     "kubernetes": "Kubernetes Audit Logs",
+    "linear": "Linear",
     "mongodb": "MongoDB",
     "notion": "Notion",
     "obsidian-security": "Obsidian Security",

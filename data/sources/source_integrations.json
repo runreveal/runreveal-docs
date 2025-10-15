@@ -617,6 +617,23 @@
             "secrets": ["apiToken"]
           }
         }
+      },
+      {
+        "name": "Linear Audit Logs",
+        "type": "linear-webhook",
+        "plan": "pro",
+        "categories": ["webhook", "productivity"],
+        "description": "Collect audit logs from your Linear workspace including user activities, administrative changes, and security events.",
+        "tableName": ["linear_audit_logs"],
+        "ingestTypes": ["webhook"],
+        "setupTypes": {
+          "webhook": {
+            "description": "Direct webhook from Linear audit log streaming",
+            "requirements": ["Linear workspace", "Webhook endpoint configuration", "Administrator access"],
+            "configFields": ["webhookURL"],
+            "secrets": ["webhookSecret"]
+          }
+        }
       }
     ],
     "ingestTypes": {
