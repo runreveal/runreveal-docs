@@ -1,0 +1,86 @@
+---
+title: 'Lumos Audit Events'
+description: 'Lumos provides access management and governance capabilities with comprehensive audit logging for security and compliance monitoring.'
+---
+
+import { Callout } from 'nextra/components'
+
+# Lumos Audit Events
+
+Lumos provides access management and governance capabilities with comprehensive audit logging for security and compliance monitoring. These logs capture information such as access requests, approvals, provisioning activities, and administrative events. They help administrators track user access patterns, detect unauthorized access attempts, and maintain compliance with access governance policies.
+
+![Lumos Source Setup](/lumos-source-1.png)
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Storage Account](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+- [Cloudflare R2 Bucket](/sources/object-storage/r2)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_lumos
+```
+</Callout>
+
+## Setup
+
+For detailed setup instructions, see the [Lumos integration patterns documentation](https://developers.lumos.com/docs/integration-patterns-1) to configure audit event streaming to your chosen storage solution.
+
+## Lumos Event Types
+
+The Lumos integration collects comprehensive access management and governance audit events from your Lumos platform. These events provide visibility into user access requests, approvals, provisioning activities, and administrative actions across your organization.
+
+### **Event Categories Collected**
+
+#### **Access Management**
+- **Access Requests** - New access requests submitted through Lumos
+- **Access Approvals** - Approval decisions for access requests
+- **Access Rejections** - Denial decisions for access requests
+- **Access Grants** - Successful access provisioning events
+- **Access Revocations** - Access removal and deprovisioning events
+
+#### **User Provisioning**
+- **User Creation** - New user account provisioning
+- **User Updates** - User profile and attribute modifications
+- **User Deactivation** - User account deactivation and suspension
+- **User Deletion** - User account removal and cleanup
+
+#### **Application Management**
+- **App Registration** - New application registrations in Lumos
+- **App Configuration** - Application settings and configuration changes
+- **App Permissions** - Permission assignments and modifications
+- **App Deactivation** - Application deactivation and removal
+
+#### **Group & Role Management**
+- **Group Creation** - New group creation and configuration
+- **Group Updates** - Group membership and attribute changes
+- **Role Assignments** - Role-based access control assignments
+- **Permission Changes** - Permission modifications and updates
+
+#### **Administrative Actions**
+- **Policy Changes** - Access policy modifications and updates
+- **Configuration Updates** - System configuration changes
+- **Audit Trail Events** - Administrative and system-generated events
+- **Integration Events** - Third-party integration activities
+
+### **Event Data Structure**
+
+Each Lumos event includes:
+- **Actor Information** - User ID, name, email, and actor type
+- **Event Details** - Event type, outcome, timestamp, and user-friendly description
+- **Target Information** - Affected users, applications, groups, or resources
+- **Event Metadata** - Additional context and business justification
+- **Access Details** - Permissions, access length, and resource information
+
+## **Helpful Resources**
+
+- [Lumos Integration Patterns](https://developers.lumos.com/docs/integration-patterns-1)
+- [Lumos SaaS Integrations](https://developers.lumos.com/docs/saas-integrations)
+
+This integration provides comprehensive visibility into your access management activities, helping you track user access patterns, detect unauthorized access attempts, and maintain compliance with access governance policies.

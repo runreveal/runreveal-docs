@@ -602,6 +602,60 @@
         }
       },
       {
+        "name": "FireHydrant",
+        "type": "firehydrant",
+        "plan": "pro",
+        "categories": ["incident-management", "api"],
+        "description": "Collect incident management and audit logs from your FireHydrant workspace including incident activities, user actions, and administrative events.",
+        "tableName": ["firehydrant_logs"],
+        "ingestTypes": ["polling"],
+        "setupTypes": {
+          "polling": {
+            "description": "API polling from FireHydrant REST API",
+            "requirements": ["FireHydrant workspace", "API key", "Administrator access"],
+            "configFields": ["apiKey", "baseURL", "organizationID"],
+            "secrets": ["apiKey"]
+          }
+        }
+      },
+      {
+        "name": "Lumos Audit Events",
+        "type": "lumos",
+        "plan": "pro",
+        "categories": ["access-management", "governance"],
+        "description": "Collect access management and governance audit events from your Lumos platform including access requests, approvals, provisioning activities, and administrative actions.",
+        "tableName": ["lumos_logs"],
+        "ingestTypes": ["s3", "external-s3-sqs", "azure-blob", "gcs", "r2"],
+        "setupTypes": {
+          "s3": {
+            "description": "Direct S3 bucket access with RunReveal-managed SNS/SQS",
+            "requirements": ["S3 bucket", "SNS topic", "SQS queue", "IAM role for RunReveal"],
+            "configFields": ["bucketName", "roleARN", "externalID"]
+          },
+          "external-s3-sqs": {
+            "description": "Customer-managed S3 with SQS notifications",
+            "requirements": ["S3 bucket", "SQS queue", "IAM role for cross-account access"],
+            "configFields": ["bucketName", "roleARN", "externalID", "sqsQueueURL"]
+          },
+          "azure-blob": {
+            "description": "Azure Blob Storage with Event Grid notifications",
+            "requirements": ["Storage account", "Blob container", "Event Grid subscription"],
+            "configFields": ["storageAccount", "storageQueue", "clientID", "tenantID"]
+          },
+          "gcs": {
+            "description": "Google Cloud Storage with Pub/Sub notifications",
+            "requirements": ["GCS bucket", "Pub/Sub topic", "Service account"],
+            "configFields": ["bucketName", "subscription", "authenticationType"]
+          },
+          "r2": {
+            "description": "Cloudflare R2 bucket access",
+            "requirements": ["R2 bucket", "API token"],
+            "configFields": ["bucketName"],
+            "secrets": ["apiToken"]
+          }
+        }
+      },
+      {
         "name": "Cloudflare R2 Generic Source",
         "type": "r2",
         "plan": "free",
