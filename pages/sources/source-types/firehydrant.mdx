@@ -1,0 +1,103 @@
+---
+title: 'FireHydrant'
+description: 'FireHydrant provides incident management and response capabilities with comprehensive audit logging for security and compliance monitoring.'
+---
+
+import { Callout } from 'nextra/components'
+
+# FireHydrant Audit Events
+
+FireHydrant provides incident management and response capabilities with comprehensive audit logging for security and compliance monitoring. These logs capture information such as incident activities, user actions, system changes, and administrative events. They help administrators track incident response activities, ensure compliance, and audit changes for troubleshooting and security analysis.
+
+![FireHydrant Source Setup](/firehydrant-source-1.png)
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [API Polling](#api-polling)
+
+## API Polling
+
+FireHydrant supports API polling to collect audit logs and incident data from your FireHydrant workspace.
+
+### Setup
+
+1. Go to [Sources](https://app.runreveal.com/dash/sources/add) in RunReveal
+2. Click the **FireHydrant** source tile
+3. Give it a name and click **Connect Source**
+4. Fill in the required fields with your FireHydrant API credentials
+
+### FireHydrant API Key Configuration
+
+To generate an API key for RunReveal:
+
+**Prerequisites:**
+- You will need **Owner permissions** to access and create API keys
+
+**Creating the API Key:**
+
+1. Sign in to your FireHydrant workspace as an Owner
+2. Go to **Settings > API Keys**
+3. Click **"+ Create API key"**
+4. Provide a name and description (e.g., "RunReveal Integration")
+5. Click **Save**
+6. **Important**: Copy the API key immediately - this token will only be displayed once
+
+<Callout type="warning">
+**API Key Security**: Store your FireHydrant API key securely. By default, API keys have Owner permissions and grant full access to the FireHydrant API on behalf of your organization.
+</Callout>
+
+## FireHydrant Event Types
+
+The FireHydrant integration collects comprehensive audit events from your FireHydrant incident management platform. These events provide visibility into user activities, resource modifications, and administrative actions across your organization.
+
+### **Event Categories Collected**
+
+#### **Signals & On-Call Management**
+- **Escalation Policies** - Creation, updates, and deletion of escalation policies
+- **On-Call Schedules** - Schedule modifications and configuration changes  
+- **Schedule Shifts** - Shift assignments, updates, and rotation changes
+- **On-Call Rotations** - Creation and updates to on-call rotation configurations
+
+#### **Incident Management**
+- **Incidents** - Incident creation, updates, and lifecycle events
+- **Runbooks** - Runbook creation, modifications, and deletions
+- **Audiences** - Audience creation and modifications for incident notifications
+- **API Keys** - API key management and changes
+
+#### **User Authentication & Sessions**
+- **User Authentication** - Login attempts and authentication activities
+- **Session Management** - User session tracking and management
+- **Authentication Methods** - SSO, password, and other login methods
+
+#### **Permission & Authorization**
+- **Permission Checks** - Authorization attempts and permission validations
+- **Access Control** - Changes to permissions, roles, and access controls
+- **Resource Authorization** - Access attempts to protected resources
+
+#### **Administrative Actions**
+- **Configuration Changes** - Modifications to FireHydrant settings
+- **Resource Management** - Creation, updates, and deletion of various resources
+- **System Events** - Automated actions and system-generated events
+
+### **Event Data Structure**
+
+Each FireHydrant event includes:
+- **Actor Information** - User ID, name, email, and source
+- **Event Details** - Event type, timestamp, and organization context
+- **Resource Information** - Resource type, ID, action performed, and response status
+- **Annotations** - Additional context like IP addresses, login methods, and reasons
+
+## **Data Collection**
+
+- **Collection Method**: API polling every 60 seconds
+- **Data Retention**: FireHydrant provides audit events from the past 7 days by default
+- **Event Format**: JSON with normalized fields for consistent querying
+- **Real-time Updates**: New events appear in RunReveal within 1-2 minutes
+
+## **Helpful Resources**
+
+- [FireHydrant Audit Logs Documentation](https://docs.firehydrant.com/docs/audit-logs)
+- [FireHydrant API Reference](https://docs.firehydrant.com/reference/audit-events)
+
