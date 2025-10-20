@@ -176,14 +176,17 @@ export RUNREVEAL_BASEURL="https://api.runreveal.com"  # or your on-prem URL
 
 **For on-premises deployments:**
 ```bash
-export RUNREVEAL_BASEURL="https://api.YOUR_BASE_DOMAIN.runreveal.net"
+export RUNREVEAL_BASEURL="https://api.YOUR_BASE_DOMAIN.runreveal.com"
 ```
 
-**Token Formats Supported:**
-- **Hex token**: `your-hex-token-here`
-- **Base64 encoded**: `base64(username:hex-token)`
+**Getting Your API Token:**
 
-The local MCP server supports both hex tokens and base64-encoded tokens in the format `username:token`.
+Copy your API token directly from the RunReveal UI:
+
+1. Go to your RunReveal workspace
+2. Navigate to **Settings** → **API Tokens**
+3. Copy the token value (it will be in the format that works with the local MCP server)
+4. Use this token value in your `RUNREVEAL_TOKEN` environment variable
 
 ### Setting Up with Claude and Cursor
 
