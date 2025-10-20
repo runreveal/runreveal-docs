@@ -1,31 +1,42 @@
 ---
 title: 'Model Context Protocol'
-description: 'The Model Context Protocol (MCP) allows you to connect AI assistants like Claude and Cursor to external data sources and tools. This guide shows you how to set up RunReveal''s remote MCP server with both Claude and Cursor.'
+description: 'The Model Context Protocol (MCP) allows you to connect AI assistants like Claude and Cursor to external data sources and tools. This guide shows you how to set up RunReveal''s MCP server with both Claude and Cursor.'
 ---
 
-import { Callout } from 'nextra/components'
+import { Callout, Tabs } from 'nextra/components'
 
 # Model Context Protocol
 
-The Model Context Protocol (MCP) allows you to connect AI assistants like Claude and Cursor to external data sources and tools. This guide shows you how to set up RunReveal's remote MCP server with both Claude and Cursor.
+The Model Context Protocol (MCP) allows you to connect AI assistants like Claude and Cursor to external data sources and tools. This guide shows you how to set up RunReveal's MCP server with both Claude and Cursor.
 
-## What is Remote MCP?
+## MCP Setup Options
 
-Remote MCP allows you to connect to MCP servers running on remote hosts over HTTP/HTTPS, rather than just local processes. This enables you to:
+RunReveal supports two MCP setup approaches, each designed for different deployment scenarios and authentication preferences:
+
+**Remote MCP** connects to RunReveal's hosted MCP server over HTTP/HTTPS, providing a seamless OAuth-based authentication experience. This approach is ideal for most users with hosted RunReveal deployments who want quick setup and don't need to manage local processes.
+
+**Local MCP** runs the RunReveal MCP server as a local process using the `runreveal mcp` command, with API token authentication. This approach is essential for on-premises deployments, air-gapped environments, or when you need fine-grained control over the MCP server process.
+
+<Tabs items={['Remote MCP', 'Local MCP']}>
+  <Tabs.Tab>
+
+## Remote MCP
+
+Remote MCP allows you to connect to RunReveal's hosted MCP server over HTTP/HTTPS. This enables you to:
 
 - Access your RunReveal data and tools from any AI assistant that supports MCP
 - Share MCP servers across multiple team members
 - Run MCP servers in production environments
 - Centralize data access and permissions
+- Use OAuth authentication for seamless setup
 
-## Setting Up with Claude
+### Setting Up with Claude
 
-### Prerequisites
-
+**Prerequisites:**
 - A RunReveal account with API access
 - Claude Desktop or Claude.ai account
 
-### Step 1: Add the Integration
+**Step 1: Add the Integration**
 
 1. In Claude, go to **Add integration** (BETA)
 2. Enter the following details:
@@ -34,11 +45,11 @@ Remote MCP allows you to connect to MCP servers running on remote hosts over HTT
 
 ![Claude MCP Setup Screen 1](/claude-mcp-setup-1.png)
 
-### Step 2: Trust the Integration
+**Step 2: Trust the Integration**
 
 Claude will show a warning that this integration has not been verified by Anthropic. Click **Add** to proceed.
 
-### Step 3: Authorize with RunReveal
+**Step 3: Authorize with RunReveal**
 
 1. You'll be redirected to RunReveal's authorization page
 2. Review the OAuth client information:
@@ -49,7 +60,7 @@ Claude will show a warning that this integration has not been verified by Anthro
 
 ![Claude MCP Authorization](/claude-mcp-setup-2.png)
 
-### Alternative: Using Claude Code CLI
+**Alternative: Using Claude Code CLI**
 
 If you're using Claude Code (the CLI tool), you can add the RunReveal MCP server directly from the command line:
 
@@ -63,7 +74,7 @@ This command will:
 
 After running this command, the MCP server will be available in your Claude Code sessions, and you'll go through the same OAuth authorization flow when first accessing RunReveal tools.
 
-### Step 4: Verify the Connection
+**Step 4: Verify the Connection**
 
 Once authorized, you should see RunReveal listed in your Claude integrations with available tools:
 
@@ -76,22 +87,23 @@ The RunReveal MCP integration provides access to several tools:
 - `list_tables` - View available data tables
 - `get_table_schema` - Get schema information for tables
 - `detections_create` - Create new detection rules
+- `source_list` - List available data sources
 
 <Callout type="info">
-   All currently available tools require Queries & Detection Read permissions, and
-   the `detections_create` tool requires Queries & Detection Write permissions.
+   All currently available tools require appropriate OAuth scopes for your workspace.
+   The `detections_create` tool requires write permissions, while other tools require read permissions.
+   OAuth tokens are workspace-specific and use scopes rather than traditional roles.
 </Callout>
 
 ![Claude MCP Available Tools](/claude-mcp-setup-4.png)
 
-## Setting Up with Cursor
+### Setting Up with Cursor
 
-### Prerequisites
-
+**Prerequisites:**
 - A RunReveal account with API access
 - Cursor IDE installed
 
-### Configuration
+**Configuration:**
 
 Click this link: 
 [![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=RunReveal&config=eyJ1cmwiOiJodHRwczovL2FwaS5ydW5yZXZlYWwuY29tL21jcCJ9)
@@ -107,12 +119,129 @@ Or, manually add this to your configuration:
 }
 ```
 
-### Authentication Flow
+**Authentication Flow:**
 
 Similar to Claude, Cursor will redirect you to RunReveal's OAuth authorization page where you can:
 1. Select your workspace
-2. Grant the necessary permissions
+2. Grant the necessary permissions (OAuth scopes)
 3. Complete the OAuth flow
+
+The MCP endpoint requires an `Authorization` header with a Bearer token. OAuth tokens are workspace-specific and use scopes that determine your permissions for the available tools.
+
+### Troubleshooting
+
+**Connection Issues:**
+- Verify your RunReveal API credentials are valid
+- Check that you have the necessary permissions in your workspace
+- Ensure the MCP server URL is correct: `https://api.runreveal.com/mcp`
+
+**Authentication Problems:**
+- Clear your browser cookies and retry the OAuth flow
+- Make sure you're selecting the correct workspace during authorization
+- Contact RunReveal support if you continue having issues
+
+**Security Considerations:**
+- The MCP connection uses OAuth for secure authentication
+- Tools respect your existing RunReveal permissions and access controls
+- All data transmission is encrypted over HTTPS
+- You can revoke access at any time through your RunReveal workspace settings
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+## Local MCP
+
+Local MCP runs the RunReveal MCP server as a local process, ideal for:
+
+- On-premises RunReveal deployments
+- Custom API endpoints
+- API token-based authentication
+
+### Prerequisites
+
+- RunReveal CLI installed (`brew install runreveal`)
+- API token with appropriate permissions
+- Workspace ID
+- Custom base URL (for on-premises deployments)
+
+### Environment Variables
+
+Set the following environment variables for your local MCP server:
+
+```bash
+export RUNREVEAL_TOKEN="your-api-token-here"
+export RUNREVEAL_WORKSPACE="your-workspace-id-here"
+export RUNREVEAL_BASEURL="https://api.runreveal.com"  # or your on-prem URL
+```
+
+**For on-premises deployments:**
+```bash
+export RUNREVEAL_BASEURL="https://api.YOUR_BASE_DOMAIN.runreveal.net"
+```
+
+**Token Formats Supported:**
+- **Hex token**: `your-hex-token-here`
+- **Base64 encoded**: `base64(username:hex-token)`
+
+The local MCP server supports both hex tokens and base64-encoded tokens in the format `username:token`.
+
+### Setting Up with Claude and Cursor
+
+Add this configuration to your Claude or Cursor MCP settings:
+
+```json
+{
+  "mcpServers": {
+    "runreveal": {
+      "command": "runreveal",
+      "args": ["mcp"],
+      "env": {
+        "RUNREVEAL_TOKEN": "your-api-token-here",
+        "RUNREVEAL_WORKSPACE": "your-workspace-id-here",
+        "RUNREVEAL_BASEURL": "https://api.runreveal.com"
+      }
+    }
+  }
+}
+```
+
+The configuration is identical for both Claude and Cursor when using local MCP.
+
+### Authentication Differences
+
+**Local MCP (API Token):**
+- Requires explicit API token setup
+- No OAuth flow needed
+- Works with on-premises deployments
+- Token must have appropriate permissions
+
+<Callout type="warning">
+**API Token Required**: Local MCP setup requires an API token and does not inherit your existing authentication. Make sure your token has the necessary permissions for the tools you plan to use.
+</Callout>
+
+### Troubleshooting
+
+**Connection Issues:**
+- Verify your API token is valid and has appropriate permissions
+- Check that `RUNREVEAL_WORKSPACE` is set to the correct workspace ID
+- Ensure `RUNREVEAL_BASEURL` points to the correct API endpoint
+- Test your CLI connection: `runreveal workspaces list`
+
+**Authentication Problems:**
+- Verify your API token hasn't expired
+- Check that the token has the necessary permissions for MCP tools
+- Ensure environment variables are properly set in your MCP configuration
+- Test token authentication: `runreveal logs query "SELECT 1 LIMIT 1"`
+
+**Security Considerations:**
+- API tokens provide secure authentication without OAuth flow
+- Tokens can be scoped to specific permissions and workspaces
+- All data transmission is encrypted over HTTPS
+- You can revoke or rotate API tokens through your RunReveal workspace settings
+- Environment variables should be kept secure and not shared
+
+</Tabs.Tab>
+</Tabs>
 
 ## Available Tools and Capabilities
 
@@ -122,6 +251,7 @@ Once connected, both Claude and Cursor can help you with:
 - Query your log data with natural language
 - Explore table schemas and relationships
 - Generate SQL queries for complex analysis
+- List and explore available data sources
 
 ### Detection Management
 - List and review existing detection rules
@@ -141,29 +271,14 @@ Once set up, you can ask your AI assistant questions like:
 - "What detection rules do we have for privilege escalation?"
 - "Create a new detection for suspicious file downloads"
 - "What tables contain network traffic data?"
+- "List all available data sources in my workspace"
 
-## Troubleshooting
+## Tool Access Issues
 
-### Connection Issues
-- Verify your RunReveal API credentials are valid
-- Check that you have the necessary permissions in your workspace
-- Ensure the MCP server URL is correct: `https://api.runreveal.com/mcp`
-
-### Authentication Problems
-- Clear your browser cookies and retry the OAuth flow
-- Make sure you're selecting the correct workspace during authorization
-- Contact RunReveal support if you continue having issues
-
-### Tool Access Issues
-- Verify your RunReveal user has appropriate permissions for the tools you're trying to use
-- Some tools may require specific roles or permissions within your workspace
-
-## Security Considerations
-
-- The MCP connection uses OAuth for secure authentication
-- Tools respect your existing RunReveal permissions and access controls
-- All data transmission is encrypted over HTTPS
-- You can revoke access at any time through your RunReveal workspace settings
+- Verify your RunReveal user/token has appropriate OAuth scopes for the tools you're trying to use
+- OAuth tokens are workspace-specific and use scopes rather than traditional roles
+- For local MCP, ensure your API token has the necessary permissions for the tools you plan to use
+- The `detections_create` tool requires write permissions, while other tools require read permissions
 
 ## Next Steps
 
@@ -171,4 +286,4 @@ With MCP set up, you can now leverage AI assistants to:
 - Streamline your security operations workflows
 - Get natural language insights from your data
 - Automate common detection and analysis tasks
-- Collaborate more effectively with your security team 
+- Collaborate more effectively with your security team

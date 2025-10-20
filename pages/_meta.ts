@@ -11,6 +11,7 @@ export default {
   "pipelines": "Pipelines",
   "sources": "Sources",
   "transforms": "Transforms",
+  "custom-views": "Custom Views",
   "filtering": "Filtering",
   "detections": "Detections",
   "enrichments": "Enrichments",
