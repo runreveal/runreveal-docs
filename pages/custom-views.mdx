@@ -25,26 +25,29 @@ Custom Views allow you to create virtual tables that extract specific fields fro
 - **Real-time Analysis**: Query-time extraction for immediate insights
 - **Flexible Schema**: Add custom columns for any JSON field in your logs
 
-## When to Use Custom Views
-
-### ✅ Perfect For:
-- **Field Extraction**: Pull specific fields from complex JSON logs
-- **Analysis Enhancement**: Add columns for security analysis, compliance, or investigation
-- **Source-Specific Views**: Create specialized views for different log sources
-- **Query Optimization**: Pre-define commonly used field extractions
-
-### ❌ Not Ideal For:
-- **Data Normalization**: Use transforms to map fields to standard RunReveal schema
-- **Complex Logic**: Limited to simple JSON path expressions (no SQL functions)
-- **Data Transformation**: Views are read-only, no data modification
 
 ## Architecture
 
-```
-Raw Log → Transform (Optional) → runreveal.logs → Custom View → Analysis
-    ↓           ↓                    ↓              ↓           ↓
-  Your       Field Mapping      Standardized    Virtual     Queries
-  JSON       to Standard        Data            Table       & Alerts
+```mermaid
+graph LR
+    A[Raw Log<br/>Your JSON] --> B[runreveal.logs<br/>Standardized Data]
+    B --> C[Custom View<br/>Virtual Table]
+    C --> D[Analysis<br/>Queries & Alerts]
+    
+    B -.-> B1[Standardized<br/>Data Storage]
+    C -.-> C1[Custom Columns<br/>JSON Path Extraction]
+    D -.-> D1[Security Analysis<br/>Compliance Reporting]
+    
+    %% Styling
+    classDef sourceStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef storageStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef viewStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef analysisStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    
+    class A sourceStyle
+    class B,B1 storageStyle
+    class C,C1 viewStyle
+    class D,D1 analysisStyle
 ```
 
 ## Creating Custom Views
@@ -78,50 +81,6 @@ Test your view with sample data, then save your configuration.
 
 </Steps>
 
-### Via CLI
-
-```bash copy
-# List existing custom views
-./runreveal custom-views list
-
-# Create a new custom view
-./runreveal custom-views create \
-  --name "my_custom_view" \
-  --description "Description of the view" \
-  --source-id "your_source_id" \
-  --columns '[{"name": "field_name", "type": "String", "sql": "json.path", "description": "Field description"}]'
-
-# Get a specific view
-./runreveal custom-views get --id "view_id"
-
-# Update a view
-./runreveal custom-views update --id "view_id" [flags]
-
-# Delete a view
-./runreveal custom-views delete --id "view_id"
-```
-
-### Via API
-
-```bash copy
-# Create custom view
-curl -X POST "https://api.runreveal.com/custom-views/create" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "my_custom_view",
-    "description": "Description of the view",
-    "sourceId": "your_source_id",
-    "columns": [
-      {
-        "name": "field_name",
-        "description": "Field description",
-        "type": "String",
-        "sql": "json.path"
-      }
-    ]
-  }'
-```
 
 ## Column Configuration
 
@@ -130,13 +89,15 @@ curl -X POST "https://api.runreveal.com/custom-views/create" \
 | Type | Description | Example |
 |------|-------------|---------|
 | `String` | Text data | `"user@example.com"` |
-| `Int64` | 64-bit integer | `12345` |
-| `UInt64` | Unsigned 64-bit integer | `4294967295` |
-| `Float64` | 64-bit floating point | `3.14159` |
+| `Int8/16/32/64` | Signed integers | `12345` |
+| `UInt8/16/32/64` | Unsigned integers | `4294967295` |
+| `Float32/64` | Floating point numbers | `3.14159` |
 | `Bool` | Boolean value | `true` |
-| `DateTime` | Date and time | `2025-01-15 10:30:00` |
+| `DateTime/DateTime64` | Date and time | `2025-01-15 10:30:00` |
+| `Date/Date32` | Date only | `2025-01-15` |
 | `Array(String)` | Array of strings | `["tag1", "tag2"]` |
 | `Nullable(String)` | Nullable string | `null` or `"value"` |
+| `LowCardinality(String)` | Memory-optimized string | `"frequent_value"` |
 
 ### JSON Path Expressions
 
@@ -167,97 +128,123 @@ field.subfield.array[0].nested_field
 - `tags[0]` → `"security"`
 - `metadata.source_ip` → `"192.168.1.100"`
 
-#### Limitations
-- **No SQL Functions**: Cannot use `CASE`, `COALESCE`, `IF`, etc.
-- **No Conditional Logic**: Cannot use `OR`, `AND` statements
-- **Simple Paths Only**: Only direct field access and array indexing
+#### Advanced SQL Expressions
+While JSON paths are simple, you can use ClickHouse functions in SQL expressions:
 
-## Example: Jamf Protect Custom View
+```sql
+-- Simple JSON path
+user.email
+
+-- ClickHouse function
+toString(user.id)
+
+-- Conditional logic
+if(user.role = 'admin', 'high', 'low')
+
+-- Array operations
+arrayJoin(user.permissions)
+```
+
+#### Limitations
+- **Simple Paths**: Direct field access and array indexing only
+- **No Complex Logic**: Cannot use conditional statements in path expressions
+- **ClickHouse Functions**: Can use ClickHouse functions in SQL expressions
+- **Path Length**: Maximum 256 characters
+
+## Example: Application Security Custom View
 
 ### Use Case
-Extract important security fields from Jamf Protect Device Telemetry Stream logs for analysis.
+Extract important security fields from application logs for analysis and monitoring.
+
+### Sample Raw Log
+```json
+{
+  "timestamp": "2024-01-15T10:30:00Z",
+  "level": "INFO",
+  "service": "auth-service",
+  "user": {
+    "id": "12345",
+    "email": "john.doe@company.com",
+    "role": "admin"
+  },
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/login",
+    "ip": "192.168.1.100",
+    "user_agent": "Mozilla/5.0..."
+  },
+  "response": {
+    "status": 200,
+    "duration_ms": 150
+  },
+  "security": {
+    "risk_score": 0.2,
+    "threats": ["none"],
+    "location": {
+      "country": "US",
+      "city": "San Francisco"
+    }
+  }
+}
+```
 
 ### Configuration
 
 **Basic Information:**
-- **Name**: `jamf_protect_telemetry`
-- **Description**: `Jamf Protect Device Telemetry Stream analysis`
-- **Source**: Your Jamf Protect source
+- **Name**: `app_security_analysis`
+- **Description**: `Application security events analysis`
+- **Source**: Your application source
 
 **Custom Columns:**
 ```json copy
 [
   {
-    "name": "jamf_event_type",
-    "description": "Jamf event type classification",
+    "name": "user_email",
+    "description": "User email address",
     "type": "String",
-    "sql": "event_type"
+    "sql": "user.email"
   },
   {
-    "name": "jamf_hostname",
-    "description": "Device hostname",
+    "name": "user_role",
+    "description": "User role or permission level",
     "type": "String",
-    "sql": "host.hostname"
+    "sql": "user.role"
   },
   {
-    "name": "jamf_device_serial",
-    "description": "Device serial number",
+    "name": "request_ip",
+    "description": "Client IP address",
     "type": "String",
-    "sql": "host.serial"
+    "sql": "request.ip"
   },
   {
-    "name": "jamf_os_version",
-    "description": "OS version",
-    "type": "String",
-    "sql": "host.os"
+    "name": "response_status",
+    "description": "HTTP response status code",
+    "type": "Int64",
+    "sql": "response.status"
   },
   {
-    "name": "jamf_protect_version",
-    "description": "Jamf Protect agent version",
-    "type": "String",
-    "sql": "host.protectVersion"
+    "name": "response_duration",
+    "description": "Request duration in milliseconds",
+    "type": "Int64",
+    "sql": "response.duration_ms"
   },
   {
-    "name": "jamf_client_id",
-    "description": "Jamf client ID",
-    "type": "String",
-    "sql": "context.identity.claims.clientid"
+    "name": "risk_score",
+    "description": "Security risk score (0-1)",
+    "type": "Float64",
+    "sql": "security.risk_score"
   },
   {
-    "name": "jamf_organization",
-    "description": "Organization context",
-    "type": "String",
-    "sql": "context.identity.claims.hd"
-  },
-  {
-    "name": "jamf_actor_username",
-    "description": "User who performed the action",
-    "type": "String",
-    "sql": "event.exec.target.audit_token.e_username"
-  },
-  {
-    "name": "jamf_process_path",
-    "description": "Executable path",
-    "type": "String",
-    "sql": "event.exec.target.executable.path"
-  },
-  {
-    "name": "jamf_signing_id",
-    "description": "Code signing identity",
-    "type": "String",
-    "sql": "event.exec.target.signing_id"
-  },
-  {
-    "name": "jamf_is_platform_binary",
-    "description": "Is Apple-signed binary",
+    "name": "is_high_risk",
+    "description": "Whether the event is high risk",
     "type": "Bool",
-    "sql": "event.exec.target.is_platform_binary"
+    "sql": "security.risk_score > 0.7"
   },
   {
-    "name": "jamf_executable_sha256",
-    "description": "File integrity hash",
+    "name": "country",
+    "description": "User's country",
     "type": "String",
-    "sql": "event.exec.target.executable.sha256"
+    "sql": "security.location.country"
   }
 ]
 ```
@@ -265,62 +252,68 @@ Extract important security fields from Jamf Protect Device Telemetry Stream logs
 ## Querying Custom Views
 
 ### View Naming Convention
-Custom views are named using the pattern: `{workspace_name}_{view_name}`
+Custom views use the exact name you provide. No workspace prefix is added automatically.
 
-Example: `runreveal_inc_jamf_protect_telemetry`
+Example: If you create a view named `app_security_analysis`, it will be accessible as:
+```sql
+SELECT * FROM app_security_analysis LIMIT 10;
+```
 
 ### Basic Queries
 
 ```sql copy
 -- Get all records from the custom view
-SELECT * FROM your_workspace_jamf_protect_telemetry LIMIT 10;
+SELECT * FROM app_security_analysis LIMIT 10;
 
 -- Get specific columns
 SELECT 
   eventTime,
-  jamf_event_type,
-  jamf_hostname,
-  jamf_actor_username
-FROM your_workspace_jamf_protect_telemetry
+  user_email,
+  user_role,
+  request_ip,
+  response_status
+FROM app_security_analysis
 ORDER BY eventTime DESC;
 ```
 
 ### Security Analysis Queries
 
 ```sql copy
--- Find non-platform binary executions
+-- Find high-risk events
 SELECT 
   eventTime,
-  jamf_hostname,
-  jamf_actor_username,
-  jamf_process_path,
-  jamf_signing_id,
-  jamf_is_platform_binary
-FROM your_workspace_jamf_protect_telemetry
-WHERE jamf_is_platform_binary = false
+  user_email,
+  user_role,
+  request_ip,
+  risk_score,
+  country
+FROM app_security_analysis
+WHERE is_high_risk = true
 ORDER BY eventTime DESC
 LIMIT 100;
 
--- Find process executions by specific user
+-- Find failed authentication attempts
 SELECT 
   eventTime,
-  jamf_process_path,
-  jamf_executable_sha256,
-  jamf_signing_id
-FROM your_workspace_jamf_protect_telemetry
-WHERE jamf_actor_username = 'suspicious_user'
+  user_email,
+  request_ip,
+  response_status,
+  country
+FROM app_security_analysis
+WHERE response_status = 401
 ORDER BY eventTime DESC;
 
--- Find unsigned or suspiciously signed binaries
+-- Find admin users from unusual locations
 SELECT 
   eventTime,
-  jamf_hostname,
-  jamf_process_path,
-  jamf_signing_id
-FROM your_workspace_jamf_protect_telemetry
-WHERE jamf_signing_id NOT LIKE 'com.apple.%'
-  AND jamf_signing_id != ''
-ORDER BY eventTime DESC;
+  user_email,
+  request_ip,
+  country,
+  risk_score
+FROM app_security_analysis
+WHERE user_role = 'admin'
+  AND country NOT IN ('US', 'CA', 'GB')
+ORDER BY risk_score DESC;
 ```
 
 ## Combining with Transforms
@@ -338,20 +331,20 @@ Use **transforms** for standard field mapping and **custom views** for source-sp
       "config": {
         "mappings": [
           {
-            "source": "event_type",
-            "target": "eventName"
-          },
-          {
-            "source": "host.hostname",
+            "source": "service",
             "target": "serviceName"
           },
           {
-            "source": "host.ips[0]",
+            "source": "request.ip",
             "target": "srcIP"
           },
           {
-            "source": "event.exec.target.audit_token.e_username",
-            "target": "actor.username"
+            "source": "user.email",
+            "target": "actor.email"
+          },
+          {
+            "source": "request.path",
+            "target": "eventName"
           }
         ]
       }
@@ -364,14 +357,19 @@ Use **transforms** for standard field mapping and **custom views** for source-sp
 ```json copy
 [
   {
-    "name": "jamf_signing_id",
-    "type": "String",
-    "sql": "event.exec.target.signing_id"
+    "name": "risk_score",
+    "type": "Float64",
+    "sql": "security.risk_score"
   },
   {
-    "name": "jamf_is_platform_binary",
+    "name": "is_high_risk",
     "type": "Bool", 
-    "sql": "event.exec.target.is_platform_binary"
+    "sql": "security.risk_score > 0.7"
+  },
+  {
+    "name": "country",
+    "type": "String",
+    "sql": "security.location.country"
   }
 ]
 ```
@@ -386,35 +384,20 @@ Use **transforms** for standard field mapping and **custom views** for source-sp
 Custom views can be targeted in detection rules:
 
 ```yaml copy
-title: Suspicious Process Execution
+title: High-Risk Authentication Events
 detection:
   selection:
-    jamf_is_platform_binary: false
-    jamf_signing_id:
-      - "com.suspicious.app"
-      - ""
+    is_high_risk: true
+    user_role: admin
+    country:
+      - "CN"
+      - "RU"
+      - "KP"
   condition: selection
 sourcenames:
-  - your_jamf_source
+  - your_app_source
 ```
 
-## Limitations and Considerations
-
-### Current Limitations
-- **No SQL Functions**: Cannot use `CASE`, `COALESCE`, `IF`, etc.
-- **No Conditional Logic**: Cannot use `OR`, `AND` statements
-- **Simple JSON Paths Only**: Limited to direct field access
-- **Read-Only**: Views cannot modify data
-
-### Workarounds
-- **Multiple Columns**: Create separate columns for different field paths
-- **Query-Time Logic**: Use `COALESCE` in your queries to combine fields
-- **Transforms**: Use transforms for complex field mapping
-
-### Performance Considerations
-- **Query-Time Extraction**: Fields are extracted during query execution
-- **Indexing**: Custom view columns are not indexed separately
-- **Large Datasets**: Consider query performance with large log volumes
 
 ## Troubleshooting
 
@@ -432,40 +415,14 @@ sourcenames:
 - **Cause**: Column name doesn't exist in the view
 - **Solution**: Verify column names match the custom view definition
 
-### Debugging Steps
-1. **Check Source**: Verify the source is active and receiving logs
-2. **Verify JSON Path**: Test the JSON path against sample log data
-3. **Check Data Types**: Ensure column types match the extracted data
-4. **Review Logs**: Check for any error messages in the RunReveal logs
 
-## Best Practices
 
-### Design Guidelines
-- **Descriptive Names**: Use clear, descriptive column names
-- **Consistent Types**: Use appropriate data types for extracted fields
-- **Documentation**: Add descriptions to explain column purposes
-- **Source-Specific**: Create views tailored to specific log sources
 
-### Performance Tips
-- **Limit Columns**: Only extract fields you actually need
-- **Appropriate Types**: Use the most specific data type possible
-- **Query Optimization**: Use WHERE clauses to limit result sets
-- **Time Ranges**: Always include time-based filters in queries
+## Next Steps
 
-### Security Considerations
-- **Sensitive Data**: Be careful not to expose sensitive information in custom columns
-- **Access Control**: Custom views inherit workspace permissions
-- **Audit Trail**: Monitor who creates and modifies custom views
+Now that you understand custom views, explore these related features:
 
-## Helpful Resources
-
-### Getting Help
-- **Documentation**: This guide and inline help in the UI
-- **Support**: Contact RunReveal support for technical issues
-- **Community**: Join the RunReveal community for best practices
-
-### Related Features
-- **Transforms**: For data normalization and field mapping
-- **Detections**: For alerting on custom view data
-- **Pipelines**: For complex data processing workflows
-- **Query Builder**: For interactive query construction
+- **[Transforms](/transforms)**: For data normalization and field mapping
+- **[Detections](/detections)**: For alerting on custom view data  
+- **[Pipelines](/pipelines)**: For complex data processing workflows
+- **[Dashboards](/dashboards)**: For visualizing your custom view data
