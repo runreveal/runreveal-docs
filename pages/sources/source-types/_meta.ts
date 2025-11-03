@@ -1,5 +1,6 @@
 export default {
     "1password": "1Password",
+    "abnormal": "Abnormal AI",
     "atlassian": "Atlassian",
     "auth0": "Auth0",
     "aws": "AWS",

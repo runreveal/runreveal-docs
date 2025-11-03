@@ -1,0 +1,150 @@
+---
+title: 'Abnormal Security Integration Setup Guide'
+description: 'Complete guide for setting up Abnormal Security integration with RunReveal'
+---
+
+# Abnormal AI
+
+This guide will walk you through setting up Abnormal Security integration with RunReveal. The Abnormal source collects security event logs from your Abnormal Security account, including email threats, user behavior analytics, and security incidents.
+
+![Abnormal Security Source Tile](/abnormal-source-1.png)
+
+### Docs coming soon, please check back later or reach out to support for details. 
+
+{/*
+## Overview
+
+- **Source Type**: `rest_api_collector`
+- **Ingest Method**: API Polling (every 60 seconds)
+- **Data Collected**: Abnormal security events, threat detections, and user analytics
+
+## Prerequisites
+
+- Abnormal Security account with admin access
+- Abnormal Security API access
+
+## Step 1: Create an Abnormal Security API Key
+
+### 1.1 Access Abnormal Security Console
+
+1. Log into your [Abnormal Security Console](https://console.abnormalsecurity.com/)
+2. Navigate to **Settings** → **API Keys**
+3. Click **"Create New API Key"**
+
+### 1.2 Configure API Key Settings
+
+1. **Key Name**: Enter a descriptive name (e.g., "RunReveal Integration")
+2. **Description**: Add a description for your API key
+3. **Permissions**: Ensure the key has the following permissions:
+   - `events:read` - Read security events
+   - `threats:read` - Read threat detection data
+   - `users:read` - Read user analytics data
+
+### 1.3 Generate API Key
+
+1. Click **"Generate API Key"**
+2. **Important**: Copy the API key immediately as it won't be shown again
+3. Store the API key securely for use in RunReveal configuration
+
+## Step 2: Configure RunReveal
+
+### 2.1 Create REST API Collector Source in RunReveal
+
+1. Log into your RunReveal dashboard
+2. Navigate to **Sources** → **Add Source**
+3. Select **"REST API Collector"** from the source list
+4. Choose **"Polling"** as the ingest type
+
+### 2.2 Configure Source Settings
+
+Fill in the following fields:
+
+**Settings:**
+- **Unique ID**: Enter a unique identifier for this source (e.g., `abnormal-security-001`)
+- **API Endpoint**: `https://api.abnormalsecurity.com/v1/events`
+- **HTTP Method**: `GET`
+- **Headers**: 
+  - `Authorization`: `Bearer YOUR_API_KEY`
+  - `Content-Type`: `application/json`
+  - `Accept`: `application/json`
+
+### 2.3 Test the Configuration
+
+1. Click **"Verify Settings"** to test the connection
+2. If successful, you should see a green checkmark
+3. If there are errors, check:
+   - API key is correct and has proper permissions
+   - Abnormal Security account is active
+   - Network connectivity to Abnormal Security API
+
+## Step 3: Monitor and Verify
+
+### 3.1 Check Data Ingestion
+
+1. After saving your REST API collector source, wait 5-10 minutes
+2. Go to **Logs** in your RunReveal dashboard
+3. Filter by **Source Type**: `rest_api_collector`
+4. You should see Abnormal security events appearing
+
+### 3.2 Verify Event Types
+
+The Abnormal integration collects the following types of events:
+
+- **Email Threats**: Phishing attempts, malware, and suspicious email activity
+- **User Behavior**: Anomalous user behavior patterns and risk indicators
+- **Security Incidents**: Security events and incident reports
+- **Threat Intelligence**: Threat detection and analysis data
+- **Policy Violations**: Email policy violations and security rule breaches
+
+### 3.3 Check for Errors
+
+1. Go to **Sources** → **Errors** in RunReveal
+2. Look for any REST API collector errors
+3. Common issues:
+   - Invalid API key or endpoint
+   - Insufficient permissions
+   - Rate limiting
+   - Network connectivity issues
+   - Incorrect headers or authentication
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. "Invalid API Key or Endpoint"
+- Verify the API key is correct and hasn't expired
+- Ensure the API endpoint URL is correct: `https://api.abnormalsecurity.com/v1/events`
+- Check that the Authorization header includes "Bearer " before your API key
+- Ensure there are no extra spaces or characters
+
+#### 2. "Insufficient Permissions"
+- Ensure your API key has the `events:read`, `threats:read`, and `users:read` permissions
+- Verify your Abnormal Security account has admin access
+- Check that the API key is active and not revoked
+
+#### 3. "No Events Found"
+- Verify that Abnormal Security is actively detecting threats
+- Check that there's recent activity in your Abnormal Security console
+- Ensure the source has been running for at least 10-15 minutes
+- Test the API endpoint directly to ensure it returns data
+
+#### 4. Rate Limiting
+- Abnormal Security API has rate limits
+- RunReveal polls every 60 seconds, which should be within limits
+- If you hit rate limits, contact Abnormal Security support
+
+
+## Support and Resources
+
+### Abnormal Security Documentation
+- [Abnormal Security API Documentation](https://docs.abnormalsecurity.com/)
+- [Abnormal Security Console](https://console.abnormalsecurity.com/)
+
+### Abnormal Security Support
+- [Abnormal Security Support](https://support.abnormalsecurity.com/)
+
+---
+
+*This guide covers the complete setup process for Abnormal Security integration with RunReveal. For additional support or questions, please contact RunReveal support or refer to the official documentation.*
+
+*/}
