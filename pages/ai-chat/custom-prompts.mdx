@@ -17,22 +17,26 @@ Custom prompts enable you to define structured message templates that can be ret
 - Enabling dynamic content injection based on context
 
 
-## Argument Syntax
+## Template Syntax
 
-When using arguments in prompt text, they **must** be wrapped in double curly braces:
+RunReveal uses [Handlebars](https://handlebarsjs.com/) templating syntax for custom prompts. This provides powerful templating capabilities including variable substitution, conditionals, and loops.
+
+### Basic Variable Substitution
+
+Arguments are referenced using double curly braces:
 
 ```
 {{argument_name}}
 ```
 
-### Examples
+**Examples:**
 
-**Basic argument usage:**
+Basic argument usage:
 ```text
 Please analyze this log data: {{log_data}}
 ```
 
-**Multiple arguments:**
+Multiple arguments:
 ```text
 Analyze the following data from {{source}} for the period {{timeframe}}:
 
@@ -40,6 +44,36 @@ Analyze the following data from {{source}} for the period {{timeframe}}:
 
 Focus on {{focus_area}} patterns.
 ```
+
+### Advanced Handlebars Features
+
+#### Conditionals
+
+Use `{{#if}}` blocks to conditionally include content:
+
+```text
+Search for {{query}} in logs
+{{#if timeframe}}
+Time range: {{timeframe}}
+{{/if}}
+{{#if user}}
+Filter by user: {{user}}
+{{else}}
+Analyzing all users
+{{/if}}
+```
+
+#### Unless Blocks
+
+Use `{{#unless}}` to show content when a condition is false:
+
+```text
+{{#unless error}}
+Analysis completed successfully
+{{/unless}}
+```
+
+For more advanced Handlebars features, see the [Handlebars documentation](https://handlebarsjs.com/guide/).
 
 ## Data Types
 
@@ -55,6 +89,8 @@ A prompt definition includes:
 ## Example Prompts
 
 ### Security Analysis Prompt
+
+This example demonstrates using Handlebars conditionals to handle optional parameters:
 
 ```json
 {
@@ -78,11 +114,18 @@ A prompt definition includes:
       "required": false
     }
   ],
-  "prompt_text": "You are a security analyst. 
+  "prompt_text": "You are a security analyst.
     Please analyze the following log data for security threats and anomalies:
+
     {{log_data}}
+
+    {{#if timeframe}}
     Timeframe: {{timeframe}}
+    {{/if}}
+    {{#if focus_areas}}
     Focus areas: {{focus_areas}}
+    {{/if}}
+
     Provide a comprehensive analysis including:
     - Identified threats and their severity levels
     - Anomalous patterns or behaviors
