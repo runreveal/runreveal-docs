@@ -1,0 +1,429 @@
+---
+title: 'RunReveal Audit Logs'
+description: 'Overview of RunReveal audit logs and what they track'
+---
+
+# RunReveal Audit Logs
+
+RunReveal automatically creates audit logs for all API operations and user activities in your workspace. These logs help you track who did what, when, and from where for security monitoring, compliance, and troubleshooting.
+
+![Audit Logs](/audit-logs-1.png)
+
+## What Are Audit Logs?
+
+Every action taken in RunReveal—creating sources, running queries, updating settings, viewing data—is automatically logged. These audit logs are stored in the `runreveal_audit_logs` view and are accessible through your normal log queries.
+
+![Audit Logs](/audit-logs-2.png)
+
+## Key Fields
+
+### Who
+
+| Field | Description |
+|-------|-------------|
+| `actorEmail` | The email address of the user who performed the action |
+| `actorID` | The unique identifier of the user |
+
+### What
+
+| Field | Description |
+|-------|-------------|
+| `eventName` | The name of the action performed (see [Event Names](#event-names)) |
+| `readOnly` | Whether this was a read operation (`true`) or a write operation (`false`) that modified data |
+| `responseError` | Whether the operation failed (`true`) or succeeded (`false`) |
+| `responseErrorMessage` | The error message if the operation failed |
+
+### When
+
+| Field | Description |
+|-------|-------------|
+| `eventTime` | When the action occurred |
+| `receivedAt` | When RunReveal received the event |
+
+### Where
+
+| Field | Description |
+|-------|-------------|
+| `srcIP` | The IP address of the user performing the action |
+| `srcCity` | The city where the connection originated (from GeoIP) |
+| `srcASOrganization` | The organization/ISP associated with the IP address |
+| `requestUserAgent` | The client application or browser used (e.g., browser type, API client) |
+
+## Event Names
+
+Event names describe what action was taken. The following table lists all RunReveal audit log event names organized by category:
+
+### Authentication & Sessions
+
+| Event Name | Description |
+|------------|-------------|
+| `auth_github_login` | User initiated GitHub OAuth login |
+| `auth_github_callback` | GitHub OAuth callback completed |
+| `auth_microsoft_login` | User initiated Microsoft OAuth login |
+| `auth_microsoft_callback` | Microsoft OAuth callback completed |
+| `auth_gsuite_login` | User initiated Google Workspace OAuth login |
+| `auth_gsuite_callback` | Google Workspace OAuth callback completed |
+| `auth_sso_login` | User initiated SSO login |
+| `auth_sso_callback` | SSO callback completed |
+| `auth_cloudflare_access_login` | User initiated Cloudflare Access login |
+| `cli_magic_login` | CLI magic login link accessed |
+| `session_create` | New user session created |
+| `session_list` | User listed their active sessions |
+| `session_logout` | User logged out |
+| `session_revoke` | User revoked a specific session |
+| `session_revoke_all` | User revoked all sessions |
+
+### Workspace Management
+
+| Event Name | Description |
+|------------|-------------|
+| `list_workspaces` | User listed available workspaces |
+| `create_workspace` | Workspace was created |
+| `workspace_name_update` | Workspace name was changed |
+| `workspace_ai_models_info` | User viewed AI model configuration |
+| `workspace_ai_models_update_anthropic` | Anthropic AI model settings were updated |
+| `workspace_ai_models_update_openai` | OpenAI model settings were updated |
+| `workspace_ai_models_update_googleai` | Google AI model settings were updated |
+| `workspace_ai_models_update_bedrock` | AWS Bedrock model settings were updated |
+| `workspace_ai_provider_config_update` | AI provider configuration was updated |
+| `workspace_openai_config_update` | OpenAI configuration was updated |
+| `workspace_session_timeout_update` | Session timeout settings were updated |
+| `workspace_logo_upload` | Workspace logo was uploaded |
+| `workspace_logo_get` | Workspace logo was retrieved |
+| `workspace_logo_delete` | Workspace logo was deleted |
+| `account_get` | Workspace account information was viewed |
+| `user_account_get` | User account information was viewed |
+| `user_account_info` | User account info was retrieved |
+| `user_current_workspace_update` | User's current workspace was changed |
+
+### Users & Access Control
+
+| Event Name | Description |
+|------------|-------------|
+| `workspace_user_list` | List of workspace users was viewed |
+| `workspace_user_invite` | User invitation was sent |
+| `workspace_user_reinvite` | User invitation was resent |
+| `workspace_user_update` | User permissions or role were updated |
+| `workspace_user_del` | User was removed from workspace |
+| `workspace_user_invite_accept` | User accepted workspace invitation |
+| `workspace_invites_list` | Pending invitations were listed |
+| `workspace_roles_list` | Available roles were listed |
+| `workspace_token_create` | Workspace API token was created |
+| `workspace_token_list` | Workspace API tokens were listed |
+| `workspace_token_delete` | Workspace API token was deleted |
+
+### Sources
+
+| Event Name | Description |
+|------------|-------------|
+| `source_create` | Data source was created |
+| `source_list` | List of sources was viewed |
+| `source_update` | Source configuration was updated |
+| `source_delete` | Source was deleted |
+| `source_test` | Source connection was tested |
+| `source_backfill` | Source backfill was initiated |
+| `source_dropbox_auth_redirect` | Dropbox OAuth authorization redirect |
+| `source_box_auth_redirect` | Box OAuth authorization redirect |
+| `source_snowflake_auth_redirect` | Snowflake OAuth authorization redirect |
+| `source_gsuite_init` | Google Workspace source initialization |
+| `source_gsuite_auth_redirect` | Google Workspace OAuth redirect |
+| `source_gsuite_auth_callback` | Google Workspace OAuth callback |
+| `source_gsuite_auth_save` | Google Workspace OAuth credentials saved |
+| `source_gsuite_auth_update` | Google Workspace OAuth credentials updated |
+| `source_gsuite_unsubscribe` | Google Workspace push subscription removed |
+| `source_health_get` | Source health status was retrieved |
+| `source_health_add` | Source health check was added |
+| `source_health_update` | Source health check was updated |
+| `source_health_stats` | Source health statistics were viewed |
+
+### Queries & Logs
+
+| Event Name | Description |
+|------------|-------------|
+| `run_query` | SQL query was executed |
+| `logs_query` | Legacy logs query was executed |
+| `logs_query_v2` | V2 logs query was initiated |
+| `logs_query_v2_status` | Query status was checked |
+| `logs_query_v2_results` | Query results were retrieved |
+| `logs_query_v2_download` | Query results were downloaded |
+| `logs_query_v2_history` | Query history was viewed |
+| `logs_query_v2_cancel` | Query was cancelled |
+| `logs_query_v3_results` | V3 query results were retrieved |
+| `query_sql_text` | SQL query text was retrieved |
+| `query_history` | Historical query was executed |
+| `query_history_update_metadata` | Query history metadata was updated |
+| `query_table_primary_keys` | Table primary keys were retrieved |
+| `list_tables` | Available tables were listed |
+| `get_table_schema` | Table schema was retrieved |
+| `scheduled_query_result` | Scheduled query result was retrieved |
+| `scheduled_query_all_results` | All scheduled query results were retrieved |
+
+### Detections
+
+| Event Name | Description |
+|------------|-------------|
+| `detections_create` | Detection rule was created |
+| `detections_list` | List of detections was viewed |
+| `detections_get` | Detection rule was viewed |
+| `detection_update` | Detection rule was updated |
+| `detection_delete` | Detection rule was deleted |
+| `detection_update_enabled_flag` | Detection enabled status was updated |
+| `detection_update_silenced` | Detection silence status was updated |
+| `detection_sync_deprecated` | Detection sync was initiated (deprecated method) |
+| `detection_sync_plan` | Detection sync plan was created |
+| `sigma_create` | Sigma rule was created |
+| `sigma_update` | Sigma rule was updated |
+| `sigma_test` | Sigma rule was tested |
+| `lint_sigma` | Sigma rule was linted |
+| `lint_sql` | SQL query was linted |
+| `managed_detection_create_sql` | Managed SQL detection was created |
+| `managed_detection_create_streaming` | Managed streaming detection was created |
+| `managed_detection_update_sql` | Managed SQL detection was updated |
+| `managed_detection_update_streaming` | Managed streaming detection was updated |
+| `managed_detection_delete` | Managed detection was deleted |
+| `managed_detection_get` | Managed detection details were viewed |
+| `managed_detection_list` | List of managed detections was viewed |
+| `managed_detection_clone` | Managed detection subscription was cloned |
+| `managed_detection_subscribe` | User subscribed to managed detection |
+| `managed_detection_bulk_subscribe` | User bulk subscribed to managed detections |
+| `managed_detection_unsubscribe` | User unsubscribed from managed detection |
+| `managed_detection_bulk_unsubscribe` | User bulk unsubscribed from managed detections |
+| `managed_detection_subscription_list` | List of managed detection subscriptions was viewed |
+| `managed_detection_subscription_get` | Managed detection subscription details were viewed |
+| `managed_detection_subscription_update` | Managed detection subscription was updated |
+| `managed_detection_subscription_silence_update` | Managed detection subscription silence status was updated |
+| `managed_detection_subscription_update_enabled` | Managed detection subscription enabled status was updated |
+| `migrate_detections_list` | List of detection migrations was viewed |
+| `migrate_detection_get` | Detection migration details were viewed |
+| `migrate_detection_update_status` | Detection migration status was updated |
+
+### Agent Schedules
+
+| Event Name | Description |
+|------------|-------------|
+| `agent_schedules_create` | Agent schedule was created |
+| `agent_schedules_list` | List of agent schedules was viewed |
+| `agent_schedules_get` | Agent schedule details were viewed |
+| `agent_schedules_update` | Agent schedule was updated |
+| `agent_schedules_delete` | Agent schedule was deleted |
+| `agent_schedules_silence` | Agent schedule was silenced |
+
+### Notifications
+
+| Event Name | Description |
+|------------|-------------|
+| `notification_create` | Notification channel was created |
+| `notification_update` | Notification channel was updated |
+| `notification_delete` | Notification channel was deleted |
+| `notification_list` | List of notification channels was viewed |
+| `notification_test` | Notification channel was tested |
+| `notification_history_list` | Notification history was viewed |
+| `notification_history_list_by_alert` | Notification history by alert was viewed |
+| `email_notification_create` | Email notification channel was created |
+| `email_notification_update` | Email notification channel was updated |
+| `slack_notification_create` | Slack notification channel was created |
+| `slack_notification_update` | Slack notification channel was updated |
+| `webhook_notification_create` | Webhook notification channel was created |
+| `webhook_notification_update` | Webhook notification channel was updated |
+| `jira_notification_create` | Jira notification channel was created |
+| `jira_notification_update` | Jira notification channel was updated |
+| `linear_notification_create` | Linear notification channel was created |
+| `linear_notification_update` | Linear notification channel was updated |
+| `pagerduty_notification_create` | PagerDuty notification channel was created |
+| `pagerduty_notification_update` | PagerDuty notification channel was updated |
+| `discord_notification_create` | Discord notification channel was created |
+| `discord_notification_update` | Discord notification channel was updated |
+
+### Transforms
+
+| Event Name | Description |
+|------------|-------------|
+| `transform_create` | Transform rule was created |
+| `transform_update` | Transform rule was updated |
+| `transform_delete` | Transform was deleted |
+| `transform_list` | List of transforms was viewed |
+| `transform_get` | Transform details were viewed |
+| `transform_test` | Transform rule was tested |
+| `transform_test_rule` | Transform rule syntax was validated |
+| `update_source_transform` | Source transform association was updated |
+
+### Enrichments
+
+| Event Name | Description |
+|------------|-------------|
+| `enrichment_list` | List of enrichments was viewed |
+| `enrichment_get` | Enrichment details were viewed |
+| `enrichment_create` | Enrichment rule was created |
+| `enrichment_update` | Enrichment rule was updated |
+| `enrichment_delete` | Enrichment was deleted |
+| `enrichment_update_enabled` | Enrichment enabled status was toggled |
+| `enrichment_append_rules` | Rules were appended to enrichment |
+| `managed_enrichment_list` | List of managed enrichments was viewed |
+| `managed_enrichment_get` | Managed enrichment details were viewed |
+| `managed_enrichment_subscribe` | User subscribed to managed enrichment |
+| `managed_enrichment_unsubscribe` | User unsubscribed from managed enrichment |
+| `managed_enrichment_subscription_list` | List of enrichment subscriptions was viewed |
+| `managed_enrichment_create` | Managed enrichment was created |
+| `managed_enrichment_update` | Managed enrichment was updated |
+| `managed_enrichment_delete` | Managed enrichment was deleted |
+
+### Filters
+
+| Event Name | Description |
+|------------|-------------|
+| `filter_create` | Filter was created |
+| `filter_update` | Filter was updated |
+| `filter_delete` | Filter was deleted |
+| `filter_list` | List of filters was viewed |
+| `filter_get` | Filter details were viewed |
+
+### Custom Views
+
+| Event Name | Description |
+|------------|-------------|
+| `custom_views_list` | List of custom views was viewed |
+| `custom_views_get` | Custom view details were viewed |
+| `custom_views_create` | Custom view was created |
+| `custom_views_update` | Custom view was updated |
+| `custom_views_delete` | Custom view was deleted |
+| `custom_views_test` | Custom view was tested |
+
+### Dashboards
+
+| Event Name | Description |
+|------------|-------------|
+| `dashboard_layout_create` | Dashboard layout was created |
+| `dashboard_layout_update` | Dashboard layout was updated |
+| `dashboard_layout_delete` | Dashboard layout was deleted |
+| `dashboard_layout_get` | Dashboard layout was retrieved |
+| `dashboard_layout_list` | List of dashboard layouts was viewed |
+| `dashboard_graph_create` | Dashboard graph was created |
+| `dashboard_graph_update` | Dashboard graph was updated |
+| `dashboard_graph_delete` | Dashboard graph was deleted |
+| `dashboard_graph_get` | Dashboard graph was retrieved |
+| `dashboard_graph_list` | List of dashboard graphs was viewed |
+| `dashboard_graph_usage` | Dashboard graph usage statistics were viewed |
+
+### Investigations
+
+| Event Name | Description |
+|------------|-------------|
+| `investigation_list` | List of investigations was viewed |
+| `investigation_create` | Investigation was created |
+| `investigation_update` | Investigation was updated |
+| `investigation_delete` | Investigation was deleted |
+| `investigation_get` | Investigation details were viewed |
+| `investigation_star_artifact` | Investigation artifact was starred |
+| `investigation_artifact_list` | Investigation artifacts were listed |
+| `investigation_artifact_delete` | Investigation artifact was deleted |
+| `investigation_close` | Investigation was closed |
+| `investigation_add_artifact` | Artifact was added to investigation |
+| `investigation_artifact_data` | Investigation artifact data was retrieved |
+
+### Reports
+
+| Event Name | Description |
+|------------|-------------|
+| `report_list` | List of reports was viewed |
+| `report_get` | Report details were viewed |
+| `report_create` | Report was created |
+| `report_update` | Report was updated |
+| `report_delete` | Report was deleted |
+| `report_enabled_update` | Report enabled status was toggled |
+| `report_query_list` | Report queries were listed |
+| `report_query_update` | Report query was updated |
+| `report_query_delete` | Report query was deleted |
+
+### Destinations
+
+| Event Name | Description |
+|------------|-------------|
+| `destination_s3_create` | S3 destination was created |
+| `destination_s3_update` | S3 destination was updated |
+| `destination_s3_test` | S3 destination connection was tested |
+| `destination_clickhouse_create_v2` | ClickHouse destination was created (v2) |
+| `destination_clickhouse_update_v2` | ClickHouse destination was updated (v2) |
+| `destination_clickhouse_test` | ClickHouse destination connection was tested |
+| `destination_clickhouse_migrate` | ClickHouse migration was initiated |
+| `destination_clickhouse_migrate_verify` | ClickHouse migration was verified |
+| `destination_clickhouse_migrations_download` | ClickHouse migrations were downloaded |
+| `destination_set_default` | Default destination was set |
+| `destination_get` | Destination details were viewed |
+| `destination_delete` | Destination was deleted |
+| `destination_toggle` | Destination enabled status was toggled |
+| `destinations_list` | List of destinations was viewed |
+
+### Topics & Pipelines
+
+| Event Name | Description |
+|------------|-------------|
+| `topic_create` | Topic was created |
+| `topic_get` | Topic details were viewed |
+| `topic_list` | List of topics was viewed |
+| `topic_update` | Topic was updated |
+| `topic_delete` | Topic was deleted |
+| `topic_move` | Topic was moved |
+| `topic_set_pipeline` | Pipeline was assigned to topic |
+| `topic_get_pipeline` | Topic pipeline was retrieved |
+| `topic_wizard_create` | Topic was created via wizard |
+| `pipeline_create` | Pipeline was created |
+| `pipeline_get` | Pipeline details were viewed |
+| `pipeline_list` | List of pipelines was viewed |
+| `pipeline_list_table` | Pipeline table was viewed |
+| `pipeline_rename` | Pipeline was renamed |
+| `pipeline_delete` | Pipeline was deleted |
+| `pipeline_add_step` | Step was added to pipeline |
+| `pipeline_remove_step` | Step was removed from pipeline |
+| `pipeline_move_step` | Step was moved in pipeline |
+| `pipeline_save_steps` | Pipeline steps were saved |
+| `pipeline_execute_step` | Pipeline step was executed (read-only test) |
+| `pipeline_stats_by_pipeline` | Pipeline statistics were viewed |
+
+### Parameters
+
+| Event Name | Description |
+|------------|-------------|
+| `param_create` | Parameter was created |
+| `param_list` | List of parameters was viewed |
+| `param_update` | Parameter was updated |
+| `param_delete` | Parameter was deleted |
+
+### AI Features
+
+| Event Name | Description |
+|------------|-------------|
+| `ai_summary` | AI summary was generated |
+| `ai_verify` | AI verification was performed |
+
+## Flags
+
+Audit logs include several boolean flags that provide important metadata about each operation:
+
+### Read-Only Flag (`readOnly`)
+
+The `readOnly` flag indicates whether an operation modified data or just retrieved information:
+
+- **`readOnly = true`**: The operation only retrieved or viewed information without modifying data
+  - Examples: Viewing lists, running queries, reading configurations, checking status
+- **`readOnly = false`**: The operation created, updated, or deleted data
+  - Examples: Creating sources, updating detections, deleting resources, modifying settings
+
+**Note**: Some operations use POST requests for technical reasons (large payloads, complex queries) but are still read-only. RunReveal automatically marks these correctly based on the operation type.
+
+### Error Flag (`responseError`)
+
+The `responseError` flag indicates whether the operation completed successfully:
+
+- **`responseError = false`**: The operation completed successfully
+- **`responseError = true`**: The operation failed, with details available in `responseErrorMessage`
+
+This flag helps identify failed operations in your audit logs for troubleshooting and security monitoring.
+
+## Data Retention
+
+Audit logs follow the same retention rules as your other logs, check the TTL column on the logs column to see the retention period for your plan.
+
+## Related Documentation
+
+- [Logs API](/reference/logs-api) - How to query logs
+- [Using the CLI](/reference/using-the-cli) - CLI commands for log queries
