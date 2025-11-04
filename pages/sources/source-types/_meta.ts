@@ -13,6 +13,7 @@ export default {
     "crowdstrike": "CrowdStrike",
     "cyberhaven": "Cyberhaven",
     "dnsfilter": "DNSFilter",
+    "dope-security": "Dope Security",
     "dropbox": "Dropbox",
     "fastly-waf": "Fastly WAF",
     "firehydrant": "FireHydrant",
