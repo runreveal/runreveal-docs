@@ -1,0 +1,58 @@
+---
+title: 'Dope Security'
+description: 'Ingest Dope Security endpoint protection logs from object storage or webhooks showing network traffic, file activity, and security events.'
+---
+
+import { Callout } from 'nextra/components'
+
+# Dope Security
+
+Dope Security is an endpoint protection platform that provides network security, file activity monitoring, and threat detection. Dope Security logs capture endpoint events including network traffic, file operations, process executions, and security policy violations. These logs help monitor endpoint security, detect threats, and investigate security incidents.
+
+![Dope Security Source Tile](/dope-source-1.png)
+
+## Ingest Methods
+
+RunReveal offers the following ways to ingest Dope Security logs:
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Webhooks](#webhooks)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_dope_security
+```
+Replace `<REGION>` with the AWS region where your S3 bucket is located (e.g., `us-east-1`, `us-west-2`, `eu-west-1`).
+</Callout>
+
+## Webhooks
+
+Dope Security can send logs directly to RunReveal via webhook using the **Dope Security Webhook** source type.
+
+### Step 1: Create Webhook Source in RunReveal
+
+1. Go to [Sources](https://app.runreveal.com/dash/sources/add) in RunReveal
+2. Click the **Dope Security Webhook** source tile
+3. Give it a descriptive name (e.g., "Dope Security Webhook")
+4. Optionally enable bearer token authentication for added security
+5. Click **Connect Source** to generate a unique webhook URL
+6. Copy the generated webhook URL and bearer token (if enabled)
+
+### Step 2: Configure Dope Security
+
+1. Log into your Dope Security console
+2. Navigate to integrations or webhook settings
+3. Add a new webhook destination
+4. Configure the webhook:
+   - **URL**: Paste the RunReveal webhook URL you copied
+   - **Method**: POST
+   - **Content-Type**: application/json
+   - **Authorization**: If you enabled bearer token, add `Authorization: Bearer YOUR_TOKEN` header
+5. Save the webhook configuration
+
+## Helpful Resources
+
+- [Dope Security](https://dope.security/)
+
