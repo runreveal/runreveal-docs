@@ -9,12 +9,19 @@ import { Callout, Tabs, Steps } from 'nextra/components'
 
 Custom Views allow you to create virtual tables that extract specific fields from your log data using JSON path expressions. This feature enables you to organize and analyze your log data with custom columns tailored to your specific use cases, without modifying the underlying data structure.
 
+
 <Callout type="warning">
 <strong>Feature Flag Required</strong>: Custom Views is currently gated behind a feature flag. Please reach out to RunReveal support to request access to this feature.
 </Callout>
 
 <Callout type="info">
 <strong>Getting Started</strong>: Navigate to <strong>Settings → Custom Views</strong> to create your first custom view, or use the CLI and API for programmatic access.
+</Callout>
+
+![Custom View](/custom-views-1.png)
+
+<Callout type="info">
+<strong>Accessing Your Custom View</strong>: Once created, your custom view table will be available in the [Search Explorer](https://app.runreveal.com/dash/explore) page where you can query it directly using SQL.
 </Callout>
 
 ## Key Features
@@ -128,23 +135,6 @@ field.subfield.array[0].nested_field
 - `tags[0]` → `"security"`
 - `metadata.source_ip` → `"192.168.1.100"`
 
-#### Advanced SQL Expressions
-While JSON paths are simple, you can use ClickHouse functions in SQL expressions:
-
-```sql
--- Simple JSON path
-user.email
-
--- ClickHouse function
-toString(user.id)
-
--- Conditional logic
-if(user.role = 'admin', 'high', 'low')
-
--- Array operations
-arrayJoin(user.permissions)
-```
-
 #### Limitations
 - **Simple Paths**: Direct field access and array indexing only
 - **No Complex Logic**: Cannot use conditional statements in path expressions
@@ -251,29 +241,35 @@ Extract important security fields from application logs for analysis and monitor
 
 ## Querying Custom Views
 
-### View Naming Convention
-Custom views use the exact name you provide. No workspace prefix is added automatically.
+<Callout type="info">
+<strong>Querying Custom View Columns</strong>: You do not have to target the <code>rawLog.jsonfield</code> name in your query. You can just target the jsonfield name that you created in your custom view. For example, if you created a column named <code>user_email</code> that extracts <code>user.email</code> from the raw log, you can query it directly as <code>user_email</code> without referencing <code>rawLog</code> or <code>logJson</code>.
+</Callout>
 
-Example: If you create a view named `app_security_analysis`, it will be accessible as:
+### View Naming Convention
+The workspace name prefix is automatically added to your custom view name. 
+
+Example: If your workspace is named `workspace` and you create a view named `app_security_analysis`, it will be accessible as:
 ```sql
-SELECT * FROM app_security_analysis LIMIT 10;
+SELECT * FROM workspace_app_security_analysis LIMIT 10;
 ```
+
+The full view name format is: `{workspace_name}_{your_view_name}`
 
 ### Basic Queries
 
 ```sql copy
 -- Get all records from the custom view
-SELECT * FROM app_security_analysis LIMIT 10;
+SELECT * FROM workspace_app_security_analysis LIMIT 10;
 
 -- Get specific columns
 SELECT 
-  eventTime,
+  receivedAt,
   user_email,
   user_role,
   request_ip,
   response_status
-FROM app_security_analysis
-ORDER BY eventTime DESC;
+FROM workspace_app_security_analysis
+ORDER BY receivedAt DESC;
 ```
 
 ### Security Analysis Queries
@@ -281,36 +277,36 @@ ORDER BY eventTime DESC;
 ```sql copy
 -- Find high-risk events
 SELECT 
-  eventTime,
+  receivedAt,
   user_email,
   user_role,
   request_ip,
   risk_score,
   country
-FROM app_security_analysis
+FROM workspace_app_security_analysis
 WHERE is_high_risk = true
-ORDER BY eventTime DESC
+ORDER BY receivedAt DESC
 LIMIT 100;
 
 -- Find failed authentication attempts
 SELECT 
-  eventTime,
+  receivedAt,
   user_email,
   request_ip,
   response_status,
   country
-FROM app_security_analysis
+FROM workspace_app_security_analysis
 WHERE response_status = 401
-ORDER BY eventTime DESC;
+ORDER BY receivedAt DESC;
 
 -- Find admin users from unusual locations
 SELECT 
-  eventTime,
+  receivedAt,
   user_email,
   request_ip,
   country,
   risk_score
-FROM app_security_analysis
+FROM workspace_app_security_analysis
 WHERE user_role = 'admin'
   AND country NOT IN ('US', 'CA', 'GB')
 ORDER BY risk_score DESC;
@@ -331,19 +327,19 @@ Use **transforms** for standard field mapping and **custom views** for source-sp
       "config": {
         "mappings": [
           {
-            "source": "service",
-            "target": "serviceName"
-          },
-          {
-            "source": "request.ip",
-            "target": "srcIP"
-          },
-          {
-            "source": "user.email",
+            "source": "user_email",
             "target": "actor.email"
           },
           {
-            "source": "request.path",
+            "source": "request_ip",
+            "target": "srcIP"
+          },
+          {
+            "source": "user_role",
+            "target": "actor.role"
+          },
+          {
+            "source": "response_status",
             "target": "eventName"
           }
         ]
@@ -353,27 +349,6 @@ Use **transforms** for standard field mapping and **custom views** for source-sp
 }
 ```
 
-#### Custom View (Analysis Enhancement)
-```json copy
-[
-  {
-    "name": "risk_score",
-    "type": "Float64",
-    "sql": "security.risk_score"
-  },
-  {
-    "name": "is_high_risk",
-    "type": "Bool", 
-    "sql": "security.risk_score > 0.7"
-  },
-  {
-    "name": "country",
-    "type": "String",
-    "sql": "security.location.country"
-  }
-]
-```
-
 ### Benefits
 - **Standard Fields**: Work with existing RunReveal detections
 - **Custom Fields**: Enable advanced source-specific analysis
@@ -381,22 +356,32 @@ Use **transforms** for standard field mapping and **custom views** for source-sp
 
 ## Using Custom Views in Detections
 
-Custom views can be targeted in detection rules:
+Custom views can be used in **SQL detections** but not in **Sigma streaming detections**. When creating SQL detections, you can query your custom view directly.
 
-```yaml copy
-title: High-Risk Authentication Events
-detection:
-  selection:
-    is_high_risk: true
-    user_role: admin
-    country:
-      - "CN"
-      - "RU"
-      - "KP"
-  condition: selection
-sourcenames:
-  - your_app_source
+### SQL Detection Example
+
+Here's an example SQL detection that uses a custom view:
+
+```sql copy
+SELECT 
+  receivedAt,
+  user_email,
+  user_role,
+  request_ip,
+  risk_score,
+  country
+FROM workspace_app_security_analysis
+WHERE is_high_risk = true
+  AND user_role = 'admin'
+  AND country IN ('CN', 'RU', 'KP')
+ORDER BY receivedAt DESC
 ```
+
+**Note**: Replace `workspace_app_security_analysis` with your actual view name (workspace prefix + view name). See [View Naming Convention](#view-naming-convention) for details.
+
+### Sigma Detection (Not Supported)
+
+Due to the nature of Sigma (Streaming Detections) Custom views cannot be used in Sigma detections. 
 
 
 ## Troubleshooting
@@ -424,5 +409,5 @@ Now that you understand custom views, explore these related features:
 
 - **[Transforms](/transforms)**: For data normalization and field mapping
 - **[Detections](/detections)**: For alerting on custom view data  
-- **[Pipelines](/pipelines)**: For complex data processing workflows
+- **[Writing Detections](/detections/writing-detections)**: Learn how to write detection rules
 - **[Dashboards](/dashboards)**: For visualizing your custom view data
