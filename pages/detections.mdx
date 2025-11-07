@@ -3,6 +3,8 @@ title: 'Security Detections - SQL & Sigma Rules'
 description: 'Write powerful security detections using SQL queries and Sigma rules. Create scheduled queries, manage detection-as-code workflows, and analyze detection results in RunReveal.'
 ---
 
+import { Callout, Tabs } from 'nextra/components'
+
 # Detections
 
 Detections currently are queries that execute on a schedule and their results
@@ -16,6 +18,88 @@ searching several underlying tables.
    contain the metadata of the associated detection, like risk score, mitre
    attacks, etc.
 
+## Anatomy of a Detection
+
+A detection in RunReveal consists of several components that work together to identify security events. Understanding these components helps you create effective detections and manage them efficiently.
+
+![Detection Example](/detections-1.png)
+
+### Detection Metadata
+
+The metadata section provides identity and operational context for the detection:
+
+| Field | Description |
+|-------|-------------|
+| **Title** | Human-readable name of the detection (e.g., "AWS Root Password Change") |
+| **Slug** | URL-friendly identifier used in APIs and detection-as-code workflows |
+| **Type** | Detection language: SQL or Sigma |
+| **Severity** | Classification level (Low, Medium, High, Critical) used for triage and prioritization |
+| **Created / Updated** | Timestamps showing detection lifecycle and last review time |
+
+This metadata enables filtering, searching, and organizing detections across your security operations.
+
+### Description and Risk Assessment
+
+| Field | Description |
+|-------|-------------|
+| **Description** | Human-readable explanation of what the detection identifies |
+| **Risk Score** | Numeric value (0-100) representing the criticality of the detected activity |
+
+The risk score enables automated prioritization, dashboard visualization, and correlation with other security events.
+
+### Categories and Tags
+
+Categories and tags provide taxonomy for organizing detections and mapping them to security frameworks:
+
+| Category Type | Purpose | Examples |
+|---------------|---------|----------|
+| **Attack Context** | MITRE ATT&CK mapping | `attack.persistence`, `attack.credential-access` |
+| **Cloud Provider** | Platform identification | `aws`, `azure`, `gcp` |
+| **Functional** | Action type | `password-change`, `privilege-escalation` |
+| **System Context** | Operational context | `identity-access-management`, `network-security` |
+
+These fields enable flexible filtering in dashboards, documentation, and API queries.
+
+### MITRE ATT&CK Mapping
+
+| Field | Description |
+|-------|-------------|
+| **Tactics** | High-level adversary objectives (e.g., persistence, privilege-escalation, credential-access) |
+| **Techniques** | Specific adversary behaviors (e.g., T1098 - Account Manipulation) |
+
+MITRE ATT&CK mapping provides standardized threat classification for threat hunting, reporting, and framework alignment.
+
+### Source Types
+
+Source types specify which log sources the detection runs against (e.g., `cloudtrail`, `github`, `okta`). RunReveal uses this to:
+
+- Validate queries against normalized schemas
+- Route detections to appropriate data sources
+- Ensure compatibility with source-specific views and tables
+
+### Query Logic
+
+The query logic is the core detection body that contains the actual SQL or Sigma pattern used to identify security events. Key components include:
+
+- **Data Source**: The table or view being queried (e.g., `aws_cloudtrail_logs`, `logs`)
+- **Filter Conditions**: Criteria that identify suspicious activity
+- **Time Windows**: Templated placeholders (`{from:DateTime}`, `{to:DateTime}`) for scheduled execution
+
+This is the executable logic that performs the actual detection work.
+
+### Detection Layers
+
+A detection can be understood as four interconnected layers:
+
+| Layer | Purpose | Components |
+|-------|---------|------------|
+| **Metadata** | Identification and versioning | Title, slug, type, timestamps |
+| **Classification** | Risk and framework mapping | Severity, risk score, MITRE ATT&CK, categories |
+| **Execution Context** | Source and schema bindings | Source types, query parameters |
+| **Logic** | Detection pattern | SQL query or Sigma rule |
+
+Together, these layers make a detection both machine-executable (for automated analysis) and human-readable (for documentation, audits, and analyst review).
+
 ## Utilizing `scheduled_query_runs`
 If you are curious if a query of yours is executing, failing, erroring, or
 your parameters are being passed correctly, the scheduled_query_runs table
@@ -24,67 +108,362 @@ is exceptionally helpful.
 For example, here's a way to look for errors that have occurred while
 executing in a detection called 'ExampleQuery'.
 
-```
+``` sql copy
 select *
 from scheduled_query_runs
 where queryName='ExampleQuery' and error!='' and executionTime > now() - interval '1 day'
 ```
 
-## Utilizing `detections`
+## SQL vs Sigma Detections
 
-The detections table is further subdivided into two views (that you can
-interact) with like a tables.
- - `signals` - Detection queries that ran with the purpose of collecting data
-   and have no notification channel configured.
- - `alerts` - Detection queries that ran and alerted one of your notification
-    channels.
+RunReveal supports two types of detections: **SQL** and **Sigma**. Understanding the differences helps you choose the right approach for your use case.
 
-The detections table contains a row for each individual row returned by your
-query. Fields returned by your query that match the column names of our defined
-schema are saved directly into those columns in the detection table.
+<Tabs items={['SQL Detections', 'Sigma Detections']}>
 
-There is a limit of 100 rows that  acn be saved with the detection table. If
-you need to exceed this limit for whatever reason, please contact us.
+<Tabs.Tab title="SQL Detections">
 
-## Detection Data Model
-The results of your detection queries are saved to the `detections` table. The
-detections table contains several fields, along with their types.
+SQL detections are scheduled queries that execute against your log data at regular intervals. They provide full SQL query capabilities and can perform complex analysis, aggregations, and joins.
 
-- `id` - `String` - Unique identified of the run
-- `scheduledRunID` - `String` - The unique identifier of the scheduled query run
-- `workspaceID` - `String` - Your workspace ID
-- `detectionID` - `String` - The identified of the detection
-- `detectionName` - `String` - The name of the detection
-- `recordsReturned` - `Int32` - The number of rows returned by the query
-- `runTime` - `Int64` - The number of nanoseconds the query took to run
-- `query` - `String` - The actual query that was run for the scheduled query
-- `params` - `Map(String, String)` - The supplied parameters to the scheduled query
-- `columnNames` - `Array(String)` - An ordered array of column names returned by the query
-- `columnTypes` - `Array(String)` - An ordered array of the column types returned by the query
-- `results` - `String` - An array of the first 100 returned values from the query
-- `severity` - `String` - A string representing the severity of the alert
-- `actor` - `Map(String, String)` - Details about the user that ran the query
-- `resources` - `Array(String)` DEFAULT [] - Details about the resources returned from the query
-- `srcIP` - `String` - Details about the srcIP in the log entries
-- `dstIP` - `String` - Details about the dstIPs from the log entries
-- `notificationNames` - `Array(String)` - The names of the notification channels
-- `categories` - `Array(String)` DEFAULT [] - The categories that the query belongs to
-- `mitreAttacks` - `Array(LowCardinality(String))` DEFAULT [] - The MITRE ATT&CK technique categories that the query belongs to
+**Characteristics:**
+- **Execution**: Runs on a schedule (e.g., every 5 minutes, hourly)
+- **Language**: Standard ClickHouse SQL
+- **Data Access**: Queries the `logs` table and custom views
+- **Use Cases**: Complex queries, aggregations, historical analysis, pattern detection across time windows
 
+**When to use SQL detections:**
+- You need complex queries with joins, aggregations, or window functions
+- You want to analyze patterns across multiple events or time periods
+- You need to query custom views or perform data transformations
+- You want to detect patterns that require historical context or correlation
 
-These tables can be accessed like any other table in RunReveal
+Learn more about writing SQL detections in the [How to Write Detections](/detections/writing-detections) guide.
 
-To query the detection table:
+</Tabs.Tab>
+
+<Tabs.Tab title="Sigma Detections">
+
+Sigma detections are streaming rules that evaluate events as they are ingested into RunReveal. They use the standardized Sigma rule format and provide real-time detection capabilities.
+
+**Characteristics:**
+- **Execution**: Evaluates events during ingestion (streaming)
+- **Language**: Sigma YAML format
+- **Data Access**: Matches against raw log events and normalized fields
+- **Use Cases**: Real-time threat detection, standardized rule sharing, simple pattern matching
+
+**When to use Sigma detections:**
+- You need real-time detection as events are ingested
+- You want to use standardized, shareable detection rules
+- You're matching simple patterns or field values
+- You want to leverage the Sigma community rule library
+- You need detections that work across different log sources with similar structure
+
+Learn more about Sigma streaming detections in the [Sigma Streaming](/detections/sigma-streaming) guide.
+
+</Tabs.Tab>
+
+</Tabs>
+
+### Comparison
+
+| Feature | SQL Detections | Sigma Detections |
+|---------|----------------|------------------|
+| **Execution Model** | Scheduled (batch) | Streaming (real-time) |
+| **Query Language** | ClickHouse SQL | Sigma YAML |
+| **Complexity** | Full SQL capabilities | Pattern matching focused |
+| **Custom Views** | Supported | Not supported |
+| **Historical Analysis** | Yes | No |
+| **Real-time Detection** | No (scheduled) | Yes (streaming) |
+| **Rule Sharing** | Custom SQL | Standardized Sigma format |
+
+### Choosing the Right Type
+
+- **Use SQL** when you need complex analysis, aggregations, or historical correlation
+- **Use Sigma** when you need real-time detection of simple patterns or want standardized, shareable rules
+
+Many organizations use both types: Sigma for real-time threat detection and SQL for complex analysis and pattern recognition across time windows.
+
+## Detections, Signals, and Alerts Tables
+
+RunReveal provides three related tables for managing detection results: `detections`, `signals`, and `alerts`.
+
+### Overview
+
+**Detections**: The base table that stores all detection query results, regardless of notification configuration.
+
+**Signals**: A view of detections that have no notification channels configured (`notificationNames` is empty), representing potential security events that require investigation but haven't triggered alerts.
+
+**Alerts**: A view of detections that have notification channels configured (`notificationNames` is not empty), representing security events that have been escalated through configured notification channels.
+
+### Relationship Between Tables
+
+- **`detections`** = All detection results (base table)
+- **`signals`** = `detections` WHERE `empty(notificationNames) = 1` (no notifications configured)
+- **`alerts`** = `detections` WHERE `empty(notificationNames) = 0` (notifications configured)
+
+The detections table contains a row for each individual row returned by your query. Fields returned by your query that match the column names of our defined schema are saved directly into those columns in the detection table.
+
+### Schema
+
+All three tables share the same schema structure. The following columns are available:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | String | Unique identifier for the detection result |
+| `scheduledRunID` | String | Identifier for the scheduled detection run |
+| `workspaceID` | String | Workspace identifier |
+| `detectionID` | String | Unique identifier for the detection rule |
+| `detectionName` | String | Human-readable name of the detection |
+| `detectionType` | LowCardinality(String) | Type of detection (e.g., "sql", "sigma") |
+| `recordsReturned` | Int32 | The number of rows returned by the detection query |
+| `runTime` | Int64 | The number of nanoseconds the query took to run |
+| `query` | String | The actual SQL query that was executed |
+| `params` | Map(String, String) | The parameters supplied to the scheduled query |
+| `columnNames` | Array(String) | An ordered array of column names returned by the query |
+| `columnTypes` | Array(String) | An ordered array of the column types returned by the query |
+| `results` | String | A JSON array of the first 100 returned values from the query |
+| `riskScore` | Int32 | The risk score associated with the detection (0-100) |
+| `severity` | String | The severity level of the detection (e.g., "low", "medium", "high", "critical") |
+| `actor` | Map(String, String) | Details about the user/actor that triggered the detection (e.g., email, username, id) |
+| `resources` | Array(String) | Details about the resources affected by the detection |
+| `srcIP` | String | Source IP address from the log entries |
+| `dstIP` | String | Destination IP address from the log entries |
+| `categories` | Array(String) | The categories that the detection belongs to |
+| `mitreAttacks` | Array(LowCardinality(String)) | The MITRE ATT&CK technique IDs that the detection maps to |
+| `notificationNames` | Array(String) | The names of the notification channels configured for this detection (available in `detections` and `alerts` tables, not in `signals` view) |
+| `error` | String | Error message if the query failed to execute |
+| `createdAt` | DateTime | The timestamp when the detection query ran |
+| `eventTime` | DateTime | The timestamp when the underlying security event occurred |
+| `receivedAt` | DateTime | The timestamp when RunReveal received the event |
+
+### Basic Queries
+
+These tables can be accessed like any other table in RunReveal:
+
+```sql copy
+-- Query all detections
+SELECT * FROM detections LIMIT 10;
 ```
-select * from detections
+
+```sql copy
+-- Query signals (detections without notifications)
+SELECT * FROM signals LIMIT 10;
 ```
 
-To query the signals view:
+```sql copy
+-- Query alerts (detections with notifications)
+SELECT * FROM alerts LIMIT 10;
 ```
-select * from signals
+### Example Use Case: Creating Alert Conditions from Signals
+
+A common use case is to query the `signals` table to identify patterns that should trigger alerts. For example, you might want to create an alert when multiple high-risk signals occur for the same actor within a short time window.
+
+<Callout type="info">
+<strong>Best Practice</strong>: Use <code>receivedAt</code> for all time-based filtering and queries. The <code>receivedAt</code> timestamp represents when RunReveal received the event and is the most reliable field for time-based analysis. Use <code>createdAt</code> only when you need to know when the detection query executed, and <code>eventTime</code> when you need the original event timestamp.
+</Callout>
+
+```sql copy
+-- Find actors with multiple high-risk signals in the last hour
+-- that haven't yet triggered alerts
+SELECT 
+    actor['email'] AS email,
+    actor['username'] AS username,
+    count() AS signal_count,
+    sum(riskScore) AS total_risk_score,
+    groupArray(detectionName) AS detection_names,
+    groupArray(mitreAttacks) AS mitre_techniques,
+    min(receivedAt) AS first_signal_time,
+    max(receivedAt) AS last_signal_time
+FROM signals
+WHERE receivedAt >= now() - INTERVAL 1 HOUR
+    AND riskScore >= 70
+    AND actor['email'] != ''
+GROUP BY email, username
+HAVING signal_count >= 3
+ORDER BY total_risk_score DESC
 ```
 
-To query the alerts view:
+This query can be used as a detection rule that monitors the `signals` table and creates alerts when the conditions are met. The detection would:
+
+1. Query the `signals` table for high-risk events in the last hour using `receivedAt`
+2. Group by actor email and username
+3. Identify actors with 3 or more high-risk signals
+4. Create an alert with the aggregated information
+
+### Example: Analyzing Detection Trends
+
+You can also query the `detections` table directly to analyze all detection activity, regardless of notification status:
+
+```sql copy
+-- Analyze detection trends by type and severity
+SELECT 
+    detectionType,
+    severity,
+    count() AS total_detections,
+    countIf(empty(notificationNames) = 0) AS alerts,
+    countIf(empty(notificationNames) = 1) AS signals,
+    avg(riskScore) AS avg_risk_score,
+    count(DISTINCT actor['email']) AS unique_actors
+FROM detections
+WHERE receivedAt >= now() - INTERVAL 24 HOUR
+GROUP BY detectionType, severity
+ORDER BY total_detections DESC
 ```
-select * from alerts
+
+This query provides insights into:
+- Which detection types are most active
+- The distribution of alerts vs signals
+- Average risk scores by type and severity
+- Number of unique actors involved
+
+### Complete Example: From Log to Detection to Signal-Based Alert
+
+This example demonstrates the complete workflow from a log entry, to a detection query that creates signals, to a detection that monitors the signals table to create alerts. We'll use a test authentication log to walk through the process.
+
+#### Step 1: Example Log Entry
+
+Here's a sample log entry sent via a structured webhook showing a suspicious login attempt:
+
+```json copy
+{
+  "timestamp": "2025-01-15T14:30:00Z",
+  "source": "test-system",
+  "eventName": "suspicious_login",
+  "severity": "high",
+  "user": "test-user",
+  "srcIP": "192.168.1.100",
+  "action": "login_attempt",
+  "result": "success",
+  "user_agent": "curl-test",
+  "metadata": {
+    "login_method": "ssh",
+    "session_id": "test-123"
+  }
+}
 ```
+
+To send this log to RunReveal, use a structured webhook source:
+
+```bash copy
+curl -X POST https://api.runreveal.com/sources/hook/YOUR_WEBHOOK_ID \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_BEARER_TOKEN" \
+  -d '{
+    "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+    "source": "test-system",
+    "eventName": "suspicious_login",
+    "severity": "high",
+    "user": "test-user",
+    "srcIP": "192.168.1.100",
+    "action": "login_attempt",
+    "result": "success",
+    "user_agent": "curl-test",
+    "metadata": {
+      "login_method": "ssh",
+      "session_id": "test-123"
+    }
+  }'
+```
+
+#### Step 2: Detection Query That Creates Signals
+
+Create a detection that identifies suspicious login attempts. This detection will write to the `signals` table (since no notification channel is configured):
+
+```sql copy
+SELECT 
+    *,
+    JSONExtractString(rawLog, 'eventName') AS eventName,
+    JSONExtractString(rawLog, 'user') AS user,
+    JSONExtractString(rawLog, 'srcIP') AS srcIP,
+    JSONExtractString(rawLog, 'user_agent') AS user_agent,
+    JSONExtractString(rawLog, 'severity') AS severity,
+    JSONExtractString(rawLog, 'metadata', 'login_method') AS login_method,
+    receivedAt
+FROM logs
+WHERE sourceType = 'structured-webhook'
+    AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
+    AND JSONExtractString(rawLog, 'severity') = 'high'
+    AND receivedAt >= {from:DateTime}
+    AND receivedAt < {to:DateTime}
+```
+
+**Detection Configuration:**
+- **Name**: `Suspicious Login Attempts`
+- **Type**: SQL
+- **Schedule**: `*/5 * * * *` (every 5 minutes)
+- **Severity**: Medium
+- **Risk Score**: 50
+- **Categories**: `["authentication", "security"]`
+- **Notification Channels**: None (this creates signals, not alerts)
+
+This detection will:
+- Match the example log entry (suspicious login with high severity)
+- Return results with user, source IP, and login method information
+- Create signals in the `signals` table for investigation and tuning
+
+#### Step 3: Detection Querying the Signals Table
+
+Create a second detection that monitors the `signals` table to identify when multiple suspicious login signals occur from the same source IP. This simple pattern indicates potential brute force attacks:
+
+```sql copy
+SELECT 
+    srcIP,
+    count() AS signal_count,
+    sum(riskScore) AS total_risk_score,
+    min(receivedAt) AS first_signal_time,
+    max(receivedAt) AS last_signal_time
+FROM signals
+WHERE receivedAt >= {from:DateTime}
+    AND receivedAt < {to:DateTime}
+    AND detectionName = 'Suspicious Login Attempts'
+    AND srcIP != ''
+GROUP BY srcIP
+HAVING signal_count >= 5
+ORDER BY signal_count DESC
+```
+
+**Detection Configuration:**
+- **Name**: `Multiple Suspicious Login Signals from Same IP`
+- **Type**: SQL
+- **Schedule**: `*/10 * * * *` (every 10 minutes)
+- **Severity**: High
+- **Risk Score**: 75
+- **Categories**: `["authentication", "brute-force"]`
+- **Notification Channels**: Email, Slack, or PagerDuty (this creates alerts)
+
+This detection would:
+- Query the `signals` table for "Suspicious Login Attempts" detection results
+- Group by source IP address
+- Identify IPs with 5 or more suspicious login signals
+- Create an alert when the threshold is met, escalating from individual signals to a pattern-based alert
+
+#### Use Case: Account Compromise Detection
+
+This pattern is useful for detecting:
+- **Brute force attacks**: Multiple failed login attempts from different IPs
+- **Account takeover**: Successful logins from unusual locations or devices
+- **Credential stuffing**: Rapid login attempts across multiple accounts
+- **Session hijacking**: Multiple concurrent sessions from different locations
+
+**Benefits of this approach:**
+1. **Reduce alert fatigue**: Individual suspicious logins create signals for investigation
+2. **Pattern recognition**: Only alert when multiple signals indicate a real threat
+3. **Tunable thresholds**: Adjust signal count and time window based on your risk tolerance
+4. **Contextual alerts**: Aggregated alerts provide better context for incident response
+
+**Workflow:**
+1. Individual suspicious logins → Create signals (no notifications)
+2. Security team reviews signals → Tune detection logic if needed
+3. Multiple signals for same user → Create alert (with notifications)
+4. Incident response team investigates → Take action based on alert context
+
+## Helpful Resources
+
+Now that you understand how to write effective detections, explore these related guides:
+
+- **[How to Write Detections](/detections/writing-detections)** - Tips and tricks to write effective detections
+- **[Detections, Signals & Alerts Quick Start Guide](/how-to-guides/detections-signals-alerts-quick-start)** - Complete setup guide for your detection workflow
+- **[Sigma Streaming](/detections/sigma-streaming)** - Use Sigma rules for standardized threat detection
+- **[Detection as Code](/detections/detection-as-code)** - Manage detections through code and version control
+- **[Notifications](/notifications/getting-started)** - Set up alerting and notification channels
+- **[Native AI Chat](/ai-chat/native-ai-chat)** - Use AI to help write and optimize detections
+- **[Model Context Protocol](/ai-chat/model-context-protocol)** - Advanced AI integration for detection development
