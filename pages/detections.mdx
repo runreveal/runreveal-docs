@@ -3,7 +3,7 @@ title: 'Security Detections - SQL & Sigma Rules'
 description: 'Write powerful security detections using SQL queries and Sigma rules. Create scheduled queries, manage detection-as-code workflows, and analyze detection results in RunReveal.'
 ---
 
-import { Callout } from 'nextra/components'
+import { Callout, Tabs } from 'nextra/components'
 
 # Detections
 
@@ -18,6 +18,88 @@ searching several underlying tables.
    contain the metadata of the associated detection, like risk score, mitre
    attacks, etc.
 
+## Anatomy of a Detection
+
+A detection in RunReveal consists of several components that work together to identify security events. Understanding these components helps you create effective detections and manage them efficiently.
+
+![Detection Example](/detections-1.png)
+
+### Detection Metadata
+
+The metadata section provides identity and operational context for the detection:
+
+| Field | Description |
+|-------|-------------|
+| **Title** | Human-readable name of the detection (e.g., "AWS Root Password Change") |
+| **Slug** | URL-friendly identifier used in APIs and detection-as-code workflows |
+| **Type** | Detection language: SQL or Sigma |
+| **Severity** | Classification level (Low, Medium, High, Critical) used for triage and prioritization |
+| **Created / Updated** | Timestamps showing detection lifecycle and last review time |
+
+This metadata enables filtering, searching, and organizing detections across your security operations.
+
+### Description and Risk Assessment
+
+| Field | Description |
+|-------|-------------|
+| **Description** | Human-readable explanation of what the detection identifies |
+| **Risk Score** | Numeric value (0-100) representing the criticality of the detected activity |
+
+The risk score enables automated prioritization, dashboard visualization, and correlation with other security events.
+
+### Categories and Tags
+
+Categories and tags provide taxonomy for organizing detections and mapping them to security frameworks:
+
+| Category Type | Purpose | Examples |
+|---------------|---------|----------|
+| **Attack Context** | MITRE ATT&CK mapping | `attack.persistence`, `attack.credential-access` |
+| **Cloud Provider** | Platform identification | `aws`, `azure`, `gcp` |
+| **Functional** | Action type | `password-change`, `privilege-escalation` |
+| **System Context** | Operational context | `identity-access-management`, `network-security` |
+
+These fields enable flexible filtering in dashboards, documentation, and API queries.
+
+### MITRE ATT&CK Mapping
+
+| Field | Description |
+|-------|-------------|
+| **Tactics** | High-level adversary objectives (e.g., persistence, privilege-escalation, credential-access) |
+| **Techniques** | Specific adversary behaviors (e.g., T1098 - Account Manipulation) |
+
+MITRE ATT&CK mapping provides standardized threat classification for threat hunting, reporting, and framework alignment.
+
+### Source Types
+
+Source types specify which log sources the detection runs against (e.g., `cloudtrail`, `github`, `okta`). RunReveal uses this to:
+
+- Validate queries against normalized schemas
+- Route detections to appropriate data sources
+- Ensure compatibility with source-specific views and tables
+
+### Query Logic
+
+The query logic is the core detection body that contains the actual SQL or Sigma pattern used to identify security events. Key components include:
+
+- **Data Source**: The table or view being queried (e.g., `aws_cloudtrail_logs`, `logs`)
+- **Filter Conditions**: Criteria that identify suspicious activity
+- **Time Windows**: Templated placeholders (`{from:DateTime}`, `{to:DateTime}`) for scheduled execution
+
+This is the executable logic that performs the actual detection work.
+
+### Detection Layers
+
+A detection can be understood as four interconnected layers:
+
+| Layer | Purpose | Components |
+|-------|---------|------------|
+| **Metadata** | Identification and versioning | Title, slug, type, timestamps |
+| **Classification** | Risk and framework mapping | Severity, risk score, MITRE ATT&CK, categories |
+| **Execution Context** | Source and schema bindings | Source types, query parameters |
+| **Logic** | Detection pattern | SQL query or Sigma rule |
+
+Together, these layers make a detection both machine-executable (for automated analysis) and human-readable (for documentation, audits, and analyst review).
+
 ## Utilizing `scheduled_query_runs`
 If you are curious if a query of yours is executing, failing, erroring, or
 your parameters are being passed correctly, the scheduled_query_runs table
@@ -31,6 +113,74 @@ select *
 from scheduled_query_runs
 where queryName='ExampleQuery' and error!='' and executionTime > now() - interval '1 day'
 ```
+
+## SQL vs Sigma Detections
+
+RunReveal supports two types of detections: **SQL** and **Sigma**. Understanding the differences helps you choose the right approach for your use case.
+
+<Tabs items={['SQL Detections', 'Sigma Detections']}>
+
+<Tabs.Tab title="SQL Detections">
+
+SQL detections are scheduled queries that execute against your log data at regular intervals. They provide full SQL query capabilities and can perform complex analysis, aggregations, and joins.
+
+**Characteristics:**
+- **Execution**: Runs on a schedule (e.g., every 5 minutes, hourly)
+- **Language**: Standard ClickHouse SQL
+- **Data Access**: Queries the `logs` table and custom views
+- **Use Cases**: Complex queries, aggregations, historical analysis, pattern detection across time windows
+
+**When to use SQL detections:**
+- You need complex queries with joins, aggregations, or window functions
+- You want to analyze patterns across multiple events or time periods
+- You need to query custom views or perform data transformations
+- You want to detect patterns that require historical context or correlation
+
+Learn more about writing SQL detections in the [How to Write Detections](/detections/writing-detections) guide.
+
+</Tabs.Tab>
+
+<Tabs.Tab title="Sigma Detections">
+
+Sigma detections are streaming rules that evaluate events as they are ingested into RunReveal. They use the standardized Sigma rule format and provide real-time detection capabilities.
+
+**Characteristics:**
+- **Execution**: Evaluates events during ingestion (streaming)
+- **Language**: Sigma YAML format
+- **Data Access**: Matches against raw log events and normalized fields
+- **Use Cases**: Real-time threat detection, standardized rule sharing, simple pattern matching
+
+**When to use Sigma detections:**
+- You need real-time detection as events are ingested
+- You want to use standardized, shareable detection rules
+- You're matching simple patterns or field values
+- You want to leverage the Sigma community rule library
+- You need detections that work across different log sources with similar structure
+
+Learn more about Sigma streaming detections in the [Sigma Streaming](/detections/sigma-streaming) guide.
+
+</Tabs.Tab>
+
+</Tabs>
+
+### Comparison
+
+| Feature | SQL Detections | Sigma Detections |
+|---------|----------------|------------------|
+| **Execution Model** | Scheduled (batch) | Streaming (real-time) |
+| **Query Language** | ClickHouse SQL | Sigma YAML |
+| **Complexity** | Full SQL capabilities | Pattern matching focused |
+| **Custom Views** | Supported | Not supported |
+| **Historical Analysis** | Yes | No |
+| **Real-time Detection** | No (scheduled) | Yes (streaming) |
+| **Rule Sharing** | Custom SQL | Standardized Sigma format |
+
+### Choosing the Right Type
+
+- **Use SQL** when you need complex analysis, aggregations, or historical correlation
+- **Use Sigma** when you need real-time detection of simple patterns or want standardized, shareable rules
+
+Many organizations use both types: Sigma for real-time threat detection and SQL for complex analysis and pattern recognition across time windows.
 
 ## Detections, Signals, and Alerts Tables
 
