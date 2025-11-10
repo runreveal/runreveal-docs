@@ -54,9 +54,10 @@ Categories and tags provide taxonomy for organizing detections and mapping them 
 | Category Type | Purpose | Examples |
 |---------------|---------|----------|
 | **Attack Context** | MITRE ATT&CK mapping | `attack.persistence`, `attack.credential-access` |
-| **Cloud Provider** | Platform identification | `aws`, `azure`, `gcp` |
-| **Functional** | Action type | `password-change`, `privilege-escalation` |
+| **Service Provider** | Platform identification | `aws`, `azure`, `gcp`, `github` |
+| **Security Category** | Security Domain classification based on [OCSF Schema](https://schema.ocsf.io) | `password-change`, `privilege-escalation` |
 | **System Context** | Operational context | `identity-access-management`, `network-security` |
+| **Signal Classification** | Distinction between signal and alert | `signal`, `non-signal` |
 
 These fields enable flexible filtering in dashboards, documentation, and API queries.
 
@@ -114,15 +115,17 @@ from scheduled_query_runs
 where queryName='ExampleQuery' and error!='' and executionTime > now() - interval '1 day'
 ```
 
-## SQL vs Sigma Detections
+This information is also available in the Source > Overview > Errors page, or [the combined source errors view[(https://app.runreveal.com/dash/sources/errors).
 
-RunReveal supports two types of detections: **SQL** and **Sigma**. Understanding the differences helps you choose the right approach for your use case.
+## SQL vs Streaming Detections
 
-<Tabs items={['SQL Detections', 'Sigma Detections']}>
+RunReveal supports two types of detections: **SQL** and **Streaming** (Sigma). Understanding the differences helps you choose the right approach for your use case.
+
+<Tabs items={['SQL Detections', 'Streaming Detections']}>
 
 <Tabs.Tab title="SQL Detections">
 
-SQL detections are scheduled queries that execute against your log data at regular intervals. They provide full SQL query capabilities and can perform complex analysis, aggregations, and joins.
+SQL detections are scheduled queries that execute against your log data at regular intervals. They provide full SQL query capabilities and can perform complex analysis, aggregations, contexts, and joins.
 
 **Characteristics:**
 - **Execution**: Runs on a schedule (e.g., every 5 minutes, hourly)
@@ -140,9 +143,9 @@ Learn more about writing SQL detections in the [How to Write Detections](/detect
 
 </Tabs.Tab>
 
-<Tabs.Tab title="Sigma Detections">
+<Tabs.Tab title="Streaming Detections">
 
-Sigma detections are streaming rules that evaluate events as they are ingested into RunReveal. They use the standardized Sigma rule format and provide real-time detection capabilities.
+Streaming detections are expressiosn that evaluate events as they are ingested into RunReveal. They use the standardized Sigma rule format and provide real-time detection capabilities.
 
 **Characteristics:**
 - **Execution**: Evaluates events during ingestion (streaming)
@@ -165,7 +168,7 @@ Learn more about Sigma streaming detections in the [Sigma Streaming](/detections
 
 ### Comparison
 
-| Feature | SQL Detections | Sigma Detections |
+| Feature | SQL Detections | Streaming Detections |
 |---------|----------------|------------------|
 | **Execution Model** | Scheduled (batch) | Streaming (real-time) |
 | **Query Language** | ClickHouse SQL | Sigma YAML |
