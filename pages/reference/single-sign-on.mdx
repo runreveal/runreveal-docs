@@ -1,20 +1,20 @@
 ---
 title: 'Single Sign-On (SSO) Configuration'
-description: 'Configure SAML-based SSO for RunReveal using SSOReady. Integrate with Okta, Azure AD, Google Workspace, and other SAML 2.0 identity providers.'
-keywords: 'SSO, SAML, single sign-on, SSOReady, authentication, Okta, Azure AD'
+description: 'Configure SAML-based SSO for RunReveal using WorkOS. Integrate with Okta, Azure AD, Google Workspace, and other SAML 2.0 identity providers.'
+keywords: 'SSO, SAML, single sign-on, WorkOS, authentication, Okta, Azure AD'
 ---
 
 import { Callout, Steps, Tabs } from 'nextra/components'
 
 # Single Sign-On (SSO) Configuration
 
-RunReveal provides Single Sign-On (SSO) capabilities through SSOReady, enabling your organization to authenticate users via your existing identity provider (IdP) using SAML 2.0. This integration allows centralized user authentication while maintaining security compliance requirements and simplifying access management across your security operations team.
+RunReveal provides Single Sign-On (SSO) capabilities through WorkOS, enabling your organization to authenticate users via your existing identity provider (IdP) using SAML 2.0. This integration allows centralized user authentication while maintaining security compliance requirements and simplifying access management across your security operations team.
 
 SSO implementation in RunReveal focuses on streamlining the authentication process without compromising the platform's security-first approach. The integration validates users against your organization's identity provider while preserving RunReveal's role-based access control (RBAC) system for workspace permissions.
 
 ## How SSO Works in RunReveal
 
-The SSO authentication flow operates through a SAML-based validation process that connects your identity provider with RunReveal's authentication system. When a user attempts to sign in with SSO, RunReveal redirects them to your configured identity provider for authentication. Upon successful validation, the identity provider sends a SAML assertion back to RunReveal via SSOReady, confirming the user's identity and email domain ownership.
+The SSO authentication flow operates through a SAML-based validation process that connects your identity provider with RunReveal's authentication system. When a user attempts to sign in with SSO, RunReveal redirects them to your configured identity provider for authentication. Upon successful validation, the identity provider sends a SAML assertion back to RunReveal via WorkOS, confirming the user's identity and email domain ownership.
 
 This process ensures that authentication remains within your organization's control while RunReveal handles authorization through its existing workspace and role management system. The separation of authentication (handled by your IdP) and authorization (managed by RunReveal) provides flexibility in user management while maintaining security boundaries.
 
@@ -41,7 +41,7 @@ Contact RunReveal support to initiate the SSO configuration process. Provide the
 
 ### Receive Configuration Link
 
-RunReveal will generate a unique SSOReady configuration link specifically for your organization. This link provides access to the self-service setup portal where you'll configure the connection between your identity provider and RunReveal.
+RunReveal will generate a unique WorkOS configuration link specifically for your organization. This link provides access to the self-service setup portal where you'll configure the connection between your identity provider and RunReveal.
 
 <Callout type="warning">
 Configuration links expire after 24 hours for security purposes. If your link expires or is accessed by an unauthorized user, contact RunReveal support for a new link generation.
@@ -49,9 +49,9 @@ Configuration links expire after 24 hours for security purposes. If your link ex
 
 ### Configure Identity Provider
 
-Access the SSOReady configuration portal using your provided link. The portal guides you through configuring your specific identity provider with the necessary SAML endpoints, certificates, and attribute mappings. The configuration interface adapts based on your selected IdP, providing provider-specific instructions and validation steps.
+Access the WorkOS configuration portal using your provided link. The portal guides you through configuring your specific identity provider with the necessary SAML endpoints, certificates, and attribute mappings. The configuration interface adapts based on your selected IdP, providing provider-specific instructions and validation steps.
 
-Follow the provider-specific configuration guide available at [SSOReady IdP Configuration](https://ssoready.com/docs/idp-configuration/enabling-self-service-configuration-for-your-customers) for detailed setup instructions tailored to your identity provider.
+Follow one of the provider-specific configuration guide available at [WorkOS SAML integration guides](https://workos.com/docs/integrations) for detailed setup instructions tailored to your identity provider.
 
 ### User Provisioning
 
@@ -131,12 +131,13 @@ When SSO authentication fails, systematically verify each component of the authe
 1. **Domain Verification**: Confirm the user's email domain matches configured SSO domains exactly (including subdomains if applicable)
 2. **User Invitation Status**: Verify the user has an active invitation or existing account in the RunReveal workspace
 3. **SAML Certificate**: Check certificate expiration dates and ensure proper certificate chain validation
-4. **Network Connectivity**: Ensure firewall rules permit SAML assertion posts from your IdP to SSOReady endpoints
+4. **Network Connectivity**: Ensure firewall rules permit SAML assertion posts from your IdP to WorkOS endpoints
+5. **IdP Configuration**: Ensure you followed the setup instructions from WorkOS, including the appropriate [attribute mapping](https://workos.com/docs/integrations/google-saml/5-configure-attribute-mapping)
 
 ### Support Resources
 
 For SSO configuration assistance or troubleshooting:
-- **Documentation**: [SSOReady Configuration Guides](https://ssoready.com/docs)
+- **Documentation**: [WorkOS integration guides](https://workos.com/docs/integrations)
 - **Audit Logs**: Review authentication attempts in both RunReveal and your IdP audit systems
 
 <Callout type="info">
