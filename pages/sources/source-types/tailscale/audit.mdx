@@ -3,6 +3,8 @@ title: 'Tailscale Audit Logs'
 description: 'Tailscale is a VPN service that simplifies secure network connections using a peer-to-peer mesh network. Tailscale audit logs capture information about user and device activity, such as authentication events, access control changes, connection attempts, and traffic flow across the network. These logs are valuable for monitoring network security, tracking who accessed resources, and auditing for compliance with access policies.'
 ---
 
+import { Callout } from 'nextra/components'
+
 # Tailscale Audit Logs
 
 Tailscale is a VPN service that simplifies secure network connections using a peer-to-peer mesh network. Tailscale audit logs capture information about user and device activity, such as authentication events, access control changes, connection attempts, and traffic flow across the network. These logs are valuable for monitoring network security, tracking who accessed resources, and auditing for compliance with access policies.
@@ -14,14 +16,35 @@ When first added RunReveal will backfill the last 30 days worth of audit logs.
 
 ## Setup
 
-Create a new OAuth Client under your Tailnet settings and provide it the
-Audit Logs Read scope.
+<Callout type="warning">
+**Important:** When setting up your OAuth client, please only enable the read permissions for audit logs. Do not grant any other permissions or the source will fail.
+</Callout>
+
+### Step 1: Create an OAuth Client in Tailscale
+
+To set up the Tailscale integration, you need to create an OAuth client in your Tailnet settings. For detailed instructions, see the [Tailscale OAuth client documentation](https://tailscale.com/kb/1215/oauth-clients#setting-up-an-oauth-client).
+
+**Brief setup steps:**
+
+1. Log into your Tailscale admin console
+2. Navigate to the [Trust credentials page](https://login.tailscale.com/admin/settings/trust-credentials)
+3. Click **Create OAuth client**
+4. Give your client a descriptive name (e.g., "RunReveal Audit Logs")
+5. Select the **Audit Logs Read** scope only
+6. Click **Create**
 
 <img style={{maxWidth:"500px"}} src="/tailscale-audit-1.png"/>
 
+### Step 2: Configure RunReveal
 
-Once created, you'll be provided a `Client ID` and a `Client secret`. Paste these
-into the RunReveal dashboard, along with the name of your tailnet, and we'll begin
-collecting your tailscale logs immediately.
+Once created, you'll be provided a `Client ID` and a `Client secret`. 
+
+1. In the RunReveal dashboard, enter your **tailnet name** (not the tailnet ID)
+   - You can find your tailnet name in the General page of the Tailscale admin console
+2. Copy both the `Client ID` and `Client secret` from the OAuth client you just created
+3. Paste these credentials into the corresponding fields in RunReveal
+4. Click **Connect** to begin collecting your Tailscale audit logs
 
 <img style={{maxWidth:"700px"}} src="/tailscale-audit-2.png"/>
+
+RunReveal will begin collecting your Tailscale logs immediately and backfill the last 30 days of audit logs.
