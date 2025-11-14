@@ -35,6 +35,31 @@ export default withYAML(withNextra({
         destination: '/detections/writing-detections',
         permanent: true,
       },
+      {
+        source: '/pipelines',
+        destination: '/logs/pipelines',
+        permanent: true,
+      },
+      {
+        source: '/pipelines/:path*',
+        destination: '/logs/pipelines/:path*',
+        permanent: true,
+      },
+      {
+        source: '/transforms',
+        destination: '/logs/transforms',
+        permanent: true,
+      },
+      {
+        source: '/custom-views',
+        destination: '/logs/custom-views',
+        permanent: true,
+      },
+      {
+        source: '/filtering',
+        destination: '/logs/filtering',
+        permanent: true,
+      },
     ]
   },
 }))

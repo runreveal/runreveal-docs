@@ -1,0 +1,312 @@
+---
+title: 'Pipelines Overview'
+description: 'Fine-grained control over log event processing with topics, pipelines, and steps for advanced data routing and filtering.'
+---
+
+import { Image, Callout, Tabs, Steps } from 'nextra/components'
+
+# Pipelines Overview
+
+Pipelines provide fine-grained control over log event processing. They consist of **topics** (which filter events) and **pipelines** (which process the filtered events through a series of steps). By mixing and rearranging pipeline steps, you can control how your events are transformed before being sent to their destinations.
+
+<Callout type="info">
+<strong>Getting Started</strong>: Navigate to <strong>Pipelines</strong> in RunReveal to create your first topic and pipeline, or manage existing ones.
+</Callout>
+
+## Pipeline Architecture
+
+```
+Source → Topics (Filter) → Pipeline (Process) → Destination
+```
+
+### Event Flow
+1. **Events arrive** from your configured sources
+2. **Topics filter** events based on preconditions
+3. **Pipelines process** filtered events through steps
+4. **Events are sent** to their final destinations
+
+## Topics: Event Filtering
+
+Topics apply filters to select subsets of events before they enter a pipeline. They use preconditions to determine which events get routed to specific pipelines.
+
+### Topic Preconditions
+Topics use preconditions to determine which events get routed to specific pipelines:
+
+- **Source-based**: Route events from specific sources (e.g., `webhook` sources)
+- **Field-based**: Route events based on field values
+- **Custom criteria**: Any combination of filtering conditions
+
+### Managing Topics
+
+To manage your topics, navigate to the [Pipelines Page](https://app.runreveal.com/dash/pipelines).
+
+<img src="/routing-topic-list.png" width={600} style={{display: "block", margin: "0 auto", borderRadius: "5px"}}/>
+
+**Topic Evaluation Order:**
+- Events are evaluated against topics **from top to bottom**
+- Events that don't match any custom topics go to the **default RunReveal pipeline**
+- Topics can be reordered by dragging them up/down in the list
+
+### Creating a Topic
+
+<Steps>
+
+### 1) Start Topic Creation
+
+Click the **"Create Topic"** button to open the topic creation wizard.
+
+<img src="/routing-topic-create-1.png" width={600} style={{display: "block", margin: "0 auto", borderRadius: "5px"}}/>
+
+### 2) Configure Topic Details
+
+Each topic needs a name and a precondition. The precondition determines which subset of events will be routed to your topic.
+
+<img src="/routing-topic-create-2.png" width={600} style={{display: "block", margin: "0 auto", borderRadius: "5px"}}/>
+
+**Example**: The precondition above matches any events coming from `webhook` sources.
+
+### 3) Choose Pipeline Configuration
+
+Configure where your matching events will be processed:
+
+<img src="/routing-topic-create-3.png" width={600} style={{display: "block", margin: "0 auto", borderRadius: "5px"}}/>
+
+**Options:**
+- **Use an existing pipeline**: Reuse pipelines across multiple topics
+- **Create a new pipeline**: Start with a fresh pipeline from scratch
+- **Copy from an existing pipeline**: Build on top of existing processing
+
+### 4) Configure Pipeline Steps
+
+You're brought to the pipeline editor to configure how events are processed.
+
+<img src="/routing-topic-create-4.png" width={600} style={{display: "block", margin: "0 auto", borderRadius: "5px"}}/>
+
+Click **Complete** to finish the wizard and set up your new resources.
+
+</Steps>
+
+## Pipelines: Event Processing
+
+Pipelines detail how events are processed before being sent to their final destinations. They consist of steps that are evaluated **in order from top to bottom**. Each step includes a function to apply and a precondition to select which events the step applies to.
+
+<img src="/routing-pipeline-list.png" width={600} style={{display: "block", margin: "0 auto", borderRadius: "5px"}}/>
+
+### Available Step Types
+
+Pipeline steps are executed in order from top to bottom. Each step can have preconditions to determine which events it applies to.
+
+<Tabs items={['Transform', 'Enrich', 'Filter', 'Detect', 'Sample', 'Drop', 'Store']} defaultIndex="0">
+
+<Tabs.Tab>
+
+### Transform
+**Purpose**: Modify event data structure and content
+
+**What happens**: Events are transformed according to your transform rules. Fields can be mapped, renamed, or restructured.
+
+**Example**: Normalize different log formats into a standard structure
+
+**When to use**: Standardizing data from different sources, cleaning up field names, restructuring JSON
+
+[Transform Documentation](/logs/transforms)
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Enrich
+**Purpose**: Add additional context to events
+
+**What happens**: External data is added to events (threat intelligence, user context, geographic data, etc.)
+
+**Example**: Add IP geolocation data or threat intelligence lookups
+
+**When to use**: Enhancing events with contextual information for better analysis
+
+[Enrichment Documentation](/enrichments)
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Filter
+**Purpose**: Apply source-level filtering rules
+
+**What happens**: Events are evaluated against filter rules. They can be dropped, archived, or passed through.
+
+**Example**: Drop events from test environments or archive low-priority events
+
+**When to use**: Applying organization-wide filtering rules based on source configuration
+
+[Filtering Documentation](/logs/filtering)
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Detect
+**Purpose**: Run streaming detections (Sigma rules) on events
+
+**What happens**: Events are evaluated against detection rules. Matches can trigger alerts or notifications.
+
+**Example**: Detect suspicious login patterns or unauthorized access attempts
+
+**When to use**: Real-time threat detection as events are ingested
+
+[Streaming Detection Documentation](/detections/sigma-streaming)
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Sample
+**Purpose**: Reduce event volume by sampling a percentage
+
+**What happens**: A random percentage of matching events pass through. The rest are dropped.
+
+**Example**: Sample 10% of high-volume, low-value events
+
+**When to use**: Cost optimization for noisy sources, performance tuning
+
+Configure the sample percentage (0.0 to 1.0) to control how many events pass through.
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Drop
+**Purpose**: Remove events from processing
+
+**What happens**: Matching events are immediately dropped and won't be processed further or stored.
+
+**Example**: Drop health check events or test data
+
+**When to use**: Removing noise, excluding unwanted events, filtering test data
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Store
+**Purpose**: Route events to specific destinations
+
+**What happens**: Events are tagged for routing to external systems or destinations.
+
+**Example**: Send security events to a SIEM, send audit logs to long-term storage
+
+**When to use**: Routing events to external systems, configuring destination-specific workflows
+
+Events are automatically stored in ClickHouse by default. Use this step to route to additional destinations.
+
+</Tabs.Tab>
+
+</Tabs>
+
+### Creating a Pipeline
+
+<Steps>
+
+### 1) Access Pipeline Editor
+
+Click **"Add Pipeline"** or edit an existing pipeline to open the pipeline editor.
+
+<img src="/routing-pipeline-create-1.png" width={600} style={{display: "block", margin: "0 auto", borderRadius: "5px"}}/>
+
+### 2) Build Your Pipeline
+
+- **Left column**: Your pipeline steps
+- **Right column**: Available steps to add
+- **Drag and drop**: Add steps from right to left column
+- **Reorder**: Drag steps up/down to change evaluation order
+
+### 3) Configure Step Preconditions
+
+Each step can have preconditions to determine which events it applies to.
+
+</Steps>
+
+<Callout type="warning">
+<strong>Shared Pipeline Warning</strong>: When editing a pipeline shared between multiple topics, you'll be prompted to unlock it first. Changes affect all matching topics - proceed with caution.
+</Callout>
+
+## Precondition Types
+
+Preconditions are used by topics and pipeline steps to determine which events they apply to. All preconditions use the same matching logic.
+
+<Tabs items={['Exact Match', 'Not Equal', 'Regex', 'Is Empty', 'CIDR Match']} defaultIndex="0">
+
+<Tabs.Tab>
+
+### Exact Match
+Match exact string values.
+
+**Example:**
+- **Field**: `normalized.actor.email`
+- **Type**: `exact`
+- **Value**: `admin@company.com`
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Not Equal
+Exclude specific values.
+
+**Example:**
+- **Field**: `normalized.service.name`
+- **Type**: `notEqual`
+- **Value**: `health-check`
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Regex
+Pattern matching in log content.
+
+**Example:**
+- **Field**: Select `other`, then enter `rawLog` in custom field input
+- **Type**: `regex`
+- **Value**: `"app_name","value":"Material Security"`
+
+**Note**: When targeting `rawLog` or custom GJSON paths, select `other` as the field type, then enter the field path in the custom field input.
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Is Empty
+Find events with missing data.
+
+**Example:**
+- **Field**: `normalized.src.ip`
+- **Type**: `isEmpty`
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### CIDR Match
+Network-based filtering using CIDR notation.
+
+**Example:**
+- **Field**: `normalized.src.ip`
+- **Type**: `cidrMatch`
+- **Value**: `10.0.0.0/8`
+
+</Tabs.Tab>
+
+</Tabs>
+
+### Field Targeting
+
+**Standard Fields**: Select from the dropdown (e.g., `normalized.actor.email`, `normalized.src.ip`, `normalized.eventName`).
+
+**Custom Fields**: Select `other` as the field type, then enter:
+- `rawLog` - Entire raw log content
+- GJSON paths - For nested JSON structures (e.g., `events.0.parameters.#(name="client_id").value`)
+
+<Callout type="warning">
+<strong>Google Workspace Integration</strong>: Processes logs through Google Admin SDK, which changes the JSON structure of rawLog. Use GJSON paths or regex on rawLog for reliable targeting. When targeting rawLog, select `other` as the field type, then enter `rawLog` in the custom field input. Field paths may not match original audit log structure.
+</Callout>
