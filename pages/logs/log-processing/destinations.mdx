@@ -1,0 +1,70 @@
+---
+title: 'Destinations'
+description: 'Route log events to external storage systems and databases for archival, backup, and custom workflows'
+---
+
+import { Callout } from 'nextra/components'
+
+# Destinations
+
+Destinations allow you to route log events to external storage systems and databases. By default, all events are automatically stored in ClickHouse for querying and analysis. You can configure additional destinations to send events to object storage (S3, R2, GCS, Azure) or custom ClickHouse instances for backup, archival, or custom workflows.
+
+<Callout type="info">
+<strong>Default Behavior</strong>: All events are automatically stored in ClickHouse by default. You don't need to configure a destination unless you want to route events to additional storage systems.
+</Callout>
+
+## Destination Types
+
+### ClickHouse
+
+ClickHouse destinations store events in a ClickHouse database for real-time querying, analysis, and all RunReveal features. You can configure multiple ClickHouse destinations, with one marked as the default.
+
+**Use cases:**
+- Primary data storage for querying and analysis
+- Custom ClickHouse instances for specific workflows
+- Data replication across multiple databases
+
+### Object Storage (S3, R2, GCS, Azure)
+
+Object storage destinations write events to cloud storage buckets for archival, backup, and long-term retention.
+
+**Supported providers:**
+- **Amazon S3**: Write logs to S3 buckets
+- **Cloudflare R2**: Write logs to R2 buckets
+- **Google Cloud Storage**: Write logs to GCS buckets
+- **Azure Blob Storage**: Write logs to Azure storage containers
+
+**Use cases:**
+- Long-term archival of log data
+- Backup and disaster recovery
+- Compliance and retention requirements
+- Cost-effective storage for historical data
+
+## Configuration
+
+Destinations are configured in the RunReveal UI under **Destinations**. Each destination requires:
+
+- **Name**: A unique identifier for the destination
+- **Type**: ClickHouse or object storage provider
+- **Settings**: Type-specific configuration (connection details, bucket names, paths, etc.)
+- **Credentials**: Authentication information (stored securely)
+
+### ClickHouse Configuration
+
+- **Host**: ClickHouse server address
+- **Port**: ClickHouse server port
+- **Database**: Target database name
+- **Credentials**: Username and password
+- **Default destination**: Mark as default (only one can be default)
+
+### Object Storage Configuration
+
+- **Provider**: S3, R2, GCS, or Azure
+- **Bucket/Container**: Storage bucket or container name
+- **Path**: Optional path prefix for organizing events
+- **Credentials**: Provider-specific authentication (access keys, service accounts, etc.)
+
+## Related Documentation
+
+- **[Pipelines](/logs/log-processing/getting-started)** - Learn how to route events to destinations using pipeline steps
+
