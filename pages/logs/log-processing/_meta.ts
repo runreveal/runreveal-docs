@@ -2,6 +2,7 @@ export default {
   "getting-started": "Pipelines",
   "transforms": "Transforms",
   "filtering": "Filtering",
-  "enrichments": "Enrichments"
+  "enrichments": "Enrichments",
+  "destinations": "Destinations"
 }
 

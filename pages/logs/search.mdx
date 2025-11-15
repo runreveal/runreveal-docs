@@ -75,6 +75,22 @@ The data table displays the raw event data returned by your query. Each row repr
 
 You can interact with the table by clicking on individual rows to see full event details, selecting which columns to display, sorting by column values, and scrolling through all matching events. The table also shows query performance metrics including the number of rows returned and execution time.
 
+## Query Tips
+
+Follow these tips to improve query performance and get faster results:
+
+- **Use source-specific views**: Instead of querying the `logs` table, use source-specific views like `okta_logs`, `aws_cloudtrail_logs`, or `github_logs`. These views are optimized for their respective sources and can significantly improve query speed.
+
+- **Filter by sourceType**: When querying the `logs` table, add a filter on `sourceType` to narrow down results to specific log sources. This reduces the amount of data that needs to be scanned.
+
+- **Use smaller time ranges**: Shorter time windows (e.g., 1 hour or 1 day) process faster than longer ranges (e.g., 30 days). Start with a smaller time range to test your query, then expand if needed.
+
+- **Add specific filters early**: Apply filters on indexed fields (like `sourceType`, `sourceID`, or normalized fields) as early as possible in your query to reduce the dataset size before processing.
+
+- **Limit result sets**: Use the LIMIT clause or set reasonable result limits to avoid processing and returning excessive amounts of data.
+
+- **Use aggregations**: When possible, use aggregation functions (COUNT, SUM, etc.) instead of returning all individual events. Aggregations are more efficient for large datasets.
+
 ## Related Documentation
 
 - **[Pipelines](/logs/log-processing/getting-started)** - Build and manage data processing pipelines
