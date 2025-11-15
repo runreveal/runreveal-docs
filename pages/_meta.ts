@@ -11,7 +11,6 @@ export default {
   "logs": "Log Management",
   "sources": "Sources",
   "detections": "Detections",
-  "enrichments": "Enrichments",
   "notifications": "Notifications",
   "integrations": "Integrations",
   "dashboards": "Dashboards & Graphs",

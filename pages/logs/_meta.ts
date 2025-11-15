@@ -1,8 +1,6 @@
 export default {
   "search": "Explore Logs",
-  "pipelines": "Pipelines",
-  "transforms": "Transforms",
-  "filtering": "Filtering",
+  "log-processing": "Log Processing",
   "custom-views": "Custom Views"
 }
 
