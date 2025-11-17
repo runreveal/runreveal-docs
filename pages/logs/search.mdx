@@ -1,0 +1,102 @@
+---
+title: 'Explore Logs'
+description: "Search and query your logs using RunReveal's powerful search interface"
+---
+
+import { Callout } from 'nextra/components'
+
+# Explore Logs
+
+RunReveal provides a powerful search interface for querying and analyzing your log data. Use the search functionality to find specific events, filter by time ranges, and explore your log data.
+
+![Search Interface](/search-logs-1.png)
+
+## Overview
+
+The Explore interface is organized into several key sections:
+
+### 1. Top Bar
+The top bar provides quick access to key features:
+
+1. Click **"New +"** to open a new tab to run a new query
+2. Click the **"table"** icon to view the schema for each source
+3. Click the **"Folder"** icon to view saved detections
+4. Click the **"history"** icon to view your query history
+5. Click the tabs of queries that you've run to edit or run new queries
+
+### 2. Table Selector, Time Range, and Interval Controls
+This section contains the primary query controls:
+
+- **Table Selector**: Choose which log source or view to query. Select from available tables such as `logs`, source-specific views like `okta_logs` or `aws_cloudtrail_logs`, or custom views you've created. The selected table determines which data is available for your query.
+- **Time Range dropdown**: Select the time window for your query (e.g., "now-6d to now+1h" - last 6 days to 1 hour in the future). This determines which events are included in your analysis.
+- **Interval dropdown**: Set the time bucket granularity (e.g., "6 hours") for aggregating events in the visualization. This controls how events are grouped together in the chart.
+
+### 3. Edit as SQL or Create Detection Buttons
+These buttons provide additional query options:
+
+- **Edit as SQL**: View or modify the current query in SQL format. This allows you to see the generated SQL query and make manual edits if needed.
+- **Create New Detection**: Convert your current Explore query into a **Detection rule**. This lets you take an investigative query and transform it into an automated alert that will trigger when matching events occur in the future.
+
+### 4. Fields, Filter, and Group Controls
+Three toggle buttons provide access to different configuration panels:
+
+- **Fields**: Select which columns are displayed in the data table grid. Choose from normalized fields (common across all sources) and source-specific fields. Your column selections are saved per table.
+- **Filter**: Create filters to narrow down results by specific field values. Add multiple filters using the `+` button to create AND conditions. Use the "Clear Filter" link to remove all active filters.
+- **Group**: Select a column to group the histogram results by. When a group column is selected, the chart displays multiple series (one for each distinct value), allowing you to compare patterns across different groups over time.
+
+### 5. Visualization Chart
+The main **time series chart** displays your query results over time. Each bar represents the count of events within that time bucket (based on your interval setting). When you select a group column, the chart shows multiple colored series, one for each distinct value in that column.
+
+The Y-axis shows event count, and the X-axis shows time buckets. You can click and drag on the chart to select a time range, which automatically updates your time filter. The chart automatically updates when you modify filters, time range, interval settings, or group selections.
+
+### 6. Link Investigation Button
+Creates a **shareable link** to your current Explore session, preserving your table selection, time range, filters, and visualization settings. This is useful for:
+- Sharing findings with team members
+- Documenting investigation steps
+- Returning to a specific query configuration later
+
+### 7. Results View
+The Results View toggle allows you to switch between different ways to view your query results:
+- **Raw**: Displays the normalized fields extracted from your log events, showing the structured data that RunReveal has processed and standardized across all sources
+- **JSON**: Displays the raw JSON format of the query results, useful for detailed inspection of event data structure and values
+- **Table**: Displays query results in a structured tabular format with sortable columns, allowing you to view individual log events in an organized grid
+
+### 8. Export Options
+Provides buttons to export your query results or visualization:
+- Export raw data (CSV/JSON)
+- Export chart images
+- Copy query to clipboard
+
+### 9. Reset Button
+The reset button allows you to reset the grid view, clearing any column customizations, sorting, or filtering applied to the data table. This restores the table to its default state.
+
+### 10. Data Table
+The data table displays the raw event data returned by your query. Each row represents a single log event, with columns showing the various fields and attributes associated with that event. The table includes normalized fields common across all log sources (such as timestamps, source information, and network data) as well as source-specific fields extracted from the raw log data.
+
+You can interact with the table by clicking on individual rows to see full event details, selecting which columns to display, sorting by column values, and scrolling through all matching events. The table also shows query performance metrics including the number of rows returned and execution time.
+
+## Query Tips
+
+Follow these tips to improve query performance and get faster results:
+
+- **Use source-specific views**: Instead of querying the `logs` table, use source-specific views like `okta_logs`, `aws_cloudtrail_logs`, or `github_logs`. These views are optimized for their respective sources and can significantly improve query speed.
+
+- **Filter by sourceType**: When querying the `logs` table, add a filter on `sourceType` to narrow down results to specific log sources. This reduces the amount of data that needs to be scanned.
+
+- **Use smaller time ranges**: Shorter time windows (e.g., 1 hour or 1 day) process faster than longer ranges (e.g., 30 days). Start with a smaller time range to test your query, then expand if needed.
+
+- **Add specific filters early**: Apply filters on indexed fields (like `sourceType`, `sourceID`, or normalized fields) as early as possible in your query to reduce the dataset size before processing.
+
+- **Limit result sets**: Use the LIMIT clause or set reasonable result limits to avoid processing and returning excessive amounts of data.
+
+- **Use aggregations**: When possible, use aggregation functions (COUNT, SUM, etc.) instead of returning all individual events. Aggregations are more efficient for large datasets.
+
+## Related Documentation
+
+- **[Pipelines](/logs/log-processing/getting-started)** - Build and manage data processing pipelines
+- **[Transforms](/logs/log-processing/transforms)** - Normalize and transform your log data
+- **[Custom Views](/logs/custom-views)** - Create virtual tables with custom columns
+- **[Filtering](/logs/log-processing/filtering)** - Apply filters to focus on specific events
+- **[Detections](/detections)** - Create automated detection rules from your queries
+- **[Dashboards](/dashboards)** - Visualize your log data with custom dashboards
+

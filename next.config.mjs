@@ -35,6 +35,61 @@ export default withYAML(withNextra({
         destination: '/detections/writing-detections',
         permanent: true,
       },
+      {
+        source: '/pipelines',
+        destination: '/logs/log-processing/getting-started',
+        permanent: true,
+      },
+      {
+        source: '/pipelines/:path*',
+        destination: '/logs/log-processing/getting-started',
+        permanent: true,
+      },
+      {
+        source: '/logs/pipelines',
+        destination: '/logs/log-processing/getting-started',
+        permanent: true,
+      },
+      {
+        source: '/logs/pipelines/:path*',
+        destination: '/logs/log-processing/getting-started',
+        permanent: true,
+      },
+      {
+        source: '/transforms',
+        destination: '/logs/log-processing/transforms',
+        permanent: true,
+      },
+      {
+        source: '/logs/transforms',
+        destination: '/logs/log-processing/transforms',
+        permanent: true,
+      },
+      {
+        source: '/custom-views',
+        destination: '/logs/custom-views',
+        permanent: true,
+      },
+      {
+        source: '/filtering',
+        destination: '/logs/log-processing/filtering',
+        permanent: true,
+      },
+      {
+        source: '/logs/filtering',
+        destination: '/logs/log-processing/filtering',
+        permanent: true,
+      },
+      {
+        source: '/enrichments',
+        destination: '/logs/log-processing/enrichments',
+        permanent: true,
+      },
+      {
+        source: '/enrichments/:path*',
+        destination: '/logs/log-processing/enrichments/:path*',
+        permanent: true,
+      },
     ]
   },
 }))
