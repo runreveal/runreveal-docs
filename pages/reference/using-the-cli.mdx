@@ -491,10 +491,43 @@ Global Flags:
 #### detections create
 
 ```bash
-Create a new detection using the wizard.
+Create a new detection using command-line flags
 
 Usage:
   runreveal detections create [flags]
+
+Flags:
+      --categories strings
+      --description string
+      --detectiontype string        sql or sigma detection (required)
+      --disabled
+      --displayname string
+      --fields strings
+  -h, --help                        help for create
+      --mitreattacks strings
+      --mitretechniques strings
+      --name string                 The detection name (required)
+      --notes string
+      --notificationnames strings
+      --parameters string           JSON format
+      --query string                The query to run (required)
+      --riskscore int
+      --schedule string
+      --settings string             JSON format
+      --severity string
+      --sourcetypes strings
+
+Global Flags:
+      --header-file string   File containing headers to be used by the http client
+```
+
+#### detections create-wizard
+
+```bash
+Create a new detection using the wizard.
+
+Usage:
+  runreveal detections create-wizard [flags]
 
 Flags:
   -h, --help   help for create
