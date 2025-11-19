@@ -3,6 +3,8 @@ title: 'Detection as Code'
 description: 'We want our customers to have the ability to represent their detection as code'
 ---
 
+import { Callout } from 'nextra/components'
+
 # Detection as Code
 We want our customers to have the ability to represent their detection as code
 for a variety of reasons.
@@ -16,14 +18,18 @@ with detection as code, you'll need to download the CLI, and if you don't yet
 have an active source with log data you'll likely want to create a log source
 first.
 
+<Callout type="info">
+**Automate your detection workflow:** Learn how to build a complete CI/CD pipeline for your detections with automated testing, validation, and deployment. See our [CI/CD guide](https://blog.runreveal.com/runreveal-detection-cicd-guide/) for step-by-step instructions.
+</Callout>
+
 There are a few major features that RunReveal supports in order to facilitate
 our detection as code product.
 
-1. [Getting Started With Detection as Code](/detections/detection-as-code/#getting-started-with-detection-as-code)
-2. [Writing a detection](/detections/detection-as-code#creating-a-new-detection)
+1. [Getting Started With Detection as Code](/detections/detection-as-code/getting-started)
+2. [Writing a detection](/detections/detection-as-code/getting-started#creating-a-new-detection)
 3. [Testing and linting detections](/detections/detection-as-code/uploading-detections#test-your-upload)
 4. [Exporting your detections](/detections/detection-as-code/export-detections)
-5. [Deplying from source control](/detections/detection-as-code/deployment)
+5. [Deploying from source control](/detections/detection-as-code/deployment)
 
 ## Getting Started with Detection As Code
 
@@ -159,3 +165,14 @@ Detection Created:
 
 :) 
 ```
+
+## Related Documentation
+
+Now that you understand detection as code, explore these related guides:
+
+- **[Detections, Signals & Alerts Quick Start Guide](/how-to-guides/detections-signals-alerts-quick-start)** - Complete setup guide for your detection workflow
+- **[Getting Started with Detection as Code](/detections/detection-as-code/getting-started)** - Learn the basics of detection-as-code
+- **[Test/Upload Detections](/detections/detection-as-code/uploading-detections)** - Learn how to test, lint, and upload your detections
+- **[Export Detections](/detections/detection-as-code/export-detections)** - Export existing detections to start your detection-as-code workflow
+- **[Deployment](/detections/detection-as-code/deployment)** - Set up CI/CD pipelines for automated deployment
+- **[How to Write Detections](/detections/writing-detections)** - Tips and tricks to write effective detections

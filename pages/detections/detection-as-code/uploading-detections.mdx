@@ -3,9 +3,15 @@ title: 'Test/Upload Detections'
 description: 'When it''s time to upload detections, RunReveal''s CLI provides comprehensive testing and validation tools to ensure your detections are properly formatted and error-free before deployment. This guide walks you through the complete workflow from validation to deployment.'
 ---
 
+import { Callout } from 'nextra/components'
+
 # Test/Upload Detections
 
 When it's time to upload detections, RunReveal's CLI provides comprehensive testing and validation tools to ensure your detections are properly formatted and error-free before deployment. This guide walks you through the complete workflow from validation to deployment.
+
+<Callout type="info">
+**Learn more about CI/CD for detections:** Check out our guide on [Building a CI/CD Pipeline for RunReveal Detections](https://blog.runreveal.com/runreveal-detection-cicd-guide/) to learn how to implement automated testing and deployment workflows for your detection-as-code setup.
+</Callout>
 
 ## Validate your detection syntax with lint
 
@@ -69,9 +75,73 @@ $ runreveal lint sigma ~/detection-as-code/invalid-rule.yaml
 
 ## Test your upload
 
-When you want to test to ensure that each detection is properly formatted and
-see which detections have been updated, deleted, or created, the dry run flag
-will show you exactly the information you want.
+Before uploading your detections, you should test them to ensure they work correctly. RunReveal CLI provides testing capabilities for both SQL and Sigma detections.
+
+### Testing SQL Detections
+
+SQL detections are tested against actual data in your workspace. The test command executes your query against real log data to verify it returns expected results.
+
+1. **Test a SQL detection:**
+   ```bash
+   runreveal detections test --file my-detection.yaml --from "now-1h" --to "now"
+   ```
+   The `--from` and `--to` parameters specify the time range to query. Use relative times like `"now-1h"` or absolute times like `"2024-01-01T00:00:00Z"`.
+
+2. **Example SQL detection test:**
+   ```bash
+   $ runreveal detections test --file root_account_usage.yaml --from "now-24h" --to "now"
+   ✓ Query executed successfully
+   ✓ Returned 3 results
+   ```
+
+3. **Verify results match expectations:**
+   Review the returned results to ensure your detection is matching the correct events and returning the expected fields.
+
+### Testing Sigma Detections
+
+Sigma detections can be tested against local sample event files without requiring workspace data. This allows you to test your detection logic before deploying.
+
+1. **Create a sample events file:**
+   Create a file in NDJSON format (one JSON object per line, no commas between lines, no array brackets):
+   ```json
+   {"eventName": "suspicious_login", "user": "test-user", "srcIP": "192.168.1.100", "severity": "high", "timestamp": "2024-01-01T12:00:00Z"}
+   {"eventName": "suspicious_login", "user": "test-user-2", "srcIP": "192.168.1.100", "severity": "high", "timestamp": "2024-01-01T12:01:00Z"}
+   {"eventName": "normal_login", "user": "admin", "srcIP": "10.0.0.1", "severity": "low", "timestamp": "2024-01-01T12:02:00Z"}
+   ```
+   Save this as `sample-events.ndjson`. You can copy events from the RunReveal dashboard or create test events that match your detection logic.
+
+2. **Test the Sigma detection:**
+   ```bash
+   runreveal detections run --file my-sigma-detection.yaml --input sample-events.ndjson
+   ```
+
+3. **Review test output:**
+   The command shows which events in your sample file would trigger the detection:
+   ```
+   line 1 matches detection My Sigma Detection
+   line 2 matches detection My Sigma Detection
+   line 3 does not match detection My Sigma Detection
+   ```
+
+### Best Practices for Testing
+
+1. **Test with both positive and negative cases:**
+   Include events that should match your detection and events that should not match to verify your logic is correct.
+
+2. **Test edge cases:**
+   Include events with missing fields, null values, or unexpected data formats to ensure your detection handles them gracefully.
+
+3. **Use realistic test data:**
+   For SQL detections, test against actual production-like data. For Sigma detections, use sample events that closely match your real log structure.
+
+4. **Test before deploying:**
+   Always test your detections locally before uploading them to your workspace to catch issues early.
+
+For complete CLI command reference, see [Using the CLI - Detections Test](/reference/using-the-cli#detections-test).
+
+### Dry run preview
+
+When you want to see which detections have been updated, deleted, or created without actually uploading them, use the dry run flag:
 
 ```
 $ runreveal detections sync -d ~/detection-as-code --dry-run                                                            
@@ -138,4 +208,15 @@ runreveal detections sync -o -d ~/detection-as-code
 4. **Monitor** - Check for any runtime issues
 
 This workflow ensures your detections are properly validated before reaching production.
+
+## Related Documentation
+
+Now that you understand testing and uploading detections, explore these related guides:
+
+- **[Detections, Signals & Alerts Quick Start Guide](/how-to-guides/detections-signals-alerts-quick-start)** - Complete setup guide for your detection workflow
+- **[Getting Started with Detection as Code](/detections/detection-as-code/getting-started)** - Learn the basics of detection-as-code
+- **[Export Detections](/detections/detection-as-code/export-detections)** - Export existing detections to start your detection-as-code workflow
+- **[Deployment](/detections/detection-as-code/deployment)** - Set up CI/CD pipelines for automated deployment
+- **[How to Write Detections](/detections/writing-detections)** - Tips and tricks to write effective detections
+- **[Detection as Code](/detections/detection-as-code)** - Overview of detection-as-code features
 
