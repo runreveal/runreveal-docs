@@ -3,13 +3,77 @@ title: 'Abnormal Security Integration Setup Guide'
 description: 'Complete guide for setting up Abnormal Security integration with RunReveal'
 ---
 
-# Abnormal AI
+import { Callout } from 'nextra/components'
 
-This guide will walk you through setting up Abnormal Security integration with RunReveal. The Abnormal source collects security event logs from your Abnormal Security account, including email threats, user behavior analytics, and security incidents.
+# Abnormal Security
+
+Abnormal Security is a behavioral AI-based email security platform that learns the behavior of every identity in a cloud email environment and analyzes the risk of every event to block the most sophisticated attacks.
+
+The Abnormal Security integration ingests threat data and case data identified by the Abnormal threat log and cases using the Abnormal Security API.
 
 ![Abnormal Security Source Tile](/abnormal-source-1.png)
 
-### Docs coming soon, please check back later or reach out to support for details. 
+<Callout type="warning">
+**Important Limitation**: Abnormal AI only allows for one API key per Integration tile. If you are using the Rest API Integration tile key for another integration you will need to reuse the same key.
+</Callout>
+
+## Ingest Method
+
+This source is a polling source and will download new logs from the Abnormal Security API approximately every 60 seconds (1 minute). When first added, RunReveal will backfill available data from the last 14 days.
+
+## Data Collected
+
+The integration collects the following data types:
+
+- **Audit Logs**: User actions and administrative activities from the Abnormal Security platform, including API calls, message actions, and platform usage events
+- **Threat Logs**: Detailed information about detected email threats including attack types, strategies, sender details, remediation status, attachments, URLs, and threat metadata
+- **Case Logs**: Security case data and incident information including case status, severity, affected employees, threat associations, analysis, and remediation details
+
+## Setup
+
+### Step 1: Get Your Abnormal Security Access Token
+
+To set up the Abnormal Security integration, you need to obtain an access token from your Abnormal Security platform. Follow these steps:
+
+1. Sign in to the [Abnormal Security platform](https://portal.abnormalsecurity.com/)
+2. In the **Manage** section, click on **Settings**
+3. In the **Settings** section, click on **Integrations**
+4. Scroll down to the **Additional Integrations** section
+5. Click **+ Connect** on the **Abnormal REST API** card to display an integration page for your organization
+6. Copy and save the **Access token** - you'll need this for the RunReveal configuration
+
+<Callout type="warning">
+**Important**: Copy the access token immediately as it may not be shown again. Store it securely for use in RunReveal configuration.
+</Callout>
+
+### Step 2: Configure RunReveal
+
+1. In the RunReveal dashboard, navigate to **Sources** → **Add Source**
+2. Search for and select **Abnormal Security**
+3. Enter a descriptive **Name** for your source
+4. Paste the **Access Token** you copied from Abnormal Security
+5. Click **Save** to create the source
+
+RunReveal will begin collecting your Abnormal Security logs immediately and will poll the API every 60 seconds for new data.
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a few minutes.
+
+You can check the `abnormal_logs` table in the Log Explorer to verify that logs are being ingested. You can also validate we are receiving your logs by running the following SQL query:
+
+```sql
+SELECT * FROM abnormal_logs LIMIT 10
+```
+
+## Support and Resources
+
+### Abnormal Security Documentation
+- [Abnormal Security API Documentation](https://app.swaggerhub.com/apis-docs/abnormal-security/abx/1.4.1)
+- [Abnormal Security Console](https://portal.abnormalsecurity.com/)
+
+### Abnormal Security Support
+- [Abnormal Security Support](https://support.abnormalsecurity.com/)
 
 {/*
 ## Overview
@@ -27,7 +91,7 @@ This guide will walk you through setting up Abnormal Security integration with R
 
 ### 1.1 Access Abnormal Security Console
 
-1. Log into your [Abnormal Security Console](https://console.abnormalsecurity.com/)
+1. Log into your [Abnormal Security Console](https://portal.abnormalsecurity.com/)
 2. Navigate to **Settings** → **API Keys**
 3. Click **"Create New API Key"**
 
@@ -138,7 +202,7 @@ The Abnormal integration collects the following types of events:
 
 ### Abnormal Security Documentation
 - [Abnormal Security API Documentation](https://docs.abnormalsecurity.com/)
-- [Abnormal Security Console](https://console.abnormalsecurity.com/)
+- [Abnormal Security Console](https://portal.abnormalsecurity.com/)
 
 ### Abnormal Security Support
 - [Abnormal Security Support](https://support.abnormalsecurity.com/)
