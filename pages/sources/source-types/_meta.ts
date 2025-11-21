@@ -46,6 +46,7 @@ export default {
     "structured-webhooks": "Structured Webhooks",
     "tailscale": "Tailscale",
     "teleport": "Teleport Cloud Audit Logs",
+    "twingate": "Twingate",
     "wiz-threats": "Wiz Threats",
     "zendesk": "Zendesk"
 }

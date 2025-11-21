@@ -1,0 +1,94 @@
+---
+title: 'Twingate Logs'
+description: 'Twingate is a zero-trust network access platform that provides secure remote access to private resources. The Twingate integration ingests network access logs, DNS filtering events, audit logs, and data loss prevention (DLP) logs from your Twingate instance stored in object storage.'
+---
+
+import { Callout } from 'nextra/components'
+
+# Twingate Logs
+
+Twingate is a zero-trust network access platform that provides secure remote access to private resources. The Twingate integration ingests network access logs, DNS filtering events, audit logs, and data loss prevention (DLP) logs from your Twingate instance stored in object storage.
+
+![Twingate Source Tile](/twingate-source-1.png)
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Blob Storage](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+- [Cloudflare R2 Bucket](/sources/object-storage/r2)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_twingate
+```
+</Callout>
+
+## Data Collected
+
+The integration collects the following event types from Twingate:
+
+- **Network Access Events**: Connection establishment and closure events for resources accessed through Twingate, including connection status, protocol, bytes transferred, connector information, remote network details, resource addresses, user information, device details, and geographic location data
+- **DNS Filtering Events**: DNS query filtering events including domain names, root domains, filtering status, reasons for filtering decisions, device information, and client IP addresses
+- **Audit Log Events**: Administrative and configuration changes in Twingate including actions performed, target resources (users, remote networks, resources, connectors, etc.), actor information, and timestamps
+- **Data Loss Prevention (DLP) Events**: DLP policy violations and actions including action type, status, affected DLP policies, user information, device details, and resource information
+
+## Setup
+
+Setting up Twingate logs requires exporting logs from your Twingate instance to object storage. Twingate supports log export to various cloud storage providers.
+
+### Step 1: Configure Log Export in Twingate
+
+Follow the [Twingate S3 Sync Guide](https://www.twingate.com/docs/syncing-data-to-s3) to configure log export from your Twingate instance to your object storage bucket. The guide covers:
+
+- Creating or identifying your AWS S3 bucket
+- Configuring AWS permissions (OIDC or IAM user)
+- Configuring the S3 sync in the Twingate Admin Console
+- Optional Terraform configuration
+
+Once configured, Twingate will export audit logs, network events, and DNS filtering logs to your storage bucket in JSON format every 5 minutes.
+
+<Callout type="info">
+**Log Format**: Twingate exports logs in NDJSON (newline-delimited JSON) format. Each line in the log file represents a single event with an `event_type` field indicating the type of event (`network_access`, `dns_filtering`, `audit_log`, or `data_loss_prevention`).
+</Callout>
+
+### Step 2: Configure RunReveal Source
+
+1. In the RunReveal dashboard, navigate to **Sources** → **Add Source**
+2. Search for and select **Twingate Logs**
+3. Enter a descriptive **Name** for your source
+4. Select the appropriate **Ingest Type** based on your storage provider:
+   - **AWS S3 Bucket** - For standard S3 buckets
+   - **AWS S3 Bucket with Custom SQS** - For S3 buckets with custom SQS queue configuration
+   - **Azure Blob Storage** - For Azure Blob Storage containers
+   - **Google Cloud Storage** - For GCS buckets
+   - **Cloudflare R2 Bucket** - For Cloudflare R2 buckets
+5. Configure the storage credentials and bucket settings according to your selected ingest type
+6. Click **Save** to create the source
+
+RunReveal will begin ingesting your Twingate logs from the configured storage bucket.
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a few minutes.
+
+You can check the `twingate_logs` table in the Log Explorer to verify that logs are being ingested. You can also validate we are receiving your logs by running the following SQL query:
+
+```sql
+SELECT * FROM twingate_logs LIMIT 10
+```
+
+## Support and Resources
+
+### Twingate Documentation
+- [Twingate Documentation](https://www.twingate.com/docs)
+- [Syncing Data to AWS S3](https://www.twingate.com/docs/syncing-data-to-s3)
+- [Twingate Admin Console](https://auth.twingate.com/signin)
+
+### Twingate Support
+- [Twingate Support](https://www.twingate.com/support)
+
