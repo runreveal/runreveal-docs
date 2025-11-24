@@ -9,32 +9,39 @@ RunReveal supports Role Based Access Control for subjects accessing resources in
 
 We have configured a set of default roles to simplify the management of permissions assignment to users through those roles.
 
-Each resource has 3 permissions defined: Read, Edit and Delete.  Read allows read-only access to the class of resources including listing the instances of that resource.  Edit allows for creation and updating that resources attributes and metadata.  Deletion is required to remove a resource record from the database.
+Each resource has permissions defined for Read and Edit actions. Read allows read-only access to the class of resources including listing the instances of that resource. Edit allows for creation, updating, and deletion of resources (delete is included in edit permissions).
 
 The following roles have been defined for workspaces: `admin`, `analyst`, `operator` and `cibot`.  Below you will see their permissions enumerated.
 
-| Permission          | Description                           | Admin | Analyst | Operator | CIBot |
-|---------------------|---------------------------------------|-------|---------|----------|-------|
-| Read Workspaces     | Read and List Source Configs           | ✅    | ✅     | ✅     |        |
-| Edit Workspaces     | Create and Update Workspace configuration | ✅ |        |        |        |
-| Delete Workspaces   | Delete Workspaces                      | ✅    |        |        |        |
-| Read Sources        | Read and List Source Configs           | ✅    | ✅     | ✅     |        |
-| Edit Sources        | Create and Update Source Configs       | ✅    |        |        |        |
-| Delete Sources      | Delete Source Configs                  | ✅    |        |       |         |
-| Read Destinations   | Read and List Destination Configs      | ✅    |        | ✅    |         |
-| Edit Destinations   | Create and Update Destination Configs  | ✅    |        |       |         |
-| Delete Destinations | Delete Destination Configs             | ✅    |        |       |         |
-| Read Queries        | Read and List Named Queries and Detections | ✅ | ✅    | ✅    | ✅      |
-| Edit Queries        | Create and Edit Named Queries and Detections | ✅ | ✅  | ✅    | ✅      |
-| Delete Queries      | Delete Named Queries and Detections    | ✅    |        | ✅    | ✅      |
-| Read Reports        | Read and List Reports                  | ✅    | ✅     | ✅    |         |
-| Edit Reports        | Create and Update Report Configs       | ✅    |        | ✅    |         |
-| Delete Reports      | Delete Report Configs                  | ✅    |        |       |         |
-| Read Analytics      | Read and List Analytics Views          | ✅    | ✅     | ✅    |         |
-| Edit Analytics      | Create and Update Analytics Configs    | ✅    |        | ✅    |         |
-| Delete Analytics    | Delete Analytics Configs               | ✅    |        |       |         |
-| Read Notifications  | Read and List Notification Channels    | ✅    | ✅     | ✅    |         |
-| Edit Notifications  | Create and Update Notification Channels | ✅   |        |       |         |
-| Delete Notifications| Delete Notification Channels           | ✅    |        |       |         |
-| Read Topics         | Read and List Topics for Pipelines     | ✅    | ✅     | ✅    |         |
-| Edit Topics         | Create, Edit and Delete Pipelines Topics | ✅  |        | ✅    |         |
+| Permission              | Description                                           | Admin | Analyst | Operator | CIBot |
+|-------------------------|-------------------------------------------------------|-------|---------|----------|-------|
+| Read Workspaces         | View workspace information and members                 | ✅    | ✅      | ✅       |       |
+| Edit Workspaces         | Modify workspace settings and members                 | ✅    |         |          |       |
+| Read Sources            | View data sources and configurations                   | ✅    | ✅      | ✅       |       |
+| Edit Sources            | Create, modify, and delete data sources                | ✅    |         |          |       |
+| Read Destinations       | View destination configurations                         | ✅    | ✅      | ✅       |       |
+| Edit Destinations       | Create, modify, and delete destinations                 | ✅    |         |          |       |
+| Read Queries            | Run queries and view detections                        | ✅    | ✅      | ✅       | ✅    |
+| Edit Queries            | Create, modify, and delete queries and detections      | ✅    | ✅      | ✅       | ✅    |
+| Read Parameters         | View parameter configurations                          | ✅    | ✅      | ✅       |       |
+| Edit Parameters         | Create, modify, and delete parameters                  | ✅    | ✅      | ✅       |       |
+| Read Investigations     | View investigation data                                | ✅    | ✅      | ✅       |       |
+| Edit Investigations     | Create and modify investigations                       | ✅    | ✅      | ✅       |       |
+| Read Filters            | View filter configurations                             | ✅    | ✅      | ✅       |       |
+| Edit Filters            | Create, modify, and delete filters                      | ✅    |         |          |       |
+| Read Enrichments        | View enrichment configurations                         | ✅    | ✅      | ✅       | ✅    |
+| Edit Enrichments        | Create, modify, and delete enrichments                 | ✅    |         | ✅       | ✅    |
+| Read Notifications      | View notification configurations                       | ✅    | ✅      | ✅       |       |
+| Edit Notifications      | Create, modify, and delete notifications                | ✅    |         |          |       |
+| Read Dashboard Layouts  | View dashboard configurations                          | ✅    | ✅      | ✅       |       |
+| Edit Dashboard Layouts  | Create, modify, and delete dashboards                  | ✅    |         |          |       |
+| Read Topics             | View topic configurations                              | ✅    | ✅      | ✅       |       |
+| Edit Topics             | Create, modify, and delete topics                       | ✅    |         | ✅       |       |
+| Create Tokens           | Create workspace tokens and API keys                   | ✅    | ✅      | ✅       |       |
+| Manage Sessions         | Manage user sessions                                   | ✅    |         |          |       |
+| Read Chat               | View chat conversations and history                    | ✅    | ✅      | ✅       |       |
+| Edit Chat               | Create new chats and send messages                     | ✅    | ✅      | ✅       |       |
+| Read Custom Views       | View custom views and use them in queries               | ✅    | ✅      | ✅       |       |
+| Edit Custom Views       | Create, modify, and delete custom views                 | ✅    |         | ✅       |       |
+| Read Custom Roles       | View custom role configurations and assignments         | ✅    |         |          |       |
+| Edit Custom Roles       | Create, modify, and delete custom roles                  | ✅    |         |          |       |
