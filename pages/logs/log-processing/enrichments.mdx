@@ -3,6 +3,8 @@ title: 'Enrichments'
 description: 'Enrichments allow you to augment your log events with supplemental data based on pattern matching.'
 ---
 
+import { Callout, Tabs } from 'nextra/components'
+
 # Enrichments
 
 Enrichments allow you to augment your log events with supplemental data based on pattern matching.
@@ -129,3 +131,417 @@ From the results, we can see our resulting log event ends up in the logs table a
   ...
 }
 ```
+
+## Use Cases
+
+Enrichments are powerful tools for tagging events with metadata that can be used for filtering, detection tuning, and compliance. Below are common patterns for using enrichments to manage log processing.
+
+<Tabs items={['Exclude from Detections', 'Tag for Dropping', 'Classify by Risk Level']} defaultIndex="0">
+
+<Tabs.Tab>
+
+### Exclude Known-Good Activity from Detections
+
+Use enrichments to tag events from trusted service accounts, automation systems, or known-good IP ranges. Your detections can then check for these enrichment flags to reduce false positives.
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden my-6">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">Tag Service Accounts for Detection Exclusion</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Create an enrichment to tag events from known service accounts. Detections can check for this flag to skip expected automation activity.
+    </div>
+
+    <div className="space-y-4 mb-4">
+      <div>
+        <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 1: Create the Enrichment</h5>
+        <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+          Navigate to <strong>Enrichments</strong> → Click <strong>Create Enrichment</strong> → Name it <code>service-account-exclusions</code> → Set <strong>Match Field</strong> to <code>actor.email</code>
+        </div>
+      </div>
+      <div>
+        <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 2: Add Service Account Rules</h5>
+        <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+          Add rules for each service account you want to exclude from detections
+        </div>
+      </div>
+    </div>
+
+    <Tabs items={['Enrichment Rules', 'Enriched Event', 'Detection Query']}>
+      <Tabs.Tab>
+
+```text
+Rule 1 (Exact Match):
+  Pattern: svc-backup@company.com
+  Data: {"exclude_from_detections": true, "reason": "Scheduled backup service"}
+
+Rule 2 (Exact Match):
+  Pattern: svc-monitoring@company.com
+  Data: {"exclude_from_detections": true, "reason": "Infrastructure monitoring"}
+
+Rule 3 (Regex):
+  Pattern: ^automation-.*@company\.com$
+  Data: {"exclude_from_detections": true, "reason": "Approved automation platform"}
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```json
+{
+  "eventName": "CreateAccessKey",
+  "actor": { "email": "svc-backup@company.com" },
+  "enrichments": [{
+    "name": "actor.email",
+    "provider": "service-account-exclusions",
+    "data": {
+      "exclude_from_detections": true,
+      "reason": "Scheduled backup service"
+    }
+  }]
+}
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```sql
+-- Detection: Suspicious Access Key Creation
+-- Skip events tagged for exclusion
+SELECT * FROM logs
+WHERE eventName = 'CreateAccessKey'
+  AND arrayExists(
+    x -> JSONExtractBool(x, 'data', 'exclude_from_detections') = true,
+    JSONExtractArrayRaw(rawLog, 'enrichments')
+  ) = 0
+```
+
+      </Tabs.Tab>
+    </Tabs>
+
+    <Callout type="info">
+      The enrichment handles all pattern matching logic. Your detections only need to check for the <code>exclude_from_detections</code> flag, making them simpler and more maintainable.
+    </Callout>
+  </div>
+</div>
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden my-6">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">Tag Trusted IP Ranges</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Tag events from corporate VPN, office networks, or trusted cloud infrastructure to reduce noise in network-based detections.
+    </div>
+
+    <Tabs items={['Enrichment Rules', 'Enriched Event']}>
+      <Tabs.Tab>
+
+```text
+Enrichment: trusted-networks
+Match Field: src.ip
+
+Rule 1 (CIDR Match):
+  Pattern: 10.0.0.0/8
+  Data: {"trusted_network": true, "network_zone": "corporate"}
+
+Rule 2 (CIDR Match):
+  Pattern: 192.168.100.0/24
+  Data: {"trusted_network": true, "network_zone": "vpn"}
+
+Rule 3 (CIDR Match):
+  Pattern: 52.94.76.0/22
+  Data: {"trusted_network": true, "network_zone": "aws-services"}
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```json
+{
+  "eventName": "ConsoleLogin",
+  "actor": { "email": "alice@company.com" },
+  "src": { "ip": "10.50.25.100" },
+  "enrichments": [{
+    "name": "src.ip",
+    "provider": "trusted-networks",
+    "data": {
+      "trusted_network": true,
+      "network_zone": "corporate"
+    }
+  }]
+}
+```
+
+      </Tabs.Tab>
+    </Tabs>
+  </div>
+</div>
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Tag Events for Dropping
+
+Use enrichments to tag events that should be dropped from storage. This approach gives you visibility into what's being dropped and why, while keeping your drop rules centralized and auditable.
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden my-6">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">Tag High-Volume Low-Value Events</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Tag noisy events like health checks, heartbeats, or routine system operations. A downstream pipeline step can then drop events with this tag.
+    </div>
+
+    <div className="space-y-4 mb-4">
+      <div>
+        <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 1: Create the Enrichment</h5>
+        <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+          Navigate to <strong>Enrichments</strong> → Create enrichment named <code>drop-candidates</code> → Set <strong>Match Field</strong> to <code>eventName</code>
+        </div>
+      </div>
+      <div>
+        <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 2: Add Drop Rules</h5>
+        <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+          Add patterns for events you want to drop
+        </div>
+      </div>
+      <div>
+        <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 3: Add Pipeline Drop Step</h5>
+        <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+          In your pipeline, add a <strong>Drop</strong> step with precondition: <code>enrichments</code> contains <code>"should_drop": true</code>
+        </div>
+      </div>
+    </div>
+
+    <Tabs items={['Enrichment Rules', 'Enriched Event']}>
+      <Tabs.Tab>
+
+```text
+Enrichment: drop-candidates
+Match Field: eventName
+
+Rule 1 (Exact Match):
+  Pattern: DescribeInstances
+  Data: {"should_drop": true, "reason": "High-volume read-only API call"}
+
+Rule 2 (Exact Match):
+  Pattern: AssumeRole
+  Data: {"should_drop": true, "reason": "Routine role assumption"}
+
+Rule 3 (Regex):
+  Pattern: ^(List|Get|Describe).*
+  Data: {"should_drop": true, "reason": "Read-only API calls"}
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```json
+{
+  "eventName": "DescribeInstances",
+  "eventSource": "ec2.amazonaws.com",
+  "userIdentity": {
+    "arn": "arn:aws:iam::123456789012:role/monitoring"
+  },
+  "enrichments": [{
+    "name": "eventName",
+    "provider": "drop-candidates",
+    "data": {
+      "should_drop": true,
+      "reason": "High-volume read-only API call"
+    }
+  }]
+}
+```
+
+      </Tabs.Tab>
+    </Tabs>
+
+    <Callout type="warning">
+      <strong>Consider Filter vs Drop</strong>: If you might need these events for compliance or forensics, use a <a href="/logs/log-processing/filtering">Filter</a> step to archive them instead of dropping permanently.
+    </Callout>
+  </div>
+</div>
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden my-6">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">Tag by User Agent for Dropping</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Tag events from known scanners, bots, or internal tooling based on user agent patterns.
+    </div>
+
+    <Tabs items={['Enrichment Rules', 'Enriched Event']}>
+      <Tabs.Tab>
+
+```text
+Enrichment: user-agent-classification
+Match Field: userAgent
+
+Rule 1 (Regex):
+  Pattern: ^ELB-HealthChecker
+  Data: {"should_drop": true, "category": "health-check"}
+
+Rule 2 (Regex):
+  Pattern: ^AWS Security Scanner
+  Data: {"should_drop": true, "category": "internal-scanner"}
+
+Rule 3 (Exact Match):
+  Pattern: Amazon CloudFront
+  Data: {"should_drop": true, "category": "cdn-prefetch"}
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```json
+{
+  "eventName": "GetObject",
+  "userAgent": "ELB-HealthChecker/2.0",
+  "enrichments": [{
+    "name": "userAgent",
+    "provider": "user-agent-classification",
+    "data": {
+      "should_drop": true,
+      "category": "health-check"
+    }
+  }]
+}
+```
+
+      </Tabs.Tab>
+    </Tabs>
+  </div>
+</div>
+
+</Tabs.Tab>
+
+<Tabs.Tab>
+
+### Classify Events by Risk Level
+
+Use enrichments to assign risk levels based on actor, resource, or action patterns. This enables tiered alerting and prioritized investigation workflows.
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden my-6">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">Classify Actors by Risk Tier</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Tag events based on actor risk level—privileged admins, contractors, or high-risk users—to enable risk-based detection and response.
+    </div>
+
+    <Tabs items={['Enrichment Rules', 'Enriched Event', 'Detection Usage']}>
+      <Tabs.Tab>
+
+```text
+Enrichment: actor-risk-classification
+Match Field: actor.email
+
+Rule 1 (Regex - High Risk):
+  Pattern: ^.*-admin@company\.com$
+  Data: {"risk_tier": "high", "requires_mfa": true, "alert_priority": "P1"}
+
+Rule 2 (Regex - Medium Risk):
+  Pattern: ^contractor-.*@company\.com$
+  Data: {"risk_tier": "medium", "access_type": "contractor", "alert_priority": "P2"}
+
+Rule 3 (Regex - Standard):
+  Pattern: ^.*@company\.com$
+  Data: {"risk_tier": "standard", "alert_priority": "P3"}
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```json
+{
+  "eventName": "DeleteBucket",
+  "actor": { "email": "infra-admin@company.com" },
+  "enrichments": [{
+    "name": "actor.email",
+    "provider": "actor-risk-classification",
+    "data": {
+      "risk_tier": "high",
+      "requires_mfa": true,
+      "alert_priority": "P1"
+    }
+  }]
+}
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```sql
+-- High-priority alert for destructive actions by high-risk actors
+SELECT * FROM logs
+WHERE eventName IN ('DeleteBucket', 'DeleteTable', 'TerminateInstances')
+  AND arrayExists(
+    x -> JSONExtractString(x, 'data', 'risk_tier') = 'high',
+    JSONExtractArrayRaw(rawLog, 'enrichments')
+  ) = 1
+```
+
+      </Tabs.Tab>
+    </Tabs>
+  </div>
+</div>
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden my-6">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">Classify Resources by Sensitivity</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Tag events targeting sensitive resources (production databases, secrets managers, IAM) for enhanced monitoring.
+    </div>
+
+    <Tabs items={['Enrichment Rules', 'Enriched Event']}>
+      <Tabs.Tab>
+
+```text
+Enrichment: resource-sensitivity
+Match Field: resources.0.ARN
+
+Rule 1 (Regex - Critical):
+  Pattern: arn:aws:secretsmanager:.*
+  Data: {"sensitivity": "critical", "data_classification": "secrets"}
+
+Rule 2 (Regex - Critical):
+  Pattern: arn:aws:rds:.*:.*:db:prod-.*
+  Data: {"sensitivity": "critical", "data_classification": "production-data"}
+
+Rule 3 (Regex - High):
+  Pattern: arn:aws:iam::.*:role/.*Admin.*
+  Data: {"sensitivity": "high", "data_classification": "iam-admin"}
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```json
+{
+  "eventName": "GetSecretValue",
+  "eventSource": "secretsmanager.amazonaws.com",
+  "resources": [{
+    "ARN": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/db-creds"
+  }],
+  "enrichments": [{
+    "name": "resources.0.ARN",
+    "provider": "resource-sensitivity",
+    "data": {
+      "sensitivity": "critical",
+      "data_classification": "secrets"
+    }
+  }]
+}
+```
+
+      </Tabs.Tab>
+    </Tabs>
+  </div>
+</div>
+
+</Tabs.Tab>
+
+</Tabs>

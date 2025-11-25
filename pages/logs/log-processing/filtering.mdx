@@ -1,30 +1,327 @@
 ---
 title: 'Filtering'
-description: 'RunReveal supports log filtering as a first class feature of the product. The current supported'
+description: 'Create reusable filter rules to drop or archive events based on regex patterns, with support for global or source-specific application.'
 ---
 
-# Filtering
-RunReveal supports log filtering as a first class feature of the product. The current supported
-methods are:
-- Regular Expression Filtering
+import { Callout, Tabs } from 'nextra/components'
 
-## Regex Filtering
-To filter with a regular expression, click to add a new filter.
+# Filtering
+
+Filters are reusable rules that match events based on regex patterns and either **drop** or **archive** them. Unlike the simpler [Drop](/logs/log-processing/dropping) step, filters can be shared across pipelines, applied globally, and offer the option to archive events instead of permanently deleting them.
+
+<Callout type="info">
+Filters are created in **Settings → Filters** and can be applied globally or attached to specific pipelines as a Filter step.
+</Callout>
+
+## Filter Actions
+
+Filters support two actions when an event matches:
+
+| Action | What Happens | Use Case |
+|--------|--------------|----------|
+| **Drop** | Event is permanently discarded—not sent anywhere | Zero-value events you never need |
+| **Archive** | Event is sent to S3 destinations but NOT indexed in ClickHouse | Low-value events you might need for compliance or forensics |
+
+<Callout type="warning">
+<strong>Archive vs Drop</strong>: Archived events are sent to all configured S3 destinations but skip ClickHouse indexing—they won't appear in your main logs table or Explore page. Use Archive when you might need events for compliance audits or incident investigation.
+</Callout>
+
+## Filter Types
+
+### Regex Filtering
+
+Regex filters match a pattern against the **entire raw log JSON**. This is powerful for matching any content in the event, regardless of field structure.
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden my-6">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">How Regex Matching Works</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      The regex pattern is matched against the entire raw log JSON string, not a specific field. This means you can match any content anywhere in the event.
+    </div>
+
+    <Tabs items={['Example Event', 'Matching Patterns']}>
+      <Tabs.Tab>
+
+```json
+{
+  "eventName": "GetObject",
+  "eventSource": "s3.amazonaws.com",
+  "userIdentity": {
+    "arn": "arn:aws:iam::123456789012:role/monitoring-role"
+  },
+  "userAgent": "ELB-HealthChecker/2.0"
+}
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```text
+Pattern: /ELB-HealthChecker/i
+Matches: ✅ Yes - found in userAgent field
+
+Pattern: /monitoring-role/
+Matches: ✅ Yes - found in userIdentity.arn
+
+Pattern: /DeleteObject/
+Matches: ❌ No - not found anywhere in raw log
+```
+
+      </Tabs.Tab>
+    </Tabs>
+  </div>
+</div>
+
+### Pattern Format
+
+Filters use the format `/pattern/flags` where:
+- The pattern is enclosed in forward slashes
+- Flags are appended after the closing slash
+
+**Supported Flags:**
+
+| Flag | Description | Example |
+|------|-------------|---------|
+| `i` | Case insensitive matching | `/healthcheck/i` matches "HealthCheck", "HEALTHCHECK", etc. |
+
+<Callout type="info">
+<strong>RE2 Syntax</strong>: RunReveal uses <a href="https://github.com/google/re2/wiki/Syntax">RE2 regex syntax</a> (Go's regexp). Test patterns at <a href="https://regex101.com/?flavor=golang">regex101.com</a> with the Golang flavor selected. Note: RE2 does not support lookaheads, lookbehinds, or backreferences.
+</Callout>
+
+### Source Filtering
+
+Source filters match events from specific log sources. When you select sources for a filter, only events from those sources are evaluated against the filter pattern.
+
+## Where Do Filtered Events Go?
+
+| Action | ClickHouse (Explore) | S3 Destinations | Custom Destinations |
+|--------|---------------------|-----------------|---------------------|
+| **Drop** | ❌ Not sent | ❌ Not sent | ❌ Not sent |
+| **Archive** | ❌ Not indexed | ✅ Sent to all S3 | ❌ Not sent to SQL |
+
+<Callout type="info">
+<strong>Archive = S3 Only</strong>: Archived events are still processed through the pipeline and sent to S3 storage destinations, but they skip ClickHouse entirely. This means they won't appear in Explore or be queryable via SQL, but they're retained in object storage for compliance or forensic needs.
+</Callout>
+
+## Global vs Source-Specific Filters
+
+Filters can be configured to apply globally or only to specific sources:
+
+| Scope | Behavior | Use Case |
+|-------|----------|----------|
+| **Global** | Applies to all events from all sources | Health check patterns that appear across multiple sources |
+| **Source-Specific** | Only applies to events from selected sources | CloudTrail-specific patterns that shouldn't affect other sources |
+
+## Creating a Filter
+
+<div className="space-y-4 my-6">
+  <div>
+    <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 1: Navigate to Filters</h5>
+    <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+      Go to <strong>Settings</strong> → <strong>Filters</strong> → Click <strong>Create Filter</strong>
+    </div>
+  </div>
+  <div>
+    <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 2: Configure Filter Settings</h5>
+    <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+      Enter a <strong>Name</strong> and optional <strong>Description</strong> → Select <strong>Filter Type</strong> (Regex) → Enter your <strong>Pattern</strong>
+    </div>
+  </div>
+  <div>
+    <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 3: Choose Action and Scope</h5>
+    <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+      Select <strong>Action</strong> (Drop or Archive) → Choose <strong>Global</strong> or select specific <strong>Sources</strong>
+    </div>
+  </div>
+</div>
 
 <img src="/createnewfilter.png"/>
 
-The _pattern_ is the regular expression that we will match on. By default, all filter rules will
-drop any log that matches the pattern. For example, consider the following log:
-```
-{"user":"evan", "event":"login", "ip":"1.1.1.1"}
+## Using Filters in Pipelines
+
+Filters can be attached to pipelines as a **Filter step**. This allows you to apply reusable filter rules at specific points in your pipeline.
+
+<div className="space-y-4 my-6">
+  <div>
+    <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 1: Edit Your Pipeline</h5>
+    <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+      Go to <strong>Pipelines</strong> → Select your pipeline → Click <strong>Edit</strong>
+    </div>
+  </div>
+  <div>
+    <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Step 2: Add Filter Step</h5>
+    <div className="text-sm text-gray-600 dark:text-gray-400 pl-4 border-l-2 border-purple-300 dark:border-purple-700">
+      Drag a <strong>Filter</strong> step from the right column → Select the filter you created → Optionally add preconditions
+    </div>
+  </div>
+</div>
+
+<Callout type="info">
+When using a Filter step in a pipeline, the filter's source restrictions are bypassed—the filter will apply to any event that reaches the step (subject to the step's preconditions).
+</Callout>
+
+## Use Cases
+
+<div className="space-y-6 mt-4">
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">Archive Health Check Traffic</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Health checks from load balancers, Kubernetes, and monitoring systems generate constant traffic. Archive these events for compliance while keeping your main logs focused.
+    </div>
+
+    <Tabs items={['Filter Configuration', 'Matching Events']}>
+      <Tabs.Tab>
+
+```text
+Name: health-check-archive
+Type: Regex
+Pattern: /ELB-HealthChecker|kube-probe|GoogleHC/i
+Action: Archive
+Scope: Global
 ```
 
-Specifiying this pattern will cause the log to be dropped.
-```
-user
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```json
+// ✅ Matches - will be archived
+{"userAgent": "ELB-HealthChecker/2.0", ...}
+{"userAgent": "kube-probe/1.28", ...}
+{"userAgent": "GoogleHC/1.0", ...}
+
+// ❌ Does not match - goes to main logs
+{"userAgent": "Mozilla/5.0...", ...}
 ```
 
-### Flags
-We support the following regular expression flags. *DO NOT* add these flags to your pattern.
-Instead add filter flags using the Filter Flags checkbox toggles.
- - **i** - Case Insensitivity - Ignore case when matching.
+      </Tabs.Tab>
+    </Tabs>
+
+    <div className="mt-4">
+      <h5 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Why Archive Instead of Drop?</h5>
+      <div className="text-sm text-gray-600 dark:text-gray-400">
+        Health checks may be needed to investigate infrastructure issues or prove service availability during an incident.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">Drop AWS Read-Only API Calls</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      AWS CloudTrail generates high volumes of read-only API calls (Describe, List, Get) that often have limited security value. Drop these to reduce costs.
+    </div>
+
+    <Tabs items={['Filter Configuration', 'Matching Events']}>
+      <Tabs.Tab>
+
+```text
+Name: aws-readonly-drop
+Type: Regex
+Pattern: /"eventName":"(Describe|List|Get)[A-Za-z]+"/
+Action: Drop
+Scope: Source-specific (aws-cloudtrail)
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```json
+// ✅ Matches - will be dropped
+{"eventName": "DescribeInstances", ...}
+{"eventName": "ListBuckets", ...}
+{"eventName": "GetObject", ...}
+
+// ❌ Does not match - kept in logs
+{"eventName": "CreateUser", ...}
+{"eventName": "DeleteBucket", ...}
+```
+
+      </Tabs.Tab>
+    </Tabs>
+  </div>
+</div>
+
+<div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+  <div className="p-5">
+    <h4 className="text-lg font-bold text-gray-900 dark:text-white m-0 mb-3">Archive Okta System Events</h4>
+    
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+      Okta generates system-level events that are typically not security-relevant but may be needed for troubleshooting.
+    </div>
+
+    <Tabs items={['Filter Configuration', 'Matching Events']}>
+      <Tabs.Tab>
+
+```text
+Name: okta-system-archive
+Type: Regex
+Pattern: /"actor":\{[^}]*"type":"SystemPrincipal"/
+Action: Archive
+Scope: Source-specific (okta)
+```
+
+      </Tabs.Tab>
+      <Tabs.Tab>
+
+```json
+// ✅ Matches - will be archived
+{
+  "eventType": "system.org.rate_limit.warning",
+  "actor": {
+    "type": "SystemPrincipal",
+    "alternateId": "system@okta.com"
+  }
+}
+
+// ❌ Does not match - kept in logs
+{
+  "eventType": "user.session.start",
+  "actor": {
+    "type": "User",
+    "alternateId": "alice@company.com"
+  }
+}
+```
+
+      </Tabs.Tab>
+    </Tabs>
+  </div>
+</div>
+
+</div>
+
+## Filter vs Drop Step
+
+| Feature | Filter | Drop Step |
+|---------|--------|-----------|
+| **Reusable** | ✅ Yes - share across pipelines | ❌ No - pipeline-specific |
+| **Archive Option** | ✅ Yes - drop or archive | ❌ No - drop only |
+| **Matching** | Regex on entire raw log | Preconditions on specific fields |
+| **Global Application** | ✅ Yes - can apply to all sources | ❌ No - only within pipeline |
+| **Configuration** | Separate filter management UI | Inline in pipeline editor |
+
+**When to use Filter:**
+- You need to archive events instead of dropping
+- You want reusable rules across multiple pipelines
+- You want to match patterns anywhere in the raw log
+
+**When to use Drop:**
+- Simple, one-off dropping within a single pipeline
+- You want to match on specific normalized fields using preconditions
+- You don't need the archive option
+
+## Common Patterns
+
+| Use Case | Pattern | Description |
+|----------|---------|-------------|
+| Health checks | `/HealthCheck\|health\|ready\|live/i` | Match common health check endpoints |
+| AWS internal | `/"invokedBy":"AWS Internal"/` | AWS service-to-service calls |
+| Bot traffic | `/bot\|crawler\|spider/i` | Known bot user agents |
+| Debug logs | `/"level":"debug"/i` | Debug-level log entries |
+| Specific IPs | `/10\.0\.0\.\d+/` | Match IP address patterns |

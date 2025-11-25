@@ -3,6 +3,8 @@ export default {
   "transforms": "Transforms",
   "filtering": "Filtering",
   "enrichments": "Enrichments",
+  "sampling": "Sample",
+  "dropping": "Drop",
   "destinations": "Destinations"
 }
 
