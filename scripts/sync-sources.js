@@ -209,9 +209,19 @@ function main() {
   
   // Check if source file exists
   if (!fs.existsSync(SOURCE_TYPES_PATH)) {
-    console.error(`❌ Source file not found: ${SOURCE_TYPES_PATH}`);
-    console.error('   Make sure runreveal/app is in the same parent directory as runreveal-docs');
-    process.exit(1);
+    // In CI environments (like Cloudflare), the runreveal/app repo won't be available
+    // Check if we already have sources.json to use
+    if (fs.existsSync(OUTPUT_PATH)) {
+      console.log('⏭️  Source file not found (CI environment detected)');
+      console.log('   Using existing sources.json - skipping sync');
+      console.log(`   To update sources, run this script locally with runreveal/app available.\n`);
+      process.exit(0);
+    } else {
+      console.error(`❌ Source file not found: ${SOURCE_TYPES_PATH}`);
+      console.error('   Make sure runreveal/app is in the same parent directory as runreveal-docs');
+      console.error('   No existing sources.json found - cannot proceed.');
+      process.exit(1);
+    }
   }
   
   // Read and parse SourceTypes.tsx
