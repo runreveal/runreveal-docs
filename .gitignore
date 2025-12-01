@@ -4,3 +4,4 @@ node_modules
 pages/.DS_Store
 
 **/.claude/settings.local.json
+/out
