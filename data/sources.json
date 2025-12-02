@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2025-12-01T23:41:28.222Z",
+  "generatedAt": "2025-12-01T23:59:52.184Z",
   "sourceCount": 82,
   "sources": [
     {
@@ -1344,7 +1344,7 @@
       "id": "tailscale-audit",
       "name": "Tailscale Audit",
       "description": "Collect audit logs from your Tailscale tailnet showing changes and administrative events.",
-      "logo": "/logos/tailscale.svg",
+      "logo": "/logos/tailscale_logo.png",
       "url": "/sources/source-types/tailscale/audit",
       "ingestTypes": [
         "polling"
@@ -1361,7 +1361,7 @@
       "id": "tailscale-flow",
       "name": "Tailscale Flow",
       "description": "Flow logs from your Tailscale network are pushed to us via a webhook.",
-      "logo": "/logos/tailscale.svg",
+      "logo": "/logos/tailscale_logo.png",
       "url": "/sources/source-types/tailscale/flow",
       "ingestTypes": [
         "webhook"
@@ -1416,7 +1416,7 @@
       "id": "twingate",
       "name": "Twingate Logs",
       "description": "Ingest Twingate network access logs, DNS filtering, audit events, and data loss prevention logs from object storage.",
-      "logo": "/logos/twingate_logo.svg",
+      "logo": "/logos/twingate.png",
       "url": "/sources/source-types/twingate",
       "ingestTypes": [
         "s3",

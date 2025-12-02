@@ -26,12 +26,6 @@ const PUBLIC_PATH = path.join(RUNREVEAL_APP_PATH, 'public');
 const DOCS_LOGOS_PATH = path.join(__dirname, '../public/logos');
 const OUTPUT_PATH = path.join(__dirname, '../data/sources.json');
 
-// Logo file overrides - map source image names to different files
-const LOGO_OVERRIDES = {
-  'twingate_logos.svg': 'twingate.png',
-  'dopesecurity.svg': 'dopesecurity.jpeg',
-};
-
 // Ensure directories exist
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {
@@ -126,11 +120,6 @@ function parseSourceTypes(content) {
   return sources;
 }
 
-// Get the actual logo filename (applying overrides)
-function getLogoFilename(imageName) {
-  return LOGO_OVERRIDES[imageName] || imageName;
-}
-
 // Copy logo files
 function copyLogos(sources) {
   ensureDir(DOCS_LOGOS_PATH);
@@ -143,25 +132,20 @@ function copyLogos(sources) {
     
     // Image path is like '/cloudtrail.png', remove leading slash
     const imageName = source.image.replace(/^\//, '');
-    const actualImageName = getLogoFilename(imageName);
-    const sourcePath = path.join(PUBLIC_PATH, actualImageName);
-    const destPath = path.join(DOCS_LOGOS_PATH, actualImageName);
+    const sourcePath = path.join(PUBLIC_PATH, imageName);
+    const destPath = path.join(DOCS_LOGOS_PATH, imageName);
     
     // Skip if already copied
-    if (copiedFiles.has(actualImageName)) return;
+    if (copiedFiles.has(imageName)) return;
     
     if (fs.existsSync(sourcePath)) {
       // Ensure destination directory exists
       ensureDir(path.dirname(destPath));
       fs.copyFileSync(sourcePath, destPath);
-      copiedFiles.add(actualImageName);
-      if (imageName !== actualImageName) {
-        console.log(`  ✓ Copied ${actualImageName} (override for ${imageName})`);
-      } else {
-        console.log(`  ✓ Copied ${imageName}`);
-      }
+      copiedFiles.add(imageName);
+      console.log(`  ✓ Copied ${imageName}`);
     } else {
-      missingFiles.push(actualImageName);
+      missingFiles.push(imageName);
     }
   });
   
@@ -178,22 +162,17 @@ function generateSourcesData(sources) {
   // Transform sources for the docs
   const docsSourceData = sources
     .filter(s => !s.deprecated) // Exclude deprecated sources
-    .map(source => {
-      // Apply logo override if exists
-      const imageName = source.image ? source.image.replace(/^\//, '') : null;
-      const actualImageName = imageName ? getLogoFilename(imageName) : null;
-      return {
-        id: source.type,
-        name: source.name,
-        description: source.description || '',
-        logo: actualImageName ? `/logos/${actualImageName}` : '/logos/webhook.png',
-        url: source.docLink || `/sources/source-types/${source.type}`,
-        ingestTypes: source.ingestTypes || [],
-        categories: source.categories || [],
-        tableName: source.tableName || [],
-        plan: source.plan || 'free',
-      };
-    })
+    .map(source => ({
+      id: source.type,
+      name: source.name,
+      description: source.description || '',
+      logo: source.image ? `/logos${source.image}` : '/logos/webhook.png',
+      url: source.docLink || `/sources/source-types/${source.type}`,
+      ingestTypes: source.ingestTypes || [],
+      categories: source.categories || [],
+      tableName: source.tableName || [],
+      plan: source.plan || 'free',
+    }))
     .sort((a, b) => a.name.localeCompare(b.name));
   
   return {

@@ -156,14 +156,14 @@ export default function SourceSearch() {
             >
               {/* Header with Logo and Name */}
               <div className="flex items-center pt-4 px-4">
-                <div className="shrink-0">
+                <div className="shrink-0 rounded-md p-1.5 dark:bg-[#EDEDED]">
                   <img 
                     src={source.logo} 
                     alt={source.name} 
-                    className="h-10 w-10 rounded-sm object-contain"
+                    className="h-12 w-12 rounded-sm object-contain"
                   />
                 </div>
-                <div className="ml-4 flex-1">
+                <div className="ml-3 flex-1">
                   <h3 className="font-semibold font-sans leading-normal text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                     {source.name}
                   </h3>
