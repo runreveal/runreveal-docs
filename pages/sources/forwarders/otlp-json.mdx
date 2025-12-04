@@ -1,0 +1,44 @@
+---
+title: 'OpenTelemetry (OTLP)'
+description: 'Ingest OpenTelemetry logs that have been uploaded to object storage as JSON.'
+---
+
+import { Callout } from 'nextra/components'
+
+# OpenTelemetry (OTLP)
+
+Ingest OpenTelemetry logs that have been uploaded to object storage as JSON.
+
+OpenTelemetry logs can be ingested from various object storage providers including S3, Azure Blob Storage, Google Cloud Storage, and Cloudflare R2.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Blob Storage](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+- [Cloudflare R2 Bucket](/sources/object-storage/r2)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_otlp_json
+```
+</Callout>
+
+## Setup
+
+Configure your OpenTelemetry collector or application to export logs to object storage in JSON format.
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a few minutes.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'otlp-json' LIMIT 1
+```
+

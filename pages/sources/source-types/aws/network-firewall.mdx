@@ -1,0 +1,53 @@
+---
+title: 'AWS Network Firewall'
+description: 'Collect AWS Network Firewall logs from S3, including alert, flow (netflow), and TLS revocation events in Suricata EVE JSON format.'
+---
+
+import { Callout } from 'nextra/components'
+
+# AWS Network Firewall
+
+AWS Network Firewall logs provide detailed information about network traffic, security alerts, and firewall rule matches. These logs capture information such as flow data, alert events, and TLS revocation events in Suricata EVE JSON format. They help administrators monitor network traffic, analyze security threats, and troubleshoot network issues.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_aws_nfw
+```
+</Callout>
+
+## Setup
+
+AWS Network Firewall logs can be configured to send logs to an S3 bucket. The logs are in Suricata EVE JSON format and include:
+
+- **Alert logs**: Security rule matches and blocked traffic
+- **Flow logs**: Network flow information (netflow)
+- **TLS revocation logs**: Certificate revocation events
+
+### Configuring AWS Network Firewall Logging
+
+1. Navigate to the AWS Network Firewall console
+2. Select your firewall
+3. Configure logging destinations
+4. Set up S3 bucket logging with the appropriate log types
+5. Ensure the S3 bucket is configured with the correct SNS topic for notifications
+
+For detailed setup instructions, see the [AWS Network Firewall documentation](https://docs.aws.amazon.com/network-firewall/latest/developerguide/logging.html).
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a few minutes.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'aws-nfw' LIMIT 1
+```
+

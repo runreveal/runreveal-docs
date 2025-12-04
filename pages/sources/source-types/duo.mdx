@@ -1,0 +1,36 @@
+---
+title: 'Duo Security'
+description: 'Collect authentication logs from your Duo Security account to monitor user authentication events and multi-factor authentication activities.'
+---
+
+# Duo Security
+
+Collect authentication logs from your Duo Security account to monitor user authentication events and multi-factor authentication activities.
+
+Duo Security logs allow you to view authentication events from your Duo account. RunReveal will poll the Duo API to retrieve your authentication logs every 60 seconds.
+
+## Setup
+
+To setup your Duo Security source, you will need API credentials from your Duo account.
+
+### Duo API Credentials
+
+1. Log in to your Duo Admin Panel
+2. Navigate to **Applications** and create a new **Admin API** application
+3. Copy the **Integration Key**, **Secret Key**, and **API Hostname**
+4. In RunReveal, create a new Duo Security source
+5. Enter the credentials from step 3:
+   - **Integration Key**: Your Duo integration key
+   - **Secret Key**: Your Duo secret key
+   - **API Hostname**: Your Duo API hostname (e.g., `api-xxxxx.duosecurity.com`)
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a minute.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'duo' LIMIT 1
+```
+

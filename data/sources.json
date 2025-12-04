@@ -1,0 +1,1568 @@
+{
+  "generatedAt": "2025-12-02T22:08:15.572Z",
+  "sourceCount": 85,
+  "sources": [
+    {
+      "id": "1password",
+      "name": "1Password",
+      "description": "The 1Password source shows credential access and audit logs from your 1Password organization.",
+      "logo": "/logos/1password.svg",
+      "url": "/sources/source-types/1password",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "one_password_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "abnormal",
+      "name": "Abnormal AI",
+      "description": "Collect logs from your Abnormal AI tenant using an API key.",
+      "logo": "/logos/abnormal.jpeg",
+      "url": "/sources/source-types/abnormal",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "abnormal_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "atlassian",
+      "name": "Atlassian",
+      "description": "Ingest information from your Atlassian account across their entire suite of products.",
+      "logo": "/logos/atlassian.svg",
+      "url": "/sources/source-types/atlassian",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "atlassian_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "auth0",
+      "name": "Auth0",
+      "description": "Collect logs from your Auth0 account.",
+      "logo": "/logos/auth0.png",
+      "url": "/sources/source-types/auth0",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "auth0_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "authentik",
+      "name": "Authentik",
+      "description": "Ingest authentik audit logs from a variety of sources.",
+      "logo": "/logos/authentik.png",
+      "url": "/sources/source-types/authentik",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "identity"
+      ],
+      "tableName": [
+        "authentik_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "alb",
+      "name": "AWS ALB",
+      "description": "Collect logs from your AWS Application Load Balancer (ALB).",
+      "logo": "/logos/alb.png",
+      "url": "/sources/source-types/aws/alb",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "aws",
+        "s3",
+        "http"
+      ],
+      "tableName": [],
+      "plan": "pro"
+    },
+    {
+      "id": "cloudtrail",
+      "name": "AWS Cloudtrail Logs",
+      "description": "Monitor the management and data events from a single AWS account or an organization.",
+      "logo": "/logos/cloudtrail.png",
+      "url": "/sources/source-types/aws/cloudtrail",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "r2"
+      ],
+      "categories": [
+        "aws",
+        "cloud"
+      ],
+      "tableName": [
+        "aws_cloudtrail_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "awsdns",
+      "name": "AWS DNS Logs",
+      "description": "Collect DNS logs from your AWS account.",
+      "logo": "/logos/dns.svg",
+      "url": "/sources/source-types/aws/dns",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "aws",
+        "s3"
+      ],
+      "tableName": [
+        "aws_dns_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "flow",
+      "name": "AWS Flow Logs",
+      "description": "Collect flow logs from your AWS account.",
+      "logo": "/logos/flowlogs.svg",
+      "url": "/sources/source-types/aws/flow",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "aws",
+        "s3"
+      ],
+      "tableName": [
+        "flow_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "hosted-zone",
+      "name": "AWS Hosted Zone",
+      "description": "The AWS Hosted Zone source collects logs from Cloudwatch by polling the Cloudwatch API for changes and access to your hosted zones.",
+      "logo": "/logos/route53.svg",
+      "url": "/sources/source-types/aws/hosted-zone",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "aws",
+        "cloud"
+      ],
+      "tableName": [
+        "aws_hosted_zone_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "aws-nfw",
+      "name": "AWS Network Firewall",
+      "description": "Collect AWS Network Firewall logs from S3, including alert, flow (netflow), and TLS revocation events in Suricata EVE JSON format.",
+      "logo": "/logos/s3.png",
+      "url": "/sources/source-types/aws/network-firewall",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "aws",
+        "s3"
+      ],
+      "tableName": [
+        "aws_nfw_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "s3-access",
+      "name": "AWS S3 Access Logs",
+      "description": "Collect S3 access logs to monitor bucket activity, access patterns, and security events.",
+      "logo": "/logos/s3.png",
+      "url": "/sources/source-types/aws/s3-access",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "aws",
+        "s3"
+      ],
+      "tableName": [
+        "s3_access_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "aws-waf",
+      "name": "AWS WAF Logs",
+      "description": "Collect AWS WAF logs to monitor web application firewall activity, security events, and traffic patterns.",
+      "logo": "/logos/aws-waf.svg",
+      "url": "/sources/source-types/aws/aws-waf",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "aws",
+        "s3",
+        "http"
+      ],
+      "tableName": [
+        "aws_waf_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "azure-activity",
+      "name": "Azure Activity Logs",
+      "description": "Your Azure Activity Logs show management across your Azure resources and subscriptions.",
+      "logo": "/logos/azure-activity.svg",
+      "url": "/sources/source-types/azure/activity-logs",
+      "ingestTypes": [
+        "azure-blob",
+        "webhook"
+      ],
+      "categories": [
+        "azure",
+        "cloud"
+      ],
+      "tableName": [
+        "azure_activity_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "aad",
+      "name": "Azure Entra Logs",
+      "description": "The Azure Entra logs source allows you to collect your Azure Active Directory and other identity logs.",
+      "logo": "/logos/aad.svg",
+      "url": "/sources/source-types/azure/entra",
+      "ingestTypes": [
+        "azure-blob",
+        "webhook"
+      ],
+      "categories": [
+        "azure",
+        "cloud"
+      ],
+      "tableName": [
+        "entra_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "azure-flow",
+      "name": "Azure Flow Logs",
+      "description": "The network logs from your Azure account can be collected with the Azure Flow Logs source.",
+      "logo": "/logos/nsg-flow.svg",
+      "url": "/sources/source-types/azure/azure-flow",
+      "ingestTypes": [
+        "azure-blob"
+      ],
+      "categories": [
+        "azure",
+        "cloud"
+      ],
+      "tableName": [
+        "nsg_flow_logs",
+        "azure_flow_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "backfill",
+      "name": "Backfill",
+      "description": "Backfill logs you've already collected in a blob storage container. This can take some time",
+      "logo": "/logos/backfill.svg",
+      "url": "/sources/source-types/backfill",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "gcs",
+        "azure-blob",
+        "r2"
+      ],
+      "categories": [
+        "s3"
+      ],
+      "tableName": [],
+      "plan": "ent"
+    },
+    {
+      "id": "bitwarden",
+      "name": "Bitwarden",
+      "description": "Collect audit and event logs from your Bitwarden organization, including user access, item events, and administrative changes.",
+      "logo": "/logos/bitwarden.svg",
+      "url": "/sources/source-types/bitwarden",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "bitwarden_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "box",
+      "name": "Box",
+      "description": "Box audit logs that show information about management events and access to your Box resources.",
+      "logo": "/logos/box.png",
+      "url": "/sources/source-types/box",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "box_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "circleci-audit",
+      "name": "CircleCI Audit Logs",
+      "description": "Collect audit logs from CircleCI showing workflow runs, user actions, and organizational changes.",
+      "logo": "/logos/circleci.svg",
+      "url": "/sources/source-types/circleci",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud"
+      ],
+      "tableName": [
+        "circleci_audit_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "cloudentity",
+      "name": "Cloudentity Logs",
+      "description": "The Cloudentity source shows logs and events from your Cloudentity account.",
+      "logo": "/logos/cloudentity.png",
+      "url": "/sources/source-types/cloudentity",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [],
+      "plan": "ent"
+    },
+    {
+      "id": "cf-access-requests",
+      "name": "Cloudflare Access Requests",
+      "description": "The Cloudflare Access Requests logs show authentication and authorization events for users accessing protected applications.",
+      "logo": "/logos/cloudflare.svg",
+      "url": "/sources/source-types/cloudflare/zt-access",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "s3",
+        "cloudflare"
+      ],
+      "tableName": [
+        "cf_access_requests_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "cf-audit",
+      "name": "Cloudflare Audit Log",
+      "description": "Cloudflare Audit logs show changes to your Cloudflare account and management information about your Cloudflare account like new certificates issued for your zones.",
+      "logo": "/logos/cloudflare.svg",
+      "url": "/sources/source-types/cloudflare/audit",
+      "ingestTypes": [
+        "polling",
+        "r2",
+        "s3",
+        "external-s3",
+        "gcs",
+        "azure-blob"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "cf_audit_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "cf-firewall",
+      "name": "Cloudflare Firewall Logs",
+      "description": "Cloudflare Firewall Logs provide detailed information about WAF events, security actions, and firewall rules triggered on your domain.",
+      "logo": "/logos/cloudflare.svg",
+      "url": "/sources/source-types/cloudflare/firewall",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "s3",
+        "cloudflare"
+      ],
+      "tableName": [
+        "cf_firewall_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "cf-gateway-dns",
+      "name": "Cloudflare Gateway DNS Logs",
+      "description": "The Cloudflare Gateway DNS product will show the hostnames resolved by your Zero Trust enrolled team-members.",
+      "logo": "/logos/cloudflare.svg",
+      "url": "/sources/source-types/cloudflare/gateway-dns",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "s3",
+        "cloudflare"
+      ],
+      "tableName": [
+        "cf_gateway_dns_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "cf-gateway-http",
+      "name": "Cloudflare Gateway HTTP Logs",
+      "description": "The Cloudflare Gateway product emits HTTP logs that show you what websites your Zero Trust enrolled team-members are accessing.",
+      "logo": "/logos/cloudflare.svg",
+      "url": "/sources/source-types/cloudflare/gateway-http",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "s3",
+        "cloudflare"
+      ],
+      "tableName": [
+        "cf_gateway_http_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "cf-gateway-network",
+      "name": "Cloudflare Gateway Network",
+      "description": "Cloudflare Zero Trust Network logs show network traffic and security events from your Zero Trust network.",
+      "logo": "/logos/cloudflare.svg",
+      "url": "/sources/source-types/cloudflare/gateway-network",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "s3",
+        "cloudflare"
+      ],
+      "tableName": [
+        "cf_gateway_network_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "cf-http",
+      "name": "Cloudflare HTTP Log",
+      "description": "Ingest raw HTTP logs from your Cloudflare Zones into RunReveal.",
+      "logo": "/logos/cloudflare.svg",
+      "url": "/sources/source-types/cloudflare/http",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "http"
+      ],
+      "tableName": [
+        "cf_http_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "r2",
+      "name": "Cloudflare R2 Generic Source",
+      "description": "Ingest line delimited json and compressed json logs from Cloudflare's R2 blob storage.",
+      "logo": "/logos/r2.png",
+      "url": "/sources/object-storage/r2",
+      "ingestTypes": [
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "cloudflare"
+      ],
+      "tableName": [],
+      "plan": "free"
+    },
+    {
+      "id": "crowdstrike",
+      "name": "CrowdStrike",
+      "description": "Collect logs from your CrowdStrike account. This data is far less detailed than the Falcon Data Replicator source and we read it from the CrowdStrike API.",
+      "logo": "/logos/crowdstrike.svg",
+      "url": "/sources/source-types/crowdstrike/event-stream",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [],
+      "plan": "ent"
+    },
+    {
+      "id": "crowdstrike-fdr",
+      "name": "CrowdStrike Falcon Data Replicator",
+      "description": "The CrowdStrike Falcon Data Replicator source shows agent logs, app related logs, crowdstrike's managed alerts, and raw process data.",
+      "logo": "/logos/crowdstrike.svg",
+      "url": "/sources/source-types/crowdstrike/fdr",
+      "ingestTypes": [
+        "external-s3"
+      ],
+      "categories": [
+        "s3",
+        "polling"
+      ],
+      "tableName": [
+        "crowdstrike_data_logs",
+        "crowdstrike_managed_logs",
+        "crowdstrike_aidmaster_logs",
+        "crowdstrike_appinfo_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "cyberhaven",
+      "name": "Cyberhaven Logs",
+      "description": "The Cyberhaven source shows incident alerts and events from your Cyberhaven account.",
+      "logo": "/logos/cyberhaven.svg",
+      "url": "/sources/source-types/cyberhaven",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "cyberhaven_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "dnsfilter",
+      "name": "DNSFilter",
+      "description": "Ingest the DNS logs from your DNSFilter account. See exactly what domain names are being resolved in your network.",
+      "logo": "/logos/dnsfilter.png",
+      "url": "/sources/source-types/dnsfilter",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "s3"
+      ],
+      "tableName": [],
+      "plan": "ent"
+    },
+    {
+      "id": "dope-security",
+      "name": "Dope Security",
+      "description": "Ingest Dope Security endpoint protection logs from object storage showing network traffic, file activity, and security events.",
+      "logo": "/logos/dopesecurity.jpeg",
+      "url": "/sources/source-types/dope-security",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "cloud",
+        "s3",
+        "webhook"
+      ],
+      "tableName": [
+        "dope_security_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "dope-security-webhook",
+      "name": "Dope Security Webhook",
+      "description": "Ingest Dope Security endpoint protection logs from object storage showing network traffic, file activity, and security events.",
+      "logo": "/logos/dopesecurity.jpeg",
+      "url": "/sources/source-types/dope-security",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "dope_security_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "dropbox",
+      "name": "Dropbox",
+      "description": "Dropbox audit logs that show information about management events and access to your Dropbox resources.",
+      "logo": "/logos/dropbox.svg",
+      "url": "/sources/source-types/dropbox",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [],
+      "plan": "pro"
+    },
+    {
+      "id": "duo",
+      "name": "Duo Security",
+      "description": "Collect authentication logs from your Duo Security account to monitor user authentication events and multi-factor authentication activities.",
+      "logo": "/logos/duo.svg",
+      "url": "/sources/source-types/duo",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "duo_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "fastly-waf",
+      "name": "Fastly WAF",
+      "description": "Collect logs from your Fastly WAF.",
+      "logo": "/logos/fastly_logo.png",
+      "url": "/sources/source-types/fastly-waf",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "fastly",
+        "s3",
+        "http"
+      ],
+      "tableName": [
+        "fastly_waf_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "firehydrant",
+      "name": "FireHydrant",
+      "description": "Collect audit logs from your FireHydrant account to monitor incident management activities, on-call rotation changes, and administrative actions.",
+      "logo": "/logos/firehydrant.png",
+      "url": "/sources/source-types/firehydrant",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "firehydrant_audit_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "formal-security",
+      "name": "Formal Security",
+      "description": "Collect data access logs from Formal Security, including actor, network, and resource information for comprehensive visibility into data access patterns.",
+      "logo": "/logos/formal-security.png",
+      "url": "/sources/source-types/formal-security",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "s3"
+      ],
+      "tableName": [
+        "formal_security_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "gcp",
+      "name": "GCP Logs",
+      "description": "Collect logs from your GCP projects.",
+      "logo": "/logos/gcp.png",
+      "url": "/sources/source-types/gcp",
+      "ingestTypes": [
+        "gcs",
+        "webhook"
+      ],
+      "categories": [
+        "google",
+        "cloud"
+      ],
+      "tableName": [
+        "gcp_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "azure-blob",
+      "name": "Generic Azure Blob",
+      "description": "Ingest generic information and transform it in real time from Azure Blob storage. Great for any kind of structured logs",
+      "logo": "/logos/azure-blob.png",
+      "url": "/sources/source-types/generic",
+      "ingestTypes": [
+        "azure-blob"
+      ],
+      "categories": [
+        "azure",
+        "cloud"
+      ],
+      "tableName": [],
+      "plan": "pro"
+    },
+    {
+      "id": "gcp-pubsub",
+      "name": "Generic GCP PubSub",
+      "description": "Ingest generic information and transform it in real time from GCP PubSub. Great for real-time event processing and high volume log streaming",
+      "logo": "/logos/gcp-pubsub.svg",
+      "url": "/sources/source-types/generic",
+      "ingestTypes": [
+        "gcp-queue"
+      ],
+      "categories": [
+        "gcp",
+        "cloud"
+      ],
+      "tableName": [],
+      "plan": "pro"
+    },
+    {
+      "id": "gcs",
+      "name": "Generic GCS Blob",
+      "description": "Ingest generic information and transform it in real time from GCS Blob storage. Great for any kind of structured logs",
+      "logo": "/logos/gcs.png",
+      "url": "/sources/source-types/generic",
+      "ingestTypes": [
+        "gcs"
+      ],
+      "categories": [
+        "gcs",
+        "cloud"
+      ],
+      "tableName": [],
+      "plan": "pro"
+    },
+    {
+      "id": "github",
+      "name": "Github",
+      "description": "Your GitHub organization logs about repositories, access changes, updates to your account, and more.",
+      "logo": "/logos/github.png",
+      "url": "/sources/source-types/github/audit",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2",
+        "polling"
+      ],
+      "categories": [
+        "polling",
+        "s3",
+        "azure"
+      ],
+      "tableName": [
+        "github_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "github-webhook",
+      "name": "Github Webhook Logs",
+      "description": "The GitHub webhook log source collects only pull-request information like merges and approvals. No other GitHub data is collected with this source.",
+      "logo": "/logos/github.png",
+      "url": "/sources/source-types/github/webhook",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [],
+      "plan": "free"
+    },
+    {
+      "id": "gitlab",
+      "name": "Gitlab",
+      "description": "Collect details logs about everything happening in your GitLab organization",
+      "logo": "/logos/gitlab.svg",
+      "url": "/sources/source-types/gitlab",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "s3"
+      ],
+      "tableName": [
+        "gitlab_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "google-workspace",
+      "name": "Google Workspace",
+      "description": "Ingest data from you Google Workspace products like drive, calendar, docs, and more.",
+      "logo": "/logos/gsuite.svg",
+      "url": "/sources/source-types/google-workspace-logs",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "gsuite_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "guardduty",
+      "name": "GuardDuty",
+      "description": "The AWS GuardDuty source collects findings from AWS GuardDuty. This is a very low volume source, with high fidelity alerts.",
+      "logo": "/logos/guardduty.svg",
+      "url": "/sources/source-types/aws/guardduty",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "r2"
+      ],
+      "categories": [
+        "s3"
+      ],
+      "tableName": [
+        "aws_guardduty_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "hashicorp-vault",
+      "name": "HashiCorp Vault",
+      "description": "Collect audit logs from your HashiCorp Vault instance, showing who accessed what secrets, when, and from where.",
+      "logo": "/logos/hashicorp-vault.svg",
+      "url": "/sources/source-types/hashicorp-vault",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "hashicorp"
+      ],
+      "tableName": [
+        "hashicorp_vault_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "heroku-audit",
+      "name": "Heroku",
+      "description": "Collect audit trail events from your Heroku Enterprise account, including app creation, add-on management, collaborator changes, and team membership updates.",
+      "logo": "/logos/heroku.svg",
+      "url": "/sources/source-types/heroku",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling",
+        "cloud"
+      ],
+      "tableName": [
+        "heroku_audit_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "jamfprotect",
+      "name": "JAMF Protect",
+      "description": "Ingest JAMF Protect logs that capture real-time endpoint threat detection, prevention, and remediation from an S3 bucket.",
+      "logo": "/logos/jamf.png",
+      "url": "/sources/source-types/jamfprotect",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "cloud"
+      ],
+      "tableName": [
+        "jamf_protect_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "jamfprotect-webhook",
+      "name": "JAMF Protect via Webhook",
+      "description": "Ingest JAMF Protect logs that capture real-time endpoint threat detection, prevention, and remediation from a webhook.",
+      "logo": "/logos/jamf.png",
+      "url": "/sources/source-types/jamfprotect",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "jamf_protect_webhook_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "jamf-webhook",
+      "name": "JAMF Webhooks",
+      "description": "Your JAMF webhook information mostly shows locations that your devices have pinged from, and other kinds of management events.",
+      "logo": "/logos/jamf.png",
+      "url": "/sources/source-types/jamf",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "jamf_webhook_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "jumpcloud",
+      "name": "JumpCloud",
+      "description": "JumpCloud Directory Insights logs capture authentication, authorization, and directory management events across your JumpCloud environment, including user logins, group modifications, system access attempts, and policy changes.\n    These logs are crucial for security monitoring, compliance reporting, and understanding user activity across your organization's directory services.",
+      "logo": "/logos/jumpcloud.svg",
+      "url": "/sources/source-types/jumpcloud",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "cloud"
+      ],
+      "tableName": [
+        "jumpcloud_directory_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "keeper",
+      "name": "Keeper Security",
+      "description": "Collect logs from your Keeper Security account.",
+      "logo": "/logos/keeper.png",
+      "url": "/sources/source-types/keeper",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "keeper_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "kubernetes-audit",
+      "name": "Kubernetes Audit Log",
+      "description": "Collect audit logs from your Kubernetes clusters.",
+      "logo": "/logos/kubernetes_audit.png",
+      "url": "/sources/source-types/kubernetes",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "s3"
+      ],
+      "tableName": [
+        "kubernetes_audit_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "linear-webhook",
+      "name": "Linear Audit Logs",
+      "description": "Collect audit logs from Linear via webhook to track user actions, team changes, and project modifications.",
+      "logo": "/logos/linear.svg",
+      "url": "/sources/source-types/linear",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook",
+        "project-management"
+      ],
+      "tableName": [
+        "linear_audit_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "lumos",
+      "name": "Lumos Logs",
+      "description": "Ingest Lumos access management and governance logs from object storage.",
+      "logo": "/logos/lumos_logo.svg",
+      "url": "/sources/source-types/lumos",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "identity"
+      ],
+      "tableName": [
+        "lumos_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "description": "Collect logs from your MongoDB account.",
+      "logo": "/logos/mongodb.svg",
+      "url": "/sources/source-types/mongodb",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [],
+      "plan": "ent"
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "description": "Receive logs directly from Notion about changes to your workspace, access to your Notion documents, and more.",
+      "logo": "/logos/notion.png",
+      "url": "/sources/source-types/notion",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "notion_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "obsidian",
+      "name": "Obsidian Logs",
+      "description": "We'll receive Obsidian's findings via a webhook so you can save all of their findings for later.",
+      "logo": "/logos/obsidian.jpg",
+      "url": "/sources/source-types/obsidian-security",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [],
+      "plan": "ent"
+    },
+    {
+      "id": "okta",
+      "name": "Okta",
+      "description": "Ingest all information emitted by the Okta Audit Logs product. Once set up, we will ingest the previous 30 days of audit logs",
+      "logo": "/logos/okta.png",
+      "url": "/sources/source-types/okta",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "okta_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "opal",
+      "name": "Opal Logs",
+      "description": "Receive events from Opal.dev event streaming to monitor access management activities and security events.",
+      "logo": "/logos/opallogo.jpeg",
+      "url": "/sources/source-types/opal",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "opal_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "otlp-json",
+      "name": "OpenTelemetry (OTLP)",
+      "description": "Ingest OpenTelemetry logs that have been uploaded to object storage as JSON.",
+      "logo": "/logos/otlp.png",
+      "url": "/sources/forwarders/otlp-json",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "observability",
+        "metrics",
+        "traces"
+      ],
+      "tableName": [],
+      "plan": "free"
+    },
+    {
+      "id": "pagerduty",
+      "name": "PagerDuty",
+      "description": "Collect audit logs and events from your PagerDuty account to monitor administrative changes and user activities.",
+      "logo": "/logos/pagerduty.svg",
+      "url": "/sources/source-types/pagerduty",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "pagerduty_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "palo-panorama-traffic",
+      "name": "Palo Alto Panorama Traffic",
+      "description": "Collect traffic logs from your Palo Alto Panorama.",
+      "logo": "/logos/palo_logo.png",
+      "url": "/sources/source-types/palo-pano-traffic",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "network"
+      ],
+      "tableName": [
+        "panorama_traffic_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "reveald",
+      "name": "Reveald",
+      "description": "The Reveald source is a webhook or bucket source that allows you to ship logs from your endpoints to us.",
+      "logo": "/logos/webhook.png",
+      "url": "/sources/source-types/reveald",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "local"
+      ],
+      "tableName": [],
+      "plan": "free"
+    },
+    {
+      "id": "s3bucket",
+      "name": "S3 Generic",
+      "description": "The S3 generic source allows you to ingest just about any kind of log from an S3 bucket, and transform the format in real time..",
+      "logo": "/logos/s3.png",
+      "url": "/sources/source-types/generic",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "s3"
+      ],
+      "tableName": [],
+      "plan": "ent"
+    },
+    {
+      "id": "sentinelone",
+      "name": "Sentinel One",
+      "description": "Ingest data from your Sentinel One account about devices in your fleet.",
+      "logo": "/logos/sentinelone.svg",
+      "url": "/sources/source-types/sentinelone",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "sentinelone_activity_logs",
+        "sentinelone_threat_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "sentinelone-endpoint",
+      "name": "SentinelOne Endpoint Logs",
+      "description": "Ingest SentinelOne endpoint security logs from object storage. Monitor process activities, network connections, and security events.",
+      "logo": "/logos/sentinelone.svg",
+      "url": "/sources/source-types/sentinelone",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "gcs"
+      ],
+      "categories": [
+        "s3",
+        "security"
+      ],
+      "tableName": [
+        "sentinelone_endpoint_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "slack",
+      "name": "Slack",
+      "description": "Ingest Slack audit logs that show information about management events and access to your Slack resources.",
+      "logo": "/logos/slack.svg",
+      "url": "/sources/source-types/slack",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "slack_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "snowflake",
+      "name": "Snowflake",
+      "description": "Collect query history, login attempts, and security events from your Snowflake account.",
+      "logo": "/logos/snowflake.svg",
+      "url": "/sources/source-types/snowflake",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "snowflake_login_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "sophos",
+      "name": "Sophos",
+      "description": "Collect logs from your Sophos account.",
+      "logo": "/logos/sophos.png",
+      "url": "/sources/source-types/sophos",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "sophos_alert_logs",
+        "sophos_event_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "structured-webhook",
+      "name": "Structured Webhook",
+      "description": "If you want to integrate directly with the RunReveal and send us a small to moderate amount of logs in a format that you've pre-structured then this likely your best option.",
+      "logo": "/logos/webhook.png",
+      "url": "/sources/source-types/structured-webhooks",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [],
+      "plan": "free"
+    },
+    {
+      "id": "tailscale-audit",
+      "name": "Tailscale Audit",
+      "description": "Collect audit logs from your Tailscale tailnet showing changes and administrative events.",
+      "logo": "/logos/tailscale.svg",
+      "url": "/sources/source-types/tailscale/audit",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "tailscale_audit_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "tailscale-flow",
+      "name": "Tailscale Flow",
+      "description": "Flow logs from your Tailscale network are pushed to us via a webhook.",
+      "logo": "/logos/tailscale.svg",
+      "url": "/sources/source-types/tailscale/flow",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "tailscale_flow_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "teleport-audit",
+      "name": "Teleport Cloud Audit Logs",
+      "description": "Ingest information from Teleport about what systems are being accessed via Teleport by your team-members.",
+      "logo": "/logos/teleport.png",
+      "url": "/sources/source-types/teleport",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "s3"
+      ],
+      "tableName": [
+        "teleport_audit_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "teleport-audit-webhook",
+      "name": "Teleport Cloud Audit Logs via webhook",
+      "description": "Ingest information from Teleport about what systems are being accessed via Teleport by your team-members. This allows for ingesting logs via webhook, instead of Parquet files pushed to an S3 bucket",
+      "logo": "/logos/teleport.png",
+      "url": "/sources/source-types/teleport",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "teleport_audit_logs"
+      ],
+      "plan": "ent"
+    },
+    {
+      "id": "twingate",
+      "name": "Twingate Logs",
+      "description": "Ingest Twingate network access logs, DNS filtering, audit events, and data loss prevention logs from object storage.",
+      "logo": "/logos/twingate.png",
+      "url": "/sources/source-types/twingate",
+      "ingestTypes": [
+        "s3",
+        "external-s3",
+        "azure-blob",
+        "gcs",
+        "r2"
+      ],
+      "categories": [
+        "cloud",
+        "network",
+        "identity"
+      ],
+      "tableName": [
+        "twingate_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "webflow-audit",
+      "name": "Webflow",
+      "description": "Collect audit logs from your Webflow workspace showing user access, content changes, and administrative events.",
+      "logo": "/logos/webflow.svg",
+      "url": "/sources/source-types/webflow-audit",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "webflow_audit_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "webhook",
+      "name": "Webhook Generic Logs",
+      "description": "The generic webhook source allows you to send any kind of log data to us and transform it into structured logs, or store the generic log.",
+      "logo": "/logos/webhook.png",
+      "url": "/sources/source-types/generic",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [],
+      "plan": "free"
+    },
+    {
+      "id": "wiz-threats",
+      "name": "Wiz Threats",
+      "description": "Collect threat alerts and findings from Wiz security platform via webhook.",
+      "logo": "/logos/wiz.svg",
+      "url": "/sources/source-types/wiz-threats",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "wiz_threat_webhook_logs",
+        "wiz_issue_webhook_logs"
+      ],
+      "plan": "free"
+    },
+    {
+      "id": "workday",
+      "name": "Workday",
+      "description": "Capture Workday activity logs detailing records of user actions, system events, and data changes within the Workday platform",
+      "logo": "/logos/workday.svg",
+      "url": "/sources/source-types/workday",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "workday"
+      ],
+      "tableName": [
+        "workday_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "zendesk",
+      "name": "Zendesk",
+      "description": "Collect information from your Zendesk account about access to your helpdesk and administrative changes",
+      "logo": "/logos/zendesk.png",
+      "url": "/sources/source-types/zendesk",
+      "ingestTypes": [
+        "polling"
+      ],
+      "categories": [
+        "polling"
+      ],
+      "tableName": [
+        "zendesk_logs"
+      ],
+      "plan": "pro"
+    }
+  ]
+}

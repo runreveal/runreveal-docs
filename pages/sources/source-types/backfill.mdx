@@ -1,0 +1,61 @@
+---
+title: 'Backfill'
+description: "Backfill logs you've already collected in a blob storage container. This can take some time."
+---
+
+import { Callout } from 'nextra/components'
+
+# Backfill
+
+Backfill allows you to ingest logs that you've already collected and stored in a blob storage container. This is useful for importing historical logs or migrating logs from another system. The backfill process can take some time depending on the volume of logs.
+
+![Backfill Source Setup](/backfill-source-1.png)
+
+<Callout type="warning">
+**Processing Time**: Backfilling large volumes of logs can take significant time. RunReveal will process all logs in the specified storage location, which may take hours or days depending on the amount of data.
+</Callout>
+
+## Ingest Methods
+
+Setup the backfill using one of the following storage providers.
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Blob Storage](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+- [Cloudflare R2 Bucket](/sources/object-storage/r2)
+
+## Setup
+
+1. In RunReveal, navigate to **Sources** → **Add Source**
+2. Search for and select **Backfill**
+3. Enter a descriptive **Name** for your backfill job
+4. Select the appropriate **Ingest Type** based on your storage provider
+5. Configure the following fields:
+
+### Source Settings
+
+- **Source** - The source you'd like to backfill
+
+### Prefix
+
+- **Prefix** - The prefix of objects to search for
+
+### Date Range
+
+- **Date Range** - Search for objects created between this time range to backfill
+
+### Auth Method
+
+- **Auth Method** - The method of authentication you'd like to use for the source - reuse the config or authenticate in another way depending on bucket source
+
+### Bucket Configuration
+
+- **Bucket name and configuration settings** - Configure the storage credentials and bucket settings according to your selected ingest type
+
+## What to Expect
+
+- The backfill process will scan the specified storage location
+- All log files found will be processed and ingested
+- Processing happens in the background and may take time
+- You can monitor progress through the RunReveal dashboard
