@@ -3,152 +3,60 @@ title: RunReveal Onboarding Guide
 description: Complete step-by-step guide for getting started with RunReveal's security data platform
 ---
 
-import React from 'react'
 import { Callout, Steps } from 'nextra/components'
 
 # RunReveal Onboarding Guide
 
 RunReveal is a modern security data platform built on ClickHouse that eliminates traditional SIEM complexity while delivering detection-as-code, AI-powered investigations, and sub-second query performance at scale. This guide walks you through setting up your workspace, connecting data sources, configuring detections, and getting your team productive with RunReveal.
 
-<div className="mt-12 mb-8">
-  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-left border-b-4 border-violet-600 pb-4">
-    How Logs Flow Through RunReveal
-  </h2>
-  <div className="mt-2 text-left text-lg text-gray-600 dark:text-gray-400">
-    From data collection to threat detection in one seamless flow
-  </div>
-</div>
+## How Logs Flow Through RunReveal
 
-<div className="mb-16 bg-gray-100 dark:bg-gray-800 rounded-3xl p-8 sm:p-12">
-  <div className="flex flex-col items-center gap-8">
-    {/* Sources */}
-    <div className="w-full max-w-md text-center rounded-2xl ring-1 ring-inset ring-blue-200 dark:ring-blue-800 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-8 shadow-sm">
-      <div className="mb-4" aria-hidden="true">
-        <div className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center shadow-lg bg-insight">
-          <img src="/icons/link.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
-        </div>
-      </div>
-      <h4 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">
-        Sources
-      </h4>
-      <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-        Collect logs from 70+ integrations via APIs, webhooks, and object storage.
-      </div>
-    </div>
+```mermaid
+graph TD
+    %% Connect Sources
+    S1["<b>Connect Sources</b><br/>Collect logs from 70+ integrations"] --> A1["<b>Webhooks</b><br/>Vector, Fluent Bit"]
+    S1 --> A2["<b>API Polling</b><br/>Okta, GitHub"]
+    S1 --> A3["<b>Object Storage</b><br/>S3, R2, GCS, Azure"]
+    
+    %% Sources to Topics
+    A1 --> T1["<b>Topics</b><br/>Filter logs to flow<br/>through different pipelines"]
+    A2 --> T1
+    A3 --> T1
+    
+    %% Pipelines
+    T1 --> P1["<b>Pipelines</b><br/>Configure transforms,<br/>enrichments, filtering,<br/>and sampling"]
+    
+    %% Detections
+    P1 --> D1["<b>Detections</b><br/>Sigma & SQL"]
+    D1 --> D2["<b>Signals</b><br/>No notification"]
+    D1 --> D3["<b>Alerts</b><br/>With notifications"]
+    
+    %% AI Chat and Search
+    P1 --> AI["<b>AI Chat & Search</b><br/>Query and analyze logs"]
+    
+    %% Destinations
+    P1 --> DES1["<b>ClickHouse</b><br/>BYODB"]
+    P1 --> DES2["<b>Destinations</b><br/>External storage"]
+    D3 --> DES3["<b>Alert Channels</b><br/>Slack, PagerDuty, Jira"]
+    
+    %% Styling
+    classDef sourceStyle fill:#D09EFB,stroke:#A13DF7,stroke-width:2px
+    classDef topicStyle fill:#ECD8FD,stroke:#A13DF7,stroke-width:2px
+    classDef pipelineStyle fill:#96F3F3,stroke:#18A4B1,stroke-width:2px
+    classDef detectionStyle fill:#F8D98D,stroke:#F1B31C,stroke-width:2px
+    classDef aiStyle fill:#8080FF,stroke:#0000FF,stroke-width:2px
+    classDef destStyle fill:#ED8AD1,stroke:#F000B8,stroke-width:2px
+    
+    class S1 sourceStyle
+    class A1,A2,A3 sourceStyle
+    class T1 topicStyle
+    class P1 pipelineStyle
+    class D1,D2,D3 detectionStyle
+    class AI aiStyle
+    class DES1,DES2,DES3 destStyle
+```
 
-    {/* Arrow */}
-    <div className="flex items-center justify-center" aria-hidden="true">
-      <svg className="h-12 w-12 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 3a1 1 0 011 1v12.586l3.293-3.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L11 16.586V4a1 1 0 011-1z"/>
-      </svg>
-    </div>
-
-    {/* Topics */}
-    <div className="w-full max-w-md text-center rounded-2xl ring-1 ring-inset ring-purple-200 dark:ring-purple-800 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-8 shadow-sm">
-      <div className="mb-4" aria-hidden="true">
-        <div className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center shadow-lg bg-primary">
-          <img src="/icons/DataSort.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
-        </div>
-      </div>
-      <h4 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">
-        Topics
-      </h4>
-      <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-        Filter events to route them to specific pipelines.
-      </div>
-    </div>
-
-    {/* Arrow */}
-    <div className="flex items-center justify-center" aria-hidden="true">
-      <svg className="h-12 w-12 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 3a1 1 0 011 1v12.586l3.293-3.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L11 16.586V4a1 1 0 011-1z"/>
-      </svg>
-    </div>
-
-    {/* Pipelines */}
-    <div className="w-full max-w-md text-center rounded-2xl ring-1 ring-inset ring-teal-200 dark:ring-teal-800 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 p-8 shadow-sm">
-      <div className="mb-4" aria-hidden="true">
-        <div className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center shadow-lg bg-vitality">
-          <img src="/icons/rows.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
-        </div>
-      </div>
-      <h4 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">
-        Pipelines
-      </h4>
-      <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-        Transform, enrich, filter, and process your data.
-      </div>
-    </div>
-
-    {/* Arrow */}
-    <div className="flex items-center justify-center" aria-hidden="true">
-      <svg className="h-12 w-12 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 3a1 1 0 011 1v12.586l3.293-3.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L11 16.586V4a1 1 0 011-1z"/>
-      </svg>
-    </div>
-
-    {/* Detections, AI Chat, Storage */}
-    <div className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-      <div className="text-center rounded-2xl ring-1 ring-inset ring-yellow-200 dark:ring-yellow-800 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 p-6 shadow-sm">
-        <div className="mb-3" aria-hidden="true">
-          <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-accent">
-            <img src="/icons/Search.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
-          </div>
-        </div>
-        <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Detections</h4>
-        <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Monitor for security events and generate alerts.</div>
-      </div>
-
-      <div className="text-center rounded-2xl ring-1 ring-inset ring-blue-200 dark:ring-blue-800 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-6 shadow-sm">
-        <div className="mb-3" aria-hidden="true">
-          <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-primary">
-            <img src="/icons/terminal.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
-          </div>
-        </div>
-        <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">AI Chat</h4>
-        <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Investigate and query logs with natural language.</div>
-      </div>
-
-      <div className="text-center rounded-2xl ring-1 ring-inset ring-pink-200 dark:ring-pink-800 bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-900/20 dark:to-pink-800/20 p-6 shadow-sm">
-        <div className="mb-3" aria-hidden="true">
-          <div className="mx-auto w-20 h-20 rounded-xl flex items-center justify-center shadow-md bg-vitality">
-            <img src="/icons/Server.svg" alt="" className="h-12 w-12 brightness-0 invert" aria-hidden="true" />
-          </div>
-        </div>
-        <h4 className="text-lg font-black text-gray-900 dark:text-gray-100 mb-1">Storage</h4>
-        <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">Store processed data in ClickHouse for fast queries.</div>
-      </div>
-    </div>
-
-    {/* Arrow */}
-    <div className="flex items-center justify-center" aria-hidden="true">
-      <svg className="h-12 w-12 text-gray-600 dark:text-gray-400" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 3a1 1 0 011 1v12.586l3.293-3.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L11 16.586V4a1 1 0 011-1z"/>
-      </svg>
-    </div>
-
-    {/* Notifications */}
-    <div className="w-full max-w-md text-center rounded-2xl ring-1 ring-inset ring-red-200 dark:ring-red-800 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-8 shadow-sm">
-      <div className="mb-4" aria-hidden="true">
-        <div className="mx-auto w-24 h-24 rounded-2xl flex items-center justify-center shadow-lg bg-red-500">
-          <img src="/icons/AlertTriangle.svg" alt="" className="h-14 w-14 brightness-0 invert" aria-hidden="true" />
-        </div>
-      </div>
-      <h4 className="text-2xl font-black text-gray-900 dark:text-gray-100 mb-2">
-        Notifications
-      </h4>
-      <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-        Send alerts to Slack, Email, PagerDuty, and other channels.
-      </div>
-    </div>
-  </div>
-</div>
-
-<div className="mb-8">
-  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-left border-b-4 border-violet-600 pb-4">
-    Initial Setup
-  </h2>
-</div>
+## Initial Setup
 
 <Steps>
 
@@ -227,11 +135,7 @@ Invited users receive an email with signup instructions. You'll see their status
 
 </Steps>
 
-<div className="mb-8">
-  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-left border-b-4 border-violet-600 pb-4">
-    Connect Your First Source
-  </h2>
-</div>
+## Connect Your First Source
 
 <Callout type="tip">
 Start with Okta, AWS CloudTrail, or GitHub - these are the easiest integrations to configure and provide immediate security value.
@@ -375,11 +279,7 @@ LIMIT 10
 
 </Steps>
 
-<div className="mb-8">
-  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-left border-b-4 border-violet-600 pb-4">
-    Configure Detections
-  </h2>
-</div>
+## Configure Detections
 
 <Callout type="info">
 Detections continuously monitor your logs for security events. Create detections as SQL queries or Sigma rules, then configure notification channels for alerts.
@@ -463,11 +363,7 @@ Navigate to **Detections** dashboard to view:
 
 </Steps>
 
-<div className="mb-8">
-  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-left border-b-4 border-violet-600 pb-4">
-    Explore Platform Features
-  </h2>
-</div>
+## Explore Platform Features
 
 <Steps>
 
@@ -603,11 +499,7 @@ runreveal logs query "SELECT * FROM logs LIMIT 10"
 
 </Steps>
 
-<div className="mb-8">
-  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-left border-b-4 border-violet-600 pb-4">
-    Helpful Links
-  </h2>
-</div>
+## Helpful Links
 
 Now that you have completed RunReveal onboarding, explore the detailed configuration guides:
 

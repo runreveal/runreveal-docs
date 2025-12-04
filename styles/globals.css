@@ -21,11 +21,20 @@ img {
   filter: hue-rotate(0deg) saturate(2) brightness(0.8) sepia(1) hue-rotate(0deg);
 }
 
+/* Style main page title (H1) with purple border */
+main article h1:first-of-type,
+main .nextra-content h1:first-of-type,
+article h1:first-of-type,
+.nextra-content h1:first-of-type {
+  @apply border-b-4 border-violet-600 pb-2.5 mb-6;
+}
+
 /* Limit first h1 width on desktop */
 @media (min-width: 768px) {
   main article h1:first-of-type,
   main .nextra-content h1:first-of-type,
-  article h1:first-of-type {
+  article h1:first-of-type,
+  .nextra-content h1:first-of-type {
     max-width: 90%;
   }
 }
