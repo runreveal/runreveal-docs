@@ -9,27 +9,51 @@ Capture Workday activity logs detailing records of user actions, system events, 
 
 Workday stores logs for your account. When adding the Workday source, RunReveal will backfill your account with available logs. After the initial load, RunReveal will poll the Workday API to download your activity logs on a regular schedule.
 
+![Workday Source Setup](/workday-source-1.png)
+
 ## Setup
 
-Give your Workday source a descriptive name to help find it later. You will need to configure your Workday API credentials to allow RunReveal to access your logs.
+1. In RunReveal, navigate to **Sources** → **Add Source**
+2. Search for and select **Workday**
+3. Configure the following fields:
+
+### Source Name
+
+- **Source Name** - Give your Workday source a descriptive name to help find it later
+
+### Slug
+
+- **Slug** - A unique identifier for your source
+
+### Workday Host
+
+- **Workday Host** - Your Workday host URL
+
+### Workday Tenant
+
+- **Workday Tenant** - Your Workday tenant name (e.g., `example` for `example.myworkday.com`)
+
+### Workday Client ID
+
+- **Workday Client ID** - Your Workday integration system client ID
+
+### Workday Client Secret
+
+- **Workday Client Secret** - Your Workday integration system client secret
+
+### Workday Refresh Token
+
+- **Workday Refresh Token** - Your Workday refresh token for API authentication
 
 ### Workday API Configuration
 
-To configure Workday API access:
+To obtain your Workday API credentials:
 
 1. Sign in to your Workday admin dashboard
 2. Navigate to **Integrations** → **Web Services**
 3. Create a new Integration System User or use an existing one
-4. Generate API credentials (Client ID and Client Secret)
+4. Generate API credentials (Client ID, Client Secret, and Refresh Token)
 5. Ensure the integration user has appropriate permissions to access audit logs
-
-### API Credentials
-
-Enter your Workday API credentials in RunReveal:
-
-- **Client ID**: Your Workday integration system client ID
-- **Client Secret**: Your Workday integration system client secret
-- **Tenant**: Your Workday tenant name (e.g., `example` for `example.myworkday.com`)
 
 ## Verify It's Working
 
