@@ -155,7 +155,7 @@ export default function SourceSearch() {
               className="group bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-md transition-all duration-200 flex flex-col"
             >
               {/* Header with Logo and Name */}
-              <div className="flex items-center pt-4 px-4">
+              <div className="flex items-center pt-4 px-4 pb-4">
                 <div className="shrink-0 rounded-md p-1.5 dark:bg-[#EDEDED]">
                   <img 
                     src={source.logo} 
@@ -165,15 +165,10 @@ export default function SourceSearch() {
                 </div>
                 <div className="ml-3 flex-1">
                   <h3 className="font-semibold font-sans leading-normal text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                    {source.name}
+                    {source.name.replace(/\s+Logs$/i, '')}
                   </h3>
                 </div>
               </div>
-              
-              {/* Description */}
-              <p className="py-2 px-4 text-sm text-gray-600 dark:text-gray-400 flex-grow">
-                {source.description}
-              </p>
               
               {/* View docs link */}
               <div className="px-4 pb-2 mb-2 mt-auto">

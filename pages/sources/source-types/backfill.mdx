@@ -1,0 +1,56 @@
+---
+title: 'Backfill'
+description: "Backfill logs you've already collected in a blob storage container. This can take some time."
+---
+
+import { Callout } from 'nextra/components'
+
+# Backfill
+
+Backfill allows you to ingest logs that you've already collected and stored in a blob storage container. This is useful for importing historical logs or migrating logs from another system. The backfill process can take some time depending on the volume of logs.
+
+<Callout type="warning">
+**Processing Time**: Backfilling large volumes of logs can take significant time. RunReveal will process all logs in the specified storage location, which may take hours or days depending on the amount of data.
+</Callout>
+
+## Ingest Methods
+
+Setup the backfill using one of the following storage providers.
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Blob Storage](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+- [Cloudflare R2 Bucket](/sources/object-storage/r2)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_generic
+```
+</Callout>
+
+## Setup
+
+1. Ensure your logs are stored in one of the supported object storage providers
+2. In RunReveal, navigate to **Sources** → **Add Source**
+3. Search for and select **Backfill**
+4. Enter a descriptive **Name** for your backfill job
+5. Select the appropriate **Ingest Type** based on your storage provider
+6. Configure the storage credentials and bucket settings
+7. Click **Save** to start the backfill process
+
+## What to Expect
+
+- The backfill process will scan the specified storage location
+- All log files found will be processed and ingested
+- Processing happens in the background and may take time
+- You can monitor progress through the RunReveal dashboard
+
+## Verify It's Working
+
+Once the backfill source is created, logs will begin processing. You can monitor the ingestion progress and verify logs are being ingested by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'backfill' LIMIT 10
+```

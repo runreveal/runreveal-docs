@@ -1,0 +1,44 @@
+---
+title: 'Formal Security'
+description: 'Collect data access logs from Formal Security, including actor, network, and resource information for comprehensive visibility into data access patterns.'
+---
+
+import { Callout } from 'nextra/components'
+
+# Formal Security
+
+Collect data access logs from Formal Security, including actor, network, and resource information for comprehensive visibility into data access patterns.
+
+Formal Security supports multiple ingestion methods including S3, Azure Blob Storage, Google Cloud Storage, and Cloudflare R2.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+- [Azure Blob Storage](/sources/object-storage/azure)
+- [Google Cloud Storage](/sources/object-storage/gcs)
+- [Cloudflare R2 Bucket](/sources/object-storage/r2)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_formal_security
+```
+</Callout>
+
+## Setup
+
+Formal Security logs can be ingested via object storage. Configure your Formal Security instance to export logs to one of the supported storage providers.
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a few minutes.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'formal-security' LIMIT 1
+```
+

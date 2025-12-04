@@ -1,0 +1,35 @@
+---
+title: 'Webflow Audit Logs'
+description: 'Collect audit logs from your Webflow workspace showing user access, content changes, and administrative events.'
+---
+
+# Webflow Audit Logs
+
+Collect audit logs from your Webflow workspace showing user access, content changes, and administrative events.
+
+Webflow Audit logs allow you to view audit events from your Webflow workspace. RunReveal will poll the Webflow API to retrieve your audit logs every 60 seconds.
+
+## Setup
+
+To setup your Webflow Audit source, you will need API credentials from your Webflow account.
+
+### Webflow API Credentials
+
+1. Log in to your Webflow account
+2. Navigate to **Account Settings** > **Integrations** > **API Access**
+3. Generate an API token
+4. In RunReveal, create a new Webflow Audit source
+5. Enter your credentials:
+   - **API Token**: Your Webflow API token
+   - **Workspace ID**: Your Webflow workspace identifier
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a minute.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'webflow-audit' LIMIT 1
+```
+

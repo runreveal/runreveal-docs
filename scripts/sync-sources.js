@@ -203,6 +203,24 @@ function main() {
     }
   }
   
+  // Check if sources.json already exists - if so, skip generation to preserve manual changes
+  if (fs.existsSync(OUTPUT_PATH)) {
+    console.log('⏭️  sources.json already exists - skipping generation to preserve manual changes');
+    console.log('   To regenerate, delete data/sources.json and run this script again.\n');
+    
+    // Still copy logos in case new ones were added
+    console.log('🖼️  Checking for new logos...');
+    const content = fs.readFileSync(SOURCE_TYPES_PATH, 'utf-8');
+    const sources = parseSourceTypes(content);
+    const logoStats = copyLogos(sources);
+    console.log(`   Copied ${logoStats.copied} logos\n`);
+    
+    console.log('✅ Sync complete!');
+    console.log(`   Existing file preserved: ${OUTPUT_PATH}`);
+    console.log(`   Logos: ${DOCS_LOGOS_PATH}`);
+    return;
+  }
+  
   // Read and parse SourceTypes.tsx
   console.log('📖 Reading SourceTypes.tsx...');
   const content = fs.readFileSync(SOURCE_TYPES_PATH, 'utf-8');

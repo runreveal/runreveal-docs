@@ -1,0 +1,46 @@
+---
+title: 'HashiCorp Vault'
+description: 'Collect audit logs from your HashiCorp Vault instance, showing who accessed what secrets, when, and from where.'
+---
+
+import { Callout } from 'nextra/components'
+
+# HashiCorp Vault
+
+Collect audit logs from your HashiCorp Vault instance, showing who accessed what secrets, when, and from where.
+
+HashiCorp Vault audit logs can be ingested via S3 object storage.
+
+## Ingest Methods
+
+Setup the ingestion of this source using one of the following guides.
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_hashicorp_vault
+```
+</Callout>
+
+## Setup
+
+Configure your HashiCorp Vault instance to send audit logs to an S3 bucket.
+
+1. Enable audit logging in your Vault configuration
+2. Configure Vault to write audit logs to an S3 bucket
+3. In RunReveal, create a new HashiCorp Vault source
+4. Configure the S3 bucket connection
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a few minutes.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'hashicorp-vault' LIMIT 1
+```
+

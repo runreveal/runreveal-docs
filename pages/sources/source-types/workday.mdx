@@ -1,0 +1,43 @@
+---
+title: 'Workday'
+description: 'Capture Workday activity logs detailing records of user actions, system events, and data changes within the Workday platform'
+---
+
+# Workday
+
+Capture Workday activity logs detailing records of user actions, system events, and data changes within the Workday platform.
+
+Workday stores logs for your account. When adding the Workday source, RunReveal will backfill your account with available logs. After the initial load, RunReveal will poll the Workday API to download your activity logs on a regular schedule.
+
+## Setup
+
+Give your Workday source a descriptive name to help find it later. You will need to configure your Workday API credentials to allow RunReveal to access your logs.
+
+### Workday API Configuration
+
+To configure Workday API access:
+
+1. Sign in to your Workday admin dashboard
+2. Navigate to **Integrations** → **Web Services**
+3. Create a new Integration System User or use an existing one
+4. Generate API credentials (Client ID and Client Secret)
+5. Ensure the integration user has appropriate permissions to access audit logs
+
+### API Credentials
+
+Enter your Workday API credentials in RunReveal:
+
+- **Client ID**: Your Workday integration system client ID
+- **Client Secret**: Your Workday integration system client secret
+- **Tenant**: Your Workday tenant name (e.g., `example` for `example.myworkday.com`)
+
+## Verify It's Working
+
+Once added, the source logs should begin flowing within a few minutes.
+
+You can validate we are receiving your logs by running the following SQL query.
+
+```sql
+SELECT * FROM runreveal.logs WHERE sourceType = 'workday' LIMIT 1
+```
+

@@ -3,5 +3,6 @@ export default {
     "vector": "Vector",
     "fluent-bit": "Fluent Bit",
     "datadog-forwarder": "Datadog",
-    "logstash": "Logstash"
+    "logstash": "Logstash",
+    "otlp-json": "OpenTelemetry (OTLP)"
 } 
