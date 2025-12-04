@@ -489,13 +489,13 @@
         "type": "snowflake",
         "plan": "pro",
         "categories": ["polling"],
-        "description": "Collect query history, login attempts, and security events from your Snowflake account.",
+        "description": "Collect login history and authentication events from your Snowflake account.",
         "tableName": ["snowflake_login_logs"],
         "ingestTypes": ["polling"],
         "setupTypes": {
           "polling": {
-            "description": "API polling from Snowflake Information Schema",
-            "requirements": ["Snowflake account", "Database user with ACCOUNTADMIN role"],
+            "description": "OAuth-based API polling from Snowflake ACCOUNT_USAGE.LOGIN_HISTORY",
+            "requirements": ["Snowflake account", "OAuth security integration", "Service user with access to ACCOUNT_USAGE schema"],
             "configFields": ["accountIdentifier", "database", "schema"],
             "secrets": ["username", "password"]
           }
