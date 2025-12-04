@@ -26,6 +26,15 @@ const PUBLIC_PATH = path.join(RUNREVEAL_APP_PATH, 'public');
 const DOCS_LOGOS_PATH = path.join(__dirname, '../public/logos');
 const OUTPUT_PATH = path.join(__dirname, '../data/sources.json');
 
+// Logo overrides - these will always be applied to ensure correct logos are used
+// Format: sourceId -> logo path
+const LOGO_OVERRIDES = {
+  'aws-nfw': '/logos/s3.png',                    // AWS Network Firewall uses same logo as S3 Access
+  'dope-security': '/logos/dopesecurity.jpeg',   // Dope Security uses JPEG
+  'dope-security-webhook': '/logos/dopesecurity.jpeg',  // Dope Security Webhook uses JPEG
+  'twingate': '/logos/twingate.png',             // Twingate uses PNG
+};
+
 // Ensure directories exist
 function ensureDir(dir) {
   if (!fs.existsSync(dir)) {
@@ -162,17 +171,25 @@ function generateSourcesData(sources) {
   // Transform sources for the docs
   const docsSourceData = sources
     .filter(s => !s.deprecated) // Exclude deprecated sources
-    .map(source => ({
-      id: source.type,
-      name: source.name,
-      description: source.description || '',
-      logo: source.image ? `/logos${source.image}` : '/logos/webhook.png',
-      url: source.docLink || `/sources/source-types/${source.type}`,
-      ingestTypes: source.ingestTypes || [],
-      categories: source.categories || [],
-      tableName: source.tableName || [],
-      plan: source.plan || 'free',
-    }))
+    .map(source => {
+      // Determine logo path - check overrides first, then use source image
+      let logoPath = source.image ? `/logos${source.image}` : '/logos/webhook.png';
+      if (LOGO_OVERRIDES[source.type]) {
+        logoPath = LOGO_OVERRIDES[source.type];
+      }
+      
+      return {
+        id: source.type,
+        name: source.name,
+        description: source.description || '',
+        logo: logoPath,
+        url: source.docLink || `/sources/source-types/${source.type}`,
+        ingestTypes: source.ingestTypes || [],
+        categories: source.categories || [],
+        tableName: source.tableName || [],
+        plan: source.plan || 'free',
+      };
+    })
     .sort((a, b) => a.name.localeCompare(b.name));
   
   return {

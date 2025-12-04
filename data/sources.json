@@ -190,7 +190,7 @@
       "id": "aws-nfw",
       "name": "AWS Network Firewall",
       "description": "Collect AWS Network Firewall logs from S3, including alert, flow (netflow), and TLS revocation events in Suricata EVE JSON format.",
-      "logo": "/logos/aws-nfw.png",
+      "logo": "/logos/s3.png",
       "url": "/sources/source-types/aws/network-firewall",
       "ingestTypes": [
         "s3",
@@ -638,7 +638,7 @@
       "id": "dope-security",
       "name": "Dope Security",
       "description": "Ingest Dope Security endpoint protection logs from object storage showing network traffic, file activity, and security events.",
-      "logo": "/logos/dopesecurity.svg",
+      "logo": "/logos/dopesecurity.jpeg",
       "url": "/sources/source-types/dope-security",
       "ingestTypes": [
         "s3",
@@ -658,7 +658,7 @@
       "id": "dope-security-webhook",
       "name": "Dope Security Webhook",
       "description": "Ingest Dope Security endpoint protection logs from object storage showing network traffic, file activity, and security events.",
-      "logo": "/logos/dopesecurity.svg",
+      "logo": "/logos/dopesecurity.jpeg",
       "url": "/sources/source-types/dope-security",
       "ingestTypes": [
         "webhook"
@@ -1461,7 +1461,7 @@
       "id": "twingate",
       "name": "Twingate Logs",
       "description": "Ingest Twingate network access logs, DNS filtering, audit events, and data loss prevention logs from object storage.",
-      "logo": "/logos/twingate_logo.svg",
+      "logo": "/logos/twingate.png",
       "url": "/sources/source-types/twingate",
       "ingestTypes": [
         "s3",
