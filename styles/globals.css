@@ -21,12 +21,30 @@ img {
   filter: hue-rotate(0deg) saturate(2) brightness(0.8) sepia(1) hue-rotate(0deg);
 }
 
-/* Style main page title (H1) with purple border */
-main article h1:first-of-type,
-main .nextra-content h1:first-of-type,
-article h1:first-of-type,
-.nextra-content h1:first-of-type {
+/* Style H1 on homepage with 80% opacity border */
+body[data-pathname="/"] main article h1:first-of-type,
+body[data-pathname="/"] main .nextra-content h1:first-of-type,
+body[data-pathname="/"] article h1:first-of-type,
+body[data-pathname="/"] .nextra-content h1:first-of-type {
+  @apply border-b-4 pb-2.5 mb-6;
+  border-bottom-color: rgba(124, 58, 237, 0.8); /* violet-600 at 80% opacity */
+}
+
+/* Style H1 headings with purple border - exclude homepage */
+body:not([data-pathname="/"]) main article h1:first-of-type,
+body:not([data-pathname="/"]) main .nextra-content h1:first-of-type,
+body:not([data-pathname="/"]) article h1:first-of-type,
+body:not([data-pathname="/"]) .nextra-content h1:first-of-type {
   @apply border-b-4 border-violet-600 pb-2.5 mb-6;
+}
+
+/* Style H2 headings with smaller purple border - exclude homepage */
+body:not([data-pathname="/"]) main article h2,
+body:not([data-pathname="/"]) main .nextra-content h2,
+body:not([data-pathname="/"]) article h2,
+body:not([data-pathname="/"]) .nextra-content h2 {
+  @apply border-violet-600 pb-2.5 mb-6;
+  border-bottom-width: 3px;
 }
 
 /* Limit first h1 width on desktop */
@@ -49,6 +67,35 @@ footer {
   --nextra-primary-hue: 270;
   --nextra-primary-saturation: 100%;
   --nextra-primary-lightness: 60%;
+}
+
+/* Global dark mode text color - make gray text white in dark mode */
+.dark .text-gray-400,
+.dark .text-gray-300 {
+  color: white !important;
+}
+
+/* Mermaid diagram text color in dark mode */
+.dark .mermaid text,
+.dark svg.mermaid text,
+.dark [class*="mermaid"] text,
+.dark pre.mermaid text,
+.dark pre code.language-mermaid + svg text,
+.dark .mermaid svg text,
+.dark svg[data-mermaid] text {
+  fill: white !important;
+  color: white !important;
+}
+
+/* Mermaid node labels and text elements */
+.dark .mermaid .nodeLabel,
+.dark .mermaid .edgeLabel,
+.dark .mermaid .cluster-label,
+.dark svg.mermaid .nodeLabel,
+.dark svg.mermaid .edgeLabel,
+.dark svg.mermaid .cluster-label {
+  fill: white !important;
+  color: white !important;
 }
 
 /* Clean Nextra styling overrides */
@@ -79,6 +126,16 @@ footer {
   .nextra-sidebar button,
   .nextra-sidebar .nextra-focus {
     @apply font-semibold tracking-tight;
+  }
+
+  /* Sidebar text color in dark mode */
+  .dark .nextra-sidebar a,
+  .dark .nextra-sidebar button,
+  .dark .nextra-sidebar .nextra-focus,
+  .dark .nextra-sidebar-container a,
+  .dark .nextra-sidebar-container button,
+  .dark .nextra-sidebar-container .nextra-focus {
+    color: white !important;
   }
 
   /* Sidebar hover states */

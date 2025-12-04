@@ -40,12 +40,12 @@ graph TD
     D3 --> DES3["<b>Alert Channels</b><br/>Slack, PagerDuty, Jira"]
     
     %% Styling
-    classDef sourceStyle fill:#D09EFB,stroke:#A13DF7,stroke-width:2px
-    classDef topicStyle fill:#ECD8FD,stroke:#A13DF7,stroke-width:2px
-    classDef pipelineStyle fill:#96F3F3,stroke:#18A4B1,stroke-width:2px
-    classDef detectionStyle fill:#F8D98D,stroke:#F1B31C,stroke-width:2px
-    classDef aiStyle fill:#8080FF,stroke:#0000FF,stroke-width:2px
-    classDef destStyle fill:#ED8AD1,stroke:#F000B8,stroke-width:2px
+    classDef sourceStyle fill:#D09EFB,stroke:#A13DF7,stroke-width:2px,color:#000000
+    classDef topicStyle fill:#ECD8FD,stroke:#A13DF7,stroke-width:2px,color:#000000
+    classDef pipelineStyle fill:#96F3F3,stroke:#18A4B1,stroke-width:2px,color:#000000
+    classDef detectionStyle fill:#F8D98D,stroke:#F1B31C,stroke-width:2px,color:#000000
+    classDef aiStyle fill:#8080FF,stroke:#0000FF,stroke-width:2px,color:#000000
+    classDef destStyle fill:#ED8AD1,stroke:#F000B8,stroke-width:2px,color:#000000
     
     class S1 sourceStyle
     class A1,A2,A3 sourceStyle
@@ -79,12 +79,10 @@ Your workspace is automatically created with default settings:
 
 1. Go to **Settings → Workspace Settings** in your dashboard
 2. Check workspace name and admin role
-3. Note your workspace ID for CLI usage (Optional)
 
 Expected workspace structure:
 - Admin access enabled
 - Default notification channel active
-- API tokens available under **Settings → API Tokens**
 
 **Verify notification channels**:
 
@@ -96,18 +94,6 @@ Default email notifications include:
 - Detection alerts
 - System health notifications
 - Source connection status
-
-**Generate API token for CLI access (Optional)**:
-
-1. Go to **Settings → API Tokens**
-2. Click "Create Token"
-3. Name: "CLI Access"
-4. Copy token for later use
-
-Store your API token securely - you'll need it for:
-- RunReveal CLI operations
-- CI/CD integrations
-- API-based automation
 
 ### Invite Team Members
 
@@ -138,144 +124,124 @@ Invited users receive an email with signup instructions. You'll see their status
 ## Connect Your First Source
 
 <Callout type="tip">
-Start with Okta, AWS CloudTrail, or GitHub - these are the easiest integrations to configure and provide immediate security value.
+**Recommended First Sources**: Start with **Okta**, **Google Workspace**, or **AWS CloudTrail** - these provide immediate security value and are among the easiest to configure.
 </Callout>
 
 <Steps>
 
-### Choose Integration Type
+### Choose Your Source
 
-RunReveal supports three primary ingestion methods:
+RunReveal supports 70+ integrations across three primary ingestion methods:
 
-- **API Polling**: Okta, GitHub, Office 365
-- **Object Storage**: S3, R2, GCS, Azure Blob
-- **Webhooks**: Vector, Fluent Bit, custom
+- **API Polling**: Okta, Google Workspace, GitHub, Office 365, and more
+- **Object Storage**: AWS S3, Cloudflare R2, Google Cloud Storage, Azure Blob
+- **Webhooks**: Vector, Fluent Bit, custom applications, and any HTTP-based log source
 
-### Configure Okta Integration
+### Add Your First Source
 
-**Get Okta API Token**:
-
-1. Log into Okta Admin Console
-2. Navigate to **Security → API → Tokens**
-3. Click **Create Token**
-4. Name: `RunReveal Integration`
-5. Copy the token (starts with `SSWS-`)
-
-<Callout type="warning">
-Store your Okta API token securely - it won't be shown again after creation.
-</Callout>
-
-**Configure in RunReveal**:
-
-1. Go to **Sources** in your dashboard
-2. Click **Add Source → Okta**
-3. Enter configuration:
-   - Domain: `company.okta.com`
-   - API Token: Your SSWS token
-   - Log Types: System logs, User events, Authentication events
-4. Click **Test Connection**
-5. Click **Save**
-
-Expected result: Logs start flowing within 60-120 seconds.
-
-**Verify Data Flow**:
-
-```sql
--- Check for Okta logs
-SELECT 
-  eventName,
-  COUNT(*) as event_count
-FROM logs 
-WHERE sourceType = 'okta'
-  AND receivedAt > now() - INTERVAL 5 MINUTE
-GROUP BY eventName
-ORDER BY event_count DESC
-```
-
-Navigate to **Sources → Okta → Recent Events** to view live log data.
-
-### Configure AWS CloudTrail
-
-**Deploy CloudFormation Stack**:
-
-1. Use RunReveal's pre-built template from the AWS Console
-2. Stack name: `RunRevealSetup`
-3. Parameters: Accept defaults
-4. Capabilities: Acknowledge IAM resource creation
-5. Wait for stack creation (2-3 minutes)
+1. Navigate to **Sources** in your RunReveal dashboard: [app.runreveal.com/dash/sources](https://app.runreveal.com/dash/sources)
+2. Click **Connect a new source** or **Add Source**
+3. Browse available integrations or search for your specific source
+4. Select your source type (e.g., Okta, Google Workspace, AWS CloudTrail)
+5. Follow the setup wizard to configure your source
+6. Click **Test Connection** to verify connectivity
+7. Click **Save** to activate the source
 
 <Callout type="info">
-The CloudFormation template creates an S3 bucket, enables CloudTrail logging, and configures cross-account access for RunReveal.
+**Need detailed setup instructions?** Check out our comprehensive [Sources documentation](/sources) for step-by-step guides for each integration type.
 </Callout>
 
-**Add Source in RunReveal**:
+### Verify Data Flow
 
-1. Go to **Sources → Add Source → AWS CloudTrail**
-2. Enter configuration:
-   - S3 Bucket: Your CloudTrail bucket name
-   - Region: Your AWS region
-   - Role ARN: (leave blank for CloudFormation setup)
-3. Click **Save**
+After connecting your source, verify logs are flowing:
 
-**Verify CloudTrail logs**:
+1. Wait 2-5 minutes for initial data ingestion
+2. Navigate to **Sources → [Your Source] → Recent Events** to view live log data
+3. Or run a quick query in **Explorer**:
 
 ```sql
--- Check for AWS CloudTrail events
+-- Check for logs from your source
 SELECT 
-  eventName,
-  userIdentity.type,
-  COUNT(*) as event_count
+  sourceType,
+  COUNT(*) as event_count,
+  MIN(receivedAt) as first_event,
+  MAX(receivedAt) as last_event
 FROM logs 
-WHERE sourceType = 'aws-cloudtrail'
+WHERE sourceType = 'your-source-type'
   AND receivedAt > now() - INTERVAL 1 HOUR
-GROUP BY eventName, userIdentity.type
-ORDER BY event_count DESC
-LIMIT 10
+GROUP BY sourceType
 ```
 
-### Configure Generic Webhook
+<Callout type="success">
+**✓ Success!** If you see logs appearing, your source is connected and working. You're ready to create detections!
+</Callout>
+
+</Steps>
+
+## Set Up Notification Channels
+
+<Callout type="info">
+Notification channels allow you to receive alerts when detections trigger. Set up your notification channels before creating detections so alerts are delivered immediately.
+</Callout>
+
+<Steps>
+
+### Overview
+
+RunReveal supports multiple notification channels to deliver alerts:
+- **Email** - Pre-configured by default, sends to workspace admins
+- **Slack** - Real-time alerts in Slack channels
+- **PagerDuty** - Incident management and on-call integration
+- **Webhook** - Custom integrations and SOAR platforms (Tines, Shuffle, etc.)
+- **Jira** - Automatic ticket creation for alerts
+
+### Add Notification Channels
+
+1. Navigate to **Notification Channels** in your RunReveal dashboard: [app.runreveal.com/dash/notifications](https://app.runreveal.com/dash/notifications)
+2. Click **Add Channel** or **Connect Channel**
+3. Select your notification channel type (Slack, PagerDuty, Webhook, etc.)
+4. Follow the setup wizard to configure your channel:
+   - For **Slack**: Authorize and select channel
+   - For **PagerDuty**: Enter Integration Key from PagerDuty
+   - For **Webhook**: Enter webhook URL and configure headers
+   - For **Email**: Add recipients (pre-configured by default)
+5. Click **Test** to verify the channel works
+6. Click **Save** to activate the channel
 
 <Callout type="tip">
-Use webhooks for custom applications, Vector, Fluent Bit, or any log source that can POST JSON via HTTP.
+**Email is pre-configured by default** and sends alerts to workspace admins. You can customize recipients in **Notification Channels → Email Channel**.
 </Callout>
 
-**Create Webhook Source**:
-
-1. Go to **Sources → Add Source → Webhook**
-2. Configure webhook name and description
-3. Copy your webhook URL
-
-<Callout type="warning">
-Protect your webhook URL - it provides write access to your RunReveal workspace.
+<Callout type="info">
+**Need detailed setup instructions?** Check out our [Notifications documentation](/notifications/getting-started) for step-by-step guides for each channel type.
 </Callout>
 
-**Test Webhook**:
+### Subscribe Detections to Notification Channels
 
-Send test event using curl:
+You can attach notification channels to detections in two ways:
 
-```bash
-curl -X POST \
-  https://api.runreveal.com/sources/hook/YOUR_SOURCE_ID \
-  -H "Content-Type: application/json" \
-  -d '{
-    "timestamp": "'$(date -Iseconds)'",
-    "level": "info",
-    "message": "Test webhook log",
-    "service": "test-app"
-  }'
-```
+**Method 1: Individual Detection**
+- Edit a detection and select notification channels in the configuration
 
-**Verify in RunReveal**:
+**Method 2: Bulk Subscribe (Recommended for Multiple Detections)**
+1. Navigate to [Managed Detections Queries](https://app.runreveal.com/dash/managed-detections/queries)
+2. Click on each detection you want to configure
+3. Click **Subscribe**
+4. Select one or more notification channels that have been created
+5. Repeat for all detections that need alerts
 
-```sql
--- Check for webhook logs
-SELECT *
-FROM logs
-WHERE sourceType = 'generic-webhook'
-  AND receivedAt > now() - INTERVAL 5 MINUTE
-ORDER BY receivedAt DESC
-LIMIT 10
-```
+<Callout type="tip">
+Use the bulk subscribe method when you have multiple detections and want to quickly attach the same notification channels to all of them.
+</Callout>
+
+### Verify Notification Channels
+
+After setting up your channels:
+
+1. Go to **Notification Channels** dashboard
+2. Verify all channels show as **Active**
+3. Use the **Test** button on each channel to verify delivery
+4. Check your email, Slack, or other channels to confirm test messages were received
 
 </Steps>
 
@@ -318,34 +284,17 @@ HAVING failed_attempts >= 5
 ORDER BY failed_attempts DESC
 ```
 
-### Configure Notification Channels
+### Attach Notification Channels to Detections
 
-**Set Up Slack Integration**:
+After creating your detection, attach notification channels to receive alerts:
 
-1. Go to **Notification Channels → Add Channel → Slack**
-2. Click **Authorize Slack**
-3. Select your Slack workspace
-4. Choose channel: `#security-alerts`
-5. Test notification
-6. Click **Save**
+1. In the detection configuration, find **Notification Channels**
+2. Select one or more channels you've configured
+3. Click **Save and Enable**
 
-**Configure Email Notifications**:
-
-Email channel is pre-configured by default. Customize recipients:
-
-1. Go to **Notification Channels → Email Channel**
-2. Add recipients
-3. Configure email format
-4. Click **Save**
-
-**Set Up PagerDuty Integration**:
-
-1. Create PagerDuty Integration in PagerDuty console
-2. Copy Integration Key
-3. Go to **Notification Channels → Add Channel → PagerDuty** in RunReveal
-4. Paste Integration Key
-5. Configure incident severity mapping
-6. Test integration
+<Callout type="info">
+**Note**: Detections without notification channels will generate **signals** (for analysis) but won't send alerts. Attach a channel to convert signals into **alerts** with notifications.
+</Callout>
 
 ### Enable and Monitor Detections
 
@@ -443,59 +392,6 @@ Available widget types include Time Series Charts, Counter Widgets, and Table Wi
 3. Configure access settings
 4. Copy share link
 5. Distribute to team members
-
-### Install RunReveal CLI (Optional)
-
-<Callout type="tip">
-The RunReveal CLI enables detection-as-code workflows, automated testing, and CI/CD integration.
-</Callout>
-
-**Install via Homebrew (macOS)**:
-
-```bash
-brew tap runreveal/runreveal
-brew install runreveal
-```
-
-**Install Binary (Linux)**:
-
-```bash
-curl -L https://github.com/runreveal/runreveal/releases/latest/download/runreveal-linux-amd64 -o runreveal
-chmod +x runreveal
-sudo mv runreveal /usr/local/bin/
-```
-
-**Configure CLI**:
-
-```bash
-# Authenticate with API token
-runreveal config set api-token YOUR_API_TOKEN
-
-# Set default workspace
-runreveal config set workspace YOUR_WORKSPACE_ID
-
-# Verify configuration
-runreveal config list
-```
-
-**Common CLI Commands**:
-
-```bash
-# List all detections
-runreveal detections list
-
-# Create new detection
-runreveal detections create --file detection.yaml
-
-# Test detection locally
-runreveal detections test --name "Failed Logins"
-
-# Export detections to YAML
-runreveal detections export --output ./detections/
-
-# View recent logs
-runreveal logs query "SELECT * FROM logs LIMIT 10"
-```
 
 </Steps>
 
