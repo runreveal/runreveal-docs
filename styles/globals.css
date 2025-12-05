@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CSS Custom Properties for reusable values */
+:root {
+  --nextra-primary-hue: 270;
+  --nextra-primary-saturation: 100%;
+  --nextra-primary-lightness: 60%;
+  --runreveal-600: #9333ea;
+  --runreveal-700: #7c3aed;
+  --violet-600: #7c3aed;
+  --violet-600-80: rgba(124, 58, 237, 0.9);
+  --font-ibm-plex-stack: var(--font-ibm-plex), "IBM Plex Sans", "IBM Plex Sans Fallback", -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
 /* Highlight heading styling */
 .bg-highlight-best h3,
 .bg-highlight-affordable h3,
@@ -21,38 +33,78 @@ img {
   filter: hue-rotate(0deg) saturate(2) brightness(0.8) sepia(1) hue-rotate(0deg);
 }
 
-/* Style H1 on homepage with 80% opacity border */
-body[data-pathname="/"] main article h1:first-of-type,
-body[data-pathname="/"] main .nextra-content h1:first-of-type,
-body[data-pathname="/"] article h1:first-of-type,
-body[data-pathname="/"] .nextra-content h1:first-of-type {
-  @apply border-b-4 pb-2.5 mb-6;
-  border-bottom-color: rgba(124, 58, 237, 0.8); /* violet-600 at 80% opacity */
+/* ============================================================================
+   HEADING STYLES - Typographic Hierarchy
+   ============================================================================
+   Designed spacing rhythm and brand-accent borders for clear visual hierarchy.
+   Only applies to main content areas, not nav/sidebar/tabs.
+   ============================================================================ */
+
+/* Homepage h1 - no border (applies to all h1 on homepage) */
+body[data-pathname="/"] h1 {
+  border-bottom: none !important;
 }
 
-/* Style H1 headings with purple border - exclude homepage */
-body:not([data-pathname="/"]) main article h1:first-of-type,
-body:not([data-pathname="/"]) main .nextra-content h1:first-of-type,
-body:not([data-pathname="/"]) article h1:first-of-type,
-body:not([data-pathname="/"]) .nextra-content h1:first-of-type {
-  @apply border-b-4 border-violet-600 pb-2.5 mb-6;
+/* Shared content container selector for all headings */
+:is(main article, main .nextra-content, article, .nextra-content) {
+  /* H1 – Main page title (homepage: no border, spacing only) */
+  body[data-pathname="/"] & h1:first-of-type {
+    @apply pb-3 mb-6;
+  }
+
+  /* H1 – Main page title (all other pages) */
+  body:not([data-pathname="/"]) & h1:first-of-type {
+    @apply pt-4 pb-3 mb-6 border-runreveal-700;
+    border-bottom-width: 4px;
+  }
+
+  /* H2 – Major sections (with brand-accent border) */
+  body:not([data-pathname="/"]) & h2 {
+    @apply pb-2.5 mb-5;
+    border-bottom: 3px solid;
+    border-bottom-color: rgb(124 58 237 / 0.8); /* runreveal-700 with 0.8 opacity */
+  }
+
+  /* H3 – Subsections (with slight border, unless it's a link) */
+  body:not([data-pathname="/"]) & h3:not(a):not(:has(a)) {
+    @apply pb-2 mb-4 border-runreveal-700;
+    border-bottom-width: 1px;
+  }
+  
+  /* H3 that are links or contain links - no border */
+  body:not([data-pathname="/"]) & h3 a,
+  body:not([data-pathname="/"]) & a h3,
+  body:not([data-pathname="/"]) & h3:has(a) {
+    border-bottom: none !important;
+  }
+
+  /* H4 – Minor headings (spacing only, no border) */
+  body:not([data-pathname="/"]) & h4 {
+    @apply mb-3;
+  }
+
+  /* H5–H6 – Structural headings (spacing only, no border) */
+  body:not([data-pathname="/"]) & :is(h5, h6) {
+    @apply mb-2;
+  }
 }
 
-/* Style H2 headings with smaller purple border - exclude homepage */
-body:not([data-pathname="/"]) main article h2,
-body:not([data-pathname="/"]) main .nextra-content h2,
-body:not([data-pathname="/"]) article h2,
-body:not([data-pathname="/"]) .nextra-content h2 {
-  @apply border-violet-600 pb-2.5 mb-6;
-  border-bottom-width: 3px;
+/* Dark mode: Ensure border contrast is maintained */
+.dark :is(main article, main .nextra-content, article, .nextra-content) h1:first-of-type {
+  @apply border-violet-500;
+}
+
+.dark :is(main article, main .nextra-content, article, .nextra-content) h2 {
+  border-bottom-color: rgb(139 92 246 / 0.8); /* violet-500 with 0.8 opacity */
+}
+
+.dark :is(main article, main .nextra-content, article, .nextra-content) h3:not(a):not(:has(a)) {
+  @apply border-violet-500;
 }
 
 /* Limit first h1 width on desktop */
 @media (min-width: 768px) {
-  main article h1:first-of-type,
-  main .nextra-content h1:first-of-type,
-  article h1:first-of-type,
-  .nextra-content h1:first-of-type {
+  :is(main article, main .nextra-content, article, .nextra-content) h1:first-of-type {
     max-width: 90%;
   }
 }
@@ -62,38 +114,14 @@ footer {
   display: none !important;
 }
 
-/* Set Nextra primary color variables */
-:root {
-  --nextra-primary-hue: 270;
-  --nextra-primary-saturation: 100%;
-  --nextra-primary-lightness: 60%;
-}
-
 /* Global dark mode text color - make gray text white in dark mode */
-.dark .text-gray-400,
-.dark .text-gray-300 {
+.dark :is(.text-gray-400, .text-gray-300) {
   color: white !important;
 }
 
 /* Mermaid diagram text color in dark mode */
-.dark .mermaid text,
-.dark svg.mermaid text,
-.dark [class*="mermaid"] text,
-.dark pre.mermaid text,
-.dark pre code.language-mermaid + svg text,
-.dark .mermaid svg text,
-.dark svg[data-mermaid] text {
-  fill: white !important;
-  color: white !important;
-}
-
-/* Mermaid node labels and text elements */
-.dark .mermaid .nodeLabel,
-.dark .mermaid .edgeLabel,
-.dark .mermaid .cluster-label,
-.dark svg.mermaid .nodeLabel,
-.dark svg.mermaid .edgeLabel,
-.dark svg.mermaid .cluster-label {
+.dark :is(.mermaid, svg.mermaid, [class*="mermaid"], pre.mermaid, pre code.language-mermaid + svg, .mermaid svg, svg[data-mermaid]) text,
+.dark :is(.mermaid, svg.mermaid) :is(.nodeLabel, .edgeLabel, .cluster-label) {
   fill: white !important;
   color: white !important;
 }
@@ -101,124 +129,119 @@ footer {
 /* Clean Nextra styling overrides */
 @layer components {
   /* Navbar styling */
-  header,
   .nextra-nav-container,
-  .nextra-nav-container-blur {
-    @apply font-semibold;
+  .nextra-nav-container-blur,
+  header {
+    font-weight: 600;
     border-bottom: 2px solid hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) var(--nextra-primary-lightness));
   }
 
   /* Navbar text styling */
-  header a,
-  header button,
-  header span,
-  .nextra-nav-container a,
-  .nextra-nav-container button,
-  .nextra-nav-container span,
-  .nextra-nav-container-blur a,
-  .nextra-nav-container-blur button,
-  .nextra-nav-container-blur span {
+  :is(header, .nextra-nav-container, .nextra-nav-container-blur) :is(a, button, span) {
     @apply font-semibold tracking-tight;
   }
 
   /* Sidebar text styling */
-  .nextra-sidebar a,
-  .nextra-sidebar button,
-  .nextra-sidebar .nextra-focus {
+  .nextra-sidebar :is(a, button, .nextra-focus) {
     @apply font-semibold tracking-tight;
   }
 
-  /* Sidebar text color in dark mode */
-  .dark .nextra-sidebar a,
-  .dark .nextra-sidebar button,
-  .dark .nextra-sidebar .nextra-focus,
-  .dark .nextra-sidebar-container a,
-  .dark .nextra-sidebar-container button,
-  .dark .nextra-sidebar-container .nextra-focus {
-    color: white !important;
-  }
-
   /* Sidebar hover states */
-  .nextra-sidebar .nextra-focus:hover,
-  .nextra-sidebar a:hover,
-  .nextra-sidebar button:hover {
+  .nextra-sidebar :is(.nextra-focus, a, button):hover {
     background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) var(--nextra-primary-lightness));
     color: white;
   }
 
-  /* Active sidebar navigation - the key fix */
-  .nextra-sidebar .nextra-focus[aria-current="page"],
-  .nextra-sidebar a[aria-current="page"],
-  .nextra-sidebar button[aria-current="page"],
-  .nextra-sidebar-container .nextra-focus[aria-current="page"],
-  .nextra-sidebar-container a[aria-current="page"],
-  .nextra-sidebar-container button[aria-current="page"],
-  .nextra-sidebar .nextra-focus._bg-primary-100,
-  .nextra-sidebar a._bg-primary-100,
-  .nextra-sidebar button._bg-primary-100,
-  .nextra-sidebar-container .nextra-focus._bg-primary-100,
-  .nextra-sidebar-container a._bg-primary-100,
-  .nextra-sidebar-container button._bg-primary-100 {
+  /* Active sidebar navigation */
+  .nextra-sidebar-container :is(.nextra-focus, a, button)[aria-current="page"],
+  .nextra-sidebar :is(.nextra-focus, a, button)[aria-current="page"],
+  .nextra-sidebar-container :is(.nextra-focus, a, button)._bg-primary-100,
+  .nextra-sidebar :is(.nextra-focus, a, button)._bg-primary-100 {
     background-color: hsl(273.33deg 90% 96.08%);
     color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) calc(var(--nextra-primary-lightness) - 40%));
   }
 
   /* Sidebar open menu states */
-  .nextra-sidebar li[open] > a,
-  .nextra-sidebar li[open] > button,
-  .nextra-sidebar li[open] > .nextra-focus {
+  .nextra-sidebar li[open] > :is(a, button, .nextra-focus) {
     background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) var(--nextra-primary-lightness));
     color: white;
   }
 
-  /* Search bar and dropdown styling - IBM Plex font */
-  .nextra-search input,
-  .nextra-search-input,
-  .nextra-search-dropdown,
-  .nextra-search-results,
-  .nextra-search-result,
-  .nextra-search-modal,
-  .nextra-search-overlay,
-  .nextra-modal-content,
-  [data-nextra-search],
-  [data-nextra-search] input,
-  [data-nextra-search] .nextra-scrollbar,
-  [data-nextra-search] ul,
-  [data-nextra-search] li,
-  [data-nextra-search] a,
-  [data-nextra-search] p,
-  [data-nextra-search] span,
-  [data-reach-combobox-input],
-  [data-reach-combobox-list],
-  [data-reach-combobox-option],
-  .nextra-search-container,
-  .nextra-search-container input,
-  .nextra-search-container button,
-  .nextra-search-container div,
-  .nextra-search-container span,
-  .nextra-search-container p,
-  .nextra-search-container a,
-  .nextra-search-container li,
-  .nextra-search-container ul {
+  /* Search and font styling - consolidated */
+  :is(
+    .nextra-search,
+    .nextra-search-input,
+    .nextra-search-dropdown,
+    .nextra-search-results,
+    .nextra-search-result,
+    .nextra-search-modal,
+    .nextra-search-overlay,
+    .nextra-modal-content,
+    [data-nextra-search],
+    [data-nextra-search] :is(input, .nextra-scrollbar, ul, li, a, p, span),
+    [data-reach-combobox-input],
+    [data-reach-combobox-list],
+    [data-reach-combobox-option],
+    .nextra-search-container,
+    .nextra-search-container :is(input, button, div, span, p, a, li, ul),
+    #__next ~ div,
+    [data-radix-portal],
+    [data-reach-portal]
+  ) {
     @apply font-sans;
-    font-family: var(--font-ibm-plex), "IBM Plex Sans", "IBM Plex Sans Fallback", -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+    font-family: var(--font-ibm-plex-stack) !important;
   }
 
-  /* Portal containers - specific targeting for search modals */
-  #__next ~ div,
-  [data-radix-portal],
-  [data-reach-portal] {
-    font-family: var(--font-ibm-plex), "IBM Plex Sans", "IBM Plex Sans Fallback", -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+  /* Tab styling - RunReveal purple background with opacity, rounded top corners, white text, light grey bottom border */
+  /* Targets all Nextra tabs including those in log processing pages */
+  
+  /* All tab buttons - base styling */
+  button[role="tab"],
+  [role="tab"] button,
+  [data-state] button,
+  button[data-state],
+  [role="tablist"] button,
+  [role="tabpanel"] ~ [role="tablist"] button {
+    border-top-left-radius: 0.375rem !important;
+    border-top-right-radius: 0.375rem !important;
   }
 
-  /* Additional search component targeting */
-  .nextra-search,
-  .nextra-search *,
-  .nextra-search-input,
-  .nextra-search-input *,
-  .nextra-search-dropdown *,
-  .nextra-search-results *,
-  .nextra-search-result * {
-    font-family: var(--font-ibm-plex), "IBM Plex Sans", "IBM Plex Sans Fallback", -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+  /* Active/selected tab - purple background */
+  button[role="tab"][data-state="active"],
+  button[role="tab"][aria-selected="true"],
+  [role="tab"][data-state="active"],
+  [role="tab"][aria-selected="true"],
+  button[data-state="active"],
+  [data-state="active"] button {
+    @apply bg-runreveal-600 text-white border-gray-300;
+    border-top-left-radius: 0.375rem !important;
+    border-top-right-radius: 0.375rem !important;
+    border-bottom-width: 1px !important;
   }
-} 
+
+  /* Inactive tabs - transparent background */
+  button[role="tab"]:not([data-state="active"]):not([aria-selected="true"]),
+  [role="tab"]:not([data-state="active"]):not([aria-selected="true"]),
+  button[data-state]:not([data-state="active"]) {
+    background-color: transparent !important;
+  }
+
+  /* Tab hover state - for inactive tabs */
+  button[role="tab"]:not([data-state="active"]):not([aria-selected="true"]):hover,
+  [role="tab"]:not([data-state="active"]):not([aria-selected="true"]):hover,
+  button[data-state]:not([data-state="active"]):hover {
+    @apply bg-runreveal-600;
+    border-top-left-radius: 0.375rem !important;
+    border-top-right-radius: 0.375rem !important;
+    /* Text color remains unchanged on hover */
+  }
+
+  /* Active tab hover - same as active color */
+  button[role="tab"][data-state="active"]:hover,
+  button[role="tab"][aria-selected="true"]:hover,
+  [role="tab"][data-state="active"]:hover,
+  button[data-state="active"]:hover {
+    @apply bg-runreveal-600;
+    /* Text color remains white (already set in active state) */
+  }
+}
