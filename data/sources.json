@@ -1338,7 +1338,7 @@
     {
       "id": "snowflake",
       "name": "Snowflake",
-      "description": "Collect query history, login attempts, and security events from your Snowflake account.",
+      "description": "Collect login history and authentication events from your Snowflake account.",
       "logo": "/logos/snowflake.svg",
       "url": "/sources/source-types/snowflake",
       "ingestTypes": [

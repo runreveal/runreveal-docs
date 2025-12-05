@@ -6,23 +6,50 @@ description: 'Wiz threat data is sent to RunReveal via a webhook configured in y
 # Wiz Threats
 Wiz threat data is sent to RunReveal via a webhook configured in your Wiz environment using Automation Rules.
 
+![Wiz Source Setup](/wiz-source-1.png)
+
 # Setup
 To setup your Wiz Threats source, start by creating the source in RunReveal to fetch
 your WebhookURL that you'll configure in Wiz. You'll be given a webhook after
 creating the source via a popup.
 
 ## Configure Wiz Webhook Integration
+
 In your Wiz environment, you'll need to setup a webhook integration and create an Automation Rule to send threat data to RunReveal.
+
+### Create a Wiz Webhook Integration
+
+To set up your webhook integration in Wiz, follow these steps:
+
+1. Navigate to your Wiz console
+2. In the left hand sidebar, navigate to **Settings → Integrations**
+3. In the upper right corner, click **"+ Add Integration"** and select **"Webhook"**
+4. Name the integration something memorable, such as **"RunReveal"**
+5. Under **"Scope"**, if you wish to limit project access to RunReveal, assign the Webhook to a selected project. Otherwise, click **"All Projects"**
+6. Under **"URL"**, paste in your RunReveal webhook URL (you'll get this when creating the source in RunReveal)
+7. Click **"Save"**
 
 ![Wiz Automation Template](/wiz-threats-1.png)
 
 ## Setup Automation Rule
-Create an Automation Rule in Wiz with the following configuration:
 
-1. Navigate to your Wiz Automation Rules
-2. Create a new rule for threat events
-3. Configure the webhook action using your RunReveal WebhookURL
-4. Use the action template below for the webhook payload
+To create an automation rule in Wiz, follow these steps:
+
+1. In the left sidebar of your Wiz console, navigate to **Policies → Automation Rules**
+2. In the upper right corner, click **"+ Add Rule"**
+3. Name the automation rule something memorable, such as **"Wiz Detections to RunReveal"**
+4. You may choose to add a description, such as **"RunReveal Threat Forwarding Rule"**
+5. Under **"Scope"**, if you wish to limit project access to RunReveal, assign the Automation rule to a selected project. Otherwise, click **"All Projects"**
+6. In the **"Rule Conditions"** section, set the **"When"** condition to **"Detection is Created"**
+7. In the **"If"** section, you may choose the severity levels you wish RunReveal to ingest. Set the **"If"** condition to **"Severity is "Critical" or "High" or "Medium"** (or your desired severity level)
+8. In the **"Then"** section, click **"+ Add action"**
+9. Select **"POST a Webhook"**
+10. Select the webhook integration you created earlier (e.g., **"RunReveal"**)
+11. In the **"Request Body"** section, replace the default action template with the JSON template provided below
+12. Click **"Add Action"**
+13. Once returned to the New Automation Rule page, click **"Save"**
+
+Once this step has been committed, Wiz will start sending its alerts directly to RunReveal.
 
 ## Action Template
 Configure your Automation Rule with the following action template:
