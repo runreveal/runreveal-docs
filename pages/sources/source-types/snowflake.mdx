@@ -11,7 +11,11 @@ Snowflake login history logs require a **Pro plan** subscription in RunReveal.
 
 ## Setup
 
-### Step 1: start RunReveal source creation
+### Step 1: Whitelist RunReveal IP addresses (if required)
+
+If your Snowflake account has IP allowlisting enabled, you'll need to whitelist RunReveal's outbound IP addresses before the integration can connect. See [Network Connectivity and IP Whitelisting](/reference/network-connectivity) for the IP addresses to add to your Snowflake network policy allowlist.
+
+### Step 2: start RunReveal source creation
 
 1. Navigate to the RunReveal UI and go to the source creation page.
 2. Select **"Snowflake"** as your source type.
@@ -20,7 +24,7 @@ Snowflake login history logs require a **Pro plan** subscription in RunReveal.
    See the [Snowflake docs on Account Identifiers](https://docs.snowflake.com/en/user-guide/admin-account-identifier) for more information.
 5. Copy the Redirect URL provided near the top of the page -- you'll need this later.
 
-### Step 2: Create a new Snowflake role
+### Step 3: Create a new Snowflake role
 
 1. Log into Snowflake and open a worksheet.
 2. Execute the following commands:
@@ -32,7 +36,7 @@ Snowflake login history logs require a **Pro plan** subscription in RunReveal.
 
 Note: You may use a different role name here, but be sure to use the same role in later commands, and change the default role on the Source settings page in RunReveal.
 
-### Step 3: Create a service user in Snowflake
+### Step 4: Create a service user in Snowflake
 
 This is the account you'll use to authenticate with Snowflake during the OAuth flow when adding the source.
 
@@ -49,7 +53,7 @@ This is the account you'll use to authenticate with Snowflake during the OAuth f
    GRANT ROLE runreveal_role TO USER svc_runreveal;
    ```
 
-### Step 4: Create a "Security Integration" in Snowflake
+### Step 5: Create a "Security Integration" in Snowflake
 
 From a Snowflake worksheet, execute the following command -- substitute the Redirect URL you copied earlier for the `OAUTH_REDIRECT_URI` value.
 
@@ -68,7 +72,7 @@ CREATE SECURITY INTEGRATION RUNREVEAL
 
 See also [Snowflake docs on "CREATE SECURITY INTEGRATION (Snowflake OAuth)"](https://docs.snowflake.com/en/sql-reference/sql/create-security-integration-oauth-snowflake)
 
-### Step 5: Collect the OAuth details for the new integration
+### Step 6: Collect the OAuth details for the new integration
 
 You'll need to supply the OAuth Client ID and Client Secret to RunReveal so it can connect to Snowflake.
 
@@ -87,7 +91,7 @@ Run the following commands from your Snowflake worksheet.
    ```
 Copy each of these strings without the quotes.
 
-### Step 6: Complete the source creation in RunReveal
+### Step 7: Complete the source creation in RunReveal
 
 1. Return to the page you opened earlier on RunReveal and fill in the remaining values: Client ID and Client Secret.   
    Make sure your Account Identifier is filled in, and that the Snowflake role matches the one you used in the above steps.

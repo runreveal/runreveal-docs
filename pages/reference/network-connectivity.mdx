@@ -1,0 +1,57 @@
+---
+title: Network Connectivity and IP Whitelisting
+description: RunReveal outbound IP addresses for firewall and network policy configuration
+---
+
+import { Callout } from 'nextra/components'
+
+# Network Connectivity and IP Whitelisting
+
+Some integrations require IP allowlisting or firewall rules to permit outbound connections from RunReveal. This page provides the IP addresses you'll need to whitelist for integrations that use IP-based access controls.
+
+## RunReveal Outbound IP Addresses
+
+All outbound traffic from RunReveal originates from the following IP addresses:
+
+- `18.190.118.65`
+- `18.221.211.67`
+- `18.221.220.90`
+
+<Callout type="info">
+These IP addresses are static and do not change. If you need to verify these IPs or have questions about network connectivity, contact RunReveal support.
+</Callout>
+
+## When IP Whitelisting is Required
+
+IP whitelisting is typically required for integrations that:
+
+- Use IP-based network policies (e.g., Snowflake, some database integrations)
+- Have firewall rules that restrict inbound connections
+- Require allowlisting of specific source IPs for API access
+- Use network security groups or access control lists (ACLs)
+
+## Common Integration Use Cases
+
+### Snowflake
+
+If your Snowflake account has IP allowlisting enabled, add RunReveal's IP addresses to your Snowflake network policy. See the [Snowflake integration guide](/sources/source-types/snowflake) for detailed setup instructions.
+
+### Database Integrations
+
+For database integrations that require IP whitelisting, add all three IP addresses to your database's allowed IP list or firewall rules.
+
+### API Integrations with IP Restrictions
+
+Some API integrations may have IP-based access controls. Whitelist all three IP addresses to ensure reliable connectivity.
+
+## Troubleshooting
+
+If you're experiencing connection issues with an integration that requires IP whitelisting:
+
+1. Verify all three IP addresses are whitelisted in your network policy
+2. Check that firewall rules allow outbound connections from these IPs
+3. Ensure network security groups or ACLs permit traffic from these IPs
+4. Review integration-specific documentation for additional network requirements
+
+For additional assistance with network connectivity issues, contact RunReveal support.
+
