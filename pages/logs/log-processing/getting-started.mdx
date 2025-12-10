@@ -128,7 +128,7 @@ Pipeline steps are executed in order from top to bottom. Each step can have prec
 | **[Transform](/logs/log-processing/transforms)** | Modify event data structure and content | • Standardizing data from different sources<br/>• Cleaning up field names<br/>• Restructuring JSON |
 | **[Enrich](/logs/log-processing/enrichments)** | Add additional context to events | • Enhancing events with contextual information for better analysis |
 | **[Filter](/logs/log-processing/filtering)** | Apply reusable filter rules | • When you need reusable, configurable filtering rules that can be shared across pipelines<br/>• When you want to archive events instead of dropping them |
-| **[Detect](/detections/sigma-streaming)** | Run streaming detections (Sigma rules) on events as they are ingested | • Real-time threat detection as events are ingested |
+| **[Detect](/detections)** | Run streaming detections (Sigma rules) on events as they are ingested | • Real-time threat detection as events are ingested |
 | **[Sample](/logs/log-processing/sampling)** | Reduce event volume by sampling a percentage | • Cost optimization for noisy sources<br/>• Performance tuning |
 | **[Drop](/logs/log-processing/dropping)** | Remove events from processing | • Simple, pipeline-specific event dropping that doesn't require reusable filter rules |
 

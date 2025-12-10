@@ -233,90 +233,206 @@ ORDER BY event_count DESC
 LIMIT 10
 ```
 
-### Configure Generic Webhook
+</Steps>
+
+## Configure and Test Detections
+
+<Callout type="info">
+Detections continuously monitor your logs for security events. Create detections as SQL queries or Sigma rules, then configure notification channels for alerts. This section walks you through setting up a webhook source, sending test data, creating a detection, and viewing the results.
+</Callout>
+
+<Steps>
+
+### Set Up Webhook Source for Testing
 
 <Callout type="tip">
-Use webhooks for custom applications, Vector, Fluent Bit, or any log source that can POST JSON via HTTP.
+Use webhooks for custom applications, Vector, Fluent Bit, or any log source that can POST JSON via HTTP. We'll use a webhook to send test data that will trigger our detection.
 </Callout>
 
 **Create Webhook Source**:
 
 1. Go to **Sources → Add Source → Webhook**
 2. Configure webhook name and description
-3. Copy your webhook URL
+3. Copy your webhook URL and bearer token (if authentication is enabled)
 
 <Callout type="warning">
 Protect your webhook URL - it provides write access to your RunReveal workspace.
 </Callout>
 
-**Test Webhook**:
+### Send Test Security Event
 
-Send test event using curl:
+Send a test security event that will match a detection rule. This example simulates a suspicious login attempt:
 
 ```bash
 curl -X POST \
   https://api.runreveal.com/sources/hook/YOUR_SOURCE_ID \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_BEARER_TOKEN" \
   -d '{
-    "timestamp": "'$(date -Iseconds)'",
-    "level": "info",
-    "message": "Test webhook log",
-    "service": "test-app"
+    "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+    "source": "test-system",
+    "eventName": "suspicious_login",
+    "severity": "high",
+    "user": "test-user",
+    "srcIP": "192.168.1.100",
+    "action": "login_attempt",
+    "result": "success",
+    "user_agent": "curl-test",
+    "metadata": {
+      "login_method": "ssh",
+      "session_id": "test-123"
+    }
   }'
 ```
 
-**Verify in RunReveal**:
+### Verify Log Ingestion
+
+Check that your test log was received in the logs table:
 
 ```sql
--- Check for webhook logs
-SELECT *
+-- Verify webhook logs were received
+SELECT 
+  receivedAt,
+  sourceType,
+  JSONExtractString(rawLog, 'eventName') as eventName,
+  JSONExtractString(rawLog, 'user') as user,
+  JSONExtractString(rawLog, 'srcIP') as srcIP,
+  JSONExtractString(rawLog, 'severity') as severity,
+  rawLog
 FROM logs
-WHERE sourceType = 'generic-webhook'
+WHERE sourceType = 'structured-webhook'
+  AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
   AND receivedAt > now() - INTERVAL 5 MINUTE
 ORDER BY receivedAt DESC
 LIMIT 10
 ```
 
-</Steps>
-
-## Configure Detections
-
-<Callout type="info">
-Detections continuously monitor your logs for security events. Create detections as SQL queries or Sigma rules, then configure notification channels for alerts.
-</Callout>
-
-<Steps>
+**Expected Results**: You should see one or more rows with:
+- `eventName`: `suspicious_login`
+- `user`: `test-user`
+- `srcIP`: `192.168.1.100`
+- `severity`: `high`
+- `rawLog`: Full JSON object with all fields
 
 ### Create Your First Detection
 
 Navigate to **Detections → Create Detection**:
 
-**Example: Failed Login Attempts**
+**Example: Suspicious Login Detection**
 
-```yaml
-name: Failed Login Attempts
-description: Alert on multiple failed login attempts from same IP
-severity: medium
-schedule: "*/15 * * * *"  # Every 15 minutes
-```
+This detection will trigger on the `suspicious_login` events from your webhook source.
 
-**Query**:
+**Configuration**:
+
+1. **Name**: `test-suspicious-login`
+2. **Type**: **SQL**
+3. **Query**:
+   ```sql
+   SELECT
+     JSONExtractString(rawLog, 'eventName') as eventName,
+     JSONExtractString(rawLog, 'user') as user,
+     JSONExtractString(rawLog, 'srcIP') as srcIP,
+     JSONExtractString(rawLog, 'user_agent') as user_agent,
+     JSONExtractString(rawLog, 'severity') as severity,
+     JSONExtractString(rawLog, 'metadata', 'login_method') as login_method,
+     receivedAt
+   FROM logs
+   WHERE sourceType = 'structured-webhook'
+     AND JSONExtractString(rawLog, 'eventName') = 'suspicious_login'
+     AND JSONExtractString(rawLog, 'srcIP') = '192.168.1.100'
+     AND receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
+   ```
+4. **Schedule**: `*/5 * * * *` (every 5 minutes)
+5. **Severity**: **Medium**
+6. **Categories**: `["authentication", "test"]`
+7. **Notification Channels**: Leave empty for now (this will create signals)
+
+**What This Detection Does**:
+
+- Monitors webhook logs for `suspicious_login` events
+- Filters for events from the specific test IP (`192.168.1.100`)
+- Extracts key fields: user, source IP, user agent, severity, and login method
+- Runs every 5 minutes to check for matching events
+
+**After Creating the Detection**:
+
+1. Click **Test Detection** to verify the query returns your test log
+2. Review the results to confirm it matches your webhook event
+3. Click **Save and Enable**
+
+### View Detection Results
+
+After the detection runs (wait up to 5 minutes or manually trigger it), query the signals table to see the detection results:
+
+**View Signals**:
 
 ```sql
+-- View signals generated by your detection
 SELECT 
-  actor.email as user,
-  src.ip as source_ip,
-  COUNT(*) as failed_attempts,
-  MIN(receivedAt) as first_attempt,
-  MAX(receivedAt) as last_attempt
-FROM logs 
-WHERE eventName = 'user.session.start'
-  AND outcome.result = 'FAILURE'
-  AND receivedAt BETWEEN {from:DateTime} AND {to:DateTime}
-GROUP BY actor.email, src.ip
-HAVING failed_attempts >= 5
-ORDER BY failed_attempts DESC
+  detectionName,
+  severity,
+  recordsReturned,
+  categories,
+  createdAt,
+  results
+FROM signals
+WHERE detectionName = 'test-suspicious-login'
+ORDER BY createdAt DESC
+LIMIT 10
 ```
+
+**What You're Querying**: The `signals` table contains detection results that don't have notification channels configured. Each row represents one execution of your detection query.
+
+**Expected Results**: You should see one or more rows with:
+- `detectionName`: `test-suspicious-login` - The name of your detection
+- `recordsReturned`: `1` (or more) - Number of log entries that matched your detection query
+- `severity`: `Medium` - The severity you configured for the detection
+- `categories`: `['authentication', 'test']` - The categories you assigned
+- `createdAt`: Timestamp when the detection query executed
+- `results`: A JSON array string containing the matched log entries. Each entry includes the fields you selected in your detection query (`eventName`, `user`, `srcIP`, `user_agent`, `severity`, `login_method`, `receivedAt`)
+
+**Example results JSON structure**:
+```json
+[
+  {
+    "eventName": "suspicious_login",
+    "user": "test-user",
+    "srcIP": "192.168.1.100",
+    "user_agent": "curl-test",
+    "severity": "high",
+    "login_method": "ssh",
+    "receivedAt": "2025-01-15T14:30:00Z"
+  }
+]
+```
+
+**View All Detection Results**:
+
+To see all detection results (both signals and alerts), query the detections table:
+
+```sql
+-- View all detection results for your test detection
+SELECT 
+  detectionName,
+  severity,
+  recordsReturned,
+  categories,
+  notificationNames,
+  createdAt,
+  results
+FROM detections
+WHERE detectionName = 'test-suspicious-login'
+ORDER BY createdAt DESC
+LIMIT 10
+```
+
+**What You're Querying**: The `detections` table contains all detection results, regardless of notification configuration. The `notificationNames` field distinguishes signals from alerts.
+
+**Expected Results**: Similar to the signals query, but with an additional `notificationNames` field:
+- If `notificationNames` is empty (`[]`): This detection result is a **signal** (no notifications sent)
+- If `notificationNames` contains values (e.g., `['email', 'slack']`): This detection result is an **alert** (notifications were sent)
+
+Since you created the detection without notification channels, all results should show empty `notificationNames` arrays, meaning they appear in both the `detections` and `signals` tables.
 
 ### Configure Notification Channels
 
@@ -349,17 +465,20 @@ Email channel is pre-configured by default. Customize recipients:
 
 ### Enable and Monitor Detections
 
-After creating your detection:
-
-1. Click **Test Detection** to verify query returns results
-2. Review notification channel configuration
-3. Click **Save and Enable**
+**Monitor in Dashboard**:
 
 Navigate to **Detections** dashboard to view:
 - Active detections count
 - Detection success rate
-- Recent alerts generated
+- Recent signals and alerts generated
 - Average execution time
+
+**Next Steps**:
+
+- The detection will run automatically every 5 minutes based on the schedule
+- Query the `signals` table (see queries above) to view detection results
+- When ready, add notification channels to your detection to convert signals into alerts
+- Edit your detection and attach notification channels to start receiving alerts
 
 </Steps>
 

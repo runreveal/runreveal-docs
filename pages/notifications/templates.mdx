@@ -1,39 +1,1343 @@
 ---
-title: 'Templates'
-description: 'Templates allow custom text to be sent to a notification channel. RunReveal templates are rendered using handlebar expressions. Handlebar expressions allow properties from the query or trigger to be inserted into the notification text dynamically.'
+title: 'Creating Notification Templates'
+description: 'Learn how to create dynamic, customizable notification templates using Handlebars-style templating with conditional logic, data iteration, and rich formatting.'
 ---
 
-# Templates
+import React from 'react'
 
-Templates allow custom text to be sent to a notification channel. RunReveal templates are rendered using handlebar expressions. Handlebar expressions allow properties from the query or trigger to be inserted into the notification text dynamically.
+# Creating Notification Templates
 
->For a deeper understanding of handlebars and a more detailed explanation of the syntax check out their [docs](https://handlebarsjs.com/guide/).
+<div className="bg-primary-light dark:bg-primary/20 border-l-4 border-primary p-4 my-6 rounded-r-lg">
+  <div className="text-sm text-gray-700 dark:text-gray-300 mb-0">
+    <strong className="text-primary dark:text-primary">Template System:</strong> RunReveal uses Handlebars-style templating (via Raymond) to create dynamic notifications that adapt to your detection data.
+  </div>
+</div>
 
-## Template UI
+![Notification Template Example](/notification-template-1.png)
 
-To access templates navigate to the notifications page and scroll to the bottom. From there you will see a list of templates that are saved with your account. There should be one default template for each notification channel. You can add/edit a template or duplicate an existing one to use as a starting point.
+## Template Syntax Guide
 
-### Editing Templates
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+  <div className="rounded-2xl bg-gradient-to-br from-insight-light to-blue-100 dark:from-insight/20 dark:to-blue-800/20 p-6 ring-1 ring-inset ring-insight/30 dark:ring-insight/50">
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-3">Basic Fields</div>
+    <div className="text-sm text-gray-600 dark:text-white mb-4">
+      Use <code className="bg-white/50 dark:bg-gray-800 px-2 py-0.5 rounded font-mono text-primary dark:text-primary">fieldName</code> syntax to insert dynamic values. Most fields are under <code className="bg-white/50 dark:bg-gray-800 px-2 py-0.5 rounded font-mono text-primary dark:text-primary">detection</code> for both scheduled and streaming detections.
+    </div>
+    <div className="space-y-2 text-sm">
+      <div className="font-mono text-xs bg-white/50 dark:bg-gray-800 p-2 rounded">detection.name</div>
+      <div className="font-mono text-xs bg-white/50 dark:bg-gray-800 p-2 rounded">detection.severity</div>
+      <div className="font-mono text-xs bg-white/50 dark:bg-gray-800 p-2 rounded">detection.resultCount</div>
+    </div>
+  </div>
 
-The edit screen is split into two sections. On the right you have the fields that are needed to create a template. A template name is used to identify the template and must be unique from all of your templates. The other two fields, Message Title and Message Body, are the actual template fields that will be rendered when sending your notification. You can preview the rendered text using the test data loaded on the left panel.
+  <div className="rounded-2xl bg-gradient-to-br from-primary-light to-purple-100 dark:from-primary/20 dark:to-purple-800/20 p-6 ring-1 ring-inset ring-primary/30 dark:ring-primary/50">
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-3">Advanced Components</div>
+    <div className="text-sm text-gray-600 dark:text-white space-y-3">
+      <div className="flex items-start">
+        <span className="text-primary mr-2">🔄</span>
+        <div><strong>Loops:</strong> Repeat content for each item in a list</div>
+      </div>
+      <div className="flex items-start">
+        <span className="text-primary mr-2">📊</span>
+        <div><strong>Tables:</strong> Display data in a structured table format</div>
+      </div>
+      <div className="flex items-start">
+        <span className="text-primary mr-2">🔀</span>
+        <div><strong>Conditionals:</strong> Show content based on conditions</div>
+      </div>
+    </div>
+  </div>
 
-The left panel is used to give you access to the fields that can be added to your template. The drop down shows all saved queries and triggers associated with your account. Selecting one and clicking load will either try to load the data from most recent execution or fill in with test data if needed. The tree view shows the properties that can be added into your template. Clicking on a property will add the path to that field to your clipboard and can be pasted into a handlebar expression. RunReveal offers partial templates that can be used to display certain aspects of your data in an easy to use format. For example we offer the ability to render the results of the scheduled query as an HTML table. The second section of data shows the loaded example data that will be replaced in your template. Scheduled query data will be under the query object and trigger data will be under the trigger object.&#x20;
+  <div className="rounded-2xl bg-gradient-to-br from-vitality-light to-green-100 dark:from-vitality/20 dark:to-green-800/20 p-6 ring-1 ring-inset ring-vitality/30 dark:ring-vitality/50">
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-3">Formatting</div>
+    <div className="text-sm text-gray-600 dark:text-white mb-4">
+      Full markdown support including:
+    </div>
+    <div className="flex flex-wrap gap-2 text-xs">
+      <span className="bg-white/50 dark:bg-gray-800 px-2 py-1 rounded">**bold**</span>
+      <span className="bg-white/50 dark:bg-gray-800 px-2 py-1 rounded">*italic*</span>
+      <span className="bg-white/50 dark:bg-gray-800 px-2 py-1 rounded">lists</span>
+      <span className="bg-white/50 dark:bg-gray-800 px-2 py-1 rounded">links</span>
+      <span className="bg-white/50 dark:bg-gray-800 px-2 py-1 rounded">images</span>
+      <span className="bg-white/50 dark:bg-gray-800 px-2 py-1 rounded">code blocks</span>
+    </div>
+  </div>
+</div>
 
-Templates are used for scheduled queries and triggers, this means that the template will be reused and must be written in a way to handle both cases. The default templates give an example of how this is done. The data passed to the template will either have a `query` object with the results from the scheduled query or a `trigger` object with the results of the trigger that fired. The other object will be blank when rendering the template. This can be used to create conditional sections that display data depending on what is being notified.
+---
 
+## Overview
+
+Notification templates allow you to customize how alerts are formatted and delivered across different channels. Templates support conditional logic, data iteration, markdown rendering, and channel-specific formatting.
+
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-8">
+  <div className="rounded-2xl bg-gray-50/70 dark:bg-white/5 ring-1 ring-inset ring-primary/20 dark:ring-primary/30 p-5 hover:shadow-md transition-shadow">
+    <div className="w-10 h-10 rounded-xl bg-primary-light dark:bg-primary/20 flex items-center justify-center mb-3">
+      <span className="text-xl">🔀</span>
+    </div>
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-2">Conditional Logic</div>
+    <div className="text-sm text-gray-600 dark:text-white">Show/hide content based on detection properties</div>
+  </div>
+  <div className="rounded-2xl bg-gray-50/70 dark:bg-white/5 ring-1 ring-inset ring-insight/20 dark:ring-insight/30 p-5 hover:shadow-md transition-shadow">
+    <div className="w-10 h-10 rounded-xl bg-insight-light dark:bg-insight/20 flex items-center justify-center mb-3">
+      <span className="text-xl">🔄</span>
+    </div>
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-2">Data Iteration</div>
+    <div className="text-sm text-gray-600 dark:text-white">Loop through detection results and arrays</div>
+  </div>
+  <div className="rounded-2xl bg-gray-50/70 dark:bg-white/5 ring-1 ring-inset ring-vitality/20 dark:ring-vitality/30 p-5 hover:shadow-md transition-shadow">
+    <div className="w-10 h-10 rounded-xl bg-vitality-light dark:bg-vitality/20 flex items-center justify-center mb-3">
+      <span className="text-xl">📊</span>
+    </div>
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-2">Table Generation</div>
+    <div className="text-sm text-gray-600 dark:text-white">Automatically format query results as tables</div>
+  </div>
+  <div className="rounded-2xl bg-gray-50/70 dark:bg-white/5 ring-1 ring-inset ring-accent/20 dark:ring-accent/30 p-5 hover:shadow-md transition-shadow">
+    <div className="w-10 h-10 rounded-xl bg-accent-light dark:bg-accent/20 flex items-center justify-center mb-3">
+      <span className="text-xl">📝</span>
+    </div>
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-2">Markdown Support</div>
+    <div className="text-sm text-gray-600 dark:text-white">Rich formatting with markdown rendering</div>
+  </div>
+</div>
+
+---
+
+## Using the Template Builder
+
+RunReveal provides a visual template builder in the dashboard to create and manage your notification templates.
+
+<div className="rounded-2xl bg-gradient-to-br from-primary-light to-purple-100 dark:from-primary/20 dark:to-purple-800/20 ring-1 ring-inset ring-primary/30 dark:ring-primary/50 overflow-hidden my-8">
+  <div className="bg-primary px-6 py-3">
+    <div className="text-white font-black flex items-center">
+      <span className="mr-2">🛠️</span> Quick Start: Creating Your First Template
+    </div>
+  </div>
+  <div className="p-6">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="flex items-start">
+        <div className="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm mr-3">1</div>
+        <div>
+          <div className="font-black text-gray-900 dark:text-white text-sm">Navigate</div>
+          <div className="text-xs text-gray-600 dark:text-white">Go to Notification Channels → Templates</div>
+        </div>
+      </div>
+      <div className="flex items-start">
+        <div className="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm mr-3">2</div>
+        <div>
+          <div className="font-black text-gray-900 dark:text-white text-sm">Create</div>
+          <div className="text-xs text-gray-600 dark:text-white">Click "Create Template" button</div>
+        </div>
+      </div>
+      <div className="flex items-start">
+        <div className="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm mr-3">3</div>
+        <div>
+          <div className="font-black text-gray-900 dark:text-white text-sm">Configure</div>
+          <div className="text-xs text-gray-600 dark:text-white">Add title & body templates</div>
+        </div>
+      </div>
+      <div className="flex items-start">
+        <div className="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm mr-3">4</div>
+        <div>
+          <div className="font-black text-gray-900 dark:text-white text-sm">Save</div>
+          <div className="text-xs text-gray-600 dark:text-white">Save and assign to detections</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+### Step-by-Step Guide
+
+<div className="space-y-6 my-6">
+  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div className="flex items-start">
+      <div className="flex-shrink-0 w-10 h-10 bg-primary-light dark:bg-primary/20 text-primary dark:text-primary rounded-lg flex items-center justify-center font-bold mr-4">1</div>
+      <div className="flex-1">
+        <div className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Access the Template Builder</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Navigate to <a href="https://app.runreveal.com/dash/notifications" className="text-primary dark:text-primary underline">Notification Channels</a> in the RunReveal dashboard, then click on the <strong>Templates</strong> tab.
+        </div>
+        <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-3 text-xs text-gray-500 dark:text-gray-400">
+          <strong>Path:</strong> Dashboard → Notification Channels → Templates
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div className="flex items-start">
+      <div className="flex-shrink-0 w-10 h-10 bg-primary-light dark:bg-primary/20 text-primary dark:text-primary rounded-lg flex items-center justify-center font-bold mr-4">2</div>
+      <div className="flex-1">
+        <div className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Create a New Template</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Click the <strong>Create Template</strong> button. Give your template a descriptive name that reflects its purpose (e.g., "Critical Security Alert", "Daily Digest Summary").
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs px-2 py-1 rounded">critical-alerts</span>
+          <span className="bg-insight-light dark:bg-insight/20 text-insight dark:text-insight text-xs px-2 py-1 rounded">daily-summary</span>
+          <span className="bg-primary-light dark:bg-primary/20 text-primary dark:text-primary text-xs px-2 py-1 rounded">slack-security</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div className="flex items-start">
+      <div className="flex-shrink-0 w-10 h-10 bg-primary-light dark:bg-primary/20 text-primary dark:text-primary rounded-lg flex items-center justify-center font-bold mr-4">3</div>
+      <div className="flex-1">
+        <div className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Configure the Title Template</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Enter your title template in the <strong>Title</strong> field. This appears as the email subject line or message header. Keep it concise and include key information like severity and detection name.
+        </div>
+        <div className="bg-gray-900 rounded-lg p-3 font-mono text-sm text-green-400">
+          [&#123;&#123;detection.severity&#125;&#125;] &#123;&#123;detection.displayName&#125;&#125; - &#123;&#123;detection.resultCount&#125;&#125; results
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div className="flex items-start">
+      <div className="flex-shrink-0 w-10 h-10 bg-primary-light dark:bg-primary/20 text-primary dark:text-primary rounded-lg flex items-center justify-center font-bold mr-4">4</div>
+      <div className="flex-1">
+        <div className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Configure the Body Template</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Enter your body template in the <strong>Body</strong> field. This is the main content of your notification. Use Handlebars syntax for dynamic content, markdown for formatting, and helpers for advanced features.
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-2">
+            <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Variables</div>
+            <code className="text-primary dark:text-primary">&#123;&#123;detection.name&#125;&#125;</code>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-2">
+            <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Conditionals</div>
+            <code className="text-primary dark:text-primary">&#123;&#123;#ifEquals...&#125;&#125;</code>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded p-2">
+            <div className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Tables</div>
+            <code className="text-primary dark:text-primary">&#123;&#123;table results&#125;&#125;</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div className="flex items-start">
+      <div className="flex-shrink-0 w-10 h-10 bg-primary-light dark:bg-primary/20 text-primary dark:text-primary rounded-lg flex items-center justify-center font-bold mr-4">5</div>
+      <div className="flex-1">
+        <div className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Preview and Test the Template</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          The template editor shows a <strong>Preview</strong> of how your markdown and formatting will render. Note that the preview displays your template structure with placeholder values—it does not use real detection data.
+        </div>
+        <div className="bg-accent-light dark:bg-accent/20 ring-1 ring-inset ring-accent/30 dark:ring-accent/50 rounded-lg p-4 mb-4">
+          <div className="flex items-start">
+            <span className="text-accent mr-2">💡</span>
+            <div className="text-sm text-accent-dark dark:text-accent">
+              <strong>Testing with Real Data:</strong> To see your template with actual detection data, use the <strong>Send Test</strong> button on your notification channel after saving the template. This sends a test notification using sample detection data to your configured destination (Slack, email, etc.).
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Preview Shows</div>
+            <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Markdown rendering</li>
+              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Template structure</li>
+              <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Formatting validation</li>
+            </ul>
+          </div>
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Send Test Shows</div>
+            <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+              <li className="flex items-center"><span className="text-blue-500 mr-2">✓</span> Real variable substitution</li>
+              <li className="flex items-center"><span className="text-blue-500 mr-2">✓</span> Conditional logic evaluation</li>
+              <li className="flex items-center"><span className="text-blue-500 mr-2">✓</span> Channel-specific formatting</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div className="flex items-start">
+      <div className="flex-shrink-0 w-10 h-10 bg-primary-light dark:bg-primary/20 text-primary dark:text-primary rounded-lg flex items-center justify-center font-bold mr-4">6</div>
+      <div className="flex-1">
+        <div className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Save and Assign to Detections</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Click <strong>Save Template</strong> to create your template. Then assign it to detections by editing the detection and selecting your template from the <strong>Notification Template</strong> dropdown.
+        </div>
+        <div className="bg-accent-light dark:bg-accent/20 ring-1 ring-inset ring-accent/30 dark:ring-accent/50 rounded p-3 text-xs text-accent-dark dark:text-accent">
+          <strong>💡 Tip:</strong> You can also specify templates in Detection-as-Code using the <code className="bg-accent-light dark:bg-accent/30 px-1 rounded">notificationTemplate</code> field.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+### Assigning Templates to Detections
+
+<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden my-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
+    <div className="p-6">
+      <div className="flex items-center mb-3">
+        <span className="text-xl mr-2">🖱️</span>
+        <div className="font-semibold text-gray-900 dark:text-gray-100">Via Dashboard UI</div>
+      </div>
+      <ol className="text-sm text-gray-600 dark:text-gray-400 space-y-2 list-decimal list-inside">
+        <li>Go to Detections → Detection Queries</li>
+        <li>Edit the detection you want to customize</li>
+        <li>Find the "Notification Template" dropdown</li>
+        <li>Select your custom template</li>
+        <li>Save the detection</li>
+      </ol>
+    </div>
+    <div className="p-6">
+      <div className="flex items-center mb-3">
+        <span className="text-xl mr-2">💻</span>
+        <div className="font-semibold text-gray-900 dark:text-gray-100">Via Detection-as-Code</div>
+      </div>
+      <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">Add the template name to your detection YAML:</div>
+      <div className="bg-gray-900 rounded p-3 font-mono text-xs text-green-400 overflow-x-auto">
+        <div>notificationNames:</div>
+        <div className="pl-2">- slack-security</div>
+        <div className="mt-2 text-gray-500"># Override default template</div>
+        <div>notificationTemplate: critical-alerts</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+## Template Structure
+
+Templates consist of two parts:
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+  <div className="bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 p-6 rounded-xl border ring-1 ring-inset ring-primary/30 dark:ring-primary/50">
+    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center">
+      <span className="mr-2">📌</span> Title Template
+    </h3>
+    <div className="text-gray-700 dark:text-gray-300 mb-2"><strong>Purpose:</strong> Short summary text</div>
+    <div className="text-sm text-gray-600 dark:text-gray-400">Used in email subject lines, Slack message titles, and notification headers</div>
+    <div className="text-xs text-gray-500 dark:text-gray-500 mt-3 font-mono bg-white dark:bg-gray-800 p-2 rounded">Keep it concise (50-100 characters)</div>
+  </div>
+  
+  <div className="bg-gradient-to-br from-insight-light to-blue-100 dark:from-insight/20 dark:to-blue-800/20 p-6 rounded-xl border ring-1 ring-inset ring-insight/30 dark:ring-insight/50">
+    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 flex items-center">
+      <span className="mr-2">📄</span> Body Template
+    </h3>
+    <div className="text-gray-700 dark:text-gray-300 mb-2"><strong>Purpose:</strong> Full notification content</div>
+    <div className="text-sm text-gray-600 dark:text-gray-400">Used in email bodies, Slack message content, and detailed notifications</div>
+    <div className="text-xs text-gray-500 dark:text-gray-500 mt-3 font-mono bg-white dark:bg-gray-800 p-2 rounded">Can include rich formatting, tables, and links</div>
+  </div>
+</div>
+
+---
+
+## Core Concepts
+
+### Inserting Dynamic Values
+
+Access detection properties using dot notation. Variables are wrapped in double curly braces.
+
+<div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg my-6 border border-gray-200 dark:border-gray-700">
+  <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Basic Syntax</h4>
+  <div className="space-y-3">
+    <div className="flex items-start">
+      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900 text-primary dark:text-primary text-xs font-bold mr-3 mt-0.5">1</span>
+      <div className="flex-1">
+        <code className="text-sm bg-white dark:bg-gray-800 px-3 py-1 rounded border border-gray-300 dark:border-gray-600">detection.displayName</code>
+        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Display name of the detection</div>
+      </div>
+    </div>
+    <div className="flex items-start">
+      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900 text-primary dark:text-primary text-xs font-bold mr-3 mt-0.5">2</span>
+      <div className="flex-1">
+        <code className="text-sm bg-white dark:bg-gray-800 px-3 py-1 rounded border border-gray-300 dark:border-gray-600">detection.severity</code>
+        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Severity level (Critical, High, Medium, Low)</div>
+      </div>
+    </div>
+    <div className="flex items-start">
+      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900 text-primary dark:text-primary text-xs font-bold mr-3 mt-0.5">3</span>
+      <div className="flex-1">
+        <code className="text-sm bg-white dark:bg-gray-800 px-3 py-1 rounded border border-gray-300 dark:border-gray-600">detection.riskScore</code>
+        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Risk score value (0-100)</div>
+      </div>
+    </div>
+    <div className="flex items-start">
+      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900 text-primary dark:text-primary text-xs font-bold mr-3 mt-0.5">4</span>
+      <div className="flex-1">
+        <code className="text-sm bg-white dark:bg-gray-800 px-3 py-1 rounded border border-gray-300 dark:border-gray-600">detection.resultLink</code>
+        <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">URL to view full results in RunReveal</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+### 2. Conditional Logic
+
+Conditional helpers allow you to show or hide content based on detection properties.
+
+<div className="my-8">
+  <h4 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Comparison Helpers</h4>
+  
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border-l-4 border-green-500 shadow-sm">
+      <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Equality Checks</h5>
+      <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifEquals</code> - Check if values are equal</li>
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifNotEquals</code> - Check if values differ</li>
+      </ul>
+    </div>
+    
+    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border-l-4 border-blue-500 shadow-sm">
+      <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Numeric Comparisons</h5>
+      <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifGreaterThan</code> - Greater than</li>
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifLessThan</code> - Less than</li>
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifGreaterThanOrEqual</code> - Greater or equal</li>
+      </ul>
+    </div>
+    
+    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border-l-4 border-purple-500 shadow-sm">
+      <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">String Operations</h5>
+      <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifContains</code> - String contains</li>
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifStartsWith</code> - String starts with</li>
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifEndsWith</code> - String ends with</li>
+      </ul>
+    </div>
+    
+    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border-l-4 border-orange-500 shadow-sm">
+      <h5 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Empty Checks</h5>
+      <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifNotEmpty</code> - Value exists</li>
+        <li><code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">ifEmpty</code> - Value is empty</li>
+      </ul>
+    </div>
+  </div>
+
+  <div className="bg-accent-light dark:bg-accent/20 ring-1 ring-inset ring-accent/30 dark:ring-accent/50 rounded-lg p-4 my-4">
+    <h5 className="font-semibold text-amber-900 dark:text-amber-200 mb-2 flex items-center">
+      <span className="mr-2">💡</span> Example Use Cases
+    </h5>
+    <ul className="space-y-2 text-sm text-amber-800 dark:text-amber-300">
+      <li>• Show critical alert banner only when severity equals "Critical"</li>
+      <li>• Display high-risk warning when risk score is greater than 80</li>
+      <li>• Show error message only when detection.error is not empty</li>
+      <li>• Customize content based on channel type (email vs Slack)</li>
+    </ul>
+  </div>
+</div>
+
+### 3. Data Iteration
+
+Loop through detection results and arrays to display multiple items.
+
+<div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-xl my-6 border border-indigo-200 dark:border-indigo-800">
+  <h4 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Loop Helper</h4>
+  
+  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg mb-4 border border-gray-200 dark:border-gray-700">
+    <h5 className="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-3">Basic Loop Structure</h5>
+    <div className="space-y-2 text-sm">
+      <div className="flex items-start">
+        <span className="text-primary dark:text-primary font-mono mr-2">loop</span>
+        <span className="text-gray-600 dark:text-gray-400">- Iterate through detection.results array</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-primary dark:text-primary font-mono mr-2">item</span>
+        <span className="text-gray-600 dark:text-gray-400">- Current item in the loop</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-primary dark:text-primary font-mono mr-2">index</span>
+        <span className="text-gray-600 dark:text-gray-400">- Current index (0-based)</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-primary dark:text-primary font-mono mr-2">first</span>
+        <span className="text-gray-600 dark:text-gray-400">- True if first item</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-primary dark:text-primary font-mono mr-2">last</span>
+        <span className="text-gray-600 dark:text-gray-400">- True if last item</span>
+      </div>
+    </div>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+      <h5 className="font-semibold text-sm mb-2 text-gray-900 dark:text-gray-100">Common Patterns</h5>
+      <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
+        <li>• Loop through detection results</li>
+        <li>• Iterate over categories array</li>
+        <li>• Process MITRE techniques</li>
+        <li>• Display extracted fields</li>
+      </ul>
+    </div>
+    
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+      <h5 className="font-semibold text-sm mb-2 text-gray-900 dark:text-gray-100">Best Practices</h5>
+      <ul className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
+        <li>• Always check ifNotEmpty before looping</li>
+        <li>• Use index for numbering items</li>
+        <li>• Use first/last for special formatting</li>
+        <li>• Limit display to first N items if needed</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+### 4. Table Generation
+
+Automatically format detection results as tables for better readability.
+
+<div className="my-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="flex items-center mb-3">
+        <span className="text-2xl mr-3">🔍</span>
+        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Auto-Detect Columns</h4>
+      </div>
+      <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">The table helper automatically detects columns from your result data.</div>
+      <code className="block bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs font-mono">table detection.results</code>
+      <div className="text-xs text-gray-500 dark:text-gray-500 mt-2">Use when you want all columns displayed</div>
+    </div>
+    
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="flex items-center mb-3">
+        <span className="text-2xl mr-3">🎯</span>
+        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Specify Columns</h4>
+      </div>
+      <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">Control exactly which columns appear in your table.</div>
+      <code className="block bg-gray-100 dark:bg-gray-700 p-3 rounded text-xs font-mono">tableWithColumns detection.results "col1" "col2"</code>
+      <div className="text-xs text-gray-500 dark:text-gray-500 mt-2">Use when you need specific columns only</div>
+    </div>
+  </div>
+</div>
+
+### 5. Markdown Rendering
+
+Convert markdown content to HTML for rich formatting in your notifications.
+
+<div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-6 my-6">
+  <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+    <span className="mr-2">📝</span> Markdown Support
+  </h4>
+  <div className="text-sm text-gray-700 dark:text-gray-300 mb-4">Use the markdownToHTML helper to render formatted content:</div>
+  
+  <div className="bg-white dark:bg-gray-800 p-4 rounded border border-gray-200 dark:border-gray-700">
+    <h5 className="font-semibold text-sm mb-2 text-gray-900 dark:text-gray-100">Supported Markdown Features</h5>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+      <div className="flex items-center">
+        <span className="mr-2">✓</span>
+        <span className="text-gray-600 dark:text-gray-400">Bold & Italic</span>
+      </div>
+      <div className="flex items-center">
+        <span className="mr-2">✓</span>
+        <span className="text-gray-600 dark:text-gray-400">Headers</span>
+      </div>
+      <div className="flex items-center">
+        <span className="mr-2">✓</span>
+        <span className="text-gray-600 dark:text-gray-400">Lists</span>
+      </div>
+      <div className="flex items-center">
+        <span className="mr-2">✓</span>
+        <span className="text-gray-600 dark:text-gray-400">Links</span>
+      </div>
+      <div className="flex items-center">
+        <span className="mr-2">✓</span>
+        <span className="text-gray-600 dark:text-gray-400">Code blocks</span>
+      </div>
+      <div className="flex items-center">
+        <span className="mr-2">✓</span>
+        <span className="text-gray-600 dark:text-gray-400">Tables</span>
+      </div>
+      <div className="flex items-center">
+        <span className="mr-2">✓</span>
+        <span className="text-gray-600 dark:text-gray-400">Blockquotes</span>
+      </div>
+      <div className="flex items-center">
+        <span className="mr-2">✓</span>
+        <span className="text-gray-600 dark:text-gray-400">Horizontal rules</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+## Template Organization Patterns
+
+### Pattern 1: Severity-Based Styling
+
+Organize content based on detection severity levels.
+
+<div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-lg my-6 border border-gray-200 dark:border-gray-700">
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border-l-4 border-red-500">
+      <div className="font-bold text-red-700 dark:text-red-300 mb-1">Critical</div>
+      <div className="text-xs text-red-600 dark:text-red-400">Immediate action required</div>
+    </div>
+    <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border-l-4 border-orange-500">
+      <div className="font-bold text-orange-700 dark:text-orange-300 mb-1">High</div>
+      <div className="text-xs text-orange-600 dark:text-orange-400">Review within 1 hour</div>
+    </div>
+    <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border-l-4 border-yellow-500">
+      <div className="font-bold text-yellow-700 dark:text-yellow-300 mb-1">Medium</div>
+      <div className="text-xs text-yellow-600 dark:text-yellow-400">Review within 24 hours</div>
+    </div>
+    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border-l-4 border-green-500">
+      <div className="font-bold text-green-700 dark:text-green-300 mb-1">Low</div>
+      <div className="text-xs text-green-600 dark:text-green-400">Review when convenient</div>
+    </div>
+  </div>
+  <div className="text-xs text-gray-600 dark:text-gray-400 mt-4">Use conditional logic to apply different styling and messaging based on severity level.</div>
+</div>
+
+### Pattern 2: Risk Score Visualization
+
+Display risk scores with visual indicators.
+
+<div className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 p-6 rounded-xl my-6 border border-pink-200 dark:border-pink-800">
+  <h4 className="font-semibold mb-4 text-gray-900 dark:text-gray-100">Risk Score Ranges</h4>
+  <div className="space-y-3">
+    <div className="flex items-center">
+      <div className="w-24 bg-red-500 h-3 rounded-full mr-4"></div>
+      <span className="text-sm text-gray-700 dark:text-gray-300">80-100: Very High Risk</span>
+    </div>
+    <div className="flex items-center">
+      <div className="w-20 bg-orange-500 h-3 rounded-full mr-4"></div>
+      <span className="text-sm text-gray-700 dark:text-gray-300">60-79: High Risk</span>
+    </div>
+    <div className="flex items-center">
+      <div className="w-16 bg-yellow-500 h-3 rounded-full mr-4"></div>
+      <span className="text-sm text-gray-700 dark:text-gray-300">40-59: Medium Risk</span>
+    </div>
+    <div className="flex items-center">
+      <div className="w-12 bg-green-500 h-3 rounded-full mr-4"></div>
+      <span className="text-sm text-gray-700 dark:text-gray-300">0-39: Low Risk</span>
+    </div>
+  </div>
+  <div className="text-xs text-gray-600 dark:text-gray-400 mt-4">Use ifGreaterThan helpers to conditionally display risk indicators.</div>
+</div>
+
+### Pattern 3: Result Organization
+
+Structure detection results for clarity.
+
+<div className="my-6">
+  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+    <h4 className="font-semibold mb-4 text-gray-900 dark:text-gray-100">Recommended Structure</h4>
+    <ol className="space-y-3 text-sm">
+      <li className="flex items-start">
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900 text-primary dark:text-primary text-xs font-bold mr-3 mt-0.5">1</span>
+        <div>
+          <strong className="text-gray-900 dark:text-gray-100">Summary Section</strong>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Detection name, severity, risk score, result count</div>
+        </div>
+      </li>
+      <li className="flex items-start">
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900 text-primary dark:text-primary text-xs font-bold mr-3 mt-0.5">2</span>
+        <div>
+          <strong className="text-gray-900 dark:text-gray-100">Results Table</strong>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Formatted table of detection results</div>
+        </div>
+      </li>
+      <li className="flex items-start">
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900 text-primary dark:text-primary text-xs font-bold mr-3 mt-0.5">3</span>
+        <div>
+          <strong className="text-gray-900 dark:text-gray-100">Detailed Analysis</strong>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Loop through results for detailed view</div>
+        </div>
+      </li>
+      <li className="flex items-start">
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-900 text-primary dark:text-primary text-xs font-bold mr-3 mt-0.5">4</span>
+        <div>
+          <strong className="text-gray-900 dark:text-gray-100">Action Items</strong>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Investigation steps and quick links</div>
+        </div>
+      </li>
+    </ol>
+  </div>
+</div>
+
+---
+
+## Template Variables Reference
+
+### Detection Object Properties
+
+<div className="overflow-x-auto my-6">
+  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg">
+    <thead className="bg-gray-50 dark:bg-gray-800">
+      <tr>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Property</th>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Type</th>
+        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Description</th>
+      </tr>
+    </thead>
+    <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+      <tr>
+        <td className="px-4 py-3 text-sm font-mono text-primary dark:text-primary">detection.id</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">string</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">Unique execution ID</td>
+      </tr>
+      <tr className="bg-gray-50 dark:bg-gray-800/50">
+        <td className="px-4 py-3 text-sm font-mono text-primary dark:text-primary">detection.displayName</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">string</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">Human-readable detection name</td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-sm font-mono text-primary dark:text-primary">detection.severity</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">string</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">Severity level (Critical, High, Medium, Low)</td>
+      </tr>
+      <tr className="bg-gray-50 dark:bg-gray-800/50">
+        <td className="px-4 py-3 text-sm font-mono text-primary dark:text-primary">detection.riskScore</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">number</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">Risk score (0-100)</td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-sm font-mono text-primary dark:text-primary">detection.resultCount</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">number</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">Number of results found</td>
+      </tr>
+      <tr className="bg-gray-50 dark:bg-gray-800/50">
+        <td className="px-4 py-3 text-sm font-mono text-primary dark:text-primary">detection.results</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">array</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">Query results (array of objects)</td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-sm font-mono text-primary dark:text-primary">detection.resultLink</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">string</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">URL to view full results</td>
+      </tr>
+      <tr className="bg-gray-50 dark:bg-gray-800/50">
+        <td className="px-4 py-3 text-sm font-mono text-primary dark:text-primary">detection.categories</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">array</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">Category tags</td>
+      </tr>
+      <tr>
+        <td className="px-4 py-3 text-sm font-mono text-primary dark:text-primary">detection.error</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">string</td>
+        <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">Error message if execution failed</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+### Channel Variable
+
+<div className="bg-blue-50 dark:bg-blue-900/20 border ring-1 ring-inset ring-insight/30 dark:ring-insight/50 rounded-lg p-4 my-4">
+  <div className="text-sm text-gray-700 dark:text-gray-300">
+    <strong className="text-gray-900 dark:text-white">channel</strong> - The notification channel type (email, slack, discord, webhook, jira, pagerduty, linear, google-chat)
+  </div>
+  <div className="text-xs text-gray-600 dark:text-gray-400 mt-2">Use this variable to customize formatting for different channels.</div>
+</div>
+
+---
+
+## Best Practices
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+  <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-5 rounded-r-lg">
+    <h4 className="font-semibold text-green-900 dark:text-green-200 mb-3">✅ Do</h4>
+    <ul className="space-y-2 text-sm text-green-800 dark:text-green-300">
+      <li>• Keep titles concise (50-100 characters)</li>
+      <li>• Always check ifNotEmpty before iterating</li>
+      <li>• Include error handling sections</li>
+      <li>• Provide investigation steps</li>
+      <li>• Link to full results</li>
+      <li>• Test with empty results</li>
+      <li>• Use markdown for rich formatting</li>
+    </ul>
+  </div>
+  
+  <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-5 rounded-r-lg">
+    <h4 className="font-semibold text-red-900 dark:text-red-200 mb-3">❌ Don't</h4>
+    <ul className="space-y-2 text-sm text-red-800 dark:text-red-300">
+      <li>• Assume results always exist</li>
+      <li>• Create overly long titles</li>
+      <li>• Skip error handling</li>
+      <li>• Hard-code values that should be dynamic</li>
+      <li>• Forget to test edge cases</li>
+      <li>• Use complex nested conditionals unnecessarily</li>
+      <li>• Ignore channel-specific formatting needs</li>
+    </ul>
+  </div>
+</div>
+
+---
+
+## Ready-to-Use Templates
+
+<div className="bg-gradient-to-br from-primary-light to-purple-100 dark:from-primary/20 dark:to-purple-800/20 p-4 rounded-lg mb-8 border ring-1 ring-inset ring-primary/30 dark:ring-primary/50">
+  <div className="flex items-center">
+    <span className="text-2xl mr-3">📋</span>
+    <div className="text-sm text-gray-700 dark:text-gray-300">
+      <strong>Copy & Paste Ready:</strong> Each template below can be copied directly into RunReveal's notification template editor. Templates demonstrate different features of the Handlebars templating system.
+    </div>
+  </div>
+</div>
+
+{/* Template 1: Basic Variables */}
+<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8 shadow-sm">
+  <div className="bg-insight px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center">
+        <span className="text-2xl mr-3">📝</span>
+        <div>
+          <div className="text-lg font-bold text-white">Basic Alert Template</div>
+          <div className="text-blue-100 text-sm">Variable interpolation basics</div>
+        </div>
+      </div>
+      <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">BEGINNER</span>
+    </div>
+  </div>
+  <div className="p-6">
+    <div className="flex flex-wrap gap-2 mb-4">
+      <span className="bg-insight-light dark:bg-insight/20 text-insight dark:text-insight text-xs px-2 py-1 rounded">Variables</span>
+      <span className="bg-insight-light dark:bg-insight/20 text-insight dark:text-insight text-xs px-2 py-1 rounded">Markdown</span>
+    </div>
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      A simple template demonstrating basic variable substitution. Use double curly braces to insert detection properties like name, severity, and risk score.
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div>
+        <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Title Template</div>
+        <div className="bg-gray-900 rounded-lg p-4 font-mono text-sm text-green-400 overflow-x-auto">
+          <code>[&#123;&#123;detection.severity&#125;&#125;] &#123;&#123;detection.displayName&#125;&#125;</code>
+        </div>
+      </div>
+      <div>
+        <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Key Features</div>
+        <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+          <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Simple variable syntax</li>
+          <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Dot notation for nested properties</li>
+          <li className="flex items-center"><span className="text-green-500 mr-2">✓</span> Markdown formatting support</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+**Title:**
+
+```handlebars copy
+[{{detection.severity}}] {{detection.displayName}} - {{detection.resultCount}} results
 ```
-{{#if query}}
-This is a query
-Results: {{query.queryResponse.resultCount}}
-{{/if}}
+
+**Body:**
+
+```handlebars copy
+## {{detection.displayName}}
+
+**Severity:** {{detection.severity}}
+**Risk Score:** {{detection.riskScore}}
+**Results Found:** {{detection.resultCount}}
+
+[View Full Results]({{detection.resultLink}})
 ```
 
-This example template will only render the text inside the if block, if the template is being rendered from a scheduled query execution. Otherwise this block will not render.
+---
 
-## Syntax
+{/* Template 2: Conditionals */}
+<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8 shadow-sm">
+  <div className="bg-accent px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center">
+        <span className="text-2xl mr-3">🔀</span>
+        <div>
+          <div className="text-lg font-bold text-white">Severity-Based Conditionals</div>
+          <div className="text-amber-100 text-sm">Dynamic content with ifEquals</div>
+        </div>
+      </div>
+      <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">INTERMEDIATE</span>
+    </div>
+  </div>
+  <div className="p-6">
+    <div className="flex flex-wrap gap-2 mb-4">
+      <span className="bg-accent-light dark:bg-accent/20 text-accent-dark dark:text-accent text-xs px-2 py-1 rounded">ifEquals</span>
+      <span className="bg-accent-light dark:bg-accent/20 text-accent-dark dark:text-accent text-xs px-2 py-1 rounded">Conditionals</span>
+      <span className="bg-accent-light dark:bg-accent/20 text-accent-dark dark:text-accent text-xs px-2 py-1 rounded">Emoji</span>
+    </div>
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      Use <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">ifEquals</code> to show different content based on severity level. Great for adding visual indicators and urgency messaging.
+    </div>
+    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 mb-4">
+      <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Output Preview</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-3 py-2 rounded text-center">🚨 Critical</div>
+        <div className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-3 py-2 rounded text-center">⚠️ High</div>
+        <div className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 px-3 py-2 rounded text-center">📋 Medium</div>
+        <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-2 rounded text-center">ℹ️ Low</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-Handlebar expressions must be surrounded with `{{` and `}}` any text between these are processed and replaced. expressions starting with a `#` are blocks and must have a matching `/` expression.  A partial is an expression that starts with a `>` and is a template that is injected into the current template. RunReveal offers a few built in partials to help display certain aspects of the data.
+**Title:**
 
-## Default Templates
+```handlebars copy
+{{#ifEquals detection.severity "Critical"}}🚨 CRITICAL: {{/ifEquals}}{{#ifEquals detection.severity "High"}}⚠️ HIGH: {{/ifEquals}}{{#ifEquals detection.severity "Medium"}}📋 MEDIUM: {{/ifEquals}}{{#ifEquals detection.severity "Low"}}ℹ️ LOW: {{/ifEquals}}{{detection.displayName}}
+```
 
-RunReveal provides a default template for each notification type. These templates provide basic information about the data being notified. They can be duplicated and used as a starting point for your own template. Look at the docs for each notification channel for more information about its default template and the data that is sent to it.
+**Body:**
+
+```handlebars copy
+# {{detection.displayName}}
+
+{{#ifEquals detection.severity "Critical"}}
+> 🚨 **CRITICAL ALERT** - Immediate action required!
+{{/ifEquals}}
+{{#ifEquals detection.severity "High"}}
+> ⚠️ **High Priority** - Review within 1 hour
+{{/ifEquals}}
+{{#ifEquals detection.severity "Medium"}}
+> 📋 **Medium Priority** - Review within 24 hours
+{{/ifEquals}}
+{{#ifEquals detection.severity "Low"}}
+> ℹ️ **Low Priority** - Review when convenient
+{{/ifEquals}}
+
+| Property | Value |
+|----------|-------|
+| Severity | {{detection.severity}} |
+| Risk Score | {{detection.riskScore}} |
+| Results | {{detection.resultCount}} |
+
+[View Details]({{detection.resultLink}})
+```
+
+---
+
+{/* Template 3: Tables */}
+<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8 shadow-sm">
+  <div className="bg-vitality px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center">
+        <span className="text-2xl mr-3">📊</span>
+        <div>
+          <div className="text-lg font-bold text-white">Auto-Generated Tables</div>
+          <div className="text-emerald-100 text-sm">Display results as formatted tables</div>
+        </div>
+      </div>
+      <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">INTERMEDIATE</span>
+    </div>
+  </div>
+  <div className="p-6">
+    <div className="flex flex-wrap gap-2 mb-4">
+      <span className="bg-vitality-light dark:bg-vitality/20 text-vitality-dark dark:text-vitality text-xs px-2 py-1 rounded">table</span>
+      <span className="bg-vitality-light dark:bg-vitality/20 text-vitality-dark dark:text-vitality text-xs px-2 py-1 rounded">tableWithColumns</span>
+      <span className="bg-vitality-light dark:bg-vitality/20 text-vitality-dark dark:text-vitality text-xs px-2 py-1 rounded">ifNotEmpty</span>
+    </div>
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      The <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">table</code> helper automatically formats detection results as a markdown table. Use <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">tableWithColumns</code> to specify which columns to display.
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+        <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Auto-detect columns</div>
+        <code className="text-sm text-primary dark:text-primary">table detection.results</code>
+      </div>
+      <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+        <div className="text-xs font-semibold text-gray-500 uppercase mb-2">Specific columns</div>
+        <code className="text-sm text-primary dark:text-primary">tableWithColumns detection.results "user" "action"</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+**Title:**
+
+```handlebars copy
+{{detection.displayName}} ({{detection.resultCount}} matches)
+```
+
+**Body:**
+
+```handlebars copy
+## {{detection.displayName}}
+
+**{{detection.resultCount}}** results found | **Risk Score:** {{detection.riskScore}}
+
+{{#ifNotEmpty detection.results}}
+### Detection Results
+
+{{table detection.results}}
+{{/ifNotEmpty}}
+
+{{#ifEmpty detection.results}}
+_No results to display._
+{{/ifEmpty}}
+
+[Open in RunReveal]({{detection.resultLink}})
+```
+
+---
+
+{/* Template 4: Loops */}
+<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8 shadow-sm">
+  <div className="bg-primary px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center">
+        <span className="text-2xl mr-3">🔄</span>
+        <div>
+          <div className="text-lg font-bold text-white">Loop Through Results</div>
+          <div className="text-purple-100 text-sm">Iterate with each helper</div>
+        </div>
+      </div>
+      <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">ADVANCED</span>
+    </div>
+  </div>
+  <div className="p-6">
+    <div className="flex flex-wrap gap-2 mb-4">
+      <span className="bg-primary-light dark:bg-primary/20 text-primary dark:text-primary text-xs px-2 py-1 rounded">each</span>
+      <span className="bg-primary-light dark:bg-primary/20 text-primary dark:text-primary text-xs px-2 py-1 rounded">@index</span>
+      <span className="bg-primary-light dark:bg-primary/20 text-primary dark:text-primary text-xs px-2 py-1 rounded">@key</span>
+      <span className="bg-primary-light dark:bg-primary/20 text-primary dark:text-primary text-xs px-2 py-1 rounded">this</span>
+    </div>
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      Use <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">#each</code> to iterate through arrays. Access the current item with <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">this</code>, index with <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">@index</code>, and object keys with <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">@key</code>.
+    </div>
+    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+      <div className="text-xs font-semibold text-gray-500 uppercase mb-3">Loop Variables</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        <div className="text-center">
+          <div className="font-mono text-primary dark:text-primary">this</div>
+          <div className="text-xs text-gray-500">Current item</div>
+        </div>
+        <div className="text-center">
+          <div className="font-mono text-primary dark:text-primary">@index</div>
+          <div className="text-xs text-gray-500">Position (0-based)</div>
+        </div>
+        <div className="text-center">
+          <div className="font-mono text-primary dark:text-primary">@first</div>
+          <div className="text-xs text-gray-500">Is first item</div>
+        </div>
+        <div className="text-center">
+          <div className="font-mono text-primary dark:text-primary">@last</div>
+          <div className="text-xs text-gray-500">Is last item</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+**Title:**
+
+```handlebars copy
+{{detection.displayName}} - {{detection.resultCount}} events detected
+```
+
+**Body:**
+
+```handlebars copy
+# {{detection.displayName}}
+
+{{detection.resultCount}} events require your attention.
+
+{{#ifNotEmpty detection.results}}
+## Event Details
+
+{{#each detection.results}}
+### Event {{@index}}
+{{#each this}}
+- **{{@key}}**: {{this}}
+{{/each}}
+
+---
+{{/each}}
+{{/ifNotEmpty}}
+
+{{#ifEmpty detection.results}}
+_No events to display._
+{{/ifEmpty}}
+
+[View Full Analysis]({{detection.resultLink}})
+```
+
+---
+
+{/* Template 5: Risk Score */}
+<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8 shadow-sm">
+  <div className="bg-secondary px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center">
+        <span className="text-2xl mr-3">📈</span>
+        <div>
+          <div className="text-lg font-bold text-white">Risk Score Thresholds</div>
+          <div className="text-rose-100 text-sm">Numeric comparisons with ifGreaterThan</div>
+        </div>
+      </div>
+      <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">ADVANCED</span>
+    </div>
+  </div>
+  <div className="p-6">
+    <div className="flex flex-wrap gap-2 mb-4">
+      <span className="bg-secondary-light dark:bg-secondary/20 text-secondary-dark dark:text-secondary text-xs px-2 py-1 rounded">ifGreaterThan</span>
+      <span className="bg-secondary-light dark:bg-secondary/20 text-secondary-dark dark:text-secondary text-xs px-2 py-1 rounded">ifLessThan</span>
+      <span className="bg-secondary-light dark:bg-secondary/20 text-secondary-dark dark:text-secondary text-xs px-2 py-1 rounded">Nested Conditionals</span>
+    </div>
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      Use numeric comparison helpers to create threshold-based messaging. Combine <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">ifGreaterThan</code> and <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">ifLessThan</code> for range checks.
+    </div>
+    <div className="flex items-center gap-2 mb-4">
+      <div className="flex-1 h-3 bg-gradient-to-r from-green-500 via-yellow-500 via-orange-500 to-red-500 rounded-full"></div>
+    </div>
+    <div className="grid grid-cols-3 gap-2 text-xs text-center">
+      <div><span className="font-semibold text-green-600">0-60</span><br/>Low Risk</div>
+      <div><span className="font-semibold text-orange-600">61-80</span><br/>Elevated</div>
+      <div><span className="font-semibold text-red-600">81-100</span><br/>High Risk</div>
+    </div>
+  </div>
+</div>
+
+**Title:**
+
+```handlebars copy
+{{#ifGreaterThan detection.riskScore 80}}🔴{{/ifGreaterThan}}{{#ifGreaterThan detection.riskScore 60}}{{#ifLessThan detection.riskScore 81}}🟠{{/ifLessThan}}{{/ifGreaterThan}}{{#ifLessThan detection.riskScore 61}}🟢{{/ifLessThan}} {{detection.displayName}}
+```
+
+**Body:**
+
+```handlebars copy
+## {{detection.displayName}}
+
+{{#ifGreaterThan detection.riskScore 80}}
+### 🔴 Very High Risk ({{detection.riskScore}}/100)
+This detection requires immediate attention.
+{{/ifGreaterThan}}
+
+{{#ifGreaterThan detection.riskScore 60}}
+{{#ifLessThan detection.riskScore 81}}
+### 🟠 Elevated Risk ({{detection.riskScore}}/100)
+This detection should be reviewed soon.
+{{/ifLessThan}}
+{{/ifGreaterThan}}
+
+{{#ifLessThan detection.riskScore 61}}
+### 🟢 Normal Risk ({{detection.riskScore}}/100)
+This detection has a normal risk level.
+{{/ifLessThan}}
+
+**Results Found:** {{detection.resultCount}}
+
+[Investigate Now]({{detection.resultLink}})
+```
+
+---
+
+{/* Template 6: Channel-Specific */}
+<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8 shadow-sm">
+  <div className="bg-insight px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center">
+        <span className="text-2xl mr-3">📱</span>
+        <div>
+          <div className="text-lg font-bold text-white">Channel-Specific Formatting</div>
+          <div className="text-cyan-100 text-sm">Customize output per notification channel</div>
+        </div>
+      </div>
+      <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">ADVANCED</span>
+    </div>
+  </div>
+  <div className="p-6">
+    <div className="flex flex-wrap gap-2 mb-4">
+      <span className="bg-insight-light dark:bg-insight/20 text-insight dark:text-insight text-xs px-2 py-1 rounded">channel</span>
+      <span className="bg-insight-light dark:bg-insight/20 text-insight dark:text-insight text-xs px-2 py-1 rounded">ifEquals</span>
+    </div>
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      The <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">channel</code> variable indicates the notification destination. Use it to format messages appropriately for each platform.
+    </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="bg-purple-100 dark:bg-purple-900/30 rounded-lg p-3 text-center">
+        <div className="text-lg mb-1">💬</div>
+        <div className="text-xs font-semibold text-purple-700 dark:text-purple-300">slack</div>
+      </div>
+      <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 text-center">
+        <div className="text-lg mb-1">📧</div>
+        <div className="text-xs font-semibold text-blue-700 dark:text-blue-300">email</div>
+      </div>
+      <div className="bg-indigo-100 dark:bg-indigo-900/30 rounded-lg p-3 text-center">
+        <div className="text-lg mb-1">🎮</div>
+        <div className="text-xs font-semibold text-indigo-700 dark:text-indigo-300">discord</div>
+      </div>
+      <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 text-center">
+        <div className="text-lg mb-1">🔗</div>
+        <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">webhook</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+**Title:**
+
+```handlebars copy
+{{detection.displayName}}
+```
+
+**Body:**
+
+```handlebars copy
+{{#ifEquals channel "slack"}}
+*{{detection.displayName}}*
+Severity: `{{detection.severity}}` | Risk: `{{detection.riskScore}}`
+Results: {{detection.resultCount}}
+<{{detection.resultLink}}|View in RunReveal>
+{{/ifEquals}}
+
+{{#ifEquals channel "email"}}
+# {{detection.displayName}}
+
+| Property | Value |
+|----------|-------|
+| Severity | {{detection.severity}} |
+| Risk Score | {{detection.riskScore}} |
+| Results | {{detection.resultCount}} |
+
+[View Full Results]({{detection.resultLink}})
+{{/ifEquals}}
+
+{{#ifEquals channel "discord"}}
+**{{detection.displayName}}**
+> Severity: {{detection.severity}}
+> Risk Score: {{detection.riskScore}}
+> Results: {{detection.resultCount}}
+
+{{detection.resultLink}}
+{{/ifEquals}}
+
+{{#ifEquals channel "webhook"}}
+Detection: {{detection.displayName}}
+Severity: {{detection.severity}}
+Risk: {{detection.riskScore}}
+Count: {{detection.resultCount}}
+Link: {{detection.resultLink}}
+{{/ifEquals}}
+```
+
+---
+
+{/* Template 7: Error Handling */}
+<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8 shadow-sm">
+  <div className="bg-red-500 px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center">
+        <span className="text-2xl mr-3">🛡️</span>
+        <div>
+          <div className="text-lg font-bold text-white">Error Handling</div>
+          <div className="text-red-100 text-sm">Gracefully handle detection failures</div>
+        </div>
+      </div>
+      <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1 rounded-full">BEST PRACTICE</span>
+    </div>
+  </div>
+  <div className="p-6">
+    <div className="flex flex-wrap gap-2 mb-4">
+      <span className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs px-2 py-1 rounded">ifNotEmpty</span>
+      <span className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs px-2 py-1 rounded">ifEmpty</span>
+      <span className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs px-2 py-1 rounded">detection.error</span>
+    </div>
+    <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      Always check for errors using <code className="bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-xs">ifNotEmpty detection.error</code>. This ensures users are notified when detections fail and provides clear troubleshooting guidance.
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border border-red-200 dark:border-red-800">
+        <div className="flex items-center mb-2">
+          <span className="text-red-500 mr-2">❌</span>
+          <span className="font-semibold text-red-700 dark:text-red-300 text-sm">Error State</span>
+        </div>
+        <div className="text-xs text-red-600 dark:text-red-400">Shows error message and troubleshooting steps</div>
+      </div>
+      <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
+        <div className="flex items-center mb-2">
+          <span className="text-green-500 mr-2">✅</span>
+          <span className="font-semibold text-green-700 dark:text-green-300 text-sm">Success State</span>
+        </div>
+        <div className="text-xs text-green-600 dark:text-green-400">Shows normal detection results</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+**Title:**
+
+```handlebars copy
+{{#ifNotEmpty detection.error}}❌ Error: {{/ifNotEmpty}}{{detection.displayName}}
+```
+
+**Body:**
+
+```handlebars copy
+## {{detection.displayName}}
+
+{{#ifNotEmpty detection.error}}
+### ❌ Detection Error
+
+An error occurred while running this detection:
+
+> {{detection.error}}
+
+Please review the detection configuration and try again.
+{{/ifNotEmpty}}
+
+{{#ifEmpty detection.error}}
+### ✅ Detection Successful
+
+**Severity:** {{detection.severity}}
+**Risk Score:** {{detection.riskScore}}
+**Results Found:** {{detection.resultCount}}
+
+{{#ifNotEmpty detection.results}}
+{{table detection.results}}
+{{/ifNotEmpty}}
+
+[View Results]({{detection.resultLink}})
+{{/ifEmpty}}
+```
+
+---
+
+## Testing Your Templates
+
+<div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6 my-6">
+  <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-4">Test Scenarios</h4>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <h5 className="font-semibold text-sm mb-2 text-gray-900 dark:text-gray-100">Data Variations</h5>
+      <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+        <li>• Empty results (resultCount = 0)</li>
+        <li>• Single result</li>
+        <li>• Multiple results (10+)</li>
+        <li>• Missing optional fields</li>
+      </ul>
+    </div>
+    <div>
+      <h5 className="font-semibold text-sm mb-2 text-gray-900 dark:text-gray-100">Severity & Risk</h5>
+      <ul className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
+        <li>• High risk scores (above 80)</li>
+        <li>• Low risk scores (below 20)</li>
+        <li>• Different severity levels</li>
+        <li>• Error conditions</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+---
+
+## Additional Resources
+
+<div className="flex flex-wrap gap-4 my-6">
+  <a href="/detections" className="inline-flex items-center px-4 py-2 bg-primary-light dark:bg-primary/20 text-primary dark:text-primary rounded-lg hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors">
+    <span className="mr-2">📚</span>
+    Detection Documentation
+  </a>
+  <a href="/notifications" className="inline-flex items-center px-4 py-2 bg-insight-light dark:bg-insight/20 text-insight dark:text-insight rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
+    <span className="mr-2">🔔</span>
+    Notification Channels
+  </a>
+</div>
