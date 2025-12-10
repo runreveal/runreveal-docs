@@ -60,17 +60,17 @@ From each source in `SourceTypes.tsx`:
 
 ### Future Opportunities
 
-1. **Auto-generate source pages**
-   - Create MDX pages for each source automatically
-   - Include setup steps, table schemas, example queries
+1. ~~**Auto-generate source pages**~~ ✅ Implemented!
+   - Use `--generate-pages` to create MDX pages for undocumented sources
+   - Includes setup steps based on ingest type
 
 2. **Source comparison tables**
    - Compare features across sources
    - Filter by capabilities
 
-3. **Integration with `source_integrations.json`**
-   - Merge setup requirements and config fields
-   - Show required secrets and permissions
+3. **Enhanced integration with `source_integrations.json`**
+   - Merge detailed setup requirements and config fields
+   - Show required secrets and permissions per source
 
 4. **Changelog generation**
    - Track when sources are added/modified
@@ -79,6 +79,10 @@ From each source in `SourceTypes.tsx`:
 5. **API documentation**
    - Generate OpenAPI specs for polling sources
    - Document webhook payload schemas
+
+6. **Table schema documentation**
+   - Auto-generate table column documentation
+   - Include sample queries per source
 
 ## Quick Start
 
@@ -91,6 +95,12 @@ npm run sync-sources -- --merge
 
 # Force full regeneration
 npm run sync-sources -- --force
+
+# List sources missing documentation pages
+npm run sync-sources -- --list-missing
+
+# Generate pages for sources that don't have docs
+npm run sync-sources -- --generate-pages
 ```
 
 ## CLI Flags
@@ -103,6 +113,8 @@ npm run sync-sources -- --force
 | `--force` | Regenerate, overwriting existing |
 | `--validate-only` | Just validate existing file |
 | `--verbose` | Show detailed logging |
+| `--list-missing` | List sources without documentation pages |
+| `--generate-pages` | Generate MDX pages for undocumented sources |
 
 ## File Structure
 
@@ -153,6 +165,58 @@ When `sources.json` exists, the script intelligently merges:
 | `name`, `logo`, `ingestTypes`, `categories`, `tableName`, `plan` | **Always updated** from source |
 | `description` | **Preserved** if manually expanded |
 | `url` | **Preserved** if manually customized |
+
+## Page Generation
+
+The script can automatically generate MDX documentation pages for sources that don't have them yet.
+
+### How It Works
+
+1. Scans `pages/sources/source-types/` for existing `.mdx` files
+2. Compares against `sources.json` to find missing pages
+3. Generates appropriate page templates based on ingest type:
+   - **Polling sources**: API credential setup (like Okta, Slack)
+   - **Webhook sources**: Webhook URL/token setup (like Auth0, n8n)
+   - **Object storage sources**: Links to S3/Azure/GCS guides + SNS topic ARN
+
+### Usage
+
+```bash
+# See which sources need documentation
+npm run sync-sources -- --list-missing
+
+# Preview what pages would be generated
+npm run sync-sources -- --generate-pages --dry-run --verbose
+
+# Generate the pages
+npm run sync-sources -- --generate-pages
+```
+
+### Generated Page Structure
+
+Pages follow templates based on ingest type (like `generic.mdx` and `dope-security.mdx`):
+
+**Object Storage Sources** (S3, Azure, GCS, R2):
+- Ingest Methods with links in order: AWS S3, AWS S3 Custom SQS, Azure, GCS, R2
+- SNS topic ARN callout with region replacement instructions
+
+**Webhook Sources**:
+- Ingest Methods with link to `#webhooks` section
+- Step-by-step webhook setup (RunReveal + source configuration)
+
+**Polling Sources**:
+- Setup section with prerequisites and configuration steps
+- Polling behavior callout
+
+The script also updates `_meta.ts` to include new pages in alphabetical order.
+
+### Customizing Generated Pages
+
+After generation, you should review and customize each page:
+- Add service-specific setup screenshots
+- Include exact field names from the service's UI
+- Add any service-specific callouts or notes
+- Link to the service's official documentation
 
 ## Troubleshooting
 

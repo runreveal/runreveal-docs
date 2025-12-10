@@ -547,52 +547,24 @@ function loadExistingSources() {
 // ============================================================================
 
 // SNS Topic ARN pattern - used for S3-based sources
-const SNS_TOPIC_PATTERN = 'arn:aws:sns:<REGION>:253602268883:runreveal_{sourceId}';
+// Source ID is converted: dashes become underscores
+const SNS_ACCOUNT_ID = '253602268883';
 
-// Object storage guides mapping
-const OBJECT_STORAGE_GUIDES = {
-  's3': { name: 'AWS S3 Bucket', path: '/sources/object-storage/s3' },
-  'external-s3': { name: 'AWS S3 Bucket with Custom SQS', path: '/sources/object-storage/external-s3' },
-  'azure-blob': { name: 'Azure Blob Storage', path: '/sources/object-storage/azure' },
-  'gcs': { name: 'Google Cloud Storage', path: '/sources/object-storage/gcs' },
-  'r2': { name: 'Cloudflare R2 Bucket', path: '/sources/object-storage/r2' },
-};
+// Object storage guides mapping - ordered as specified
+const OBJECT_STORAGE_GUIDES = [
+  { type: 's3', name: 'AWS S3 Bucket', path: '/sources/object-storage/s3' },
+  { type: 'external-s3', name: 'AWS S3 Bucket with Custom SQS', path: '/sources/object-storage/external-s3' },
+  { type: 'azure-blob', name: 'Azure Storage Account', path: '/sources/object-storage/azure' },
+  { type: 'gcs', name: 'Google Cloud Storage', path: '/sources/object-storage/gcs' },
+  { type: 'r2', name: 'Cloudflare R2 Bucket', path: '/sources/object-storage/r2' },
+];
 
-// Ingest type descriptions
-const INGEST_TYPE_INFO = {
-  'polling': {
-    description: 'API polling - we periodically fetch logs from the service API',
-    setupType: 'credentials',
-  },
-  'webhook': {
-    description: 'Webhook - the service sends logs directly to RunReveal',
-    setupType: 'webhook',
-  },
-  's3': {
-    description: 'S3 bucket with RunReveal-managed notifications',
-    setupType: 'object-storage',
-  },
-  'external-s3': {
-    description: 'Customer-managed S3 with SQS notifications',
-    setupType: 'object-storage',
-  },
-  'azure-blob': {
-    description: 'Azure Blob Storage with Event Grid',
-    setupType: 'object-storage',
-  },
-  'gcs': {
-    description: 'Google Cloud Storage with Pub/Sub',
-    setupType: 'object-storage',
-  },
-  'r2': {
-    description: 'Cloudflare R2 bucket',
-    setupType: 'object-storage',
-  },
-  'gcp-queue': {
-    description: 'GCP Pub/Sub queue',
-    setupType: 'object-storage',
-  },
-};
+// Generate SNS topic ARN from source ID
+function generateSnsTopicArn(sourceId) {
+  // Convert dashes to underscores for SNS topic name
+  const topicName = sourceId.replace(/-/g, '_');
+  return `arn:aws:sns:<REGION>:${SNS_ACCOUNT_ID}:runreveal_${topicName}`;
+}
 
 // Check which sources are missing documentation pages
 function findMissingPages(sourcesData) {
@@ -680,32 +652,24 @@ function findMissingPages(sourcesData) {
   return { missingPages, existingPages };
 }
 
-// Generate MDX content for a source page
+// Generate MDX content for a source page (follows generic.mdx and dope-security.mdx templates)
 function generateSourcePage(source) {
   const ingestTypes = source.ingestTypes || [];
   const hasObjectStorage = ingestTypes.some(t => ['s3', 'external-s3', 'azure-blob', 'gcs', 'r2'].includes(t));
   const hasWebhook = ingestTypes.includes('webhook');
   const hasPolling = ingestTypes.includes('polling');
+  const hasS3 = ingestTypes.includes('s3');
   
-  // Determine primary setup type
-  let primarySetup = 'generic';
-  if (hasPolling && !hasObjectStorage && !hasWebhook) {
-    primarySetup = 'polling';
-  } else if (hasWebhook && !hasObjectStorage && !hasPolling) {
-    primarySetup = 'webhook';
-  } else if (hasObjectStorage) {
-    primarySetup = 'object-storage';
-  } else if (hasWebhook) {
-    primarySetup = 'webhook';
-  }
+  // Get service name (first word or full name if single word)
+  const serviceName = source.name;
   
-  // Build page content based on setup type
+  // Build page content
   let content = '';
   
   // Frontmatter
   content += `---\n`;
   content += `title: '${source.name}'\n`;
-  content += `description: '${source.description}'\n`;
+  content += `description: '${source.description.replace(/'/g, "\\'")}'\n`;
   content += `---\n\n`;
   
   // Imports
@@ -715,88 +679,101 @@ function generateSourcePage(source) {
   content += `# ${source.name}\n\n`;
   content += `${source.description}\n\n`;
   
-  // Ingest methods section for object storage sources
-  if (hasObjectStorage) {
-    const objectStorageTypes = ingestTypes.filter(t => OBJECT_STORAGE_GUIDES[t]);
-    
+  // Ingest Methods section - always include if there are multiple methods or storage options
+  if (hasObjectStorage || hasWebhook || hasPolling) {
     content += `## Ingest Methods\n\n`;
-    content += `Setup the ingestion of this source using one of the following guides.\n\n`;
+    content += `RunReveal offers the following ways to ingest ${serviceName} logs:\n\n`;
     
-    objectStorageTypes.forEach(type => {
-      const guide = OBJECT_STORAGE_GUIDES[type];
-      if (guide) {
+    // Add object storage links in the specified order
+    OBJECT_STORAGE_GUIDES.forEach(guide => {
+      if (ingestTypes.includes(guide.type)) {
         content += `- [${guide.name}](${guide.path})\n`;
       }
     });
     
+    // Add webhook link if supported (links to on-page section)
+    if (hasWebhook) {
+      content += `- [Webhooks](#webhooks)\n`;
+    }
+    
     content += `\n`;
     
     // Add SNS topic callout for S3 sources
-    if (ingestTypes.includes('s3')) {
-      const snsArn = SNS_TOPIC_PATTERN.replace('{sourceId}', source.id);
+    if (hasS3) {
+      const snsArn = generateSnsTopicArn(source.id);
       content += `<Callout type='info'>\n`;
       content += `If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.\n`;
       content += `\`\`\`\n`;
       content += `${snsArn}\n`;
       content += `\`\`\`\n`;
+      content += `Replace \`<REGION>\` with the AWS region where your S3 bucket is located (e.g., \`us-east-1\`, \`us-west-2\`, \`eu-west-1\`).\n`;
       content += `</Callout>\n\n`;
     }
   }
   
-  // Setup section
-  content += `## Setup\n\n`;
-  
-  if (primarySetup === 'polling') {
-    content += generatePollingSetup(source);
-  } else if (primarySetup === 'webhook') {
-    content += generateWebhookSetup(source);
-  } else if (primarySetup === 'object-storage') {
-    content += generateObjectStorageSetup(source);
-  } else {
-    content += `Configure your ${source.name} integration in the RunReveal dashboard.\n\n`;
+  // Webhooks section (if supported) - follows dope-security.mdx template
+  if (hasWebhook) {
+    content += generateWebhookSection(source);
   }
   
-  // Add webhook setup if source supports both object storage and webhook
-  if (hasObjectStorage && hasWebhook) {
-    content += `### Webhook Alternative\n\n`;
-    content += `${source.name} also supports webhook ingestion. Create the source in RunReveal and configure your ${source.name.split(' ')[0]} instance to send events to the provided webhook URL.\n\n`;
-  }
-  
-  // Verify section
-  content += `## Verify It's Working\n\n`;
-  content += `Once added, the source logs should begin flowing within a few minutes.\n\n`;
-  content += `You can validate we are receiving your logs by running the following SQL query.\n\n`;
-  content += `\`\`\`sql\n`;
-  content += `SELECT * FROM runreveal.logs WHERE sourceType = '${source.id}' LIMIT 1\n`;
-  content += `\`\`\`\n`;
-  
-  // Add table names if available
-  if (source.tableName && source.tableName.length > 0) {
-    content += `\n### Available Tables\n\n`;
-    content += `This source populates the following tables:\n\n`;
-    source.tableName.forEach(table => {
-      content += `- \`${table}\`\n`;
-    });
+  // Polling section (if it's the only method)
+  if (hasPolling && !hasObjectStorage && !hasWebhook) {
+    content += generatePollingSection(source);
   }
   
   return content;
 }
 
-// Generate polling-specific setup instructions
-function generatePollingSetup(source) {
-  const serviceName = source.name.split(' ')[0]; // First word as service name
+// Generate webhook section following dope-security.mdx template
+function generateWebhookSection(source) {
+  const serviceName = source.name;
+  const sourceIdWebhook = source.id.includes('webhook') ? source.id : `${source.id}-webhook`;
   
-  let content = `To set up ${source.name}, you'll need to provide API credentials from your ${serviceName} account.\n\n`;
+  let content = `## Webhooks\n\n`;
+  content += `${serviceName} can send logs directly to RunReveal via webhook.\n\n`;
+  
+  content += `### Step 1: Create Webhook Source in RunReveal\n\n`;
+  content += `1. Go to [Sources](https://app.runreveal.com/dash/sources/add) in RunReveal\n`;
+  content += `2. Click the **${serviceName}** source tile (or **${serviceName} Webhook** if available)\n`;
+  content += `3. Give it a descriptive name (e.g., "${serviceName} Webhook")\n`;
+  content += `4. Optionally enable bearer token authentication for added security\n`;
+  content += `5. Click **Connect Source** to generate a unique webhook URL\n`;
+  content += `6. Copy the generated webhook URL and bearer token (if enabled)\n\n`;
+  
+  content += `### Step 2: Configure ${serviceName}\n\n`;
+  content += `1. Log into your ${serviceName} console\n`;
+  content += `2. Navigate to integrations or webhook settings\n`;
+  content += `3. Add a new webhook destination\n`;
+  content += `4. Configure the webhook:\n`;
+  content += `   - **URL**: Paste the RunReveal webhook URL you copied\n`;
+  content += `   - **Method**: POST\n`;
+  content += `   - **Content-Type**: application/json\n`;
+  content += `   - **Authorization**: If you enabled bearer token, add \`Authorization: Bearer YOUR_TOKEN\` header\n`;
+  content += `5. Save the webhook configuration\n\n`;
+  
+  return content;
+}
+
+// Generate polling section for API-based sources
+function generatePollingSection(source) {
+  const serviceName = source.name;
+  
+  let content = `## Setup\n\n`;
+  content += `To set up ${serviceName}, you'll need to provide API credentials from your ${serviceName} account.\n\n`;
   
   content += `### Prerequisites\n\n`;
   content += `- An active ${serviceName} account with administrator access\n`;
   content += `- API credentials with read access to audit/event logs\n\n`;
   
   content += `### Configuration Steps\n\n`;
-  content += `1. Log in to your ${serviceName} admin console\n`;
-  content += `2. Navigate to the API or Security settings\n`;
-  content += `3. Create a new API token or application credentials\n`;
-  content += `4. Copy the credentials and paste them into RunReveal\n\n`;
+  content += `1. Go to [Sources](https://app.runreveal.com/dash/sources/add) in RunReveal\n`;
+  content += `2. Click the **${serviceName}** source tile\n`;
+  content += `3. Enter a descriptive name for your source\n`;
+  content += `4. Log in to your ${serviceName} admin console\n`;
+  content += `5. Navigate to the API or Security settings\n`;
+  content += `6. Create a new API token or application credentials\n`;
+  content += `7. Copy the credentials and paste them into RunReveal\n`;
+  content += `8. Click **Connect Source** to start ingesting logs\n\n`;
   
   content += `<Callout type='info'>\n`;
   content += `RunReveal will poll the ${serviceName} API periodically to fetch new logs. Historical logs (typically the last 30 days) will be backfilled on first sync.\n`;
@@ -805,44 +782,55 @@ function generatePollingSetup(source) {
   return content;
 }
 
-// Generate webhook-specific setup instructions
-function generateWebhookSetup(source) {
-  const serviceName = source.name.split(' ')[0];
+// Update _meta.ts file to include new pages in alphabetical order
+function updateMetaFile(newPages) {
+  const metaPath = path.join(PAGES_PATH, '_meta.ts');
   
-  let content = `${source.name} uses webhook-based ingestion. ${serviceName} will send events directly to RunReveal in real-time.\n\n`;
+  if (!fs.existsSync(metaPath)) {
+    log('_meta.ts not found, skipping update', 'warning');
+    return;
+  }
   
-  content += `### Configuration Steps\n\n`;
-  content += `1. Create a ${source.name} source in the RunReveal dashboard\n`;
-  content += `2. Copy the **Webhook URL** and **Bearer Token** from the source configuration\n`;
-  content += `3. In your ${serviceName} admin console, navigate to the webhooks or integrations section\n`;
-  content += `4. Create a new webhook with the RunReveal URL\n`;
-  content += `5. Set the authorization header to the Bearer Token provided\n`;
-  content += `6. Select the events you want to send to RunReveal\n`;
-  content += `7. Save and enable the webhook\n\n`;
+  // Read existing _meta.ts
+  const metaContent = fs.readFileSync(metaPath, 'utf-8');
   
-  content += `<Callout type='info'>\n`;
-  content += `Logs will begin flowing immediately once the webhook is configured. Make sure to include the full Bearer token including the word "Bearer".\n`;
-  content += `</Callout>\n\n`;
+  // Parse existing entries
+  const existingEntries = {};
+  const entryRegex = /"([^"]+)":\s*"([^"]+)"/g;
+  let match;
+  while ((match = entryRegex.exec(metaContent)) !== null) {
+    existingEntries[match[1]] = match[2];
+  }
   
-  return content;
-}
-
-// Generate object storage setup instructions
-function generateObjectStorageSetup(source) {
-  const serviceName = source.name.split(' ')[0];
+  // Add new pages
+  newPages.forEach(source => {
+    const pageId = source.id;
+    if (!existingEntries[pageId]) {
+      existingEntries[pageId] = source.name;
+    }
+  });
   
-  let content = `${source.name} logs can be ingested via object storage. Configure your ${serviceName} instance to export logs to one of the supported storage providers.\n\n`;
+  // Sort alphabetically by key
+  const sortedKeys = Object.keys(existingEntries).sort((a, b) => {
+    // Special handling: folders (aws, azure, cloudflare, etc.) should stay in their place
+    // But regular entries should be sorted alphabetically
+    return a.localeCompare(b);
+  });
   
-  content += `### Export Configuration\n\n`;
-  content += `Configure ${serviceName} to export logs to your preferred storage provider:\n\n`;
-  content += `- **AWS S3**: Enable log export to an S3 bucket\n`;
-  content += `- **Azure Blob**: Configure diagnostic settings to export to Azure Storage\n`;
-  content += `- **GCS**: Set up Cloud Logging export to GCS\n`;
-  content += `- **Cloudflare R2**: Export logs to an R2 bucket\n\n`;
+  // Generate new _meta.ts content
+  let newMetaContent = 'export default {\n';
+  sortedKeys.forEach((key, index) => {
+    const comma = index < sortedKeys.length - 1 ? ',' : '';
+    newMetaContent += `    "${key}": "${existingEntries[key]}"${comma}\n`;
+  });
+  newMetaContent += '}\n';
   
-  content += `Follow the appropriate object storage guide linked above for detailed setup instructions.\n\n`;
-  
-  return content;
+  if (!flags.dryRun) {
+    fs.writeFileSync(metaPath, newMetaContent);
+    log(`Updated _meta.ts with ${newPages.length} new entries`, 'success');
+  } else {
+    log(`Would update _meta.ts with ${newPages.length} new entries`, 'info');
+  }
 }
 
 // Generate pages for missing sources
@@ -858,6 +846,7 @@ function generateMissingPages(sourcesData) {
   
   let generated = 0;
   let skipped = 0;
+  const newPagesForMeta = [];
   
   missingPages.forEach(source => {
     // Determine output path
@@ -873,6 +862,8 @@ function generateMissingPages(sourcesData) {
       outputPath = path.join(subdirPath, `${filename}.mdx`);
     } else {
       outputPath = path.join(PAGES_PATH, `${source.id}.mdx`);
+      // Track for _meta.ts update (only top-level pages)
+      newPagesForMeta.push(source);
     }
     
     // Skip if we're just listing
@@ -900,6 +891,11 @@ function generateMissingPages(sourcesData) {
       generated++;
     }
   });
+  
+  // Update _meta.ts with new pages
+  if (newPagesForMeta.length > 0 && !flags.listMissing) {
+    updateMetaFile(newPagesForMeta);
+  }
   
   return { generated, skipped, missing: missingPages.length };
 }
