@@ -696,6 +696,11 @@ function generateSourcePage(source) {
       content += `- [Webhooks](#webhooks)\n`;
     }
     
+    // Add API Polling link if supported (links to on-page section)
+    if (hasPolling) {
+      content += `- [API Polling](#api-polling)\n`;
+    }
+    
     content += `\n`;
     
     // Add SNS topic callout for S3 sources
@@ -716,8 +721,8 @@ function generateSourcePage(source) {
     content += generateWebhookSection(source);
   }
   
-  // Polling section (if it's the only method)
-  if (hasPolling && !hasObjectStorage && !hasWebhook) {
+  // API Polling section (if supported)
+  if (hasPolling) {
     content += generatePollingSection(source);
   }
   
@@ -754,29 +759,22 @@ function generateWebhookSection(source) {
   return content;
 }
 
-// Generate polling section for API-based sources
+// Generate polling section for API-based sources (follows firehydrant.mdx template)
 function generatePollingSection(source) {
   const serviceName = source.name;
   
-  let content = `## Setup\n\n`;
-  content += `To set up ${serviceName}, you'll need to provide API credentials from your ${serviceName} account.\n\n`;
+  let content = `## API Polling\n\n`;
+  content += `${serviceName} supports API polling to collect audit logs from your ${serviceName} account.\n\n`;
+  content += `For detailed setup instructions, see the [Integration documentation](/integrations).\n\n`;
   
-  content += `### Prerequisites\n\n`;
-  content += `- An active ${serviceName} account with administrator access\n`;
-  content += `- API credentials with read access to audit/event logs\n\n`;
-  
-  content += `### Configuration Steps\n\n`;
+  content += `### Setup\n\n`;
   content += `1. Go to [Sources](https://app.runreveal.com/dash/sources/add) in RunReveal\n`;
   content += `2. Click the **${serviceName}** source tile\n`;
-  content += `3. Enter a descriptive name for your source\n`;
-  content += `4. Log in to your ${serviceName} admin console\n`;
-  content += `5. Navigate to the API or Security settings\n`;
-  content += `6. Create a new API token or application credentials\n`;
-  content += `7. Copy the credentials and paste them into RunReveal\n`;
-  content += `8. Click **Connect Source** to start ingesting logs\n\n`;
+  content += `3. Give it a name and click **Connect Source**\n`;
+  content += `4. Fill in the required fields with your ${serviceName} API credentials\n\n`;
   
   content += `<Callout type='info'>\n`;
-  content += `RunReveal will poll the ${serviceName} API periodically to fetch new logs. Historical logs (typically the last 30 days) will be backfilled on first sync.\n`;
+  content += `RunReveal will poll the ${serviceName} API periodically to fetch new logs. Historical logs will be backfilled on first sync.\n`;
   content += `</Callout>\n\n`;
   
   return content;
@@ -898,6 +896,28 @@ function generateMissingPages(sourcesData) {
   }
   
   return { generated, skipped, missing: missingPages.length };
+}
+
+// Show hint about missing pages (called when not using --generate-pages)
+function showMissingPagesHint(sourcesData) {
+  const { missingPages } = findMissingPages(sourcesData);
+  
+  if (missingPages.length === 0) {
+    return; // All sources have pages, no hint needed
+  }
+  
+  console.log('\n📄 Missing Documentation Pages');
+  console.log('─'.repeat(40));
+  console.log(`\n  ${missingPages.length} source(s) don't have documentation pages:\n`);
+  
+  missingPages.forEach(source => {
+    console.log(`    • ${source.name} (${source.id})`);
+  });
+  
+  console.log(`\n  To generate these pages, run:`);
+  console.log(`  \x1b[36mnpm run sync-sources -- --generate-pages\x1b[0m\n`);
+  console.log(`  To preview first:`);
+  console.log(`  \x1b[36mnpm run sync-sources -- --list-missing\x1b[0m\n`);
 }
 
 // Handle page generation (called from multiple places)
@@ -1036,10 +1056,13 @@ function main() {
       log('Sync complete!', 'success');
       log(`Existing file preserved: ${OUTPUT_PATH}`, 'info');
       log(`Logos: ${DOCS_LOGOS_PATH}`, 'info');
-      
+
       // Handle page generation even when sources.json is preserved
       if (flags.generatePages || flags.listMissing) {
         handlePageGeneration(existingData);
+      } else {
+        // Show missing pages hint
+        showMissingPagesHint(existingData);
       }
       return;
     }
@@ -1064,10 +1087,13 @@ function main() {
     log(`Output: ${OUTPUT_PATH}`, 'info');
   }
   log(`Logos: ${DOCS_LOGOS_PATH}`, 'info');
-  
+
   // Handle page generation if requested
   if (flags.generatePages || flags.listMissing) {
     handlePageGeneration(finalData);
+  } else {
+    // Show missing pages hint
+    showMissingPagesHint(finalData);
   }
 }
 
