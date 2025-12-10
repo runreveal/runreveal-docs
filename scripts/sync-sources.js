@@ -693,7 +693,7 @@ function generateSourcePage(source) {
     
     // Add webhook link if supported (links to on-page section)
     if (hasWebhook) {
-      content += `- [Webhooks](#webhooks)\n`;
+      content += `- [Webhook](#webhook)\n`;
     }
     
     // Add API Polling link if supported (links to on-page section)
@@ -734,7 +734,7 @@ function generateWebhookSection(source) {
   const serviceName = source.name;
   const sourceIdWebhook = source.id.includes('webhook') ? source.id : `${source.id}-webhook`;
   
-  let content = `## Webhooks\n\n`;
+  let content = `## Webhook\n\n`;
   content += `${serviceName} can send logs directly to RunReveal via webhook.\n\n`;
   
   content += `### Step 1: Create Webhook Source in RunReveal\n\n`;
