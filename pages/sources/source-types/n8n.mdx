@@ -1,0 +1,42 @@
+---
+title: 'n8n'
+description: 'Receive workflow automation logs from n8n showing workflow executions, node activities, and automation events.'
+---
+
+import { Callout } from 'nextra/components'
+
+# n8n
+
+Receive workflow automation logs from n8n showing workflow executions, node activities, and automation events.
+
+## Ingest Methods
+
+RunReveal offers the following ways to ingest n8n logs:
+
+- [Webhook](#webhook)
+
+## Webhook
+
+n8n can send logs directly to RunReveal via webhook.
+
+### Step 1: Create Webhook Source in RunReveal
+
+1. Go to [Sources](https://app.runreveal.com/dash/sources/add) in RunReveal
+2. Click the **n8n** source tile (or **n8n Webhook** if available)
+3. Give it a descriptive name (e.g., "n8n Webhook")
+4. Optionally enable bearer token authentication for added security
+5. Click **Connect Source** to generate a unique webhook URL
+6. Copy the generated webhook URL and bearer token (if enabled)
+
+### Step 2: Configure n8n
+
+1. Log into your n8n console
+2. Navigate to integrations or webhook settings
+3. Add a new webhook destination
+4. Configure the webhook:
+   - **URL**: Paste the RunReveal webhook URL you copied
+   - **Method**: POST
+   - **Content-Type**: application/json
+   - **Authorization**: If you enabled bearer token, add `Authorization: Bearer YOUR_TOKEN` header
+5. Save the webhook configuration
+

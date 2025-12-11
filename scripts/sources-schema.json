@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sources Data Schema",
+  "type": "object",
+  "required": ["generatedAt", "sourceCount", "sources"],
+  "properties": {
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the file was generated"
+    },
+    "sourceCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total number of sources"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "description", "logo", "url"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "Unique identifier for the source (lowercase, hyphens allowed)"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Display name of the source"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of what the source does"
+          },
+          "logo": {
+            "type": "string",
+            "pattern": "^/logos/",
+            "description": "Path to logo image, must start with /logos/"
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^/",
+            "description": "URL path to the source documentation page"
+          },
+          "ingestTypes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["polling", "webhook", "s3", "external-s3", "azure-blob", "gcs", "r2", "gcp-queue", "external-s3-sqs"]
+            },
+            "description": "Supported ingestion methods"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Categories this source belongs to"
+          },
+          "tableName": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Table names where logs are stored"
+          },
+          "plan": {
+            "type": "string",
+            "enum": ["free", "pro", "ent"],
+            "default": "free",
+            "description": "Plan tier required for this source"
+          }
+        }
+      }
+    }
+  }
+}

@@ -17,7 +17,7 @@ RunReveal offers the following ways to ingest Dope Security logs:
 
 - [AWS S3 Bucket](/sources/object-storage/s3)
 - [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
-- [Webhooks](#webhooks)
+- [Webhook](#webhook)
 
 <Callout type='info'>
 If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
@@ -27,7 +27,7 @@ arn:aws:sns:<REGION>:253602268883:runreveal_dope_security
 Replace `<REGION>` with the AWS region where your S3 bucket is located (e.g., `us-east-1`, `us-west-2`, `eu-west-1`).
 </Callout>
 
-## Webhooks
+## Webhook
 
 Dope Security can send logs directly to RunReveal via webhook using the **Dope Security Webhook** source type.
 

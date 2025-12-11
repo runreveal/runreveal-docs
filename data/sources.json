@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2025-12-02T22:08:15.572Z",
-  "sourceCount": 85,
+  "generatedAt": "2025-12-10T21:14:21.397Z",
+  "sourceCount": 86,
   "sources": [
     {
       "id": "1password",
@@ -72,7 +72,7 @@
     },
     {
       "id": "authentik",
-      "name": "Authentik",
+      "name": "Authentik Audit Logs",
       "description": "Ingest authentik audit logs from a variety of sources.",
       "logo": "/logos/authentik.png",
       "url": "/sources/source-types/authentik",
@@ -190,7 +190,7 @@
       "id": "aws-nfw",
       "name": "AWS Network Firewall",
       "description": "Collect AWS Network Firewall logs from S3, including alert, flow (netflow), and TLS revocation events in Suricata EVE JSON format.",
-      "logo": "/logos/s3.png",
+      "logo": "/logos/aws-network-firewall.jpeg",
       "url": "/sources/source-types/aws/network-firewall",
       "ingestTypes": [
         "s3",
@@ -306,7 +306,7 @@
       "name": "Backfill",
       "description": "Backfill logs you've already collected in a blob storage container. This can take some time",
       "logo": "/logos/backfill.svg",
-      "url": "/sources/source-types/backfill",
+      "url": "/sources/source-types/",
       "ingestTypes": [
         "s3",
         "external-s3",
@@ -638,7 +638,7 @@
       "id": "dope-security",
       "name": "Dope Security",
       "description": "Ingest Dope Security endpoint protection logs from object storage showing network traffic, file activity, and security events.",
-      "logo": "/logos/dopesecurity.jpeg",
+      "logo": "/logos/dopesecurity.svg",
       "url": "/sources/source-types/dope-security",
       "ingestTypes": [
         "s3",
@@ -658,7 +658,7 @@
       "id": "dope-security-webhook",
       "name": "Dope Security Webhook",
       "description": "Ingest Dope Security endpoint protection logs from object storage showing network traffic, file activity, and security events.",
-      "logo": "/logos/dopesecurity.jpeg",
+      "logo": "/logos/dopesecurity.svg",
       "url": "/sources/source-types/dope-security",
       "ingestTypes": [
         "webhook"
@@ -747,7 +747,7 @@
       "id": "formal-security",
       "name": "Formal Security",
       "description": "Collect data access logs from Formal Security, including actor, network, and resource information for comprehensive visibility into data access patterns.",
-      "logo": "/logos/formal-security.png",
+      "logo": "/logos/formal.png",
       "url": "/sources/source-types/formal-security",
       "ingestTypes": [
         "s3",
@@ -1128,6 +1128,23 @@
       "plan": "ent"
     },
     {
+      "id": "n8n",
+      "name": "n8n",
+      "description": "Receive workflow automation logs from n8n showing workflow executions, node activities, and automation events.",
+      "logo": "/logos/n8n.png",
+      "url": "/sources/source-types/n8n",
+      "ingestTypes": [
+        "webhook"
+      ],
+      "categories": [
+        "webhook"
+      ],
+      "tableName": [
+        "n8n_logs"
+      ],
+      "plan": "free"
+    },
+    {
       "id": "notion",
       "name": "Notion",
       "description": "Receive logs directly from Notion about changes to your workspace, access to your Notion documents, and more.",
@@ -1198,7 +1215,7 @@
       "name": "OpenTelemetry (OTLP)",
       "description": "Ingest OpenTelemetry logs that have been uploaded to object storage as JSON.",
       "logo": "/logos/otlp.png",
-      "url": "/sources/forwarders/otlp-json",
+      "url": "/sources/source-types/otlp-json",
       "ingestTypes": [
         "s3",
         "external-s3",
@@ -1338,7 +1355,7 @@
     {
       "id": "snowflake",
       "name": "Snowflake",
-      "description": "Collect login history and authentication events from your Snowflake account.",
+      "description": "Collect query history, login attempts, and security events from your Snowflake account.",
       "logo": "/logos/snowflake.svg",
       "url": "/sources/source-types/snowflake",
       "ingestTypes": [
@@ -1461,7 +1478,7 @@
       "id": "twingate",
       "name": "Twingate Logs",
       "description": "Ingest Twingate network access logs, DNS filtering, audit events, and data loss prevention logs from object storage.",
-      "logo": "/logos/twingate.png",
+      "logo": "/logos/twingate_logo.svg",
       "url": "/sources/source-types/twingate",
       "ingestTypes": [
         "s3",
@@ -1482,7 +1499,7 @@
     },
     {
       "id": "webflow-audit",
-      "name": "Webflow",
+      "name": "Webflow Audit",
       "description": "Collect audit logs from your Webflow workspace showing user access, content changes, and administrative events.",
       "logo": "/logos/webflow.svg",
       "url": "/sources/source-types/webflow-audit",
