@@ -1,3 +1,6 @@
+- term: Agent Schedules
+  definition: Scheduled AI agent tasks that run automatically at configured intervals to perform security analysis and generate reports
+
 - term: Alerts
   definition: Detection queries that have executed and triggered notifications to configured channels
 
@@ -9,6 +12,9 @@
 
 - term: AWS Bedrock
   definition: Amazon's managed service for building AI applications with foundation models from various providers
+
+- term: Backfill
+  definition: Process of ingesting historical log data from object storage that was collected before connecting to RunReveal
 
 - term: BYOC (Bring Your Own Cloud)
   definition: Deployment model allowing customers to run RunReveal infrastructure in their own cloud environment
@@ -31,6 +37,9 @@
 - term: Custom Prompts
   definition: User-defined instructions and context for customizing AI assistant behavior and responses in Native AI Chat
 
+- term: Dashboard Layouts
+  definition: Customizable arrangements of graphs and panels for visualizing security data and metrics
+
 - term: Data Model
   definition: RunReveal's normalized schema structure for standardizing log data across all sources
 
@@ -46,8 +55,14 @@
 - term: Detections
   definition: Scheduled queries that execute automatically to identify security threats and anomalies
 
+- term: Discord
+  definition: Chat platform integration for receiving detection alerts and notifications via webhook
+
 - term: Enrichments
   definition: Process of augmenting log events with supplemental data using pattern matching and external sources
+
+- term: Explore
+  definition: Interactive interface for querying logs with SQL, PQL, or natural language, featuring time range selection and result visualization
 
 - term: Filtering
   definition: Feature for dropping or excluding logs based on regex patterns before ingestion
@@ -61,11 +76,23 @@
 - term: Gemini (Google)
   definition: Google's family of large language models available for integration with RunReveal's AI-powered features
 
+- term: Google Chat
+  definition: Google's team messaging platform integration for receiving detection alerts and notifications via webhook
+
+- term: Graphs
+  definition: Visual representations of query results displayed as charts, time series, bar graphs, or other visualization types
+
 - term: Health Checks
   definition: Automated monitoring of data source volume and connectivity every 15 minutes
 
+- term: Investigations
+  definition: Security investigation workflow for tracking and documenting incident analysis, including artifacts, status, and collaboration
+
 - term: JSON
   definition: JavaScript Object Notation, a lightweight data-interchange format commonly used for log data and API communication
+
+- term: Linear
+  definition: Project management platform integration for automatically creating issues when detections trigger
 
 - term: Logs API
   definition: RESTful API endpoint for programmatically querying and retrieving log data
@@ -94,6 +121,9 @@
 - term: Object Storage
   definition: Cloud storage services including AWS S3, Azure Blob Storage, Google Cloud Storage, and Cloudflare R2 for log ingestion
 
+- term: Organization
+  definition: Top-level administrative entity that contains workspaces, manages billing, and controls SSO settings
+
 - term: Parameters
   definition: Dynamic variables passed to detection queries at execution time for customization
 
@@ -106,11 +136,17 @@
 - term: PQL (Pipeline Query Language)
   definition: RunReveal's domain-specific query language as an alternative to SQL for data queries
 
+- term: Packs
+  definition: Pre-built collections of detection rules organized by source type or security use case
+
 - term: Processors
   definition: Individual components within pipelines that perform specific data transformation tasks such as parsing, filtering, and enrichment
 
 - term: rawLog
   definition: Database field containing the original, unparsed log data as received from the source
+
+- term: Query History
+  definition: Record of previously executed queries including SQL, PQL, and AI-generated queries with their results and execution times
 
 - term: RBAC (Role-Based Access Control)
   definition: Permission and access management system for controlling user capabilities in RunReveal
@@ -123,6 +159,9 @@
 
 - term: Reports
   definition: Automated daily insights and summaries about security environment activity and trends
+
+- term: Risk Score
+  definition: Numeric value from 0-100 indicating the potential impact or severity of a detection finding
 
 - term: reveald
   definition: RunReveal's command-line interface and daemon for local log processing and analysis
@@ -139,6 +178,9 @@
 - term: S3 (Simple Storage Service)
   definition: Amazon Web Services object storage service commonly used for log data ingestion
 
+- term: Saved Queries
+  definition: Stored and reusable SQL queries that can be quickly accessed and executed from the Explore interface
+
 - term: Schedule Types
   definition: Configuration options that determine when and how frequently detections execute
 
@@ -153,6 +195,9 @@
 
 - term: Signals
   definition: Detection results and findings that have no notification channels configured for alerting
+
+- term: Silencing
+  definition: Temporarily muting detections or health checks for a specified duration to prevent alert fatigue during maintenance or known issues
 
 - term: SigmaLite
   definition: Open-source library developed by RunReveal for parsing and processing Sigma detection rules
@@ -169,8 +214,14 @@
 - term: SQL (Structured Query Language)
   definition: Standard programming language for managing and querying relational databases, supported by RunReveal
 
+- term: SSO (Single Sign-On)
+  definition: Enterprise authentication method allowing users to access RunReveal using their organization's identity provider
+
 - term: Streaming
   definition: Real-time data processing and analysis capability for immediate threat detection
+
+- term: Subscriptions
+  definition: Configuration linking managed detections to notification channels with customizable templates
 
 - term: Transforms
   definition: Data processing pipeline that converts raw log formats into RunReveal's normalized schema
