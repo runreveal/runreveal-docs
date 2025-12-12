@@ -7,73 +7,166 @@ import { Callout } from 'nextra/components'
 
 # Explore Logs
 
-RunReveal provides a powerful search interface for querying and analyzing your log data. Use the search functionality to find specific events, filter by time ranges, and explore your log data.
+RunReveal's log explorer provides a powerful interface for querying and analyzing your log data. The explorer features a compact layout, sidebar navigation, saved queries with version history, and AI-powered query assistance.
 
-![Search Interface](/search-logs-1.png)
+![Log Explorer Interface](/log-explorer-1.png)
 
 ## Overview
 
-The Explore interface is organized into several key sections:
+RunReveal's log explorer provides an improved experience for log analysis with better visibility, intuitive filtering, and AI-powered query assistance. The explorer makes all functionality discoverable and accessible on a single page.
 
-### 1. Top Bar
-The top bar provides quick access to key features:
+### Key Features
 
-1. Click **"New +"** to open a new tab to run a new query
-2. Click the **"table"** icon to view the schema for each source
-3. Click the **"Folder"** icon to view saved detections
-4. Click the **"history"** icon to view your query history
-5. Click the tabs of queries that you've run to edit or run new queries
+The log explorer includes several key features:
 
-### 2. Table Selector, Time Range, and Interval Controls
-This section contains the primary query controls:
+- **Compact Layout**: Everything fits on one page - you can see log volume, filters, and results simultaneously without constant scrolling
+- **Sidebar Navigation**: Table and column selection in a dedicated sidebar for better discoverability
+- **Linkable Views**: Share exploration sessions with shareable URLs that preserve your exact configuration
+- **Saved Queries**: Save queries with version history to iterate on ideas and track changes over time
+- **AI Assistant**: Get help creating and updating queries using natural language prompts
+- **Fixed Layout**: Optimized screen real estate with fixed-size components for consistent viewing
 
-- **Table Selector**: Choose which log source or view to query. Select from available tables such as `logs`, source-specific views like `okta_logs` or `aws_cloudtrail_logs`, or custom views you've created. The selected table determines which data is available for your query.
-- **Time Range dropdown**: Select the time window for your query (e.g., "now-6d to now+1h" - last 6 days to 1 hour in the future). This determines which events are included in your analysis.
-- **Interval dropdown**: Set the time bucket granularity (e.g., "6 hours") for aggregating events in the visualization. This controls how events are grouped together in the chart.
+### Explorer Interface Layout
 
-### 3. Edit as SQL or Create Detection Buttons
-These buttons provide additional query options:
+The explorer is organized into these key sections:
 
-- **Edit as SQL**: View or modify the current query in SQL format. This allows you to see the generated SQL query and make manual edits if needed.
-- **Create New Detection**: Convert your current Explore query into a **Detection rule**. This lets you take an investigative query and transform it into an automated alert that will trigger when matching events occur in the future.
+#### 1. Sidebar (Left)
 
-### 4. Fields, Filter, and Group Controls
-Three toggle buttons provide access to different configuration panels:
+The collapsible sidebar provides:
 
-- **Fields**: Select which columns are displayed in the data table grid. Choose from normalized fields (common across all sources) and source-specific fields. Your column selections are saved per table.
-- **Filter**: Create filters to narrow down results by specific field values. Add multiple filters using the `+` button to create AND conditions. Use the "Clear Filter" link to remove all active filters.
-- **Group**: Select a column to group the histogram results by. When a group column is selected, the chart displays multiple series (one for each distinct value), allowing you to compare patterns across different groups over time.
+- **Table Browser**: Browse and select from available tables, views, and materialized views
+  - Tables are organized by category (logs, source-specific views, custom views)
+  - Expand tables to see their schema and available columns
+  - Click a table to select it for querying
+- **Column Selection**: When a table is selected, view all available columns with their data types
+- **Toggle Button**: Collapse/expand the sidebar to maximize screen space
 
-### 5. Visualization Chart
-The main **time series chart** displays your query results over time. Each bar represents the count of events within that time bucket (based on your interval setting). When you select a group column, the chart shows multiple colored series, one for each distinct value in that column.
+#### 2. Top Bar
 
-The Y-axis shows event count, and the X-axis shows time buckets. You can click and drag on the chart to select a time range, which automatically updates your time filter. The chart automatically updates when you modify filters, time range, interval settings, or group selections.
+The top bar contains:
 
-### 6. Link Investigation Button
-Creates a **shareable link** to your current Explore session, preserving your table selection, time range, filters, and visualization settings. This is useful for:
-- Sharing findings with team members
-- Documenting investigation steps
-- Returning to a specific query configuration later
+- **Time Picker**: Select your time range for the query
+- **Interval Selector**: Set the time bucket granularity for the histogram
+- **Action Buttons**: 
+  - **"Edit as Query"**: Switch to SQL mode and open the query in the query editor
+  - **"Create Detection"**: Convert your exploration into a detection rule
+  - **Share/Link**: Generate a shareable link to your current exploration state
 
-### 7. Results View
-The Results View toggle allows you to switch between different ways to view your query results:
-- **Raw**: Displays the normalized fields extracted from your log events, showing the structured data that RunReveal has processed and standardized across all sources
-- **JSON**: Displays the raw JSON format of the query results, useful for detailed inspection of event data structure and values
-- **Table**: Displays query results in a structured tabular format with sortable columns, allowing you to view individual log events in an organized grid
+#### 3. Filter Builder
 
-### 8. Export Options
-Provides buttons to export your query results or visualization:
-- Export raw data (CSV/JSON)
-- Export chart images
-- Copy query to clipboard
+The filter section allows you to:
 
-### 9. Reset Button
-The reset button allows you to reset the grid view, clearing any column customizations, sorting, or filtering applied to the data table. This restores the table to its default state.
+- **Build Dynamic Filters**: Add filters using a visual builder with column autocomplete
+- **Type-Aware Operators**: Operators adapt based on column data type (equals, contains, greater than, etc.)
+- **Multiple Conditions**: Add multiple filters that combine with AND logic
+- **Context Menu**: Right-click on result values to quickly "Include in filter" or "Exclude from filter"
 
-### 10. Data Table
-The data table displays the raw event data returned by your query. Each row represents a single log event, with columns showing the various fields and attributes associated with that event. The table includes normalized fields common across all log sources (such as timestamps, source information, and network data) as well as source-specific fields extracted from the raw log data.
+#### 4. Visualization
 
-You can interact with the table by clicking on individual rows to see full event details, selecting which columns to display, sorting by column values, and scrolling through all matching events. The table also shows query performance metrics including the number of rows returned and execution time.
+The time-series histogram:
+
+- **Fixed Size**: Compact, horizontally-stretched chart that doesn't dominate the page
+- **Click to Zoom**: Click and drag on the chart to select a time range and automatically update filters
+- **Grouped Series**: When grouping by a column, see multiple colored series for comparison
+- **Real-time Updates**: Chart updates automatically as you modify filters or time ranges
+
+#### 5. Results Table
+
+The results view:
+
+- **Fixed Space**: Dedicated area for log results with proper scrolling
+- **Sortable Columns**: Click column headers to sort results
+- **Row Details**: Click rows to see full event details
+- **Performance Metrics**: Shows query execution time and row count
+
+### SQL Query Mode
+
+When you click **"Edit as Query"**, the explorer switches to SQL mode:
+
+- **SQL Editor**: Full-featured SQL editor with syntax highlighting
+- **Same Layout**: Maintains the same page layout for consistency
+- **Saved Queries Sidebar**: Access your saved queries from a collapsible drawer
+- **Version History**: View and restore previous versions of saved queries
+- **AI Assistant**: Get help writing and fixing SQL queries using natural language
+
+### Saved Queries
+
+The explorer includes a powerful saved queries system:
+
+#### Creating Saved Queries
+
+1. Write your query in SQL mode
+2. Click **"Save"** in the top bar
+3. Enter a name and optional description
+4. The query is saved with all parameters and settings
+
+#### Version History
+
+Every time you save a query, a new version is created:
+
+- **View History**: Click the version history icon to see all previous versions
+- **Restore Versions**: Restore any previous version of a query
+- **Track Changes**: See when each version was created and by whom
+- **Automatic Versioning**: No need to manually version - every save creates a new version
+
+#### Managing Saved Queries
+
+- **Saved Queries Drawer**: Access all your saved queries from the sidebar
+- **Search**: Search saved queries by name
+- **Duplicate**: Create a copy of a saved query to iterate on
+- **Delete**: Remove saved queries you no longer need
+- **Edit Name**: Click the query name in the header to edit it inline (Google Docs-style)
+
+### AI Assistant
+
+The AI assistant helps you work with queries:
+
+#### Using AI to Create Queries
+
+1. Click the **AI Assistant** button in SQL mode
+2. Describe what you want to query in natural language
+3. The AI generates a SQL query based on your description
+4. Review and refine the generated query
+
+#### Fixing Query Errors
+
+When a query has an error:
+
+1. Click **"Fix with AI"** button
+2. The AI analyzes the error and suggests a fix
+3. Review the corrected query and apply it
+
+#### Query Iteration
+
+- **Refine Queries**: Ask the AI to modify existing queries
+- **Add Filters**: Request additional filters or conditions
+- **Optimize**: Ask for query optimization suggestions
+
+### Linkable Exploration Views
+
+Every exploration state can be shared via URL:
+
+- **Shareable Links**: The URL contains all your settings (table, filters, time range)
+- **Team Collaboration**: Share investigation links with team members
+- **Documentation**: Bookmark specific exploration states for documentation
+- **Context Preservation**: Links preserve your exact filter configuration
+
+### Switching Between Modes
+
+You can seamlessly switch between exploration modes:
+
+- **Explorer → Query Editor**: Click "Edit as Query" to convert your exploration to SQL
+- **Query Editor → Explorer**: Use the "Open in Explorer" option to view query results in explorer mode
+- **State Preservation**: Your filters and settings are preserved when switching modes
+
+### Best Practices
+
+- **Start with Explorer**: Use the visual explorer for initial investigation
+- **Switch to SQL**: Use "Edit as Query" when you need more complex queries
+- **Save Frequently**: Save queries as you iterate to preserve your work
+- **Use Version History**: Don't worry about breaking queries - you can always restore
+- **Share Links**: Use shareable links to collaborate with your team
+- **Leverage AI**: Use the AI assistant for query suggestions and error fixes
 
 ## Query Tips
 
