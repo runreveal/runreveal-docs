@@ -1,4 +1,5 @@
 import type { AppProps } from 'next/app'
+import Script from 'next/script'
 import { IBM_Plex_Sans } from 'next/font/google'
 import { CopyPageButton } from '../components/CopyPageButton'
 import '../styles/globals.css'
@@ -14,6 +15,20 @@ const ibmPlex = IBM_Plex_Sans({
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
+      {/* Google Analytics */}
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-3X6MRNN2Q3"
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-3X6MRNN2Q3');
+        `}
+      </Script>
+
       {/* Global font variable for portals and search dropdowns */}
       <style jsx global>{`
         :root {
