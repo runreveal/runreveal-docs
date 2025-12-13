@@ -1,0 +1,291 @@
+---
+title: 'Investigations'
+description: 'Track and manage security investigations with a centralized workspace for collecting artifacts, documenting findings, and maintaining audit trails.'
+---
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+# Investigations
+
+Investigations provide a centralized workspace for tracking security incidents within RunReveal. Each investigation collects related artifacts—queries, alerts, chat conversations, and notes—into a single timeline, enabling teams to collaborate on complex incidents and maintain a comprehensive audit trail.
+
+![Investigations List View](/investigations-1.png)
+
+<Callout type="warning">
+**Feature Flag Required**: Investigations is currently gated behind a feature flag. Contact RunReveal support to request access.
+</Callout>
+
+## Why Investigations?
+
+- **Centralized evidence**: Link queries, alerts, AI chat sessions, and notes to a single investigation timeline
+- **Audit trail**: Every status change and artifact addition is automatically tracked with timestamps and user attribution
+- **Collaborative workflow**: Share investigation links with team members; everyone sees the same context
+- **Persistent context**: Investigations persist across sessions, enabling multi-day incident response
+
+## What Can You Do with Investigations?
+
+<Tabs items={['Investigation Workflows', 'Artifact Collection', 'Team Collaboration']}>
+  <Tabs.Tab>
+    <div>
+      <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Track incidents from initial alert through resolution</li>
+        <li>Document root cause analysis with timestamped notes</li>
+        <li>Link related detections and queries for evidence preservation</li>
+      </ul>
+    </div>
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <div>
+      <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Add query results directly from the Explore interface</li>
+        <li>Link AI Chat conversations that helped with analysis</li>
+        <li>Attach external resources and documentation via links</li>
+      </ul>
+    </div>
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <div>
+      <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Share investigation URLs with team members</li>
+        <li>Star important findings for quick reference</li>
+        <li>Filter timeline by artifact type or contributor</li>
+      </ul>
+    </div>
+  </Tabs.Tab>
+</Tabs>
+
+## Common Use Cases
+
+<div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-6">
+  <div className="rounded-xl bg-gradient-to-br from-primary-light to-violet-100 dark:from-primary/20 dark:to-violet-900/20 p-6 ring-1 ring-inset ring-primary/30 dark:ring-primary/50">
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-4">Incident Response</div>
+    <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+      <div className="flex items-start">
+        <span className="text-primary dark:text-primary mr-2">→</span>
+        <span>Alert fires for suspicious login activity</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-primary dark:text-primary mr-2">→</span>
+        <span>Create investigation, add alert as artifact</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-primary dark:text-primary mr-2">→</span>
+        <span>Use AI Chat to analyze patterns, link the conversation</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-primary dark:text-primary mr-2">→</span>
+        <span>Document findings, close with resolution</span>
+      </div>
+    </div>
+  </div>
+
+  <div className="rounded-xl bg-gradient-to-br from-insight-light to-blue-100 dark:from-insight/20 dark:to-blue-900/20 p-6 ring-1 ring-inset ring-insight/30 dark:ring-insight/50">
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-4">Threat Hunting</div>
+    <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+      <div className="flex items-start">
+        <span className="text-insight dark:text-insight mr-2">→</span>
+        <span>Hypothesis: Lateral movement after compromised credential</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-insight dark:text-insight mr-2">→</span>
+        <span>Create investigation to track hunting session</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-insight dark:text-insight mr-2">→</span>
+        <span>Add queries as you pivot through data</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-insight dark:text-insight mr-2">→</span>
+        <span>Document techniques and IOCs discovered</span>
+      </div>
+    </div>
+  </div>
+
+  <div className="rounded-xl bg-gradient-to-br from-vitality-light to-green-100 dark:from-vitality/20 dark:to-green-900/20 p-6 ring-1 ring-inset ring-vitality/30 dark:ring-vitality/50">
+    <div className="text-lg font-black text-gray-900 dark:text-white mb-4">Compliance</div>
+    <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+      <div className="flex items-start">
+        <span className="text-vitality dark:text-vitality mr-2">→</span>
+        <span>Auditor requests evidence of incident response</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-vitality dark:text-vitality mr-2">→</span>
+        <span>Export investigation timeline</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-vitality dark:text-vitality mr-2">→</span>
+        <span>All artifacts, timestamps, and actions documented</span>
+      </div>
+      <div className="flex items-start">
+        <span className="text-vitality dark:text-vitality mr-2">→</span>
+        <span>Complete audit trail in one place</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+---
+
+## Setup Guide
+
+<Steps>
+
+### Navigate to Investigations
+
+Go to **Investigations** in the sidebar and click **Open Investigation**.
+
+### Configure Investigation Details
+
+Provide the following:
+- **Title**: Descriptive name (required, 1-100 characters)
+- **Description**: Context for what you're investigating
+- **Severity**: `low`, `medium`, `high`, or `critical`
+- **Status**: `open` (default), `investigating`, or `closed`
+- **Tags**: Custom labels for categorization and filtering
+
+### Start Investigating
+
+Click **Create Investigation**. An initial status artifact is automatically added to the timeline. Begin adding artifacts as you work through the incident.
+
+</Steps>
+
+---
+
+## Investigation Properties
+
+| Property | Values | Description |
+|----------|--------|-------------|
+| **Status** | `open`, `investigating`, `closed` | Current investigation state |
+| **Severity** | `low`, `medium`, `high`, `critical` | Priority level for triage |
+| **Tags** | Custom strings | Flexible labels for filtering |
+| **Resolution** | Free text | Required when closing; documents outcome |
+
+---
+
+## Artifact Types
+
+Investigations support 10 artifact types that can be added to the timeline:
+
+<Tabs items={['User-Added', 'System-Generated']}>
+  <Tabs.Tab>
+
+| Type | Description | How to Add |
+|------|-------------|------------|
+| **Note** | Text comments and observations | Add Comment section on investigation page |
+| **Query** | Links to specific queries | "Add to Investigation" from query results |
+| **Query Result** | Captured query results with field filtering | "Add to Investigation" from query results |
+| **Alert** | Security alerts related to the investigation | "Add to Investigation" from alert detail |
+| **Chat** | AI Chat conversations | "Add to Investigation" from chat interface |
+| **Chat Message** | Specific messages from chat conversations | "Add to Investigation" from chat interface |
+| **Link** | External URLs and resources | Links sidebar on investigation page |
+| **Graph** | Visual graph representations | "Add to Investigation" from graph view |
+
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+| Type | Description | Behavior |
+|------|-------------|----------|
+| **Investigation Update** | Tracks changes to investigation properties | Auto-generated; cannot be deleted |
+| **Resolution** | Final resolution when investigation closes | Auto-generated; cannot be deleted |
+
+  </Tabs.Tab>
+</Tabs>
+
+---
+
+## Working with Investigations
+
+### Adding Artifacts
+
+Most RunReveal interfaces include an **Add to Investigation** action:
+
+1. From query results, alert details, chat sessions, or graphs, click **Add to Investigation**
+2. Select an existing investigation or create a new one
+3. Add an optional comment explaining relevance
+4. Click **Add**
+
+### Managing the Timeline
+
+![Investigation Detail View](/investigations-2.png)
+
+The investigation detail page provides:
+
+- **Header**: Title, status, severity, duration, metadata
+- **Description**: Editable investigation context
+- **Comment Section**: Add notes directly to the timeline
+- **Artifact Timeline**: Chronological view of all linked items
+- **Details Sidebar**: Status/severity controls, tag management
+- **Links Sidebar**: Quick links to external resources
+
+### Filtering and Starring
+
+- **Filter by type**: Show only specific artifact types (alerts, queries, notes)
+- **Filter by starred**: Surface important findings quickly
+- **Text search**: Search across artifact comments and content
+- **Star artifacts**: Hover over any artifact and click the star icon to highlight key findings
+
+### Closing Investigations
+
+When changing status to `closed`:
+
+1. A resolution modal appears
+2. Enter resolution details (recommended)
+3. Click **Close Investigation**
+
+A resolution artifact is automatically added to the timeline.
+
+---
+
+## CLI Reference
+
+```bash
+# List all investigations
+runreveal investigations list
+
+# Create investigation
+runreveal investigations create \
+  --title "Suspicious Login Activity" \
+  --description "Multiple failed login attempts from unusual IP ranges" \
+  --severity high \
+  --status open \
+  --tags "authentication,brute-force"
+
+# Get investigation details
+runreveal investigations get --id <investigation-id>
+
+# Update investigation field
+runreveal investigations update \
+  --id <investigation-id> \
+  --field status \
+  --value investigating
+
+# Delete investigation
+runreveal investigations delete --id <investigation-id>
+```
+
+---
+
+## Best Practices
+
+### Investigation Organization
+
+- **Descriptive titles**: Use specific names like "2024-01-15 Brute Force from IP Range 192.168.x.x" rather than "Login Issue"
+- **Tag consistently**: Establish team conventions for tags (e.g., `authentication`, `malware`, `insider-threat`)
+- **Update status promptly**: Move from `open` → `investigating` → `closed` as work progresses
+- **Document resolution**: Always provide resolution details when closing
+
+### Artifact Management
+
+- **Add context**: Include comments when adding artifacts explaining why they're relevant
+- **Star key findings**: Use starring to highlight critical evidence
+- **Link comprehensively**: Add all related queries, alerts, and chats to build complete context
+- **Use notes for analysis**: Document your reasoning and hypotheses as you investigate
+
+---
+
+## Related Documentation
+
+- **[Detections](/detections)** — Create detection rules that can trigger investigations
+- **[Native AI Chat](/ai-chat/native-ai-chat)** — Use AI to analyze data and add insights to investigations
+- **[Explore Logs](/logs/search)** — Run queries and add results to investigations
+- **[Notifications](/notifications/getting-started)** — Configure alerts that link to investigations
