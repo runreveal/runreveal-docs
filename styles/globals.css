@@ -15,31 +15,19 @@
   --violet-600-80: rgba(124, 58, 237, 0.9);
   --font-ibm-plex-stack: var(--font-ibm-plex), "IBM Plex Sans", "IBM Plex Sans Fallback", -apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   
-  /* Heading border colors - All use RunReveal purple with progressive opacity */
-  --heading-h1-color: rgba(124, 58, 237, 0.95); /* primary - 95% opacity, most prominent */
-  --heading-h2-color: rgba(124, 58, 237, 0.85); /* primary - 85% opacity */
-  --heading-h3-color: rgba(124, 58, 237, 0.75); /* primary - 75% opacity */
-  --heading-h4-color: rgba(124, 58, 237, 0.65); /* primary - 65% opacity */
-  --heading-h5-color: rgba(124, 58, 237, 0.55); /* primary - 55% opacity */
-  --heading-h6-color: rgba(124, 58, 237, 0.45); /* primary - 45% opacity */
+  /* Heading border colors - Brand purple (#7c3aed = rgb(124, 58, 237)) */
+  --heading-h1-color: rgb(124, 58, 237); /* Brand purple - full opacity for H1 */
+  --heading-h2-color: rgba(124, 58, 237, 0.75); /* Brand purple - 75% opacity for H2 */
   
-  /* Heading border widths - Progressive thickness for visual hierarchy */
-  --heading-h1-width: 5px; /* Thickest for most important */
-  --heading-h2-width: 3.5px;
-  --heading-h3-width: 2.5px;
-  --heading-h4-width: 2px;
-  --heading-h5-width: 1.5px;
-  --heading-h6-width: 1px; /* Thinnest for least important */
+  /* Heading border widths - Only H1 and H2 have borders */
+  --heading-h1-width: 4px; /* 3-4px range: using 4px for clear hierarchy */
+  --heading-h2-width: 3.5px; /* 2-3px range: increased to 3.5px for better visibility */
 }
 
 .dark {
-  /* Heading border colors - Dark mode (lighter purple shades with same opacity progression) */
-  --heading-h1-color: rgba(147, 51, 234, 0.95); /* runreveal-600 - 95% opacity */
-  --heading-h2-color: rgba(147, 51, 234, 0.85); /* runreveal-600 - 85% opacity */
-  --heading-h3-color: rgba(147, 51, 234, 0.75); /* runreveal-600 - 75% opacity */
-  --heading-h4-color: rgba(147, 51, 234, 0.65); /* runreveal-600 - 65% opacity */
-  --heading-h5-color: rgba(147, 51, 234, 0.55); /* runreveal-600 - 55% opacity */
-  --heading-h6-color: rgba(147, 51, 234, 0.45); /* runreveal-600 - 45% opacity */
+  /* Heading border colors - Dark mode (slightly lighter purple, reduced opacity to avoid pure white appearance) */
+  --heading-h1-color: rgba(147, 51, 234, 0.9); /* runreveal-600 - 90% opacity for dark mode */
+  --heading-h2-color: rgba(147, 51, 234, 0.7); /* runreveal-600 - 70% opacity for dark mode (within 70-80% range) */
 }
 
 /* ============================================================================
@@ -85,76 +73,71 @@ footer {
 /* ============================================================================
    HEADING STYLES - Typographic Hierarchy
    ============================================================================
-   Brand-accent borders with color gradient (h1-h6) for clear visual hierarchy.
-   Only applies to main content areas, not nav/sidebar/tabs/cards.
+   Brand purple borders for H1-H2 only. H3-H6 use spacing and typography only.
+   Scoped to documentation content areas only (excludes nav/sidebar/tables/callouts/code).
+   
+   To adjust: Modify --heading-h1-color, --heading-h2-color, --heading-h1-width, 
+   or --heading-h2-width CSS variables above.
    ============================================================================ */
 
-/* Content container selector - All headings get purple borders by default */
+/* Content container selector - Scoped to main documentation content */
 :is(main article, main .nextra-content, article, .nextra-content) {
-  /* H1 – Main page title (homepage: no border) */
+  /* H1 – Page Title: 3-4px border, brand purple, 24-32px margin bottom */
   body[data-pathname="/"] & h1:first-of-type {
-    @apply pb-3 mb-6;
+    @apply pb-3 mb-8;
     border-bottom: none !important;
   }
 
-  /* H1 – Main page title (all other pages) */
+  /* H1 – Page Title (all other pages) */
   body:not([data-pathname="/"]) & h1:first-of-type {
-    @apply pt-4 pb-3 mb-6;
+    @apply pt-4 pb-3 mb-8;
     border-bottom: var(--heading-h1-width) solid var(--heading-h1-color) !important;
   }
 
-  /* H2 – Major sections (all pages) */
+  /* H2 – Major Sections: 2-3px border, brand purple 70-80% opacity */
   & h2 {
-    @apply pb-2.5 mb-5;
+    @apply pb-2 mb-6 font-semibold;
     border-bottom: var(--heading-h2-width) solid var(--heading-h2-color) !important;
   }
 
-  /* H3 – Subsections (all pages) */
+  /* H3 – Subsections: NO border, spacing + font weight only */
   & h3 {
-    @apply pb-2 mb-4;
-    border-bottom: var(--heading-h3-width) solid var(--heading-h3-color) !important;
+    @apply pb-2 mb-4 mt-6 font-semibold;
+    border-bottom: none !important;
   }
 
-  /* H4 – Minor headings (all pages) */
+  /* H4 – Detail Headings: NO border, typography and spacing only */
   & h4 {
-    @apply pb-1.5 mb-3;
-    border-bottom: var(--heading-h4-width) solid var(--heading-h4-color) !important;
+    @apply pb-1.5 mb-3 mt-5 font-medium;
+    border-bottom: none !important;
   }
 
-  /* H5 – Structural headings (all pages) */
+  /* H5 – Detail Headings: NO border, typography and spacing only */
   & h5 {
-    @apply pb-1 mb-2;
-    border-bottom: var(--heading-h5-width) solid var(--heading-h5-color) !important;
+    @apply pb-1 mb-2 mt-4 font-medium;
+    border-bottom: none !important;
   }
 
-  /* H6 – Structural headings (all pages) */
+  /* H6 – Detail Headings: NO border, typography and spacing only */
   & h6 {
-    @apply pb-1 mb-2;
-    border-bottom: var(--heading-h6-width) solid var(--heading-h6-color) !important;
+    @apply pb-1 mb-2 mt-4 font-medium;
+    border-bottom: none !important;
   }
 }
 
-/* Remove borders only from headings that are external links or contain external links */
-/* Internal anchor links (starting with #) should keep their borders */
+/* Exclude headings in tables, callouts, code blocks, and custom components */
+:is(main article, main .nextra-content, article, .nextra-content) 
+  :is(table, thead, tbody, tr, td, th) :is(h1, h2, h3, h4, h5, h6),
+:is(main article, main .nextra-content, article, .nextra-content) 
+  :is([class*="callout"], [class*="nx-callout"], [data-callout]) :is(h1, h2, h3, h4, h5, h6),
+:is(main article, main .nextra-content, article, .nextra-content) 
+  :is(pre, code, [class*="code"], [class*="pre"]) :is(h1, h2, h3, h4, h5, h6),
+:is(main article, main .nextra-content, article, .nextra-content) 
+  :is([class*="rounded-xl"][class*="bg-"], [class*="rounded-lg"][class*="bg-"], [class*="rounded-2xl"][class*="bg-"], [class*="gradient"], [class*="card"]) :is(h1, h2, h3, h4, h5, h6),
 :is(main article, main .nextra-content, article, .nextra-content) 
   :is(h1, h2, h3, h4, h5, h6) a[href^="http://"],
 :is(main article, main .nextra-content, article, .nextra-content) 
-  :is(h1, h2, h3, h4, h5, h6) a[href^="https://"],
-:is(main article, main .nextra-content, article, .nextra-content) 
-  a[href^="http://"] :is(h1, h2, h3, h4, h5, h6),
-:is(main article, main .nextra-content, article, .nextra-content) 
-  a[href^="https://"] :is(h1, h2, h3, h4, h5, h6),
-:is(main article, main .nextra-content, article, .nextra-content) 
-  :is(h1, h2, h3, h4, h5, h6):has(a[href^="http://"]),
-:is(main article, main .nextra-content, article, .nextra-content) 
-  :is(h1, h2, h3, h4, h5, h6):has(a[href^="https://"]) {
-  border-bottom: none !important;
-}
-
-/* Remove borders from headings inside cards and styled containers */
-:is(main article, main .nextra-content, article, .nextra-content) 
-  :is([class*="rounded-xl"][class*="bg-"], [class*="rounded-lg"][class*="bg-"], [class*="rounded-2xl"][class*="bg-"], [class*="gradient"], [class*="card"]) 
-  :is(h1, h2, h3, h4, h5, h6) {
+  :is(h1, h2, h3, h4, h5, h6) a[href^="https://"] {
   border-bottom: none !important;
 }
 

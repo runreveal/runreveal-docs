@@ -1,0 +1,26 @@
+---
+title: 'AWS Redshift Audit Logs'
+description: 'Collect audit logs from Amazon Redshift data warehouses exported from CloudWatch Logs to S3, including connection logs, user activity logs, and security events.'
+---
+
+import { Callout } from 'nextra/components'
+
+# AWS Redshift Audit Logs
+
+Collect audit logs from Amazon Redshift data warehouses exported from CloudWatch Logs to S3, including connection logs, user activity logs, and security events.
+
+## Ingest Methods
+
+RunReveal offers the following ways to ingest AWS Redshift Audit Logs logs:
+
+- [AWS S3 Bucket](/sources/object-storage/s3)
+- [AWS S3 Bucket with Custom SQS](/sources/object-storage/external-s3)
+
+<Callout type='info'>
+If using an AWS S3 bucket use the following SNS topic ARN to send your bucket notifications.
+```
+arn:aws:sns:<REGION>:253602268883:runreveal_redshift_audit
+```
+Replace `<REGION>` with the AWS region where your S3 bucket is located (e.g., `us-east-1`, `us-west-2`, `eu-west-1`).
+</Callout>
+
