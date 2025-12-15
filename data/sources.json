@@ -207,7 +207,7 @@
     },
     {
       "id": "redshift-audit",
-      "name": "AWS Redshift Audit Logs",
+      "name": "AWS Redshift",
       "description": "Collect audit logs from Amazon Redshift data warehouses exported from CloudWatch Logs to S3, including connection logs, user activity logs, and security events.",
       "logo": "/logos/redshift.svg",
       "url": "/sources/source-types/aws/redshift-audit",
