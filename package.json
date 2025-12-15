@@ -5,8 +5,9 @@
   "scripts": {
     "sync-sources": "node scripts/sync-sources.js",
     "generate-types": "node scripts/generate-types.js",
-    "dev": "npm run sync-sources && next dev",
-    "build": "npm run sync-sources && next build",
+    "build-source-pages": "npm run sync-sources -- --generate-pages",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start"
   },
   "repository": {

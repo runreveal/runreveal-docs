@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2025-12-10T21:14:21.397Z",
-  "sourceCount": 86,
+  "generatedAt": "2025-12-15T21:31:05.904Z",
+  "sourceCount": 87,
   "sources": [
     {
       "id": "1password",
@@ -202,6 +202,25 @@
       ],
       "tableName": [
         "aws_nfw_logs"
+      ],
+      "plan": "pro"
+    },
+    {
+      "id": "redshift-audit",
+      "name": "AWS Redshift",
+      "description": "Collect audit logs from Amazon Redshift data warehouses exported from CloudWatch Logs to S3, including connection logs, user activity logs, and security events.",
+      "logo": "/logos/redshift.svg",
+      "url": "/sources/source-types/aws/redshift-audit",
+      "ingestTypes": [
+        "s3",
+        "external-s3"
+      ],
+      "categories": [
+        "aws",
+        "s3"
+      ],
+      "tableName": [
+        "redshift_audit_logs"
       ],
       "plan": "pro"
     },

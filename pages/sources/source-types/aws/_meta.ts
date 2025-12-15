@@ -1,5 +1,6 @@
 export default {
     "alb": "ALB",
+    "aws-waf": "WAF",
     "cloudtrail": "CloudTrail",
     "dns": "DNS",
     "flow": "Flow",
@@ -7,6 +8,5 @@ export default {
     "hosted-zone": "Hosted Zone",
     "network-firewall": "Network Firewall",
     "redshift-audit": "Redshift",
-    "s3-access": "S3 Access Logs",
-    "aws-waf": "WAF"
+    "s3-access": "S3 Access Logs"
 }
