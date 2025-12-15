@@ -13,11 +13,13 @@ import { Callout } from 'nextra/components'
   </div>
 </div>
 
+![Queries Overview](/queries-1.png)
+
 ## Quick Start
 
 Every RunReveal query follows this basic structure with built-in time parameters:
 
-```sql
+```sql copy
 SELECT *
 FROM logs
 WHERE receivedAt >= {from:DateTime}
@@ -57,7 +59,7 @@ RunReveal automatically provides time-based parameters that are populated based 
 
 ### Example Query with Parameters
 
-```sql
+```sql copy
 SELECT 
     eventName,
     srcIP,
@@ -110,14 +112,16 @@ LIMIT 100
 
 ### Best Practice Example
 
-```sql
+```sql copy
 -- ✅ Good: Uses indexed receivedAt
 SELECT *
 FROM logs
 WHERE receivedAt >= {from:DateTime}
   AND receivedAt < {to:DateTime}
   AND eventName = 'Login'
+```
 
+```sql copy
 -- ❌ Avoid: Uses unindexed eventTime
 SELECT *
 FROM logs
@@ -183,68 +187,78 @@ Follow these best practices to write fast, efficient queries:
 <div className="space-y-6 mt-4">
   <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
     <div className="font-semibold text-gray-900 dark:text-white mb-2">Basic Time-Range Query</div>
-    <pre className="text-xs"><code>{`SELECT *
-FROM logs
-WHERE receivedAt >= {from:DateTime}
-  AND receivedAt < {to:DateTime}
-LIMIT 100`}</code></pre>
+    ```sql copy
+    SELECT *
+    FROM logs
+    WHERE receivedAt >= {from:DateTime}
+      AND receivedAt < {to:DateTime}
+    LIMIT 100
+    ```
   </div>
 
   <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
     <div className="font-semibold text-gray-900 dark:text-white mb-2">Filtered Search</div>
-    <pre className="text-xs"><code>{`SELECT eventName, srcIP, eventTime
-FROM aws_cloudtrail_logs
-WHERE receivedAt >= {from:DateTime}
-  AND receivedAt < {to:DateTime}
-  AND eventName = 'AssumeRole'
-  AND srcIP != ''
-ORDER BY eventTime DESC
-LIMIT 100`}</code></pre>
+    ```sql copy
+    SELECT eventName, srcIP, eventTime
+    FROM aws_cloudtrail_logs
+    WHERE receivedAt >= {from:DateTime}
+      AND receivedAt < {to:DateTime}
+      AND eventName = 'AssumeRole'
+      AND srcIP != ''
+    ORDER BY receivedAt DESC
+    LIMIT 100
+    ```
   </div>
 
   <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
     <div className="font-semibold text-gray-900 dark:text-white mb-2">Aggregation with Grouping</div>
-    <pre className="text-xs"><code>{`SELECT 
-    eventName,
-    srcIP,
-    COUNT(*) as eventCount,
-    min(eventTime) as firstSeen,
-    max(eventTime) as lastSeen
-FROM aws_cloudtrail_logs
-WHERE receivedAt >= {from:DateTime}
-  AND receivedAt < {to:DateTime}
-GROUP BY eventName, srcIP
-HAVING eventCount > 10
-ORDER BY eventCount DESC
-LIMIT 100`}</code></pre>
+    ```sql copy
+    SELECT 
+        eventName,
+        srcIP,
+        COUNT(*) as eventCount,
+        min(receivedAt) as firstSeen,
+        max(receivedAt) as lastSeen
+    FROM aws_cloudtrail_logs
+    WHERE receivedAt >= {from:DateTime}
+      AND receivedAt < {to:DateTime}
+    GROUP BY eventName, srcIP
+    HAVING eventCount > 10
+    ORDER BY eventCount DESC
+    LIMIT 100
+    ```
   </div>
 
   <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
     <div className="font-semibold text-gray-900 dark:text-white mb-2">Time-Series Aggregation</div>
-    <pre className="text-xs"><code>{`SELECT 
-    toStartOfHour(receivedAt) as hour,
-    eventName,
-    COUNT(*) as count
-FROM aws_cloudtrail_logs
-WHERE receivedAt >= {from:DateTime}
-  AND receivedAt < {to:DateTime}
-GROUP BY hour, eventName
-ORDER BY hour DESC, count DESC`}</code></pre>
+    ```sql copy
+    SELECT 
+        toStartOfHour(receivedAt) as hour,
+        eventName,
+        COUNT(*) as count
+    FROM aws_cloudtrail_logs
+    WHERE receivedAt >= {from:DateTime}
+      AND receivedAt < {to:DateTime}
+    GROUP BY hour, eventName
+    ORDER BY hour DESC, count DESC
+    ```
   </div>
 
   <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
     <div className="font-semibold text-gray-900 dark:text-white mb-2">Top N Analysis</div>
-    <pre className="text-xs"><code>{`SELECT 
-    srcIP,
-    COUNT(*) as eventCount,
-    count(DISTINCT eventName) as uniqueEvents
-FROM logs
-WHERE receivedAt >= {from:DateTime}
-  AND receivedAt < {to:DateTime}
-  AND sourceType = 'aws_cloudtrail'
-GROUP BY srcIP
-ORDER BY eventCount DESC
-LIMIT 10`}</code></pre>
+    ```sql copy
+    SELECT 
+        srcIP,
+        COUNT(*) as eventCount,
+        count(DISTINCT eventName) as uniqueEvents
+    FROM logs
+    WHERE receivedAt >= {from:DateTime}
+      AND receivedAt < {to:DateTime}
+      AND sourceType = 'aws_cloudtrail'
+    GROUP BY srcIP
+    ORDER BY eventCount DESC
+    LIMIT 10
+    ```
   </div>
 </div>
 </details>
