@@ -1,0 +1,136 @@
+---
+title: 'Managing Users'
+description: 'Learn how to invite users to your workspace, update their roles, and manage team members via the CLI or dashboard interface.'
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Managing Users
+
+RunReveal supports role-based access control for managing team members in your workspace. You can invite users, assign roles, update permissions, and manage access through both the dashboard interface and the CLI.
+
+![Workspace Members Management](/members-1.png)
+
+## Inviting Users in Dashboard UI
+
+<Steps>
+
+### Navigate to Workspace Members
+
+1. Log into [RunReveal](https://app.runreveal.com)
+2. Go to **Settings → Workspace Members**
+3. You'll see a list of current workspace members with their roles and status
+
+### Invite a New User
+
+1. Click **Invite User** button
+2. Enter the user's email address
+3. Select the appropriate role from the dropdown:
+   - **Admin**: Full access to all workspace features
+   - **Analyst**: Can manage detections and queries, read-only access to sources
+   - **Operator**: Read-only access, can run queries and view data
+   - **CIBot**: Designed for CI/CD automation, can manage detections
+4. Click **Send Invitation**
+
+### Verify Invitation Status
+
+After sending the invitation:
+
+- The user will appear in the members list with status **"Pending"**
+- An email invitation is sent to the user's email address
+- The user must accept the invitation to join the workspace
+- Once accepted, the status changes to **"Active"**
+
+</Steps>
+
+## Updating User Roles in Dashboard UI
+
+<Steps>
+
+### Access User Management
+
+1. Navigate to **Settings → Workspace Members**
+2. Find the user whose role you want to update
+3. Click on the user's row or the **Edit** button (if available)
+
+### Change User Role
+
+1. Select the new role from the role dropdown
+2. Click **Save** or **Update**
+3. The user's permissions will be updated immediately
+
+<Callout type="warning">
+**Role Changes**: Changing a user's role takes effect immediately. Users may need to refresh their browser session to see updated permissions.
+</Callout>
+
+### Remove a User
+
+1. Navigate to **Settings → Workspace Members**
+2. Find the user you want to remove
+3. Click **Remove** or **Delete** (admin-only action)
+4. Confirm the removal
+
+**Note**: Removing a user immediately revokes their access to the workspace. They will no longer be able to log in or access workspace data.
+
+</Steps>
+
+## Managing Users via CLI
+
+The RunReveal CLI provides commands for managing workspace users programmatically. The following commands are available:
+
+- **`runreveal workspaces invite-user`** - Invite a new user to the workspace with a specified role
+- **`runreveal workspaces list-users`** - List all users in the workspace with their roles and status
+- **`runreveal workspaces remove-user`** - Remove a user from the workspace
+
+For detailed command syntax, parameters, and examples, see the [Using the CLI](/reference/using-the-cli#workspaces) documentation.
+
+## User Status and Invitations
+
+### Pending Invitations
+
+When you invite a user, they receive an email invitation with a signup link. Until they accept:
+
+- Status shows as **"Pending"** in the members list
+- User cannot access the workspace
+- Invitation can be resent or cancelled by admins
+
+<Callout type="info">
+**Email Not Received?** If the invited user doesn't receive the invitation email, ask them to check their spam or junk folder. Some email providers may filter automated invitations. You can also resend the invitation from the workspace members page.
+</Callout>
+
+### Active Users
+
+Once a user accepts the invitation:
+
+- Status changes to **"Active"**
+- User can log in and access the workspace
+- Permissions are based on their assigned role
+
+### Resending Invitations
+
+If a user hasn't received or lost their invitation email:
+
+1. Navigate to **Settings → Workspace Members**
+2. Find the user with "Pending" status
+3. Click **Resend Invitation**
+4. A new invitation email will be sent
+
+## User Roles
+
+RunReveal provides four default roles with different permission levels:
+
+| Role | Detections | Sources | Workspace Settings | Query Access |
+|------|-----------|---------|-------------------|--------------|
+| **Admin** | ✓ Edit | ✓ Edit | ✓ Edit | ✓ |
+| **Analyst** | ✓ Edit | Read-only | Read-only | ✓ |
+| **Operator** | Read-only | Read-only | Read-only | ✓ |
+| **CIBot** | ✓ Edit | Read-only | Read-only | ✓ |
+
+For detailed information about role permissions and capabilities, see the [Role-Based Access Control](/reference/role-based-access-control) guide.
+
+## Related Documentation
+
+- **[Role-Based Access Control](/reference/role-based-access-control)** - Detailed permissions and role capabilities
+- **[Using the CLI](/reference/using-the-cli)** - Complete CLI command reference
+- **[Single Sign-On (SSO)](/reference/single-sign-on)** - Configure SSO for enterprise authentication
+- **[RunReveal Audit Logs](/reference/audit-logs)** - Monitor user management actions
