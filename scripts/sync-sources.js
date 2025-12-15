@@ -1058,11 +1058,12 @@ function main() {
       log(`Logos: ${DOCS_LOGOS_PATH}`, 'info');
 
       // Handle page generation even when sources.json is preserved
+      // Use newData (freshly parsed) instead of existingData so new sources are detected
       if (flags.generatePages || flags.listMissing) {
-        handlePageGeneration(existingData);
+        handlePageGeneration(newData);
       } else {
         // Show missing pages hint
-        showMissingPagesHint(existingData);
+        showMissingPagesHint(newData);
       }
       return;
     }
