@@ -130,6 +130,9 @@ const config: DocsThemeConfig = {
     autoCollapse: false,
   },
   
+  // Disable breadcrumbs
+  breadcrumb: false,
+  
   search: {
     placeholder: 'Search documentation...'
   },

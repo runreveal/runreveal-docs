@@ -14,10 +14,18 @@ import {
   Zap,
 } from 'lucide-react'
 
+const navStyle = { 
+  display: 'flex', 
+  alignItems: 'center', 
+  gap: '8px', 
+  fontWeight: 600,
+  color: 'rgb(17, 24, 39)'
+}
+
 export default {
   "index": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <BookOpen size={16} />
         Introduction
       </span>
@@ -31,7 +39,7 @@ export default {
   },
   "how-to-guides": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <GraduationCap size={16} />
         How To Guides
       </span>
@@ -39,7 +47,7 @@ export default {
   },
   "ai-chat": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <MessageSquare size={16} />
         AI Chat
       </span>
@@ -47,7 +55,7 @@ export default {
   },
   "dashboards": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <LayoutTemplate size={16} />
         Dashboards & Graphs
       </span>
@@ -55,7 +63,7 @@ export default {
   },
   "logs": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <Search size={16} />
         Log Management
       </span>
@@ -63,7 +71,7 @@ export default {
   },
   "sources": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <Database size={16} />
         Sources
       </span>
@@ -71,7 +79,7 @@ export default {
   },
   "detections": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <Zap size={16} />
         Detections
       </span>
@@ -79,7 +87,7 @@ export default {
   },
   "investigations": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <Clipboard size={16} />
         Investigations
       </span>
@@ -87,7 +95,7 @@ export default {
   },
   "notifications": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <Bell size={16} />
         Notifications
       </span>
@@ -95,7 +103,7 @@ export default {
   },
   "integrations": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <Link2 size={16} />
         Integrations
       </span>
@@ -103,7 +111,7 @@ export default {
   },
   "reference": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <BookOpen size={16} />
         Reference
       </span>
@@ -111,7 +119,7 @@ export default {
   },
   "bring-your-own-cloud": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <Cloud size={16} />
         Bring Your Own Cloud
       </span>
@@ -119,7 +127,7 @@ export default {
   },
   "glossary": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <BookText size={16} />
         Glossary
       </span>
@@ -127,7 +135,7 @@ export default {
   },
   "release-notes": {
     title: (
-      <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={navStyle}>
         <Rocket size={16} />
         Release Notes
       </span>

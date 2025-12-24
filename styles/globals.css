@@ -58,6 +58,13 @@ footer {
   display: none !important;
 }
 
+/* Hide breadcrumbs */
+nav[aria-label="breadcrumb"],
+.nextra-breadcrumb,
+[class*="breadcrumb"] {
+  display: none !important;
+}
+
 /* Global dark mode text color */
 .dark :is(.text-gray-400, .text-gray-300) {
   color: white !important;
@@ -149,6 +156,77 @@ footer {
 }
 
 /* ============================================================================
+   FULL WIDTH LAYOUT
+   ============================================================================ */
+
+/* Target the dir="ltr" wrapper and all content containers */
+[dir="ltr"],
+div[dir="ltr"],
+main [dir="ltr"],
+.nextra-content,
+article.nextra-content,
+main article,
+.nextra-body-full-width {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Remove max-width constraints from the content wrapper */
+.nextra-content-container,
+.nextra-container,
+main > div,
+main > div > div,
+article > div {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Reduce padding on main content area */
+main,
+main > div,
+main [dir="ltr"],
+.nextra-content,
+article.nextra-content {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* Target the inner content wrapper */
+.nextra-content > div,
+article > div,
+main article > div,
+[dir="ltr"] > div {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Remove extra padding from nextra's prose container */
+.prose,
+.nextra-prose,
+.prose-lg,
+.prose-base {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Override any container max-width */
+[class*="container"],
+[class*="max-w-"] {
+  max-width: 100% !important;
+}
+
+/* Target Nextra's specific width classes */
+.nx-max-w-screen-xl,
+.nx-max-w-full,
+[class*="nx-max-w"] {
+  max-width: 100% !important;
+}
+
+/* ============================================================================
    NEXTRa COMPONENT STYLING
    ============================================================================ */
 @layer components {
@@ -168,6 +246,60 @@ footer {
   /* Sidebar styling */
   .nextra-sidebar :is(a, button, .nextra-focus) {
     @apply font-semibold tracking-tight;
+  }
+  
+  /* Sidebar text color - force dark text in light mode */
+  .nextra-sidebar,
+  .nextra-sidebar-container,
+  .nextra-sidebar a,
+  .nextra-sidebar button,
+  .nextra-sidebar span,
+  .nextra-sidebar li,
+  .nextra-sidebar svg,
+  aside a,
+  aside button,
+  aside span,
+  aside li,
+  nav[class*="sidebar"] a,
+  nav[class*="sidebar"] span,
+  [class*="sidebar"] a,
+  [class*="sidebar"] span,
+  [class*="sidebar"] button {
+    color: rgb(17, 24, 39) !important;
+  }
+  
+  /* Target the sidebar icons too */
+  .nextra-sidebar svg,
+  aside svg,
+  [class*="sidebar"] svg {
+    color: rgb(17, 24, 39) !important;
+    stroke: rgb(17, 24, 39) !important;
+  }
+  
+  /* Dark mode sidebar text - keep light text */
+  .dark .nextra-sidebar,
+  .dark .nextra-sidebar-container,
+  .dark .nextra-sidebar a,
+  .dark .nextra-sidebar button,
+  .dark .nextra-sidebar span,
+  .dark .nextra-sidebar li,
+  .dark aside a,
+  .dark aside button,
+  .dark aside span,
+  .dark aside li,
+  .dark nav[class*="sidebar"] a,
+  .dark nav[class*="sidebar"] span,
+  .dark [class*="sidebar"] a,
+  .dark [class*="sidebar"] span,
+  .dark [class*="sidebar"] button {
+    color: rgb(229, 231, 235) !important;
+  }
+  
+  .dark .nextra-sidebar svg,
+  .dark aside svg,
+  .dark [class*="sidebar"] svg {
+    color: rgb(229, 231, 235) !important;
+    stroke: rgb(229, 231, 235) !important;
   }
 
   .nextra-sidebar :is(.nextra-focus, a, button):hover {
