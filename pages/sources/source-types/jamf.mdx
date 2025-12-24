@@ -1,40 +1,57 @@
 ---
-title: 'JAMF Logs'
-description: 'JAMF provides device management solutions for Apple devices in enterprise environments, allowing administrators to deploy, configure, and secure iOS and macOS devices. JAMF logs capture details about device management activities, such as policy deployments, application installations, security compliance checks, and device inventory updates. These logs are critical for monitoring device health, ensuring compliance with organizational policies, and troubleshooting issues related to device configurations.'
+title: 'Jamf Logs'
+description: 'Your JAMF webhook information mostly shows locations that your devices have pinged from, and other kinds of management events.'
 ---
 
-# JAMF Logs
+import { Callout } from 'nextra/components'
 
-JAMF provides device management solutions for Apple devices in enterprise environments, allowing administrators to deploy, configure, and secure iOS and macOS devices. JAMF logs capture details about device management activities, such as policy deployments, application installations, security compliance checks, and device inventory updates. These logs are critical for monitoring device health, ensuring compliance with organizational policies, and troubleshooting issues related to device configurations.
+# Jamf Logs
 
-## Ingest Method
+Your JAMF webhook information mostly shows locations that your devices have pinged from, and other kinds of management events.
 
-This source uses am HTTP webhook to ingest events. Create the source in RunReveal and a new webhook URL will be generated. Use this URL when setting up your source.
+![JAMF Webhooks Source](/jamf-source-1.png)
 
-![webhook-setup](/webhook-setup.png)
+## Ingest Methods
 
-## Setup
+RunReveal offers the following ways to ingest JAMF Webhooks logs:
 
-### Step 1: Access the Webhook Configuration
+- [Webhook](#webhook)
 
-1. Once logged in, navigate to "Settings" in the top navigation bar.
-2. In the left sidebar, under "Global Management", click on "Webhooks".
+## Webhook
 
-### Step 2: Create a New Webhook
+JAMF Webhooks can send logs directly to RunReveal via webhook.
 
-1. On the Webhooks page, click the "+ New" button.
-2. You'll be presented with the webhook configuration form.
+### Step 1: Create Webhook Source in RunReveal
 
-### Step 3: Configure the Webhook
+![JAMF Webhooks Source](/jamf-source-2.png)
 
-Fill out the webhook configuration form with the following details:
+1. Go to [Sources](https://app.runreveal.com/dash/sources/add) in RunReveal
+2. Click the **JAMF Webhooks** source tile 
+3. Give it a descriptive name (e.g., "JAMF Webhook")
+4. Optionally enable bearer token authentication for added security
+5. Click **Connect Source** to generate a unique webhook URL
+6. Copy the generated webhook URL and bearer token (if enabled)
 
-1. Display Name: Enter a descriptive name for your webhook (e.g., "Log Forwarding Webhook").
-2. Status: Set to "Enabled".
-3. URL: Enter the URL of your webhook endpoint where JAMF will send the data.
-4. Authentication Type: Choose the appropriate authentication method required by your webhook endpoint:
-   - None: If your endpoint doesn't require authentication.
-   - Basic Authentication: If your endpoint uses username/password authentication.
-   - OAuth 2.0: If your endpoint uses OAuth 2.0 for authentication.
-5. Content Type: Select "application/json" unless your endpoint requires a different format.
-6. Webhook Event: Choose the events you want to trigger the webhook. For comprehensive logging, you might want to select all available events.
+### Step 2: Configure Webhooks in Jamf Pro
+
+![JAMF Webhooks Configuration](/jamf-source-3.png)
+
+1. Log into your Jamf Pro console
+2. Navigate to **Settings** in the top navigation bar
+3. In the left sidebar, under **Global Management**, click on **Webhooks**
+4. Click the **+ New** button to create a new webhook
+5. Fill out the webhook configuration form with the following details:
+   - **Display Name**: Enter a descriptive name for your webhook (e.g., "RunReveal Webhook")
+   - **Status**: Set to **Enabled**
+   - **URL**: Paste the RunReveal webhook URL you copied from Step 1
+   - **Authentication Type**: Choose the appropriate authentication method:
+     - **None**: If you did not enable bearer token authentication in RunReveal
+     - **Basic Authentication**: If your RunReveal webhook requires username/password authentication
+   - **Content Type**: Select **application/json**
+   - **Webhook Event**: Select the event type you want to trigger the webhook. **Note:** Each webhook in Jamf Pro can only be configured for one event type. If you need to capture multiple event types, you'll need to create separate webhooks for each event type and point them all to the same RunReveal webhook URL. For a complete list of available webhook events, see the [Jamf Pro Webhooks documentation](https://developer.jamf.com/jamf-pro/docs/webhooks-1).
+6. Click **Save** to create the webhook
+
+<Callout type="info">
+**Multiple Event Types**: Since each Jamf Pro webhook can only handle one event type, create separate webhooks for each event you want to monitor (e.g., ComputerAdded, ComputerCheckIn, MobileDeviceEnrolled, etc.) and configure them all to use the same RunReveal webhook URL.
+</Callout>
+
