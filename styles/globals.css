@@ -159,70 +159,36 @@ nav[aria-label="breadcrumb"],
    FULL WIDTH LAYOUT
    ============================================================================ */
 
-/* Target the dir="ltr" wrapper and all content containers */
-[dir="ltr"],
-div[dir="ltr"],
-main [dir="ltr"],
+/* Target the main content wrapper for full width */
 .nextra-content,
 article.nextra-content,
-main article,
-.nextra-body-full-width {
+main article {
   max-width: 100% !important;
   width: 100% !important;
 }
 
 /* Remove max-width constraints from the content wrapper */
-.nextra-content-container,
-.nextra-container,
-main > div,
-main > div > div,
-article > div {
+.nextra-content-container {
   max-width: 100% !important;
   width: 100% !important;
 }
 
 /* Reduce padding on main content area */
-main,
-main > div,
-main [dir="ltr"],
-.nextra-content,
-article.nextra-content {
+main > div:first-child {
   padding-left: 1rem !important;
   padding-right: 1rem !important;
 }
 
-/* Target the inner content wrapper */
-.nextra-content > div,
-article > div,
-main article > div,
-[dir="ltr"] > div {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  max-width: 100% !important;
-  width: 100% !important;
-}
-
 /* Remove extra padding from nextra's prose container */
 .prose,
-.nextra-prose,
-.prose-lg,
-.prose-base {
+.nextra-prose {
   max-width: 100% !important;
   width: 100% !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
 }
 
-/* Override any container max-width */
-[class*="container"],
-[class*="max-w-"] {
-  max-width: 100% !important;
-}
-
-/* Target Nextra's specific width classes */
-.nx-max-w-screen-xl,
-.nx-max-w-full,
-[class*="nx-max-w"] {
+/* Target Nextra's specific width classes - be more specific */
+article .nx-max-w-screen-xl,
+main .nx-max-w-screen-xl {
   max-width: 100% !important;
 }
 

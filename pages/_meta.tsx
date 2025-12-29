@@ -9,7 +9,6 @@ import {
   LayoutTemplate,
   Link2,
   MessageSquare,
-  Rocket,
   Search,
   Zap,
 } from 'lucide-react'
@@ -30,6 +29,18 @@ export default {
         Introduction
       </span>
     )
+  },
+  "blog": {
+    title: "Blog",
+    type: "page",
+    href: "https://blog.runreveal.com/",
+    newWindow: true
+  },
+  "changelog": {
+    title: "Changelog",
+    type: "page",
+    href: "https://runreveal.com/changelog",
+    newWindow: true
   },
   "contact": {
     title: "Contact",
@@ -134,11 +145,6 @@ export default {
     )
   },
   "release-notes": {
-    title: (
-      <span style={navStyle}>
-        <Rocket size={16} />
-        Release Notes
-      </span>
-    )
+    display: "hidden"
   }
 }
