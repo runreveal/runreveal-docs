@@ -18,7 +18,7 @@ const navStyle = {
   alignItems: 'center', 
   gap: '8px', 
   fontWeight: 600,
-  color: 'rgb(17, 24, 39)'
+  color: 'rgb(9, 9, 11)'
 }
 
 export default {

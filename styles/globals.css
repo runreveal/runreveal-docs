@@ -70,11 +70,54 @@ nav[aria-label="breadcrumb"],
   color: white !important;
 }
 
-/* Mermaid diagram text color in dark mode */
-.dark :is(.mermaid, svg.mermaid, [class*="mermaid"], pre.mermaid, pre code.language-mermaid + svg, .mermaid svg, svg[data-mermaid]) text,
-.dark :is(.mermaid, svg.mermaid) :is(.nodeLabel, .edgeLabel, .cluster-label) {
-  fill: white !important;
-  color: white !important;
+/* Mermaid diagram text color - keep consistent in both light and dark mode
+   Force dark text regardless of theme to maintain readability on colored backgrounds */
+[class*="mermaid"] *,
+.mermaid *,
+svg[id^="mermaid"] *,
+pre:has(> svg[id^="mermaid"]) svg * {
+  color: rgb(9, 9, 11) !important;
+  fill: rgb(9, 9, 11) !important;
+}
+
+/* Specifically target foreignObject HTML content which Mermaid uses for labels */
+[class*="mermaid"] foreignObject,
+[class*="mermaid"] foreignObject *,
+[class*="mermaid"] foreignObject div,
+[class*="mermaid"] foreignObject span,
+[class*="mermaid"] foreignObject p,
+[class*="mermaid"] foreignObject b,
+[class*="mermaid"] foreignObject br,
+[class*="mermaid"] .nodeLabel,
+[class*="mermaid"] .edgeLabel,
+[class*="mermaid"] .label,
+svg[id^="mermaid"] foreignObject,
+svg[id^="mermaid"] foreignObject *,
+svg[id^="mermaid"] .nodeLabel,
+svg[id^="mermaid"] .edgeLabel {
+  color: rgb(9, 9, 11) !important;
+  fill: rgb(9, 9, 11) !important;
+}
+
+/* Override for dark mode - keeps text dark (same as light mode) */
+.dark [class*="mermaid"] *,
+.dark .mermaid *,
+.dark svg[id^="mermaid"] *,
+html.dark [class*="mermaid"] *,
+html.dark svg[id^="mermaid"] *,
+[data-theme="dark"] [class*="mermaid"] *,
+[data-theme="dark"] svg[id^="mermaid"] * {
+  color: rgb(9, 9, 11) !important;
+  fill: rgb(9, 9, 11) !important;
+}
+
+/* Extra specificity for stubborn Mermaid inline styles */
+.dark [class*="mermaid"] foreignObject[style] *,
+.dark svg[id^="mermaid"] foreignObject[style] *,
+html.dark [class*="mermaid"] foreignObject[style] *,
+[data-theme="dark"] [class*="mermaid"] foreignObject[style] * {
+  color: rgb(9, 9, 11) !important;
+  fill: rgb(9, 9, 11) !important;
 }
 
 /* ============================================================================
@@ -231,15 +274,15 @@ main .nx-max-w-screen-xl {
   [class*="sidebar"] a,
   [class*="sidebar"] span,
   [class*="sidebar"] button {
-    color: rgb(17, 24, 39) !important;
+    color: rgb(9, 9, 11) !important;
   }
   
   /* Target the sidebar icons too */
   .nextra-sidebar svg,
   aside svg,
   [class*="sidebar"] svg {
-    color: rgb(17, 24, 39) !important;
-    stroke: rgb(17, 24, 39) !important;
+    color: rgb(9, 9, 11) !important;
+    stroke: rgb(9, 9, 11) !important;
   }
   
   /* Dark mode sidebar text - keep light text */
@@ -266,24 +309,6 @@ main .nx-max-w-screen-xl {
   .dark [class*="sidebar"] svg {
     color: rgb(229, 231, 235) !important;
     stroke: rgb(229, 231, 235) !important;
-  }
-
-  .nextra-sidebar :is(.nextra-focus, a, button):hover {
-    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) var(--nextra-primary-lightness));
-    color: white;
-  }
-
-  .nextra-sidebar-container :is(.nextra-focus, a, button)[aria-current="page"],
-  .nextra-sidebar :is(.nextra-focus, a, button)[aria-current="page"],
-  .nextra-sidebar-container :is(.nextra-focus, a, button)._bg-primary-100,
-  .nextra-sidebar :is(.nextra-focus, a, button)._bg-primary-100 {
-    background-color: hsl(273.33deg 90% 96.08%);
-    color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) calc(var(--nextra-primary-lightness) - 40%));
-  }
-
-  .nextra-sidebar li[open] > :is(a, button, .nextra-focus) {
-    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) var(--nextra-primary-lightness));
-    color: white;
   }
 
   /* Search and font styling */
